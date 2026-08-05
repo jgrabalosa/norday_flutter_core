@@ -1,0 +1,4 @@
+arb-dir: lib/l10n
+template-arb-file: core_es.arb
+output-localization-file: norday_core_localizations.dart
+output-class: NordayCoreLocalizations
