@@ -17,6 +17,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 class ApiServiceCore {
   static const String baseUrl = 'https://api.norday.app/api';
 
+  /// Qué app del ecosistema es esta. Viaja en la cabecera `X-Norday-App` de
+  /// los dos catálogos para que el backend filtre lo que es exclusivo de otra
+  /// app; lo compartido lo ven todas.
+  ///
+  /// Cada app lo fija antes de `runApp` si no es la de hábitos:
+  /// `ApiServiceCore.appId = 'conocimiento';`
+  static String appId = 'habitos';
+
+  /// Cabecera de identificación de app. Solo la llevan los catálogos: el
+  /// inventario y los logros de un usuario ya vienen acotados por quién es,
+  /// no por desde dónde mira.
+  static Map<String, String> get _headersCatalogo => {'X-Norday-App': appId};
+
   /// Cliente HTTP compartido: reutiliza la conexión TCP+TLS (keep-alive).
   /// Público para que los servicios de dominio de cada app usen la misma
   /// conexión en vez de abrir la suya.
@@ -284,7 +297,7 @@ class ApiServiceCore {
   }
 
   static Future<List<dynamic>> getCatalogoLogros() async {
-    final headers = await getHeaders();
+    final headers = {...await getHeaders(), ..._headersCatalogo};
     final response = await enviar(() => cliente.get(
           Uri.parse('$baseUrl/gamificacion/logros/catalogo'),
           headers: headers,
@@ -305,7 +318,7 @@ class ApiServiceCore {
 
   // ── Tienda ─────────────────────────────────────────────
   static Future<List<dynamic>> getCatalogoProductos() async {
-    final headers = await getHeaders();
+    final headers = {...await getHeaders(), ..._headersCatalogo};
     final response = await enviar(() => cliente.get(
           Uri.parse('$baseUrl/gamificacion/productos/catalogo'),
           headers: headers,
