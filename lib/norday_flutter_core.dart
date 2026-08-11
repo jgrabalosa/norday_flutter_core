@@ -20,6 +20,7 @@ export 'services/zona_service.dart';
 export 'l10n/norday_core_localizations.dart';
 export 'l10n/catalogos_core.dart';
 export 'l10n/mensajes_error.dart';
+export 'l10n/mensajes_mascota.dart';
 
 // ── Tema ─────────────────────────────────────────────────
 export 'theme/app_theme.dart';
@@ -35,9 +36,13 @@ export 'models/usuario.dart';
 
 // ── Widgets ──────────────────────────────────────────────
 export 'widgets/anillo_progreso.dart';
+export 'widgets/anillo_xp_identidad.dart';
 export 'widgets/animacion_puntos.dart';
+export 'widgets/burbuja_contexto.dart';
 export 'widgets/burbuja_flotante.dart';
+export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
+export 'widgets/halo_identidad.dart';
 export 'widgets/mascota_animada_viva.dart';
 export 'widgets/mini_mascota.dart';
 export 'widgets/onboarding_overlay.dart';
@@ -45,6 +50,7 @@ export 'widgets/selector_avatar_gratis.dart';
 export 'widgets/selector_preferencias.dart';
 export 'widgets/skeleton.dart';
 export 'widgets/splash_generico.dart';
+export 'widgets/terrario_identidad.dart';
 export 'widgets/valoracion_sheet.dart';
 
 // ── Pantallas ────────────────────────────────────────────

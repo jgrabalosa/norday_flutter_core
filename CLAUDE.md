@@ -22,9 +22,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`.
 - `models/usuario.dart`.
-- `widgets/` — los 12 genéricos (anillo, puntos, burbuja, check, mascota viva,
+- `widgets/` — los 17 genéricos (anillo, puntos, burbuja, check, mascota viva,
   mini-mascota, onboarding, selector de avatar, selector de preferencias,
-  skeleton, splash, hoja de valoración).
+  skeleton, splash, hoja de valoración, y los cinco de la escena de mascota:
+  halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel).
 - `screens/` — login, recuperación, tienda, mascota, logros, colección, perfil.
 - `l10n/` — `NordayCoreLocalizations` y `CatalogosCore`.
 - `assets/` — animations, sounds, mascota, avatares.
@@ -91,6 +92,13 @@ lleva además tipografía, radios, forma de superficie y ritmo de animación
 `aplicarIdentidadEquipada` mueve los dos: `identidadEquipadaNotifier` (la
 identidad completa) y `temaEquipadoNotifier` (sólo los colores, que es lo que
 escucha el `MaterialApp` de cada app y las pantallas aún sin migrar).
+
+Quien pinta según la identidad no mira el `codigo` sino
+`IdentidadPaleta.forma`: los cinco widgets de la escena de mascota resuelven su
+tratamiento con un `switch` exhaustivo sobre `FormaIdentidad`. Una identidad
+nueva declara su forma y hereda halo, terrario, aro y burbuja; una forma nueva
+rompe la compilación justo en los sitios que hay que revisar. Todo lo que anime
+lee `MediaQuery.maybeDisableAnimationsOf`, como ya hacía `MascotaAnimadaViva`.
 
 `Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
 antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el

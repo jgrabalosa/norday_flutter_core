@@ -68,6 +68,34 @@
       }
     }
   },
+  "mascotaContexto": "{fase} · Nivel {nivel} · {animo}",
+  "@mascotaContexto": {
+    "description": "Frase de contexto bajo la mascota. Se compone con la fase ya traducida, el nivel y uno de los mascotaAnimo*.",
+    "placeholders": {
+      "fase": {
+        "type": "String"
+      },
+      "nivel": {
+        "type": "int"
+      },
+      "animo": {
+        "type": "String"
+      }
+    }
+  },
+  "mascotaAnimoHuevo": "a punto de romper el cascarón",
+  "mascotaAnimoFeliz": "a gusto contigo",
+  "mascotaAnimoAtencion": "echando una cabezada",
+  "mascotaAnimoTriste": "te echa de menos",
+  "mascotaAnimoTranquila": "sin novedad",
+  "mascotaSubidaNivel": "¡Nivel {n}!",
+  "@mascotaSubidaNivel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "plantillaBeberAgua": "Beber agua",
   "detLogrosDe": "{n} de {total} logros",
   "@detLogrosDe": {

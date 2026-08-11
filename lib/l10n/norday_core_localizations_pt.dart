@@ -169,6 +169,31 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   }
 
   @override
+  String mascotaContexto(String fase, int nivel, String animo) {
+    return '$fase · Nível $nivel · $animo';
+  }
+
+  @override
+  String get mascotaAnimoHuevo => 'prestes a sair do ovo';
+
+  @override
+  String get mascotaAnimoFeliz => 'à vontade contigo';
+
+  @override
+  String get mascotaAnimoAtencion => 'a dormitar';
+
+  @override
+  String get mascotaAnimoTriste => 'com saudades tuas';
+
+  @override
+  String get mascotaAnimoTranquila => 'sem novidades';
+
+  @override
+  String mascotaSubidaNivel(int n) {
+    return 'Nível $n!';
+  }
+
+  @override
   String get plantillaBeberAgua => 'Beber água';
 
   @override

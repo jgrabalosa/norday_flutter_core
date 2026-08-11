@@ -409,6 +409,48 @@ abstract class NordayCoreLocalizations {
   /// **'{actual}/{total} XP'**
   String mascotaXp(int actual, int total);
 
+  /// Frase de contexto bajo la mascota. Se compone con la fase ya traducida, el nivel y uno de los mascotaAnimo*.
+  ///
+  /// In es, this message translates to:
+  /// **'{fase} · Nivel {nivel} · {animo}'**
+  String mascotaContexto(String fase, int nivel, String animo);
+
+  /// No description provided for @mascotaAnimoHuevo.
+  ///
+  /// In es, this message translates to:
+  /// **'a punto de romper el cascarón'**
+  String get mascotaAnimoHuevo;
+
+  /// No description provided for @mascotaAnimoFeliz.
+  ///
+  /// In es, this message translates to:
+  /// **'a gusto contigo'**
+  String get mascotaAnimoFeliz;
+
+  /// No description provided for @mascotaAnimoAtencion.
+  ///
+  /// In es, this message translates to:
+  /// **'echando una cabezada'**
+  String get mascotaAnimoAtencion;
+
+  /// No description provided for @mascotaAnimoTriste.
+  ///
+  /// In es, this message translates to:
+  /// **'te echa de menos'**
+  String get mascotaAnimoTriste;
+
+  /// No description provided for @mascotaAnimoTranquila.
+  ///
+  /// In es, this message translates to:
+  /// **'sin novedad'**
+  String get mascotaAnimoTranquila;
+
+  /// No description provided for @mascotaSubidaNivel.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Nivel {n}!'**
+  String mascotaSubidaNivel(int n);
+
   /// No description provided for @plantillaBeberAgua.
   ///
   /// In es, this message translates to:
