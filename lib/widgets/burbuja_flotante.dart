@@ -51,6 +51,17 @@ class BurbujaFlotante extends StatefulWidget {
   final Duration pasoMax;
   final double pasoDistanciaFraccion; // tamaño de cada paso, en fracción del área (0-1)
 
+  /// Qué parte de la burbuja responde al toque y al arrastre.
+  ///
+  /// Por defecto, lo que pinte el contenido: si el hijo deja aire alrededor,
+  /// ese aire no agarra. Es el comportamiento de siempre y se mantiene por si
+  /// alguien fuera del paquete depende de él —este widget se exporta—, pero
+  /// para un contenido con margen suele interesar [HitTestBehavior.opaque],
+  /// que hace agarrable la caja entera de [size]: es la misma caja con la que
+  /// esta burbuja calcula sus límites, así que el gesto y la geometría dejan
+  /// de contradecirse.
+  final HitTestBehavior behavior;
+
   const BurbujaFlotante({
     super.key,
     required this.child,
@@ -63,6 +74,7 @@ class BurbujaFlotante extends StatefulWidget {
     this.pasoMin = const Duration(seconds: 2),
     this.pasoMax = const Duration(seconds: 3),
     this.pasoDistanciaFraccion = 0.12,
+    this.behavior = HitTestBehavior.deferToChild,
   });
 
   @override
@@ -181,6 +193,7 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
       left: left,
       top: top,
       child: RawGestureDetector(
+        behavior: widget.behavior,
         gestures: {
           TapGestureRecognizer:
               GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(

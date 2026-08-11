@@ -6,6 +6,7 @@ import '../services/api_service_core.dart';
 import '../screens/mascota_screen.dart';
 import '../theme/mascota_refresh.dart';
 import 'burbuja_flotante.dart';
+import 'halo_identidad.dart';
 import 'mascota_animada_viva.dart';
 
 /// Versión flotante y pequeña de la mascota. La ilustración y su animación
@@ -24,17 +25,32 @@ class MiniMascota extends StatefulWidget {
 class _MiniMascotaState extends State<MiniMascota> {
   /// Tamaño habitual de la burbuja. En cualquier móvil normal manda este
   /// valor: el tope de abajo solo entra en juego en pantallas diminutas.
-  static const double _tamanoNominal = 105;
+  static const double _tamanoNominal = 136;
 
   /// La burbuja no puede pasar del 40% del alto de pantalla. Es una
   /// salvaguarda, no un tamaño: si se llega a aplicar es que la pantalla es
-  /// tan baja que 105px ya tapaban media lista.
+  /// tan baja que 136px ya tapaban media lista.
   static const double _fraccionMaximaAlto = 0.4;
 
   /// La ilustración deja aire alrededor dentro de la caja de la burbuja
-  /// (79 sobre 105). Ese aire es el margen del que tira el arrastre, no un
-  /// adorno: la caja es lo que la burbuja usa para calcular sus límites.
-  static const double _proporcionIlustracion = 0.75;
+  /// (109 sobre 136). Ese aire ya no es la zona de agarre —ahora agarra la
+  /// caja entera, ver el `behavior` de abajo—, sino el sitio por donde se
+  /// derrama el halo y el respiro que evita que Nori toque el borde al
+  /// rebotar.
+  ///
+  /// Subió de 0.75 a 0.80 al crecer la caja: mantiene los ~13px de aire por
+  /// lado que tenía a 105 y deja que todo el crecimiento se lo lleve la
+  /// ilustración, que es de lo que iba el cambio.
+  static const double _proporcionIlustracion = 0.80;
+
+  /// El halo aquí es un apunte, no el foco que es en la pantalla de mascota:
+  /// esto flota sobre el contenido de cualquier pantalla de la app.
+  static const double _intensidadHalo = 0.55;
+
+  /// Caja del halo. A 0.86 el degradado muere justo en el borde de la burbuja
+  /// (el painter pinta a 0.58 del lado que le den), así que la luz no se sale
+  /// de la caja que la burbuja declara como suya.
+  static const double _proporcionHalo = 0.86;
 
   String? _estado;
   String? _fase;
@@ -108,25 +124,36 @@ class _MiniMascotaState extends State<MiniMascota> {
       onTap: _onTap,
       minTopFraction: 0.5,
       vagabundeo: true,
+      // Agarra la caja entera, no solo el trozo que pinta la ilustración. Es
+      // la misma caja de `size` con la que la burbuja calcula sus límites: sin
+      // esto, el aire de alrededor se movía con ella pero no respondía, y
+      // agarrarla exigía acertarle al dibujo.
+      behavior: HitTestBehavior.opaque,
       child: AnimatedScale(
         scale: _rebotando ? 1.2 : 1.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutBack,
-        // Sin círculo, sin sombra y sin superficie detrás: Nori se ve
-        // directamente sobre el fondo de la pantalla. La caja sigue midiendo
-        // `tamano` porque es la que le hemos declarado a la burbuja para que
-        // calcule sus límites; simplemente ya no pinta nada.
+        // Sin círculo, sin sombra y sin superficie: lo único que hay detrás de
+        // Nori es la luz de la identidad equipada, floja. La caja sigue
+        // midiendo `tamano` porque es la que le hemos declarado a la burbuja.
         child: SizedBox(
           width: tamano,
           height: tamano,
-          child: Center(
-            // El toque lo gestiona la burbuja (que además arrastra), así que
-            // aquí va sin él: dos GestureDetector encajados se pelearían.
-            child: MascotaAnimadaViva(
-              fase: _fase,
-              estado: _estado,
-              tamano: tamano * _proporcionIlustracion,
-            ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              HaloIdentidad(
+                tamano: tamano * _proporcionHalo,
+                intensidad: _intensidadHalo,
+              ),
+              // El toque lo gestiona la burbuja (que además arrastra), así que
+              // aquí va sin él: dos GestureDetector encajados se pelearían.
+              MascotaAnimadaViva(
+                fase: _fase,
+                estado: _estado,
+                tamano: tamano * _proporcionIlustracion,
+              ),
+            ],
           ),
         ),
       ),
