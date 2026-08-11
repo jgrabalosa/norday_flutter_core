@@ -27,10 +27,24 @@ class _SkeletonPulsoState extends State<SkeletonPulso>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
+    );
     _opacidad = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Un latido permanente es justo lo que "reducir movimiento" quiere apagar,
+    // y éste ocupa la pantalla entera mientras carga. Apagado se queda a media
+    // luz: sigue leyéndose como "esto todavía no es el contenido".
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _controller.stop();
+      _controller.value = 0.5;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
   }
 
   @override
