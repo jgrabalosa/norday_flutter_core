@@ -26,11 +26,19 @@ class _TiendaScreenState extends State<TiendaScreen> {
   Map<int, Map<String, dynamic>> _inventario = {};
   int? _procesando;
 
+  /// Iconografía por categoría, en Lucide como todo el resto de la app. Antes
+  /// eran emoji, que los pinta la fuente del sistema: cambian de dibujo, de
+  /// color y de peso entre Android, iOS y versión, así que no se pueden alinear
+  /// con ninguna identidad ni con el resto de iconos.
   static const iconosCategoria = {
-    'Tema': '🎨',
-    'Protección': '🛡️',
-    'Avatar': '🧑',
+    'Tema': LucideIcons.palette,
+    'Protección': LucideIcons.shield,
+    'Avatar': LucideIcons.userRound,
   };
+
+  /// Una categoría que este cliente aún no conozca — el catálogo lo manda el
+  /// backend y puede crecer sin que la app se entere.
+  static const iconoCategoriaDesconocida = LucideIcons.package;
 
   @override
   void initState() {
@@ -163,7 +171,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final codigo = producto['codigo'] as String?;
     final tipo = producto['tipo'] as String;
     final categoria = producto['categoria'] as String;
-    final icono = iconosCategoria[categoria] ?? '📦';
+    final icono = iconosCategoria[categoria] ?? iconoCategoriaDesconocida;
     final info = _inventario[productoId];
     final poseido = info != null;
     final equipado = info?['equipado'] == true;
@@ -244,13 +252,13 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   /// Los avatares se ven, no se describen: si el código está en el catálogo se
   /// pinta el PNG real. Cualquier otra cosa —incluido un avatar que este
-  /// cliente aún no conozca— cae al emoji de su categoría.
-  Widget _iconoProducto(String categoria, String? codigo, String emoji) {
+  /// cliente aún no conozca— cae al icono de su categoría.
+  Widget _iconoProducto(String categoria, String? codigo, IconData icono) {
     final avatar = categoria == 'Avatar' && codigo != null
         ? catalogoAvatares[codigo]
         : null;
     if (avatar == null) {
-      return Text(emoji, style: const TextStyle(fontSize: 24));
+      return Icon(icono, size: 24, color: tokens(context).text);
     }
     return CircleAvatar(
       radius: 16,
