@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Checkbox circular animado — EL gesto de la app.
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
+
+/// Checkbox animado — EL gesto de la app.
 /// Genérico: recibe el estado [hecho] y un [onTap]; no conoce el dominio.
-/// Al pasar de no-hecho a hecho: el círculo se rellena con pop elástico
+/// Al pasar de no-hecho a hecho: la forma se rellena con pop elástico
 /// y el check se dibuja trazándose.
+///
+/// "Circular" es el nombre de siempre, pero la forma la pone la identidad
+/// equipada: círculo en Profundidad y Dulce, cuadrado achaflanado en
+/// Neotokyo+. El gesto —el pop, el trazo, los tiempos— es el mismo en las
+/// cuatro: es la marca de la app y no se toca al cambiar de tema.
 class CheckCircular extends StatefulWidget {
   final bool hecho;
   final VoidCallback? onTap;
@@ -97,6 +105,8 @@ class _CheckCircularState extends State<CheckCircular>
                   trazo: _trazo.value,
                   color: widget.color,
                   colorVacio: widget.colorVacio,
+                  forma: identidad(context).forma,
+                  chaflan: identidad(context).chaflan,
                 ),
               ),
             );
@@ -107,43 +117,116 @@ class _CheckCircularState extends State<CheckCircular>
   }
 }
 
+/// Grosor del aro y del check en cada forma. El resto de la diferencia —qué
+/// figura se dibuja y si el relleno brilla— no cabe en un número y se resuelve
+/// al pintar.
+class _TrazoCheck {
+  final double aro;
+
+  /// Grosor del check, en fracción del lado.
+  final double check;
+
+  /// Halo alrededor del relleno. A 0 no lo hay.
+  final double glow;
+
+  const _TrazoCheck({
+    required this.aro,
+    required this.check,
+    this.glow = 0,
+  });
+}
+
+const _checkGlass = _TrazoCheck(aro: 2.5, check: 0.09, glow: 5);
+const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10);
+const _checkHairline = _TrazoCheck(aro: 1.2, check: 0.07);
+const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10, glow: 7);
+
 class _CheckPainter extends CustomPainter {
   final double relleno;
   final double trazo;
   final Color color;
   final Color colorVacio;
+  final FormaIdentidad forma;
+  final double chaflan;
 
   _CheckPainter({
     required this.relleno,
     required this.trazo,
     required this.color,
     required this.colorVacio,
+    required this.forma,
+    required this.chaflan,
   });
+
+  _TrazoCheck get _trazoDe => switch (forma) {
+        FormaIdentidad.glass => _checkGlass,
+        FormaIdentidad.chamfer => _checkChamfer,
+        FormaIdentidad.hairline => _checkHairline,
+        FormaIdentidad.pill => _checkPill,
+      };
+
+  /// La figura del check en esta identidad, inscrita en un cuadrado de lado
+  /// `radio * 2` centrado en [centro]. [escala] la encoge desde el centro, que
+  /// es como crece el relleno.
+  Path _figura(Offset centro, double radio, double escala) {
+    final r = radio * escala;
+    if (forma != FormaIdentidad.chamfer) {
+      return Path()
+        ..addOval(Rect.fromCircle(center: centro, radius: r));
+    }
+    // Cuadrado con las cuatro esquinas cortadas, el mismo chaflán que la
+    // identidad usa en tarjetas, chips y burbujas.
+    final c = (chaflan * escala).clamp(0.0, r);
+    return Path()
+      ..moveTo(centro.dx - r + c, centro.dy - r)
+      ..lineTo(centro.dx + r - c, centro.dy - r)
+      ..lineTo(centro.dx + r, centro.dy - r + c)
+      ..lineTo(centro.dx + r, centro.dy + r - c)
+      ..lineTo(centro.dx + r - c, centro.dy + r)
+      ..lineTo(centro.dx - r + c, centro.dy + r)
+      ..lineTo(centro.dx - r, centro.dy + r - c)
+      ..lineTo(centro.dx - r, centro.dy - r + c)
+      ..close();
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
+    final t = _trazoDe;
     final centro = Offset(size.width / 2, size.height / 2);
-    final radio = size.width / 2;
+    final radio = size.width / 2 - t.aro / 2;
 
     // Aro exterior (estado vacío)
-    final aro = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..color = colorVacio;
-    canvas.drawCircle(centro, radio - 1.5, aro);
+    canvas.drawPath(
+      _figura(centro, radio, 1.0),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = t.aro
+        ..color = colorVacio,
+    );
 
     // Relleno que crece desde el centro
     if (relleno > 0) {
-      final fill = Paint()..color = color;
-      canvas.drawCircle(centro, (radio - 1.5) * relleno, fill);
+      final dentro = _figura(centro, radio, relleno);
+      // El glow va debajo del relleno y sólo en las identidades que lo piden.
+      // Es estático dentro de cada fotograma del pop, no una sombra animada.
+      if (t.glow > 0) {
+        canvas.drawPath(
+          dentro,
+          Paint()
+            ..color = color.withValues(alpha: 0.55)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, t.glow * relleno),
+        );
+      }
+      canvas.drawPath(dentro, Paint()..color = color);
     }
 
     // Check dibujándose (dos segmentos: bajada corta + subida larga)
     if (trazo > 0) {
       final paintCheck = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = size.width * 0.09
-        ..strokeCap = StrokeCap.round
+        ..strokeWidth = size.width * t.check
+        ..strokeCap =
+            forma == FormaIdentidad.chamfer ? StrokeCap.butt : StrokeCap.round
         ..color = Colors.white;
 
       final p1 = Offset(size.width * 0.28, size.height * 0.53);
@@ -169,5 +252,8 @@ class _CheckPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CheckPainter old) =>
-      old.relleno != relleno || old.trazo != trazo || old.color != color;
+      old.relleno != relleno ||
+      old.trazo != trazo ||
+      old.color != color ||
+      old.forma != forma;
 }

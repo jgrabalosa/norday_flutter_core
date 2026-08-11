@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/mascota_assets.dart';
-import '../widgets/anillo_xp_identidad.dart';
+import '../widgets/anillo_identidad.dart';
 import '../widgets/animacion_puntos.dart';
 import '../widgets/burbuja_contexto.dart';
 import '../widgets/celebracion_nivel.dart';
@@ -248,7 +248,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
             bottom: lado * 0.02,
             child: TerrarioIdentidad(ancho: lado * 0.68),
           ),
-          AnilloXpIdentidad(tamano: caja, pct: pct),
+          AnilloIdentidad(tamano: caja, pct: pct),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (child, animation) => FadeTransition(

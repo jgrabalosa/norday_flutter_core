@@ -36,7 +36,7 @@ export 'models/usuario.dart';
 
 // ── Widgets ──────────────────────────────────────────────
 export 'widgets/anillo_progreso.dart';
-export 'widgets/anillo_xp_identidad.dart';
+export 'widgets/anillo_identidad.dart';
 export 'widgets/animacion_puntos.dart';
 export 'widgets/burbuja_contexto.dart';
 export 'widgets/burbuja_flotante.dart';
