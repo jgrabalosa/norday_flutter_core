@@ -24,7 +24,22 @@ class HaloIdentidad extends StatefulWidget {
   /// de aquí; no hace falta pasarle su propio tamaño.
   final double tamano;
 
-  const HaloIdentidad({super.key, required this.tamano});
+  /// Factor sobre las opacidades del perfil. A 1 el halo es el de la pantalla
+  /// de mascota, que es donde manda; por debajo se apaga proporcionalmente sin
+  /// tocar el ritmo ni el recorrido, que son lo que identifica a cada
+  /// identidad.
+  ///
+  /// Existe para la mini-mascota: ahí el halo flota sobre el contenido de
+  /// cualquier pantalla y no puede competir con lo que hay debajo. Escalar la
+  /// intensidad es lo correcto; bajarle la duración lo convertiría en otra
+  /// identidad.
+  final double intensidad;
+
+  const HaloIdentidad({
+    super.key,
+    required this.tamano,
+    this.intensidad = 1.0,
+  });
 
   @override
   State<HaloIdentidad> createState() => _HaloIdentidadState();
@@ -177,13 +192,16 @@ class _HaloIdentidadState extends State<HaloIdentidad>
               // El destello va en el color de puntos, no en el primario: dos
               // tonos distintos es lo que separa un neón de un foco.
               colorDestello: t.points,
-              opacidad: perfil.opacidadMin +
-                  (perfil.opacidadMax - perfil.opacidadMin) * p,
+              opacidad: (perfil.opacidadMin +
+                      (perfil.opacidadMax - perfil.opacidadMin) * p) *
+                  widget.intensidad,
               escala:
                   perfil.escalaMin + (perfil.escalaMax - perfil.escalaMin) * p,
               destello: perfil.destelloMax == 0
                   ? 0
-                  : perfil.destelloMax * _parpadeo(_latido.value),
+                  : perfil.destelloMax *
+                      _parpadeo(_latido.value) *
+                      widget.intensidad,
             ),
           );
         },
