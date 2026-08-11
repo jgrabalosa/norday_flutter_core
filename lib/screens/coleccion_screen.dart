@@ -5,7 +5,7 @@ import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
-import '../theme/paletas_premium.dart';
+import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import 'tienda_screen.dart';
@@ -255,11 +255,11 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// de caida) y la paleta del tema equipado.
   Widget _cardSeleccionActual(NordayCoreLocalizations l, TokensContextuales t) {
     final codigoTema = _productoEquipado('Tema')?['codigo'] as String?;
-    final paleta = codigoTema != null ? catalogoPaletas[codigoTema] : null;
+    final identidad = codigoTema != null ? catalogoIdentidades[codigoTema] : null;
     // Sin tema equipado (o con uno que este cliente aun no conozca) lo que se
     // lleva puesto es el tema de serie: sus colores son los tokens activos.
-    final colores = paleta != null
-        ? [paleta.primary, paleta.success, paleta.points]
+    final colores = identidad != null
+        ? [identidad.tokens.primary, identidad.tokens.success, identidad.tokens.points]
         : [t.primary, t.success, t.points];
 
     return Card(
@@ -484,15 +484,15 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   Widget _tarjetaTema(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
-    final paleta = codigo != null ? catalogoPaletas[codigo] : null;
+    final identidad = codigo != null ? catalogoIdentidades[codigo] : null;
     final poseido = _poseido(producto);
     final equipado = _inventario[productoId]?['equipado'] == true;
     final procesandoEste = _procesando == productoId;
 
     // Un tema que este cliente aun no conozca no tiene colores que enseñar:
     // la tira se queda neutra y la tarjeta sigue siendo legible.
-    final colores = paleta != null
-        ? [paleta.primary, paleta.success, paleta.points]
+    final colores = identidad != null
+        ? [identidad.tokens.primary, identidad.tokens.success, identidad.tokens.points]
         : [t.surface2, t.surface2, t.surface2];
 
     final contenido = _cajaTarjeta(

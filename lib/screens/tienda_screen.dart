@@ -5,7 +5,8 @@ import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
-import '../theme/paletas_premium.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 
@@ -168,7 +169,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final equipado = info?['equipado'] == true;
     final cantidad = info?['cantidad'] ?? 0;
     final procesandoEste = _procesando == productoId;
-    final paleta = codigo != null ? catalogoPaletas[codigo] : null;
+    final identidad = codigo != null ? catalogoIdentidades[codigo] : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -177,8 +178,8 @@ class _TiendaScreenState extends State<TiendaScreen> {
       child: InkWell(
         // Sólo los temas se pueden previsualizar: del resto no hay nada que
         // enseñar que no esté ya en la propia tarjeta.
-        onTap: paleta != null
-            ? () => _abrirPrevisualizacion(l, producto, paleta)
+        onTap: identidad != null
+            ? () => _abrirPrevisualizacion(l, producto, identidad)
             : null,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -211,14 +212,14 @@ class _TiendaScreenState extends State<TiendaScreen> {
                   CatalogosCore.productoDescripcion(
                       context, producto['codigo'], producto['descripcion']),
                   style: TextStyle(color: t.textMuted)),
-              if (paleta != null) ...[
+              if (identidad != null) ...[
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _swatch(paleta.bg),
-                    _swatch(paleta.primary),
-                    _swatch(paleta.success),
-                    _swatch(paleta.points),
+                    _swatch(identidad.tokens.bg),
+                    _swatch(identidad.tokens.primary),
+                    _swatch(identidad.tokens.success),
+                    _swatch(identidad.tokens.points),
                     const Spacer(),
                     // Pista de que la tarjeta se puede tocar para verlo.
                     Icon(LucideIcons.eye, size: 16, color: t.textMuted),
@@ -270,7 +271,8 @@ class _TiendaScreenState extends State<TiendaScreen> {
   /// Enseña el tema antes de pagarlo. Las acciones cierran la hoja y delegan
   /// en los mismos métodos de la tarjeta: la hoja no duplica nada del estado
   /// de compra, sólo evita el viaje de vuelta.
-  void _abrirPrevisualizacion(NordayCoreLocalizations l, dynamic producto, Paleta paleta) {
+  void _abrirPrevisualizacion(
+      NordayCoreLocalizations l, dynamic producto, IdentidadPaleta identidad) {
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
     final categoria = producto['categoria'] as String;
@@ -291,7 +293,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
               Text(CatalogosCore.producto(context, codigo, producto['nombre']),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              _maquetaTema(l, paleta),
+              _maquetaTema(l, identidad.tokens),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -330,7 +332,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
   /// Maqueta aislada: una pantalla de mentira pintada con los nueve colores de
   /// [p]. Ni un color sale del tema activo, así que lo que se ve aquí es el
   /// tema que se está mirando, no el que se lleva puesto.
-  Widget _maquetaTema(NordayCoreLocalizations l, Paleta p) {
+  ///
+  /// De momento sólo enseña el color: la letra, la forma y el radio de la
+  /// identidad son parte de la maqueta que aún está por hacer.
+  Widget _maquetaTema(NordayCoreLocalizations l, TokensContextuales p) {
     // Sobre el primary puede ir texto claro u oscuro según lo vivo que sea:
     // hay paletas con primary casi blanco y otras con primary casi negro.
     final sobrePrimary =

@@ -102,21 +102,36 @@ class TokensContextuales {
         streakText = streakText ?? streak;
 }
 
-// Fallback de arranque antes de que cargarTemaEquipadoGuardado() resuelva el
-// tema real guardado (o para el rarísimo caso de que aún no haya ninguno).
-// Es la paleta "Básico Oscuro" — la más característica de la marca.
-const TokensContextuales _basicoOscuroPorDefecto = TokensContextuales(
-  primary: AppColors.primaryDarkMode, success: AppColors.successDarkMode,
-  streak: AppColors.streakDarkMode, points: AppColors.pointsDarkMode,
-  bg: AppColors.bgDark, surface: AppColors.surfaceDark,
-  surface2: AppColors.surface2Dark, text: AppColors.textDark,
-  textMuted: AppColors.textMutedDark,
+/// Los colores de la identidad "Profundidad", la de serie.
+///
+/// Viven aquí y no junto al resto del catálogo (`identidades_paleta.dart`)
+/// porque son además el valor de arranque de [temaEquipadoNotifier], y este
+/// fichero es la capa de abajo: no puede importar el catálogo sin montar un
+/// ciclo. El catálogo los referencia, así que hay una sola definición.
+const TokensContextuales tokensProfundidad = TokensContextuales(
+  primary: Color(0xFF27C76F),
+  success: Color(0xFF27C76F),
+  streak: Color(0xFFFFB020),
+  points: Color(0xFFFFB020),
+  bg: Color(0xFF070D19),
+  // Ojo: en el render es un DEGRADADO 1A2841→121D31 (forma `glass`); como
+  // token plano vale el extremo claro.
+  surface: Color(0xFF1A2841),
+  surface2: Color(0xFF121D31),
+  text: Color(0xFFEEF2F6),
+  textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
 );
 
-/// El tema actualmente equipado (uno de los 7: 2 básicos + 5 premium).
-/// Todas las paletas funcionan exactamente igual — no hay distinción especial.
+/// Los colores de la identidad equipada. Fallback de arranque: "Profundidad",
+/// hasta que `Equipamiento.cargarDeUsuario` resuelva lo que el usuario lleva
+/// puesto de verdad.
+///
+/// Sigue existiendo —y sigue siendo la forma correcta de consumir color—
+/// aunque ahora una identidad sea bastante más que sus colores: quien sólo
+/// necesita pintar escucha aquí. Quien necesita tipografía, forma o radio
+/// escucha `identidadEquipadaNotifier`, que mueve los dos a la vez.
 final ValueNotifier<TokensContextuales> temaEquipadoNotifier =
-    ValueNotifier<TokensContextuales>(_basicoOscuroPorDefecto);
+    ValueNotifier<TokensContextuales>(tokensProfundidad);
 
 TokensContextuales tokens(BuildContext context) => temaEquipadoNotifier.value;
 

@@ -19,8 +19,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   tienda, mascota, notificaciones), `ApiException`/`TipoErrorApi`,
   `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
   `IdiomaService`, `ZonaService`.
-- `theme/` — `AppTheme` y tokens, `catalogoPaletas`, `catalogoAvatares`,
-  `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`.
+- `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
+  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`.
 - `models/usuario.dart`.
 - `widgets/` — los 12 genéricos (anillo, puntos, burbuja, check, mascota viva,
   mini-mascota, onboarding, selector de avatar, selector de preferencias,
@@ -81,8 +81,16 @@ crudo.
 
 La fuente de verdad es el backend, no el dispositivo: se lee con
 `getInventarioProductos()` y se casa el `codigo` del producto contra
-`catalogoPaletas`/`catalogoAvatares`. Ningún `productoId` está cableado en el
-cliente.
+`catalogoIdentidades`/`catalogoAvatares`. Ningún `productoId` está cableado en
+el cliente.
+
+Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
+tiene las cuatro identidades —Profundidad, Neotokyo+, Alba, Dulce—, y cada una
+lleva además tipografía, radios, forma de superficie y ritmo de animación
+(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay dos notifiers y
+`aplicarIdentidadEquipada` mueve los dos: `identidadEquipadaNotifier` (la
+identidad completa) y `temaEquipadoNotifier` (sólo los colores, que es lo que
+escucha el `MaterialApp` de cada app y las pantallas aún sin migrar).
 
 `Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
 antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el

@@ -1,14 +1,14 @@
 import '../services/api_service_core.dart';
 import 'avatares.dart';
-import 'paletas_premium.dart';
+import 'identidades_paleta.dart';
 
 /// Qué lleva puesto el usuario — tema y avatar — contra el backend.
 ///
 /// La fuente de verdad es el inventario del servidor, no el dispositivo: el
 /// usuario puede equipar desde otro móvil y al volver a este tiene que verlo.
 ///
-/// El puente entre el catálogo local (`catalogoPaletas`, `catalogoAvatares`,
-/// que van por código: 'TEMA_OCEANO', 'AVATAR_ZORRO') y el backend (que va
+/// El puente entre el catálogo local (`catalogoIdentidades`, `catalogoAvatares`,
+/// que van por código: 'TEMA_ALBA', 'AVATAR_ZORRO') y el backend (que va
 /// por `productoId`) es el campo `codigo` del producto. Ningún identificador
 /// de la BD está cableado en el cliente.
 class Equipamiento {
@@ -25,8 +25,8 @@ class Equipamiento {
     // Cuál es tema y cuál avatar no se le pregunta al backend: se mira en qué
     // catálogo local cae el código. Así basta con que el inventario traiga
     // `codigo`, sin depender de que además mande la categoría.
-    aplicarTemaEquipado(
-        equipados.where(catalogoPaletas.containsKey).firstOrNull);
+    aplicarIdentidadEquipada(
+        equipados.where(catalogoIdentidades.containsKey).firstOrNull);
     aplicarAvatarEquipado(
         equipados.where(catalogoAvatares.containsKey).firstOrNull);
   }
@@ -46,7 +46,7 @@ class Equipamiento {
   static Future<void> equiparTema(
       int usuarioId, int productoId, String? codigo) async {
     await ApiServiceCore.equiparProducto(usuarioId, productoId);
-    aplicarTemaEquipado(codigo);
+    aplicarIdentidadEquipada(codigo);
   }
 
   /// Equipa un avatar: lo dice el backend y, si acepta, se pinta.
