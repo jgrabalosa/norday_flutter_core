@@ -39,6 +39,12 @@ class _CheckCircularState extends State<CheckCircular>
   late final Animation<double> _pop;     // escala con rebote
   late final Animation<double> _trazo;   // 0-1: el check se dibuja
 
+  /// Misma lectura y mismo criterio que el resto del sistema: con "reducir
+  /// movimiento" el check no se traza ni rebota, salta a hecho. El estado
+  /// final es idéntico —lo que se apaga es el recorrido, no la información—,
+  /// y este gesto es de los más aparatosos que tiene la app.
+  bool _animacionesDesactivadas = false;
+
   @override
   void initState() {
     super.initState();
@@ -70,10 +76,22 @@ class _CheckCircularState extends State<CheckCircular>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _animacionesDesactivadas =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  }
+
+  @override
   void didUpdateWidget(CheckCircular oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.hecho && !oldWidget.hecho) {
-      _controller.forward(from: 0); // acaba de completarse → animación completa
+      // Acaba de completarse: animación completa, o el estado final de golpe.
+      if (_animacionesDesactivadas) {
+        _controller.value = 1.0;
+      } else {
+        _controller.forward(from: 0);
+      }
     } else if (!widget.hecho && oldWidget.hecho) {
       _controller.value = 0; // reset (p. ej. cambio de día)
     }

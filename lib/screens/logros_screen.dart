@@ -21,13 +21,20 @@ class _LogrosScreenState extends State<LogrosScreen> {
   List<dynamic> _catalogo = [];
   Set<int> _idsConseguidos = {};
 
+  /// Mismo criterio que la tienda: Lucide, no emoji. Los emoji los pinta la
+  /// fuente del sistema y cambian de dibujo, color y peso entre plataformas,
+  /// así que no se alinean con el resto de la iconografía ni con la identidad
+  /// equipada.
   static const iconosCategoria = {
-    'Inicio': '🌱',
-    'Constancia': '🔥',
-    'Volumen': '📊',
-    'Variedad': '🎨',
-    'Exploración': '🧭',
+    'Inicio': LucideIcons.sprout,
+    'Constancia': LucideIcons.flame,
+    'Volumen': LucideIcons.chartColumn,
+    'Variedad': LucideIcons.palette,
+    'Exploración': LucideIcons.compass,
   };
+
+  /// El catálogo lo manda el backend y puede crecer sin que la app se entere.
+  static const iconoCategoriaDesconocida = LucideIcons.star;
 
   @override
   void initState() {
@@ -136,15 +143,33 @@ class _LogrosScreenState extends State<LogrosScreen> {
 
   Widget _logroCard(NordayCoreLocalizations l, dynamic logro, TokensContextuales t) {
     final conseguido = _idsConseguidos.contains(logro['logroId']);
-    final icono = iconosCategoria[logro['categoria']] ?? '⭐';
+    final icono = iconosCategoria[logro['categoria']] ?? iconoCategoriaDesconocida;
     return Opacity(
       opacity: conseguido ? 1.0 : 0.5,
       child: Card(
         margin: const EdgeInsets.only(bottom: 8),
         child: ListTile(
-          leading: Text(conseguido ? '🏆' : '🔒', style: const TextStyle(fontSize: 24)),
-          title: Text('$icono ${CatalogosCore.logro(context, logro['codigo'], logro['nombre'])}',
-              style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+          // Conseguido o no: el trofeo se pinta en el color de puntos de la
+          // identidad, el candado apagado. Antes eran dos emoji del sistema y
+          // el estado se leía por el dibujo, no por el color.
+          leading: Icon(
+            conseguido ? LucideIcons.trophy : LucideIcons.lock,
+            size: 24,
+            color: conseguido ? t.points : t.textMuted,
+          ),
+          title: Row(
+            children: [
+              Icon(icono, size: 16, color: t.textMuted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                    CatalogosCore.logro(
+                        context, logro['codigo'], logro['nombre']),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: t.text)),
+              ),
+            ],
+          ),
           subtitle: Text(
               l.logrosSubtitulo(
                 CatalogosCore.logroDescripcion(
