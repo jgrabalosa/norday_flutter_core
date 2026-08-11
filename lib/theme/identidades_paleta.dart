@@ -128,6 +128,14 @@ final ValueNotifier<IdentidadPaleta> identidadEquipadaNotifier =
 /// Sin código —o con uno que este cliente aún no conozca— vale "Profundidad",
 /// la de serie. Se fija explícitamente en vez de dejar lo que hubiera puesto,
 /// porque los dos notifiers tienen que acabar describiendo la misma identidad.
+/// La identidad equipada, en la misma forma en que [tokens] da los colores:
+/// se lee el valor, no se suscribe nadie aquí. Quien redibuja al equipar es el
+/// `ValueListenableBuilder` sobre `temaEquipadoNotifier` que cada app monta en
+/// su `MaterialApp`, y [aplicarIdentidadEquipada] mueve los dos notifiers a la
+/// vez, así que este valor nunca se queda atrás del color.
+IdentidadPaleta identidad(BuildContext context) =>
+    identidadEquipadaNotifier.value;
+
 void aplicarIdentidadEquipada(String? codigo) {
   final identidad = (codigo != null) ? catalogoIdentidades[codigo] : null;
   final resuelta = identidad ?? catalogoIdentidades['TEMA_PROFUNDIDAD']!;

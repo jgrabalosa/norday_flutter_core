@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
+import '../l10n/mensajes_mascota.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/mascota_assets.dart';
+import '../widgets/anillo_xp_identidad.dart';
 import '../widgets/animacion_puntos.dart';
+import '../widgets/burbuja_contexto.dart';
+import '../widgets/celebracion_nivel.dart';
+import '../widgets/halo_identidad.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/terrario_identidad.dart';
 import 'tienda_screen.dart';
 
 class MascotaScreen extends StatefulWidget {
@@ -127,6 +133,14 @@ class _MascotaScreenState extends State<MascotaScreen> {
       if (resultado['subioNivel'] == true || resultado['codigoConsumido'] != null) {
         AnimacionPuntos.mostrar(context, 10, simbolo: 'XP');
       }
+      if (resultado['subioNivel'] == true) {
+        // El nivel nuevo lo manda el backend en la misma respuesta. Se usa ése
+        // y no `_nivel`, que hasta el `_cargarDatos` de abajo sigue siendo el
+        // anterior; la caída sólo cubre que algún día deje de venir.
+        final nivelNuevo = resultado['nivelNuevo'] as int? ?? 0;
+        CelebracionNivel.mostrar(
+            context, nivelNuevo > 0 ? nivelNuevo : _nivel + 1);
+      }
       await _cargarDatos();
     } catch (e) {
       if (!mounted) return;
@@ -143,29 +157,14 @@ class _MascotaScreenState extends State<MascotaScreen> {
 
   String get _imagenMascota => assetMascota(fase: _fase, estado: _estado);
 
-  /// Fase traducida. Caída al código crudo si llega uno desconocido, igual
-  /// que hace Catalogos: nunca se deja al usuario sin texto.
-  String _faseLegible(NordayCoreLocalizations l) => switch (_fase) {
-        'HUEVO' => l.mascotaFaseHuevo,
-        'CRIA' => l.mascotaFaseCria,
-        'ADULTO' => l.mascotaFaseAdulto,
-        _ => _fase,
-      };
-
-  /// Los tres que manda el backend, explicitos. La caida solo cubre un
-  /// estado futuro que este cliente aun no conozca: mejor "Tranquila" que
-  /// un codigo crudo o una alarma que no toca.
-  String _estadoLegible(NordayCoreLocalizations l) => switch (_estado) {
-        'feliz' => l.mascotaEstadoFeliz,
-        'dormida' => l.mascotaEstadoAtencion,
-        'triste' => l.mascotaEstadoTriste,
-        _ => l.mascotaEstadoTranquila,
-      };
-
   /// Sin nombre puesto, se muestra la fase localizada. Así el valor por
   /// defecto está traducido sin haber guardado nada en la BD.
+  ///
+  /// La traducción de fase y estado ya no vive aquí: la comparte
+  /// [MensajesMascota] con la frase de contexto, para que las dos no puedan
+  /// acabar diciendo cosas distintas de los mismos códigos.
   String _nombreVisible(NordayCoreLocalizations l) =>
-      _nombre.isEmpty ? _faseLegible(l) : _nombre;
+      _nombre.isEmpty ? MensajesMascota.fase(l, _fase) : _nombre;
 
   Future<void> _editarNombre() async {
     final l = NordayCoreLocalizations.of(context)!;
@@ -227,6 +226,50 @@ class _MascotaScreenState extends State<MascotaScreen> {
   double _tamanoMascota(BuildContext context) =>
       (MediaQuery.sizeOf(context).width * 0.72).clamp(185.0, 360.0);
 
+  /// La escena entera: halo detrás, terrario bajo los pies, aro de XP
+  /// alrededor y la mascota en medio. Cuatro capas que no se conocen entre
+  /// sí — cada una lee de la identidad equipada por su cuenta.
+  ///
+  /// La caja es algo mayor que la ilustración para dejar sitio al aro por
+  /// fuera; el halo desborda incluso eso, y por eso el `Stack` no clipa.
+  Widget _escenario(BuildContext context, double pct) {
+    final lado = _tamanoMascota(context);
+    final caja = lado * 1.12;
+
+    return SizedBox(
+      width: caja,
+      height: caja,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          HaloIdentidad(tamano: caja),
+          Positioned(
+            bottom: lado * 0.02,
+            child: TerrarioIdentidad(ancho: lado * 0.68),
+          ),
+          AnilloXpIdentidad(tamano: caja, pct: pct),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: MascotaAnimadaViva(
+              // La clave es la ilustración, no el estado: el AnimatedSwitcher
+              // tiene que cruzar cuando cambia lo que se ve.
+              key: ValueKey(_imagenMascota),
+              fase: _fase,
+              estado: _estado,
+              tamano: lado,
+              permiteToque: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = tokens(context);
@@ -261,27 +304,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
                       // nivel.
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Center(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) =>
-                                FadeTransition(
-                              opacity: animation,
-                              child:
-                                  ScaleTransition(scale: animation, child: child),
-                            ),
-                            child: MascotaAnimadaViva(
-                              // La clave es la ilustración, no el estado: el
-                              // AnimatedSwitcher tiene que cruzar cuando
-                              // cambia lo que se ve.
-                              key: ValueKey(_imagenMascota),
-                              fase: _fase,
-                              estado: _estado,
-                              tamano: _tamanoMascota(context),
-                              permiteToque: true,
-                            ),
-                          ),
-                        ),
+                        Center(child: _escenario(context, pct)),
                         const SizedBox(height: 8),
                         Center(
                           child: GestureDetector(
@@ -301,11 +324,16 @@ class _MascotaScreenState extends State<MascotaScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 10),
                         Center(
-                          child: Text(
-                              '${_faseLegible(l)} · ${_estadoLegible(l)}',
-                              style: TextStyle(color: t.textMuted)),
+                          child: BurbujaContexto(
+                            texto: MensajesMascota.contexto(
+                              l,
+                              codigoFase: _fase,
+                              codigoEstado: _estado,
+                              nivel: _nivel,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 20),
                         // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
@@ -322,16 +350,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
                                 style: TextStyle(color: t.textMuted)),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: LinearProgressIndicator(
-                            value: pct.clamp(0.0, 1.0),
-                            minHeight: 10,
-                            backgroundColor: t.surface2,
-                            valueColor: AlwaysStoppedAnimation(t.success),
-                          ),
-                        ),
+                        // El progreso ya no va aquí: es el aro que rodea a la
+                        // mascota. Lo que queda es la lectura exacta, que el
+                        // aro no da.
                         const SizedBox(height: 24),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -397,9 +418,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
           const SizedBox(height: 10),
           const Center(child: SkeletonBox(width: 110, height: 14)),
           const SizedBox(height: 24),
+          // Sin barra de progreso: ahora el progreso es el aro, y el aro cae
+          // dentro del hueco redondo de arriba.
           const SkeletonBox(height: 14),
-          const SizedBox(height: 12),
-          const SkeletonBox(height: 10, radius: 999),
           const SizedBox(height: 28),
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
