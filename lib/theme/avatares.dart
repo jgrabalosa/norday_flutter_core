@@ -8,7 +8,7 @@ class AvatarInfo {
   const AvatarInfo({required this.asset});
 }
 
-/// Registro de avatares por codigo de producto — mismo patron que catalogoPaletas.
+/// Registro de avatares por codigo de producto — mismo patron que catalogoIdentidades.
 /// El fichero se llama igual que el codigo, para que no puedan desalinearse.
 const Map<String, AvatarInfo> catalogoAvatares = {
   'AVATAR_ZORRO': AvatarInfo(asset: 'assets/avatares/AVATAR_ZORRO.png'),

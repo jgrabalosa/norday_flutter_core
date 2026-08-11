@@ -19,6 +19,11 @@ dependencies:
   http: ^1.2.0
   shared_preferences: 2.2.2
   google_sign_in: ^6.2.1
+  # Las familias de las cuatro identidades (Manrope, Chakra Petch, IBM Plex
+  # Sans, Fraunces —con itálica—, Work Sans, Quicksand, Nunito y Caveat) se
+  # resuelven por HTTP en tiempo de ejecución: no hay nada que declarar aquí.
+  # Sólo habría que bajar los .ttf y listarlos en `assets:` si algún día se
+  # quiere que las fuentes funcionen sin red desde el primer arranque.
   google_fonts: ^8.1.0
   lottie: ^3.1.2
   audioplayers: ^6.1.0

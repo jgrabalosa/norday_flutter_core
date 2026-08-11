@@ -23,7 +23,8 @@ export 'l10n/mensajes_error.dart';
 
 // ── Tema ─────────────────────────────────────────────────
 export 'theme/app_theme.dart';
-export 'theme/paletas_premium.dart';
+export 'theme/identidad_paleta.dart';
+export 'theme/identidades_paleta.dart';
 export 'theme/avatares.dart';
 export 'theme/equipamiento.dart';
 export 'theme/mascota_assets.dart';
