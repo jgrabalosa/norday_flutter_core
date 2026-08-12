@@ -88,10 +88,21 @@ el cliente.
 Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
 tiene las cuatro identidades —Profundidad, Neotokyo+, Alba, Dulce—, y cada una
 lleva además tipografía, radios, forma de superficie y ritmo de animación
-(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay dos notifiers y
-`aplicarIdentidadEquipada` mueve los dos: `identidadEquipadaNotifier` (la
-identidad completa) y `temaEquipadoNotifier` (sólo los colores, que es lo que
-escucha el `MaterialApp` de cada app y las pantallas aún sin migrar).
+(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay tres notifiers y
+`aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
+identidad completa), `fuentesEquipadasNotifier` (sólo las dos familias, que es
+lo que `AppTheme.deTema` necesita sin poder importar el catálogo) y
+`temaEquipadoNotifier` (sólo los colores, que es lo que escucha el
+`MaterialApp` de cada app y las pantallas aún sin migrar). El color va el
+último a propósito: es el que dispara el repintado, así que cuando salta, la
+letra ya está puesta.
+
+El `TextTheme` sale de la identidad equipada: `display*`/`headline*`/`title*`
+en `fontDisplay`, `body*`/`label*` en `fontBody`. `fontAcento` no entra en ese
+mapeo —se invoca a mano en el único detalle que la usa—, y **las mayúsculas,
+el tracking y la itálica tampoco**: eso lo aplica cada pantalla donde tiene
+sentido. En el tema global, Neotokyo+ pondría en mayúsculas hasta el cuerpo de
+un artículo.
 
 Quien pinta según la identidad no mira el `codigo` sino
 `IdentidadPaleta.forma`: los cinco widgets de la escena de mascota resuelven su
