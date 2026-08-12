@@ -5,7 +5,10 @@ import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/superficie_identidad.dart';
 
 class LogrosScreen extends StatefulWidget {
   final int usuarioId;
@@ -83,51 +86,47 @@ class _LogrosScreenState extends State<LogrosScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Saldo
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          Icon(LucideIcons.coins, color: t.points, size: 40),
-                          const SizedBox(height: 8),
-                          Text('$_saldo',
-                              style: TextStyle(
-                                  fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
-                          Text(l.puntos, style: TextStyle(color: t.textMuted)),
-                        ],
-                      ),
+                  // Saldo — el protagonista de la pantalla.
+                  SuperficieIdentidad(
+                    protagonista: true,
+                    relleno: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Icon(LucideIcons.coins, color: t.points, size: 40),
+                        const SizedBox(height: 8),
+                        Text('$_saldo',
+                            style: TextStyle(
+                                fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
+                        Text(l.puntos, style: TextStyle(color: t.textMuted)),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 12),
                   // Progreso global
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(l.detLogrosDe(conseguidos, total),
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
-                              Text(l.logrosPorcentaje((pct * 100).round()),
-                                  style: TextStyle(color: t.textMuted)),
-                            ],
+                  SuperficieIdentidad(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(l.detLogrosDe(conseguidos, total),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+                            Text(l.logrosPorcentaje((pct * 100).round()),
+                                style: TextStyle(color: t.textMuted)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(999),
+                          child: LinearProgressIndicator(
+                            value: pct,
+                            minHeight: 10,
+                            backgroundColor: t.surface2,
+                            valueColor: AlwaysStoppedAnimation(t.points),
                           ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(999),
-                            child: LinearProgressIndicator(
-                              value: pct,
-                              minHeight: 10,
-                              backgroundColor: t.surface2,
-                              valueColor: AlwaysStoppedAnimation(t.points),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -141,47 +140,94 @@ class _LogrosScreenState extends State<LogrosScreen> {
     );
   }
 
+  /// Una fila del catálogo. Conseguido y pendiente ya no se distinguían más
+  /// que por la opacidad: ahora el conseguido lleva además la insignia
+  /// encendida y el filo del color de puntos, que es lo que lo convierte en
+  /// algo que se ha ganado y no en una fila más de la lista.
   Widget _logroCard(NordayCoreLocalizations l, dynamic logro, TokensContextuales t) {
+    final id = identidad(context);
     final conseguido = _idsConseguidos.contains(logro['logroId']);
     final icono = iconosCategoria[logro['categoria']] ?? iconoCategoriaDesconocida;
+
     return Opacity(
-      opacity: conseguido ? 1.0 : 0.5,
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
-          // Conseguido o no: el trofeo se pinta en el color de puntos de la
-          // identidad, el candado apagado. Antes eran dos emoji del sistema y
-          // el estado se leía por el dibujo, no por el color.
-          leading: Icon(
-            conseguido ? LucideIcons.trophy : LucideIcons.lock,
-            size: 24,
-            color: conseguido ? t.points : t.textMuted,
-          ),
-          title: Row(
-            children: [
-              Icon(icono, size: 16, color: t.textMuted),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                    CatalogosCore.logro(
-                        context, logro['codigo'], logro['nombre']),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: t.text)),
+      opacity: conseguido ? 1.0 : 0.55,
+      child: SuperficieIdentidad(
+        esFila: true,
+        margen: const EdgeInsets.only(bottom: 8),
+        relleno: const EdgeInsets.all(14),
+        filo: conseguido
+            ? BorderSide(color: t.points.withValues(alpha: 0.55), width: 1.2)
+            : null,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _insignia(id, t, conseguido),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(icono, size: 16, color: t.textMuted),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                            CatalogosCore.logro(
+                                context, logro['codigo'], logro['nombre']),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: t.text)),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(l.logrosPuntos(logro['puntos'] as int),
+                          style: TextStyle(
+                              color: conseguido ? t.points : t.textMuted,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                      l.logrosSubtitulo(
+                        CatalogosCore.logroDescripcion(
+                            context, logro['codigo'], logro['descripcion']),
+                        CatalogosCore.logroCategoria(context, logro['categoria']),
+                        CatalogosCore.logroNivel(context, logro['nivel']),
+                      ),
+                      style: TextStyle(color: t.textMuted, fontSize: 12)),
+                ],
               ),
-            ],
-          ),
-          subtitle: Text(
-              l.logrosSubtitulo(
-                CatalogosCore.logroDescripcion(
-                    context, logro['codigo'], logro['descripcion']),
-                CatalogosCore.logroCategoria(context, logro['categoria']),
-                CatalogosCore.logroNivel(context, logro['nivel']),
-              ),
-              style: TextStyle(color: t.textMuted)),
-          isThreeLine: true,
-          trailing: Text(l.logrosPuntos(logro['puntos'] as int),
-              style: TextStyle(color: t.textMuted)),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  /// El trofeo (o el candado) en la figura de la identidad. Conseguido lleva
+  /// resplandor; pendiente, ni relleno ni luz.
+  Widget _insignia(IdentidadPaleta id, TokensContextuales t, bool conseguido) {
+    final color = conseguido ? t.points : t.textMuted;
+
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: ShapeDecoration(
+        color: color.withValues(alpha: conseguido ? 0.16 : 0.08),
+        shape: formaIdentidad(
+          id,
+          radio: id.radioSecundario,
+          lado: BorderSide(
+              color: color.withValues(alpha: conseguido ? 0.55 : 0.25)),
+        ),
+        shadows: conseguido
+            ? [BoxShadow(color: t.points.withValues(alpha: 0.28), blurRadius: 14)]
+            : const [],
+      ),
+      child: Icon(
+        conseguido ? LucideIcons.trophy : LucideIcons.lock,
+        size: 22,
+        color: color,
       ),
     );
   }

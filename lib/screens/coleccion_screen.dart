@@ -5,12 +5,14 @@ import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
+import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import 'tienda_screen.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/selector_avatar_gratis.dart';
+import '../widgets/superficie_identidad.dart';
 
 class SeccionColeccion {
   /// Una seccion puede recoger varias categorias del backend: alli
@@ -254,58 +256,65 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// Resumen de lo que el usuario lleva puesto ahora mismo: avatar (o inicial
   /// de caida) y la paleta del tema equipado.
   Widget _cardSeleccionActual(NordayCoreLocalizations l, TokensContextuales t) {
+    final id = identidad(context);
     final codigoTema = _productoEquipado('Tema')?['codigo'] as String?;
-    final identidad = codigoTema != null ? catalogoIdentidades[codigoTema] : null;
+    final identidadTema =
+        codigoTema != null ? catalogoIdentidades[codigoTema] : null;
     // Sin tema equipado (o con uno que este cliente aun no conozca) lo que se
     // lleva puesto es el tema de serie: sus colores son los tokens activos.
-    final colores = identidad != null
-        ? [identidad.tokens.primary, identidad.tokens.success, identidad.tokens.points]
+    final colores = identidadTema != null
+        ? [
+            identidadTema.tokens.primary,
+            identidadTema.tokens.success,
+            identidadTema.tokens.points
+          ]
         : [t.primary, t.success, t.points];
 
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        side: BorderSide(color: t.successText, width: 1.5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l.colSeleccionActual,
-                style: TextStyle(
-                    fontSize: 12,
-                    letterSpacing: 0.5,
-                    fontWeight: FontWeight.w600,
-                    color: t.textMuted)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                AvatarUsuario(nombre: _nombre, radius: 26),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(_nombre,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w700, color: t.text)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _tiraPaleta(colores, alto: 14),
-          ],
-        ),
+    // Es el elemento protagonista de la pantalla, y ademas el unico con filo
+    // propio: lo que se lleva puesto tiene que separarse de lo que no.
+    return SuperficieIdentidad(
+      protagonista: true,
+      filo: BorderSide(color: t.successText, width: 1.5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.colSeleccionActual,
+              style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w600,
+                  color: t.textMuted)),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              AvatarUsuario(nombre: _nombre, radius: 26),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(_nombre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700, color: t.text)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _tiraPaleta(id, colores, alto: 14, radio: 999),
+        ],
       ),
     );
   }
 
   /// Los colores de un tema, uno al lado del otro. Es la representacion del
   /// tema en toda la pantalla: aqui y en su tarjeta.
-  Widget _tiraPaleta(List<Color> colores, {required double alto, double radio = 999}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radio),
+  ///
+  /// El recorte no es un rectangulo redondeado sino la figura de la identidad
+  /// equipada: en Neotokyo+ la tira tambien corta la esquina, como todo lo
+  /// demas de la pantalla.
+  Widget _tiraPaleta(IdentidadPaleta id, List<Color> colores,
+      {required double alto, required double radio}) {
+    return ClipPath(
+      clipper: ShapeBorderClipper(shape: formaIdentidad(id, radio: radio)),
       child: SizedBox(
         height: alto,
         child: Row(
@@ -482,17 +491,22 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   // ── Temas ──
 
   Widget _tarjetaTema(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
+    final id = identidad(context);
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
-    final identidad = codigo != null ? catalogoIdentidades[codigo] : null;
+    final identidadTema = codigo != null ? catalogoIdentidades[codigo] : null;
     final poseido = _poseido(producto);
     final equipado = _inventario[productoId]?['equipado'] == true;
     final procesandoEste = _procesando == productoId;
 
     // Un tema que este cliente aun no conozca no tiene colores que enseñar:
     // la tira se queda neutra y la tarjeta sigue siendo legible.
-    final colores = identidad != null
-        ? [identidad.tokens.primary, identidad.tokens.success, identidad.tokens.points]
+    final colores = identidadTema != null
+        ? [
+            identidadTema.tokens.primary,
+            identidadTema.tokens.success,
+            identidadTema.tokens.points
+          ]
         : [t.surface2, t.surface2, t.surface2];
 
     final contenido = _cajaTarjeta(
@@ -500,7 +514,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         children: [
           SizedBox(
             width: 56,
-            child: _tiraPaleta(colores, alto: 40, radio: AppRadius.sm),
+            child: _tiraPaleta(id, colores, alto: 40, radio: id.radioSecundario),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -549,6 +563,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   // ── Consumibles ──
 
   Widget _tarjetaConsumible(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
+    final id = identidad(context);
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
     final categoria = producto['categoria'] as String;
@@ -566,9 +581,11 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             width: 44,
             height: 44,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
+            decoration: ShapeDecoration(
               color: t.successText.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              // La misma figura que la tarjeta que lo lleva: en Neotokyo+ el
+              // hueco del icono tambien corta.
+              shape: formaIdentidad(id, radio: id.radioSecundario),
             ),
             child: Icon(_iconoConsumible(codigo, categoria), size: 22, color: t.successText),
           ),
@@ -627,12 +644,17 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   // ── Piezas comunes ──
 
-  /// La caja comun de temas y consumibles: misma Card que el resto de la app,
-  /// para que lo unico que cambie entre secciones sea el contenido.
+  /// La caja comun de temas y consumibles: la superficie de la identidad
+  /// equipada, para que lo unico que cambie entre secciones sea el contenido.
+  ///
+  /// El filtro de grises de lo bloqueado se aplica por fuera, asi que la caja
+  /// no tiene que saber si lo que lleva dentro se tiene o no.
   Widget _cajaTarjeta({required Widget child}) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(padding: const EdgeInsets.all(12), child: child),
+    return SuperficieIdentidad(
+      esFila: true,
+      margen: const EdgeInsets.only(bottom: 8),
+      relleno: const EdgeInsets.all(12),
+      child: child,
     );
   }
 
