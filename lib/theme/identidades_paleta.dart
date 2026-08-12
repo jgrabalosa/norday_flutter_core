@@ -140,6 +140,13 @@ void aplicarIdentidadEquipada(String? codigo) {
   final identidad = (codigo != null) ? catalogoIdentidades[codigo] : null;
   final resuelta = identidad ?? catalogoIdentidades['TEMA_PROFUNDIDAD']!;
   identidadEquipadaNotifier.value = resuelta;
+  // La letra, antes que el color: `AppTheme.deTema` la lee de aquí, y quien lo
+  // llama es justo el listener del notifier de abajo. Al revés, el primer
+  // repintado saldría con la tipografía de la identidad anterior.
+  fuentesEquipadasNotifier.value = FuentesIdentidad(
+    display: resuelta.fontDisplay,
+    body: resuelta.fontBody,
+  );
   // Compatibilidad con los consumidores solo-color existentes: las pantallas
   // aún sin migrar escuchan este y no se tocan.
   temaEquipadoNotifier.value = resuelta.tokens;

@@ -20,12 +20,15 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
   `IdiomaService`, `ZonaService`.
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
-  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`.
+  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`,
+  `tonoError`.
 - `models/usuario.dart`.
-- `widgets/` — los 17 genéricos (anillo, puntos, burbuja, check, mascota viva,
+- `widgets/` — los 20 genéricos (anillo, puntos, burbuja, check, mascota viva,
   mini-mascota, onboarding, selector de avatar, selector de preferencias,
-  skeleton, splash, hoja de valoración, y los cinco de la escena de mascota:
-  halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel).
+  skeleton, splash, hoja de valoración, los cinco de la escena de mascota
+  —halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel— y
+  los tres de las pantallas de entrada: Nori de marca, wordmark de identidad y
+  logo de Google).
 - `screens/` — login, recuperación, tienda, mascota, logros, colección, perfil.
 - `l10n/` — `NordayCoreLocalizations` y `CatalogosCore`.
 - `assets/` — animations, sounds, mascota, avatares.
@@ -55,9 +58,10 @@ no puede importar de la app.
 ## Assets: siempre con `package:`
 
 Todo `Image.asset`/`Lottie.asset` de un asset de este paquete lleva
-`package: 'norday_flutter_core'`. La excepción es `SplashGenerico`, que pinta
-la `rutaImagen` que le pasa **la app** — ahí no se pone, porque el asset no es
-nuestro. `SonidoService` no usa `package:` sino un `AudioCache` con prefijo
+`package: 'norday_flutter_core'`. La excepción es la `rutaImagen` opcional de
+`SplashGenerico` — ahí no se pone, porque ese asset lo pasa **la app** y no es
+nuestro. Sin `rutaImagen`, el splash pinta a Nori (`NoriMarca`), que sí es
+nuestra y sí lleva el prefijo. `SonidoService` no usa `package:` sino un `AudioCache` con prefijo
 `packages/norday_flutter_core/assets/`, que es como audioplayers resuelve un
 asset de paquete.
 
@@ -88,10 +92,21 @@ el cliente.
 Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
 tiene las cuatro identidades —Profundidad, Neotokyo+, Alba, Dulce—, y cada una
 lleva además tipografía, radios, forma de superficie y ritmo de animación
-(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay dos notifiers y
-`aplicarIdentidadEquipada` mueve los dos: `identidadEquipadaNotifier` (la
-identidad completa) y `temaEquipadoNotifier` (sólo los colores, que es lo que
-escucha el `MaterialApp` de cada app y las pantallas aún sin migrar).
+(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay tres notifiers y
+`aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
+identidad completa), `fuentesEquipadasNotifier` (sólo las dos familias, que es
+lo que `AppTheme.deTema` necesita sin poder importar el catálogo) y
+`temaEquipadoNotifier` (sólo los colores, que es lo que escucha el
+`MaterialApp` de cada app y las pantallas aún sin migrar). El color va el
+último a propósito: es el que dispara el repintado, así que cuando salta, la
+letra ya está puesta.
+
+El `TextTheme` sale de la identidad equipada: `display*`/`headline*`/`title*`
+en `fontDisplay`, `body*`/`label*` en `fontBody`. `fontAcento` no entra en ese
+mapeo —se invoca a mano en el único detalle que la usa—, y **las mayúsculas,
+el tracking y la itálica tampoco**: eso lo aplica cada pantalla donde tiene
+sentido. En el tema global, Neotokyo+ pondría en mayúsculas hasta el cuerpo de
+un artículo.
 
 Quien pinta según la identidad no mira el `codigo` sino
 `IdentidadPaleta.forma`: los cinco widgets de la escena de mascota resuelven su

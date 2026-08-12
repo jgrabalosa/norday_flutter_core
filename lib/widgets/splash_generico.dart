@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// Splash genérico y exportable al ecosistema Norday: fondo Azul Noche +
+import 'nori_marca.dart';
+import 'wordmark_identidad.dart';
+
+/// Splash genérico y exportable al ecosistema Norday: fondo de marca +
 /// símbolo + wordmark, con una duración mínima y la posibilidad de esperar
 /// una tarea real (sesión, tema...). El punto 6.5 (Estados de carga) ampliará
 /// `tarea` para que también espere los datos del Dashboard.
+///
+/// El símbolo es Nori respirando, con el halo de la identidad equipada detrás
+/// ([NoriMarca]): la pantalla tenía la espera bien resuelta pero no se movía
+/// nada en ella. La espera no ha cambiado — sigue siendo exactamente
+/// [duracionMinima].
 class SplashGenerico<T> extends StatefulWidget {
-  final String rutaImagen;
+  /// Símbolo propio de la app, si lo tiene y prefiere ése. Sin él —el caso
+  /// normal— manda Nori, que además es lo único de las dos pantallas de
+  /// entrada que está vivo.
+  final String? rutaImagen;
+
   final Color colorFondo;
   final Duration duracionMinima;
   final Future<T> Function() tarea;
@@ -22,7 +33,7 @@ class SplashGenerico<T> extends StatefulWidget {
 
   const SplashGenerico({
     super.key,
-    required this.rutaImagen,
+    this.rutaImagen,
     required this.colorFondo,
     required this.tarea,
     required this.onListo,
@@ -56,23 +67,27 @@ class _SplashGenericoState<T> extends State<SplashGenerico<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final ruta = widget.rutaImagen;
+
     return Scaffold(
       backgroundColor: widget.colorFondo,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(widget.rutaImagen, width: widget.anchoImagen),
+            if (ruta != null)
+              Image.asset(ruta, width: widget.anchoImagen)
+            else
+              NoriMarca(tamano: widget.anchoImagen),
             if (widget.wordmark != null) ...[
               const SizedBox(height: 20),
-              Text(
-                widget.wordmark!,
-                style: GoogleFonts.manrope(
-                  fontSize: widget.tamanoWordmark,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
-                ),
+              WordmarkIdentidad(
+                texto: widget.wordmark!,
+                tamano: widget.tamanoWordmark,
+                // El fondo lo elige la app y es de marca (Azul Noche), así que
+                // el wordmark va en blanco y no en el color de la identidad:
+                // aquí manda el contraste contra ese fondo, no la paleta.
+                color: Colors.white,
               ),
             ],
           ],

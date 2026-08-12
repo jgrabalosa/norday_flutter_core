@@ -122,6 +122,41 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
 );
 
+/// Las dos familias tipográficas de la identidad equipada.
+///
+/// Es el mínimo que necesita [AppTheme.deTema] para construir el `TextTheme`:
+/// la identidad completa (radios, forma, ritmo) no pinta nada aquí.
+class FuentesIdentidad {
+  /// Titulares, cifras y etiquetas cortas.
+  final String display;
+
+  /// Texto de lectura.
+  final String body;
+
+  const FuentesIdentidad({required this.display, required this.body});
+}
+
+/// La tipografía de "Profundidad", la de serie: una sola familia para todo.
+///
+/// Vive aquí por lo mismo que [tokensProfundidad] —ver la nota de arriba—:
+/// este fichero es la capa de abajo y no puede importar el catálogo.
+const FuentesIdentidad fuentesProfundidad =
+    FuentesIdentidad(display: 'Manrope', body: 'Manrope');
+
+/// La tipografía de la identidad equipada.
+///
+/// Existe porque [AppTheme.deTema] recibe colores, no identidades, y necesita
+/// saber con qué letra escribir sin importar `identidades_paleta.dart`. Lo
+/// escribe `aplicarIdentidadEquipada`, igual que [temaEquipadoNotifier], y
+/// siempre antes que aquél: los dos describen la misma identidad y el color es
+/// el que dispara el repintado.
+///
+/// **Nadie tiene que escuchar aquí.** Quien redibuja al equipar sigue siendo el
+/// `ValueListenableBuilder` sobre [temaEquipadoNotifier] que cada app monta en
+/// su `MaterialApp`; para cuando ése salta, este valor ya está puesto.
+final ValueNotifier<FuentesIdentidad> fuentesEquipadasNotifier =
+    ValueNotifier<FuentesIdentidad>(fuentesProfundidad);
+
 /// Los colores de la identidad equipada. Fallback de arranque: "Profundidad",
 /// hasta que `Equipamiento.cargarDeUsuario` resuelva lo que el usuario lleva
 /// puesto de verdad.
@@ -150,7 +185,10 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: t.bg,
-      textTheme: _tipografia(),
+      // La letra sale de la identidad equipada, no del parámetro: `deTema`
+      // recibe sólo colores y las apps la llaman así desde antes de que una
+      // identidad fuera algo más que su paleta.
+      textTheme: _tipografia(fuentesEquipadasNotifier.value),
       appBarTheme: AppBarTheme(
         backgroundColor: t.surface,
         foregroundColor: t.text,
@@ -184,11 +222,30 @@ class AppTheme {
     );
   }
 
-  /// Escala tipográfica Manrope oficial:
-  /// Títulos 700 · Subtítulos 500 · Cuerpo 400 · Números/Stats 600
-  static TextTheme _tipografia() {
-    final base = GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme);
-    return base.copyWith(
+  /// La escala tipográfica de la identidad equipada.
+  ///
+  /// Los tamaños y la escala son los de Material, los mismos de siempre: lo
+  /// único que cambia con la identidad es la familia. Los roles de titular,
+  /// cifra y etiqueta corta (`display*`, `headline*`, `title*`) van en
+  /// [FuentesIdentidad.display]; los de texto de lectura (`body*`, `label*`)
+  /// en [FuentesIdentidad.body], que es SIEMPRE la más legible de la identidad.
+  ///
+  /// `fontAcento` no entra aquí a propósito: es un detalle puntual que se
+  /// invoca a mano donde toca, nunca una familia de uso general.
+  ///
+  /// Pesos, los oficiales de siempre: Títulos 700 · Subtítulos 500 · Cuerpo 400
+  /// · Etiquetas 600. Se aplican ANTES de resolver la familia, y no después
+  /// como se hacía: google_fonts carga un fichero por variante y elige cuál
+  /// mirando el peso del estilo de partida, así que un `copyWith(fontWeight:)`
+  /// posterior cambiaba el número pero seguía pintando con el fichero regular.
+  ///
+  /// Y aquí entra la familia, nada más. Las mayúsculas y el tracking de
+  /// Neotokyo+ o la itálica de Alba las aplica cada pantalla donde tienen
+  /// sentido —el titular, un chip, una cifra—: metidas en el tema global,
+  /// Neotokyo+ pondría en mayúsculas hasta el cuerpo de un artículo.
+  static TextTheme _tipografia(FuentesIdentidad fuentes) {
+    final base = ThemeData.dark().textTheme;
+    final conPesos = base.copyWith(
       // Títulos (H1-H3) → Bold 700
       headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.w700),
       headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -203,6 +260,29 @@ class AppTheme {
       bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w400),
       // Etiquetas/botones → SemiBold 600
       labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+    );
+
+    // Dos pasadas sobre la misma escala: cada una devuelve los quince roles en
+    // su familia, y de cada una se conservan los que le tocan.
+    final display = GoogleFonts.getTextTheme(fuentes.display, conPesos);
+    final cuerpo = GoogleFonts.getTextTheme(fuentes.body, conPesos);
+
+    return TextTheme(
+      displayLarge: display.displayLarge,
+      displayMedium: display.displayMedium,
+      displaySmall: display.displaySmall,
+      headlineLarge: display.headlineLarge,
+      headlineMedium: display.headlineMedium,
+      headlineSmall: display.headlineSmall,
+      titleLarge: display.titleLarge,
+      titleMedium: display.titleMedium,
+      titleSmall: display.titleSmall,
+      bodyLarge: cuerpo.bodyLarge,
+      bodyMedium: cuerpo.bodyMedium,
+      bodySmall: cuerpo.bodySmall,
+      labelLarge: cuerpo.labelLarge,
+      labelMedium: cuerpo.labelMedium,
+      labelSmall: cuerpo.labelSmall,
     );
   }
 }
