@@ -4,6 +4,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../services/idioma_service.dart';
 import '../services/zona_service.dart';
 import '../theme/app_theme.dart';
+import 'superficie_identidad.dart';
 
 /// Dos selectores independientes: idioma y zona horaria.
 ///
@@ -69,11 +70,9 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
     final t = tokens(context);
     final l = NordayCoreLocalizations.of(context)!;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return SuperficieIdentidad(
+      margen: const EdgeInsets.only(bottom: 12),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(l.preferencias,
@@ -138,7 +137,6 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
               ),
           ],
         ),
-      ),
     );
   }
 

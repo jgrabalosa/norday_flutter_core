@@ -23,12 +23,13 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`,
   `tonoError`.
 - `models/usuario.dart`.
-- `widgets/` — los 20 genéricos (anillo, puntos, burbuja, check, mascota viva,
+- `widgets/` — los 22 genéricos (anillo, puntos, burbuja, check, mascota viva,
   mini-mascota, onboarding, selector de avatar, selector de preferencias,
   skeleton, splash, hoja de valoración, los cinco de la escena de mascota
-  —halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel— y
-  los tres de las pantallas de entrada: Nori de marca, wordmark de identidad y
-  logo de Google).
+  —halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel—,
+  los tres de las pantallas de entrada —Nori de marca, wordmark de identidad y
+  logo de Google— y los dos que visten cualquier pantalla:
+  `SuperficieIdentidad` y `CampoIdentidad`).
 - `screens/` — login, recuperación, tienda, mascota, logros, colección, perfil.
 - `l10n/` — `NordayCoreLocalizations` y `CatalogosCore`.
 - `assets/` — animations, sounds, mascota, avatares.
@@ -114,6 +115,13 @@ tratamiento con un `switch` exhaustivo sobre `FormaIdentidad`. Una identidad
 nueva declara su forma y hereda halo, terrario, aro y burbuja; una forma nueva
 rompe la compilación justo en los sitios que hay que revisar. Todo lo que anime
 lee `MediaQuery.maybeDisableAnimationsOf`, como ya hacía `MascotaAnimadaViva`.
+
+**Una tarjeta o un campo nuevos no se escriben a mano**: `SuperficieIdentidad`
+y `CampoIdentidad` (`widgets/`) ya resuelven los cuatro tratamientos, y
+`formaIdentidad`/`BordeChaflan` dan la figura para botones, recortes e
+insignias. Un `Card` de Material en medio de una pantalla achaflanada canta, y
+cuatro copias del mismo `switch` acaban divergiendo. Es el equivalente aquí de
+`identidad_ui.dart` en la app de hábitos.
 
 `Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
 antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el

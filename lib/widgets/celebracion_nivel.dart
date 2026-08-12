@@ -18,6 +18,11 @@ import '../theme/identidades_paleta.dart';
 /// flota; ésta ocupa la pantalla y cambia entera con la identidad equipada.
 ///
 /// Es un overlay, no un diálogo: no bloquea, no hay que cerrarlo y se va solo.
+///
+/// El gesto de fondo —destello, glitch, brillo o corazones— vive aparte en
+/// [FondoCelebracionIdentidad] y [GestoCelebracionIdentidad], porque hay un
+/// segundo momento que se lo merece: desbloquear un logro. Las partículas y los
+/// tiempos son los mismos; lo que cambia es a quién acompañan.
 class CelebracionNivel {
   /// Duración del gesto completo. Se sale sola al terminar.
   static const _duracion = Duration(milliseconds: 1900);
@@ -66,10 +71,6 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
   /// en `MascotaAnimadaViva`, y ahí el contexto todavía no vale.
   bool _arrancado = false;
 
-  /// Los corazones de Dulce. Se siembran con el nivel, así que la misma
-  /// subida cae siempre igual y no hay azar que perseguir al depurar.
-  late final List<_Corazon> _corazones;
-
   @override
   void initState() {
     super.initState();
@@ -77,19 +78,6 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
       vsync: this,
       duration: CelebracionNivel._duracion,
     );
-
-    final azar = math.Random(widget.nivel);
-    _corazones = List.generate(
-      18,
-      (_) => _Corazon(
-        x: azar.nextDouble(),
-        retraso: azar.nextDouble() * 0.35,
-        deriva: azar.nextDouble() * 80 - 40,
-        giro: azar.nextDouble() * 1.6 - 0.8,
-        lado: 14 + azar.nextDouble() * 16,
-      ),
-    );
-
   }
 
   @override
@@ -157,7 +145,9 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                ..._fondo(id, t, v),
+                // La semilla es el nivel: la misma subida cae siempre igual y
+                // no hay azar que perseguir al depurar.
+                FondoCelebracionIdentidad(avance: v, semilla: widget.nivel),
                 Center(
                   child: Transform.scale(
                     scale: _tweenEscala.transform(v),
@@ -170,44 +160,6 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
         },
       ),
     );
-  }
-
-  /// Lo que pasa detrás del texto, por identidad.
-  List<Widget> _fondo(IdentidadPaleta id, TokensContextuales t, double v) {
-    return switch (id.forma) {
-      // Profundidad — destello: un fogonazo verde que se apaga y un aro que
-      // se abre desde el centro.
-      FormaIdentidad.glass => [
-          CustomPaint(
-            painter: _DestelloPainter(color: t.success, avance: v),
-          ),
-        ],
-      // Neotokyo+ — glitch: bandas horizontales desplazadas, como una señal
-      // que se rompe. El desgarro va aquí; la separación de color, en el texto.
-      FormaIdentidad.chamfer => [
-          CustomPaint(
-            painter: _GlitchPainter(
-              color: t.primary,
-              acento: t.points,
-              avance: v,
-            ),
-          ),
-        ],
-      // Alba no pone nada detrás: su celebración es el brillo que cruza la
-      // letra, y añadirle fondo la sacaría de su propio registro.
-      FormaIdentidad.hairline => const [],
-      // Dulce — confeti de corazones cayendo.
-      FormaIdentidad.pill => [
-          CustomPaint(
-            painter: _ConfetiCorazonesPainter(
-              corazones: _corazones,
-              color: t.primary,
-              acento: t.streak,
-              avance: v,
-            ),
-          ),
-        ],
-    };
   }
 
   Widget _texto(
@@ -297,6 +249,139 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
   double _tembleque(double v, double frecuencia) =>
       math.sin(v * 2 * math.pi * frecuencia) *
       math.sin(v * 2 * math.pi * 2.7 + 0.6);
+}
+
+/// El gesto de fondo de la celebración, por identidad: fogonazo, glitch, nada
+/// (Alba celebra en la letra, no detrás de ella) o confeti de corazones.
+///
+/// Recibe el avance en vez de animarse solo porque acompaña a algo —el texto
+/// del nivel— y los dos tienen que ir al mismo compás. Para acompañar algo que
+/// no lleva animación propia está [GestoCelebracionIdentidad].
+class FondoCelebracionIdentidad extends StatefulWidget {
+  /// De 0 a 1, el recorrido del gesto.
+  final double avance;
+
+  /// De qué depende la caída de los corazones de Dulce. Con la misma semilla
+  /// cae siempre igual: el confeti es reproducible, no aleatorio.
+  final int semilla;
+
+  const FondoCelebracionIdentidad({
+    super.key,
+    required this.avance,
+    required this.semilla,
+  });
+
+  @override
+  State<FondoCelebracionIdentidad> createState() =>
+      _FondoCelebracionIdentidadState();
+}
+
+class _FondoCelebracionIdentidadState extends State<FondoCelebracionIdentidad> {
+  /// Se siembran una vez y no en cada fotograma: son 18 por gesto.
+  late final List<_Corazon> _corazones = _sembrar(widget.semilla);
+
+  static List<_Corazon> _sembrar(int semilla) {
+    final azar = math.Random(semilla);
+    return List.generate(
+      18,
+      (_) => _Corazon(
+        x: azar.nextDouble(),
+        retraso: azar.nextDouble() * 0.35,
+        deriva: azar.nextDouble() * 80 - 40,
+        giro: azar.nextDouble() * 1.6 - 0.8,
+        lado: 14 + azar.nextDouble() * 16,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens(context);
+    final v = widget.avance;
+
+    return switch (identidad(context).forma) {
+      // Profundidad — destello: un fogonazo verde que se apaga y un aro que
+      // se abre desde el centro.
+      FormaIdentidad.glass => CustomPaint(
+          painter: _DestelloPainter(color: t.success, avance: v),
+        ),
+      // Neotokyo+ — glitch: bandas horizontales desplazadas, como una señal
+      // que se rompe. El desgarro va aquí; la separación de color, en el texto.
+      FormaIdentidad.chamfer => CustomPaint(
+          painter: _GlitchPainter(color: t.primary, acento: t.points, avance: v),
+        ),
+      // Alba no pone nada detrás: su celebración es el brillo que cruza la
+      // letra, y añadirle fondo la sacaría de su propio registro.
+      FormaIdentidad.hairline => const SizedBox.shrink(),
+      // Dulce — confeti de corazones cayendo.
+      FormaIdentidad.pill => CustomPaint(
+          painter: _ConfetiCorazonesPainter(
+            corazones: _corazones,
+            color: t.primary,
+            acento: t.streak,
+            avance: v,
+          ),
+        ),
+    };
+  }
+}
+
+/// El mismo gesto, corriendo por su cuenta: para acompañar algo que no trae su
+/// propia animación — el diálogo de logro desbloqueado.
+///
+/// Respeta "reducir movimiento" con el mismo criterio que el resto: no se
+/// apaga el aviso, se apaga el recorrido, dejando el gesto quieto en su punto
+/// de plena vista.
+class GestoCelebracionIdentidad extends StatefulWidget {
+  final int semilla;
+
+  const GestoCelebracionIdentidad({super.key, required this.semilla});
+
+  @override
+  State<GestoCelebracionIdentidad> createState() =>
+      _GestoCelebracionIdentidadState();
+}
+
+class _GestoCelebracionIdentidadState extends State<GestoCelebracionIdentidad>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controlador = AnimationController(
+    vsync: this,
+    duration: CelebracionNivel._duracion,
+  );
+
+  bool _arrancado = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_arrancado) return;
+    _arrancado = true;
+
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _controlador.value = 0.45; // el pico: todo presente, nada en tránsito
+    } else {
+      _controlador.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controlador.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: _controlador,
+        builder: (context, _) => FondoCelebracionIdentidad(
+          avance: _controlador.value,
+          semilla: widget.semilla,
+        ),
+      ),
+    );
+  }
 }
 
 /// Profundidad — fogonazo radial y aro expansivo.
