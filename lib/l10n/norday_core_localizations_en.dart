@@ -400,6 +400,18 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get tiendaError => 'Something went wrong. Please try again.';
 
   @override
+  String get tiendaPreviewNavHabitos => 'Habits';
+
+  @override
+  String get tiendaPreviewNavPerfil => 'Profile';
+
+  @override
+  String get tiendaPreviewHabito2 => 'Meditate 5 min';
+
+  @override
+  String get tiendaPreviewQueCrack => 'nice one!';
+
+  @override
   String get logrosTitulo => 'My achievements';
 
   @override

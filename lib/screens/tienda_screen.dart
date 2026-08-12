@@ -9,6 +9,7 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
+import '../widgets/preview_identidad_tienda.dart';
 
 class TiendaScreen extends StatefulWidget {
   final int usuarioId;
@@ -224,10 +225,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _swatch(identidad.tokens.bg),
-                    _swatch(identidad.tokens.primary),
-                    _swatch(identidad.tokens.success),
-                    _swatch(identidad.tokens.points),
+                    ChipIdentidad(identidad: identidad),
                     const Spacer(),
                     // Pista de que la tarjeta se puede tocar para verlo.
                     Icon(LucideIcons.eye, size: 16, color: t.textMuted),
@@ -269,13 +267,6 @@ class _TiendaScreenState extends State<TiendaScreen> {
     );
   }
 
-  Widget _swatch(Color color) => Container(
-        width: 20,
-        height: 20,
-        margin: const EdgeInsets.only(right: 6),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-      );
-
   /// Enseña el tema antes de pagarlo. Las acciones cierran la hoja y delegan
   /// en los mismos métodos de la tarjeta: la hoja no duplica nada del estado
   /// de compra, sólo evita el viaje de vuelta.
@@ -292,16 +283,20 @@ class _TiendaScreenState extends State<TiendaScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (hoja) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      builder: (hoja) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, controlador) => SafeArea(
+          child: ListView(
+            controller: controlador,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
               Text(CatalogosCore.producto(context, codigo, producto['nombre']),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              _maquetaTema(l, identidad.tokens),
+              MaquetaPreviewIdentidad(identidad: identidad),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -336,109 +331,6 @@ class _TiendaScreenState extends State<TiendaScreen> {
       ),
     );
   }
-
-  /// Maqueta aislada: una pantalla de mentira pintada con los nueve colores de
-  /// [p]. Ni un color sale del tema activo, así que lo que se ve aquí es el
-  /// tema que se está mirando, no el que se lleva puesto.
-  ///
-  /// De momento sólo enseña el color: la letra, la forma y el radio de la
-  /// identidad son parte de la maqueta que aún está por hacer.
-  Widget _maquetaTema(NordayCoreLocalizations l, TokensContextuales p) {
-    // Sobre el primary puede ir texto claro u oscuro según lo vivo que sea:
-    // hay paletas con primary casi blanco y otras con primary casi negro.
-    final sobrePrimary =
-        p.primary.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: p.bg, borderRadius: BorderRadius.circular(20)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(l.navHoy,
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold, color: p.text)),
-              ),
-              _pastilla(icono: LucideIcons.coins, texto: '120', color: p.points),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-                color: p.surface, borderRadius: BorderRadius.circular(14)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(LucideIcons.circleCheckBig, size: 20, color: p.success),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(l.plantillaBeberAgua,
-                          style: TextStyle(fontWeight: FontWeight.w600, color: p.text)),
-                    ),
-                    _pastilla(icono: LucideIcons.flame, texto: '5', color: p.streak),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(l.dashCompletados,
-                    style: TextStyle(fontSize: 11, letterSpacing: 0.5, color: p.textMuted)),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: 0.7,
-                    minHeight: 8,
-                    backgroundColor: p.surface2,
-                    valueColor: AlwaysStoppedAnimation(p.success),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-                color: p.primary, borderRadius: BorderRadius.circular(12)),
-            child: Center(
-              child: Text(l.comunContinuar,
-                  style: TextStyle(fontWeight: FontWeight.w700, color: sobrePrimary)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Pastilla de color de la maqueta (racha, puntos): fondo tenue del mismo
-  /// color que el contenido, que es como se pintan en la app de verdad.
-  Widget _pastilla({
-    required IconData icono,
-    required String texto,
-    required Color color,
-  }) =>
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icono, size: 13, color: color),
-            const SizedBox(width: 4),
-            Text(texto,
-                style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      );
 
   Widget _botonAccion(NordayCoreLocalizations l, int productoId, String tipo, bool poseido, bool equipado,
       int cantidad, String? codigo, String categoria, bool procesando) {

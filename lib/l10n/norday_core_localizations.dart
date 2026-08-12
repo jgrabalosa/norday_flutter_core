@@ -835,6 +835,30 @@ abstract class NordayCoreLocalizations {
   /// **'No se pudo completar la operación. Inténtalo de nuevo.'**
   String get tiendaError;
 
+  /// No description provided for @tiendaPreviewNavHabitos.
+  ///
+  /// In es, this message translates to:
+  /// **'Hábitos'**
+  String get tiendaPreviewNavHabitos;
+
+  /// No description provided for @tiendaPreviewNavPerfil.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get tiendaPreviewNavPerfil;
+
+  /// No description provided for @tiendaPreviewHabito2.
+  ///
+  /// In es, this message translates to:
+  /// **'Meditar 5 min'**
+  String get tiendaPreviewHabito2;
+
+  /// No description provided for @tiendaPreviewQueCrack.
+  ///
+  /// In es, this message translates to:
+  /// **'¡qué crack!'**
+  String get tiendaPreviewQueCrack;
+
   /// No description provided for @logrosTitulo.
   ///
   /// In es, this message translates to:
