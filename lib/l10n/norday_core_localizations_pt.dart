@@ -403,6 +403,18 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Não foi possível concluir a operação. Tente de novo.';
 
   @override
+  String get tiendaPreviewNavHabitos => 'Hábitos';
+
+  @override
+  String get tiendaPreviewNavPerfil => 'Perfil';
+
+  @override
+  String get tiendaPreviewHabito2 => 'Meditar 5 min';
+
+  @override
+  String get tiendaPreviewQueCrack => 'mandou bem!';
+
+  @override
   String get logrosTitulo => 'Minhas conquistas';
 
   @override

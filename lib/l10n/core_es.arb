@@ -184,6 +184,10 @@
     }
   },
   "tiendaError": "No se pudo completar la operación. Inténtalo de nuevo.",
+  "tiendaPreviewNavHabitos": "Hábitos",
+  "tiendaPreviewNavPerfil": "Perfil",
+  "tiendaPreviewHabito2": "Meditar 5 min",
+  "tiendaPreviewQueCrack": "¡qué crack!",
   "logrosTitulo": "Mis logros",
   "logrosSeccion": "Logros",
   "logrosPorcentaje": "{n}%",
