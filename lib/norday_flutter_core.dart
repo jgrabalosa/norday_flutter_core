@@ -30,6 +30,7 @@ export 'theme/avatares.dart';
 export 'theme/equipamiento.dart';
 export 'theme/mascota_assets.dart';
 export 'theme/mascota_refresh.dart';
+export 'theme/tono_error.dart';
 
 // ── Modelos ──────────────────────────────────────────────
 export 'models/usuario.dart';
@@ -43,8 +44,10 @@ export 'widgets/burbuja_flotante.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
 export 'widgets/halo_identidad.dart';
+export 'widgets/logo_google.dart';
 export 'widgets/mascota_animada_viva.dart';
 export 'widgets/mini_mascota.dart';
+export 'widgets/nori_marca.dart';
 export 'widgets/onboarding_overlay.dart';
 export 'widgets/selector_avatar_gratis.dart';
 export 'widgets/selector_preferencias.dart';
@@ -52,6 +55,7 @@ export 'widgets/skeleton.dart';
 export 'widgets/splash_generico.dart';
 export 'widgets/terrario_identidad.dart';
 export 'widgets/valoracion_sheet.dart';
+export 'widgets/wordmark_identidad.dart';
 
 // ── Pantallas ────────────────────────────────────────────
 export 'screens/login_screen.dart';

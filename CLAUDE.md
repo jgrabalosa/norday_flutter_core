@@ -20,12 +20,15 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
   `IdiomaService`, `ZonaService`.
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
-  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`.
+  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`,
+  `tonoError`.
 - `models/usuario.dart`.
-- `widgets/` — los 17 genéricos (anillo, puntos, burbuja, check, mascota viva,
+- `widgets/` — los 20 genéricos (anillo, puntos, burbuja, check, mascota viva,
   mini-mascota, onboarding, selector de avatar, selector de preferencias,
-  skeleton, splash, hoja de valoración, y los cinco de la escena de mascota:
-  halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel).
+  skeleton, splash, hoja de valoración, los cinco de la escena de mascota
+  —halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel— y
+  los tres de las pantallas de entrada: Nori de marca, wordmark de identidad y
+  logo de Google).
 - `screens/` — login, recuperación, tienda, mascota, logros, colección, perfil.
 - `l10n/` — `NordayCoreLocalizations` y `CatalogosCore`.
 - `assets/` — animations, sounds, mascota, avatares.
@@ -55,9 +58,10 @@ no puede importar de la app.
 ## Assets: siempre con `package:`
 
 Todo `Image.asset`/`Lottie.asset` de un asset de este paquete lleva
-`package: 'norday_flutter_core'`. La excepción es `SplashGenerico`, que pinta
-la `rutaImagen` que le pasa **la app** — ahí no se pone, porque el asset no es
-nuestro. `SonidoService` no usa `package:` sino un `AudioCache` con prefijo
+`package: 'norday_flutter_core'`. La excepción es la `rutaImagen` opcional de
+`SplashGenerico` — ahí no se pone, porque ese asset lo pasa **la app** y no es
+nuestro. Sin `rutaImagen`, el splash pinta a Nori (`NoriMarca`), que sí es
+nuestra y sí lleva el prefijo. `SonidoService` no usa `package:` sino un `AudioCache` con prefijo
 `packages/norday_flutter_core/assets/`, que es como audioplayers resuelve un
 asset de paquete.
 
