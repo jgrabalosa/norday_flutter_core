@@ -19,6 +19,7 @@ import '../widgets/nori_marca.dart';
 import '../widgets/superficie_identidad.dart';
 import '../widgets/wordmark_identidad.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'eleccion_identidad_screen.dart';
 import 'recuperacion_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -89,6 +90,32 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /// Adónde ir tras una sesión buena: si el usuario no posee identidad se
+  /// intercala la elección antes del destino de la app.
+  ///
+  /// [posee] viene de Equipamiento.cargarDeUsuarioSiSePuede: `null` es "no se
+  /// pudo averiguar" y entonces se deja pasar, porque un corte de red no
+  /// puede encerrar a nadie en una pantalla sin salida y la red de seguridad
+  /// del backend ya cubre el caso persistente.
+  void _irADestino(int usuarioId, bool esNuevo, bool? posee) {
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => posee == false
+            ? EleccionIdentidadScreen(
+                usuarioId: usuarioId,
+                alElegir: () => Navigator.pushReplacement(
+                  ctx,
+                  MaterialPageRoute(
+                      builder: (ctx2) => widget.destinoTrasLogin(ctx2, esNuevo)),
+                ),
+              )
+            : widget.destinoTrasLogin(ctx, esNuevo),
+      ),
+    );
+  }
+
   Future<void> _login() async {
     final l = NordayCoreLocalizations.of(context)!;
     setState(() { _loading = true; _error = null; });
@@ -102,14 +129,8 @@ class _LoginScreenState extends State<LoginScreen> {
       await AnalyticsCore.login(usuario.usuarioId);
       await _registrarNotificaciones(usuario.usuarioId);
       await _sincronizarPreferencias(usuario.usuarioId);
-      await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (ctx) => widget.destinoTrasLogin(ctx, false)),
-        );
-      }
+      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
+      _irADestino(usuario.usuarioId, false, posee);
     } catch (e) {
       if (mounted) setState(() { _error = _textoError(e, l); });
     } finally {
@@ -143,15 +164,8 @@ Future<void> _registro() async {
       await AnalyticsCore.registro(usuario.usuarioId);
       await _registrarNotificaciones(usuario.usuarioId);
       await _sincronizarPreferencias(usuario.usuarioId);
-      await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (ctx) => widget.destinoTrasLogin(ctx, true)),
-        );
-      }
+      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
+      _irADestino(usuario.usuarioId, true, posee);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -170,18 +184,17 @@ Future<void> _registro() async {
     try {
       final esNuevo = await ApiServiceCore.loginConGoogle();
       final usuarioLocal = await ApiServiceCore.getUsuarioLocal();
+      int? usuarioId;
+      bool? posee;
       if (usuarioLocal != null && usuarioLocal['usuarioId'] != null) {
-        await _registrarNotificaciones(usuarioLocal['usuarioId']);
-        await _sincronizarPreferencias(usuarioLocal['usuarioId']);
-        await Equipamiento.cargarDeUsuarioSiSePuede(usuarioLocal['usuarioId']);
+        usuarioId = usuarioLocal['usuarioId'] as int;
+        await _registrarNotificaciones(usuarioId);
+        await _sincronizarPreferencias(usuarioId);
+        posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuarioId);
       }
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (ctx) => widget.destinoTrasLogin(ctx, esNuevo)),
-        );
-      }
+      // Sin usuarioId no se puede elegir identidad: se deja pasar y ya lo
+      // resolverá el siguiente arranque.
+      _irADestino(usuarioId ?? 0, esNuevo, usuarioId == null ? null : posee);
     } catch (e) {
       if (mounted) {
         setState(() {
