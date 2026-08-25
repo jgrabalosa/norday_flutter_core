@@ -3,6 +3,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import '../services/api_error.dart';
 import '../services/api_service_core.dart';
+import '../theme/equipamiento.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../widgets/preview_identidad_tienda.dart';
@@ -119,12 +120,19 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
     final productoId = _items[_paginaActual].productoId;
     try {
       await ApiServiceCore.elegirIdentidad(widget.usuarioId, productoId);
+      // El backend ya la equipó, pero los notifiers que pintan la app siguen
+      // como estaban desde el login, cuando el usuario no tenía ninguna. Sin
+      // esto se entra con el aspecto por defecto aunque se haya elegido otro.
+      aplicarIdentidadEquipada(_items[_paginaActual].identidad.codigo);
       if (!mounted) return;
       widget.alElegir();
     } on ApiException catch (e) {
       if (e.codigoEstado == 409) {
         // Ya tiene una identidad (red de seguridad del backend): seguir
-        // como si hubiera elegido, no dejar al usuario atascado aquí.
+        // como si hubiera elegido, no dejar al usuario atascado aquí. Cuál
+        // es no lo sabemos —no es necesariamente la que acaba de tocar—, así
+        // que se relee del inventario para no entrar con el aspecto que no toca.
+        await Equipamiento.cargarDeUsuarioSiSePuede(widget.usuarioId);
         if (!mounted) return;
         widget.alElegir();
         return;
