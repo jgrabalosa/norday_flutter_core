@@ -19,6 +19,11 @@ class CheckCircular extends StatefulWidget {
   final Color colorVacio;
   final double tamano;
 
+  /// Etiqueta para lectores de pantalla. La pone quien usa el widget: el
+  /// core no conoce el dominio y no puede saber si esto completa un hábito,
+  /// marca una píldora o cualquier otra cosa.
+  final String? etiquetaSemantica;
+
   const CheckCircular({
     super.key,
     required this.hecho,
@@ -26,6 +31,7 @@ class CheckCircular extends StatefulWidget {
     required this.color,
     required this.colorVacio,
     this.tamano = 44,
+    this.etiquetaSemantica,
   });
 
   @override
@@ -105,30 +111,36 @@ class _CheckCircularState extends State<CheckCircular>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.hecho ? null : widget.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        // Amplía el área táctil sin agrandar el dibujo
-        padding: const EdgeInsets.all(6),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return Transform.scale(
-              scale: _pop.value,
-              child: CustomPaint(
-                size: Size.square(widget.tamano),
-                painter: _CheckPainter(
-                  relleno: _relleno.value,
-                  trazo: _trazo.value,
-                  color: widget.color,
-                  colorVacio: widget.colorVacio,
-                  forma: identidad(context).forma,
-                  chaflan: identidad(context).chaflan,
+    return Semantics(
+      button: true,
+      enabled: widget.onTap != null,
+      checked: widget.hecho,
+      label: widget.etiquetaSemantica,
+      child: GestureDetector(
+        onTap: widget.hecho ? null : widget.onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          // Amplía el área táctil sin agrandar el dibujo
+          padding: const EdgeInsets.all(6),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              return Transform.scale(
+                scale: _pop.value,
+                child: CustomPaint(
+                  size: Size.square(widget.tamano),
+                  painter: _CheckPainter(
+                    relleno: _relleno.value,
+                    trazo: _trazo.value,
+                    color: widget.color,
+                    colorVacio: widget.colorVacio,
+                    forma: identidad(context).forma,
+                    chaflan: identidad(context).chaflan,
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
