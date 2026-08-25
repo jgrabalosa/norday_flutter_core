@@ -125,6 +125,7 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
       if (e.codigoEstado == 409) {
         // Ya tiene una identidad (red de seguridad del backend): seguir
         // como si hubiera elegido, no dejar al usuario atascado aquí.
+        if (!mounted) return;
         widget.alElegir();
         return;
       }
@@ -251,17 +252,22 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
           Semantics(
             label: '${l.identidadElegir}: ${_items[_paginaActual].identidad.nombre}',
             button: true,
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _enviando ? null : () => _elegir(l),
-                child: _enviando
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l.identidadElegir),
+            child: ExcludeSemantics(
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _enviando ? null : () => _elegir(l),
+                  child: _enviando
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        )
+                      : Text(l.identidadElegir),
+                ),
               ),
             ),
           ),
