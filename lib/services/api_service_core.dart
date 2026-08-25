@@ -381,6 +381,17 @@ class ApiServiceCore {
     verificar(response);
   }
 
+  /// Identidad gratuita del onboarding. Endpoint distinto de otorgarProducto:
+  /// el backend solo permite una por cuenta y solo de categoría Tema.
+  static Future<void> elegirIdentidad(int usuarioId, int productoId) async {
+    final headers = await getHeaders();
+    final response = await enviar(() => cliente.post(
+          Uri.parse('$baseUrl/gamificacion/identidad/elegir/$usuarioId/$productoId'),
+          headers: headers,
+        ));
+    verificar(response);
+  }
+
   static Future<void> equiparProducto(int usuarioId, int productoId) async {
     final headers = await getHeaders();
     final response = await enviar(() => cliente.post(

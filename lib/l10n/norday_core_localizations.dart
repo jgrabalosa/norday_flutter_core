@@ -1302,6 +1302,42 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Email o contraseña incorrectos.'**
   String get loginCredenciales;
+
+  /// No description provided for @identidadTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige tu identidad'**
+  String get identidadTitulo;
+
+  /// No description provided for @identidadSubtitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Así se verá tu app. Desliza para ver las cuatro.'**
+  String get identidadSubtitulo;
+
+  /// No description provided for @identidadElegir.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir esta'**
+  String get identidadElegir;
+
+  /// No description provided for @identidadErrorGenerico.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar tu elección.'**
+  String get identidadErrorGenerico;
+
+  /// No description provided for @identidadErrorCatalogo.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar las identidades.'**
+  String get identidadErrorCatalogo;
+
+  /// No description provided for @reintentar.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get reintentar;
 }
 
 class _NordayCoreLocalizationsDelegate

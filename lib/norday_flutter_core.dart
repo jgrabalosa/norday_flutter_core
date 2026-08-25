@@ -60,6 +60,7 @@ export 'widgets/valoracion_sheet.dart';
 export 'widgets/wordmark_identidad.dart';
 
 // ── Pantallas ────────────────────────────────────────────
+export 'screens/eleccion_identidad_screen.dart';
 export 'screens/login_screen.dart';
 export 'screens/recuperacion_screen.dart';
 export 'screens/tienda_screen.dart';

@@ -664,4 +664,23 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
 
   @override
   String get loginCredenciales => 'Email o contraseña incorrectos.';
+
+  @override
+  String get identidadTitulo => 'Elige tu identidad';
+
+  @override
+  String get identidadSubtitulo =>
+      'Así se verá tu app. Desliza para ver las cuatro.';
+
+  @override
+  String get identidadElegir => 'Elegir esta';
+
+  @override
+  String get identidadErrorGenerico => 'No se pudo guardar tu elección.';
+
+  @override
+  String get identidadErrorCatalogo => 'No se pudieron cargar las identidades.';
+
+  @override
+  String get reintentar => 'Reintentar';
 }

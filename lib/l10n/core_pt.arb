@@ -199,5 +199,11 @@
   "errorSesionCaducada": "Sua sessão expirou. Entre novamente.",
   "errorRespuesta": "O servidor respondeu algo inesperado. Tente de novo.",
   "errorGenerico": "Não foi possível concluir a operação. Tente de novo.",
-  "loginCredenciales": "Email ou senha incorretos."
+  "loginCredenciales": "Email ou senha incorretos.",
+  "identidadTitulo": "Escolhe a tua identidade",
+  "identidadSubtitulo": "É assim que a tua app vai ficar. Desliza para ver as quatro.",
+  "identidadElegir": "Escolher esta",
+  "identidadErrorGenerico": "Não foi possível guardar a tua escolha.",
+  "identidadErrorCatalogo": "Não foi possível carregar as identidades.",
+  "reintentar": "Tentar novamente"
 }

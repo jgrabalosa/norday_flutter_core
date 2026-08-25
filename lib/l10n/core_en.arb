@@ -199,5 +199,11 @@
   "errorSesionCaducada": "Your session has expired. Please sign in again.",
   "errorRespuesta": "The server returned something unexpected. Please try again.",
   "errorGenerico": "Something went wrong. Please try again.",
-  "loginCredenciales": "Incorrect email or password."
+  "loginCredenciales": "Incorrect email or password.",
+  "identidadTitulo": "Choose your identity",
+  "identidadSubtitulo": "This is how your app will look. Swipe to see all four.",
+  "identidadElegir": "Choose this one",
+  "identidadErrorGenerico": "Your choice could not be saved.",
+  "identidadErrorCatalogo": "The identities could not be loaded.",
+  "reintentar": "Retry"
 }

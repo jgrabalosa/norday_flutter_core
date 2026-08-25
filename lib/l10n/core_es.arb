@@ -312,5 +312,11 @@
   "errorSesionCaducada": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
   "errorRespuesta": "El servidor ha respondido algo que no esperábamos. Inténtalo de nuevo.",
   "errorGenerico": "No se pudo completar la operación. Inténtalo de nuevo.",
-  "loginCredenciales": "Email o contraseña incorrectos."
+  "loginCredenciales": "Email o contraseña incorrectos.",
+  "identidadTitulo": "Elige tu identidad",
+  "identidadSubtitulo": "Así se verá tu app. Desliza para ver las cuatro.",
+  "identidadElegir": "Elegir esta",
+  "identidadErrorGenerico": "No se pudo guardar tu elección.",
+  "identidadErrorCatalogo": "No se pudieron cargar las identidades.",
+  "reintentar": "Reintentar"
 }

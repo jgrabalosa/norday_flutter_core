@@ -656,4 +656,23 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get loginCredenciales => 'Incorrect email or password.';
+
+  @override
+  String get identidadTitulo => 'Choose your identity';
+
+  @override
+  String get identidadSubtitulo =>
+      'This is how your app will look. Swipe to see all four.';
+
+  @override
+  String get identidadElegir => 'Choose this one';
+
+  @override
+  String get identidadErrorGenerico => 'Your choice could not be saved.';
+
+  @override
+  String get identidadErrorCatalogo => 'The identities could not be loaded.';
+
+  @override
+  String get reintentar => 'Retry';
 }
