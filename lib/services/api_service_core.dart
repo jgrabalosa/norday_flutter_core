@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/usuario.dart';
@@ -41,6 +42,23 @@ class ApiServiceCore {
   /// Autenticación: encadena varias llamadas (login + FCM + preferencias) y
   /// es la peor para cortar a medias, así que se le da más margen.
   static const Duration timeoutAuth = Duration(seconds: 30);
+
+  /// El token es lo único que se guarda cifrado: identifica al usuario ante
+  /// el backend durante 30 días. El resto (nombre, email, idioma) sigue en
+  /// SharedPreferences: no son secretos y no compensa el coste.
+  ///
+  /// resetOnError evita el fallo conocido de Android: si el Keystore se
+  /// corrompe (restauración de backup, cambio de dispositivo), leer lanza
+  /// excepción para siempre. Con esto se descarta y se trata como sesión
+  /// caducada, que es lo correcto.
+  static const _almacenSeguro = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+      resetOnError: true,
+    ),
+  );
+
+  static const _claveToken = 'token';
 
   // ── Tuberia comun de errores ───────────────────────────
   //
@@ -98,13 +116,16 @@ class ApiServiceCore {
 
   // ── Token ──────────────────────────────────────────────
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    try {
+      return await _almacenSeguro.read(key: _claveToken);
+    } catch (_) {
+      // Almacén ilegible: se trata como si no hubiera sesión.
+      return null;
+    }
   }
 
   static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
+    await _almacenSeguro.write(key: _claveToken, value: token);
   }
 
   static Future<void> saveUsuario(Usuario usuario) async {
@@ -146,7 +167,7 @@ class ApiServiceCore {
 
   static Future<Map<String, dynamic>?> getUsuarioLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token = await getToken();
     if (token == null) return null;
     return {
       'usuarioId': prefs.getInt('usuarioId'),
@@ -161,6 +182,9 @@ class ApiServiceCore {
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    // Sin esto el token sobreviviría al cierre de sesión: prefs.clear() ya
+    // no lo alcanza.
+    await _almacenSeguro.delete(key: _claveToken);
   }
 
   // ── Headers ────────────────────────────────────────────
@@ -271,9 +295,11 @@ class ApiServiceCore {
         ));
     verificar(response);
 
-    // Cuenta eliminada: limpiar toda la sesión local
+    // Cuenta eliminada: limpiar toda la sesión local. Igual que en logout(),
+    // prefs.clear() no alcanza el token cifrado.
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    await _almacenSeguro.delete(key: _claveToken);
   }
 
   static Future<void> registrarInteraccionResena(int usuarioId) async {
