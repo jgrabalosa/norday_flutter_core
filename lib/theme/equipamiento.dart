@@ -34,11 +34,28 @@ class Equipamiento {
   /// Igual que [cargarDeUsuario] pero sin propagar el fallo: al arrancar, no
   /// poder leer el inventario no es motivo para dejar al usuario fuera —
   /// se queda el tema por defecto y ya se corregirá al siguiente intento.
-  static Future<void> cargarDeUsuarioSiSePuede(int usuarioId) async {
+  ///
+  /// Devuelve si el usuario POSEE alguna identidad, que es lo que decide si
+  /// hay que enseñarle el onboarding de elección: `true` posee, `false` no
+  /// posee, `null` no se pudo averiguar (falló el inventario). Quien llame
+  /// debe tratar `null` como "no bloquear": un corte de red al arrancar no
+  /// puede encerrar a nadie en el onboarding, y la red de seguridad del
+  /// backend ya cubre el caso persistente.
+  ///
+  /// Se mira la POSESIÓN y no lo equipado a propósito: son lo mismo hoy
+  /// (otorgar equipa), pero la pregunta real es si tiene identidad.
+  static Future<bool?> cargarDeUsuarioSiSePuede(int usuarioId) async {
     try {
-      await cargarDeUsuario(usuarioId);
+      final inventario = await ApiServiceCore.getInventarioProductos(usuarioId);
+      final equipados = _codigosEquipados(inventario);
+      aplicarIdentidadEquipada(
+          equipados.where(catalogoIdentidades.containsKey).firstOrNull);
+      aplicarAvatarEquipado(
+          equipados.where(catalogoAvatares.containsKey).firstOrNull);
+      return _poseeIdentidad(inventario);
     } catch (_) {
       // El aspecto nunca debe romper el arranque.
+      return null;
     }
   }
 
@@ -75,5 +92,17 @@ class Equipamiento {
       if (codigo is String) codigos.add(codigo);
     }
     return codigos;
+  }
+
+  /// Posee identidad si alguno de los productos del inventario tiene un
+  /// código que esté en el catálogo local de identidades, esté equipado o no.
+  static bool _poseeIdentidad(List<dynamic> inventario) {
+    for (final up in inventario) {
+      final codigo = up['producto']?['codigo'];
+      if (codigo is String && catalogoIdentidades.containsKey(codigo)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
