@@ -49,6 +49,11 @@ final List<_Estrella> _estrellas = _generarEstrellas();
 /// cielo, y con cualquier otra el widget devuelve [child] tal cual, sin coste
 /// añadido. Escucha [identidadEquipadaNotifier] para encenderse o apagarse
 /// solo al cambiar de identidad.
+///
+/// Sin [child], este widget necesita que el padre le dé constraints
+/// ajustadas —un `Positioned.fill`, un `SizedBox.expand`— o medirá cero y no
+/// pintará nada: un `CustomPaint` sin hijo y sin `size` no ocupa espacio por
+/// sí mismo.
 class FondoEstelar extends StatelessWidget {
   final Widget? child;
 
@@ -120,7 +125,15 @@ class _FondoEstelarPainter extends CustomPainter {
     }
   }
 
+  // `TokensContextuales` no define `operator ==`, así que comparar el objeto
+  // entero compara referencias, no valores: funciona hoy sólo porque las
+  // cuatro paletas son `const` y Dart las canoniza. En cuanto alguien
+  // construya tokens en tiempo de ejecución, esa comparación deja de detectar
+  // "son iguales" y repinta cada frame. Se comparan los dos campos que el
+  // painter usa de verdad, que es lo que realmente decide si hay algo nuevo
+  // que pintar.
   @override
   bool shouldRepaint(covariant _FondoEstelarPainter oldDelegate) =>
-      oldDelegate.tokens != tokens;
+      oldDelegate.tokens.primary != tokens.primary ||
+      oldDelegate.tokens.text != tokens.text;
 }

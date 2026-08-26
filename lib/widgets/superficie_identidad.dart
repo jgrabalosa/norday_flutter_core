@@ -192,15 +192,26 @@ class SuperficieIdentidad extends StatelessWidget {
                 stops: const [0.0, 0.035, 1.0],
               )
             : null,
-        color: (id.forma == FormaIdentidad.glass && protagonista) ? null : t.surface,
+        // Sólo la secundaria de glass es translúcida: deja asomar el cielo
+        // por detrás. La protagonista se queda OPACA a propósito — medido
+        // contra el peor caso (una estrella a opacidad 0.85 justo debajo),
+        // sobre la capa base al 88% todo pasa AA (text 9.1, textMuted 6.52,
+        // primary 4.62, streak 5.6), pero sobre la capa elevada translúcida
+        // `primary` cae a 3.59 y deja de pasar — y es justo la superficie que
+        // lleva las cifras destacadas. Las otras tres identidades siguen con
+        // `t.surface` opaco.
+        color: (id.forma == FormaIdentidad.glass && protagonista)
+            ? null
+            : id.forma == FormaIdentidad.glass
+                ? t.surface.withValues(alpha: 0.88)
+                : t.surface,
         shadows: switch (id.forma) {
-          FormaIdentidad.glass => [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: protagonista ? 0.35 : 0.28),
-                blurRadius: protagonista ? 24 : 14,
-                offset: Offset(0, protagonista ? 10 : 5),
-              ),
-            ],
+          // Con el sistema de estratos la elevación la lleva la luminosidad
+          // de la capa y, en la protagonista, el canto del degradado. Una
+          // sombra negra sobre un fondo estelar apaga las estrellas en un
+          // halo alrededor de cada tarjeta, justo lo contrario del efecto
+          // buscado. Profundidad se queda sin sombra, como Neotokyo+.
+          FormaIdentidad.glass => const [],
           // Dulce: la sombra es del color de la identidad, no negra. Es lo que
           // convierte una sombra en un resplandor.
           FormaIdentidad.pill => [

@@ -10,6 +10,7 @@ import '../widgets/anillo_identidad.dart';
 import '../widgets/animacion_puntos.dart';
 import '../widgets/burbuja_contexto.dart';
 import '../widgets/celebracion_nivel.dart';
+import '../widgets/fondo_estelar.dart';
 import '../widgets/halo_identidad.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/skeleton.dart';
@@ -402,7 +403,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l.mascotaTitulo)),
-      body: contenido,
+      body: Stack(
+        children: [
+          const Positioned.fill(child: FondoEstelar()),
+          contenido,
+        ],
+      ),
     );
   }
 
