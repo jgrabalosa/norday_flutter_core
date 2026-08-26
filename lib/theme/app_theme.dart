@@ -92,14 +92,21 @@ class TokensContextuales {
   /// contrasta sobre el fondo de su propia paleta.
   final Color streakText;
 
+  /// La capa por encima de `surface`. La usan las identidades que resuelven
+  /// la elevación por luminosidad en vez de por sombra. Quien no la declare
+  /// se queda en `surface` y no cambia nada.
+  final Color surfaceAlta;
+
   const TokensContextuales({
     required this.primary, required this.success, required this.streak,
     required this.points, required this.bg, required this.surface,
     required this.surface2, required this.text, required this.textMuted,
     Color? successText,
     Color? streakText,
+    Color? surfaceAlta,
   })  : successText = successText ?? success,
-        streakText = streakText ?? streak;
+        streakText = streakText ?? streak,
+        surfaceAlta = surfaceAlta ?? surface;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
@@ -114,10 +121,15 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   streak: Color(0xFFFFB020),
   points: Color(0xFFFFB020),
   bg: Color(0xFF070D19),
-  // Ojo: en el render es un DEGRADADO 1A2841→121D31 (forma `glass`); como
-  // token plano vale el extremo claro.
-  surface: Color(0xFF1A2841),
-  surface2: Color(0xFF121D31),
+  // Escala de tres capas, de más hundida a más elevada: surface2 (hundida,
+  // 101B2F) → surface (base, 1E2E4C) → surfaceAlta (elevada, 2B4068). La
+  // jerarquía la lleva la luminosidad, no un degradado entre dos extremos.
+  // Contrastes verificados con WebAIM sobre estos fondos:
+  // text 12.04 sobre base y 9.17 sobre elevada; textMuted 8.62 y 6.56;
+  // primary 6.12 y 4.66; streak 7.41 y 5.64. Todos pasan AA.
+  surface: Color(0xFF1E2E4C),
+  surface2: Color(0xFF101B2F),
+  surfaceAlta: Color(0xFF2B4068),
   text: Color(0xFFEEF2F6),
   textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
 );

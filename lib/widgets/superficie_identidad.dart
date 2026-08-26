@@ -171,17 +171,28 @@ class SuperficieIdentidad extends StatelessWidget {
       margin: margen,
       decoration: ShapeDecoration(
         shape: forma,
-        // Profundidad es un degradado entre sus dos superficies; las otras dos
-        // son superficie plana. Un degradado y un color sólido no caben en el
-        // mismo campo, de ahí el reparto.
-        gradient: id.forma == FormaIdentidad.glass
+        // Sólo la superficie protagonista de Profundidad lleva degradado: el
+        // canto claro superior + la caída de surfaceAlta a surface2. El resto
+        // (secundarias de glass y las otras identidades) es color plano — la
+        // jerarquía la lleva la luminosidad de la capa, no el degradado.
+        //
+        // El canto va aquí, en un stop del relleno, y no en el `Border`: un
+        // borde con lados de distinto color no admite `borderRadius` en
+        // Flutter (assert de borde no uniforme). Es una restricción del
+        // framework, no una preferencia.
+        gradient: (id.forma == FormaIdentidad.glass && protagonista)
             ? LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [t.surface, t.surface2],
+                colors: [
+                  Colors.white.withValues(alpha: 0.22),
+                  t.surfaceAlta,
+                  t.surface2,
+                ],
+                stops: const [0.0, 0.035, 1.0],
               )
             : null,
-        color: id.forma == FormaIdentidad.glass ? null : t.surface,
+        color: (id.forma == FormaIdentidad.glass && protagonista) ? null : t.surface,
         shadows: switch (id.forma) {
           FormaIdentidad.glass => [
               BoxShadow(
