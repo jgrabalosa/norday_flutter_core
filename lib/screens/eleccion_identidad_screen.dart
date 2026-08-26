@@ -161,6 +161,7 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
       canPop: false,
       child: Scaffold(
         body: Stack(
+          fit: StackFit.expand,
           children: [
             const Positioned.fill(child: FondoEstelar()),
             SafeArea(

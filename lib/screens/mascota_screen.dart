@@ -402,11 +402,36 @@ class _MascotaScreenState extends State<MascotaScreen> {
     if (widget.embebida) return contenido;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.mascotaTitulo)),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(l.mascotaTitulo),
+        // Transparente para que la nebulosa verde —centrada contra el borde
+        // superior, en Alignment(0.44, -0.84)— se vea a través de la barra en
+        // vez de quedar tapada por un AppBar opaco.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Imprescindible: sin esto, Material 3 tiñe el AppBar en cuanto hay
+        // scroll debajo y vuelve a tapar la nebulosa.
+        scrolledUnderElevation: 0,
+      ),
       body: Stack(
+        // Un hijo no posicionado de Stack recibe constraints holgadas, no
+        // ajustadas como las que daba `body:` directamente: sin esto
+        // `contenido` se encoge a su tamaño minimo y el LayoutBuilder de más
+        // abajo, que calcula minHeight a partir de restricciones.maxHeight,
+        // pierde el viewport determinista que necesita.
+        fit: StackFit.expand,
         children: [
           const Positioned.fill(child: FondoEstelar()),
-          contenido,
+          // `contenido` no lleva SafeArea propio —sólo un padding de
+          // (24, 8, 24, 24)— y con extendBodyBehindAppBar empezaría debajo de
+          // la barra de estado si no se compensa aquí con kToolbarHeight.
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: kToolbarHeight),
+              child: contenido,
+            ),
+          ),
         ],
       ),
     );
