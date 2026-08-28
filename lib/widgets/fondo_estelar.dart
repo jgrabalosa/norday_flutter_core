@@ -163,14 +163,26 @@ class _FondoEstelarPainter extends CustomPainter {
 
     final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
 
-    // 0.85 es el techo y no es estético: es exactamente el peor caso contra
-    // el que se midieron los contrastes de `SuperficieIdentidad`. Una
-    // estrella más brillante invalidaría esa medición y con ella el 0.80 de
-    // las tarjetas.
+    // Lo hecho va en ÁMBAR (`tokens.streak`, el mismo color de las rachas) y
+    // lo que falta en blanco frío. No es decoración: mantiene el estado
+    // binario. Un ámbar apagado se leería como "a medias", y aquí una
+    // estrella está encendida o no está.
+    //
+    // El ámbar a opacidad PLENA es más seguro que el blanco a 0.85 que había
+    // antes, y no es intuición: `streak` (#FFB020) tiene luminancia relativa
+    // 0.524 contra el 0.883 de `text` (#EEF2F6), así que estorba mucho menos
+    // al texto de la tarjeta que tenga encima. Medido sobre tarjeta al 0.80
+    // con la estrella justo debajo: con blanco a 0.85 el peor contraste era
+    // `streak` a 4.56; con ámbar a 1.0 sube a 4.98. Se ve más Y pasa AA con
+    // más holgura.
+    //
+    // OJO al aclarar el ámbar hacia el crema: #FFD9A0 sube a luminancia 0.734
+    // y ese peor contraste cae a 4.40, por debajo de AA. El color es
+    // `tokens.streak` tal cual, no una versión aclarada.
     final trazo = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.1
-      ..color = tokens.text.withValues(alpha: 0.28);
+      ..strokeWidth = 1.2
+      ..color = tokens.streak.withValues(alpha: 0.38);
 
     for (final (a, b) in figura.segmentos) {
       if (a < encendidas && b < encendidas) {
@@ -179,11 +191,22 @@ class _FondoEstelarPainter extends CustomPainter {
       }
     }
 
+    // El halo va antes que el núcleo para que quede debajo. Es lo que hace
+    // que un punto se lea como estrella: sube el área iluminada sin subir el
+    // brillo máximo, que es lo único que la medición de contraste limita.
+    final halo = Paint()..color = tokens.streak.withValues(alpha: 0.22);
     final punto = Paint();
+
     for (var i = 0; i < figura.puntos.length; i++) {
-      final viva = i < encendidas;
-      punto.color = tokens.text.withValues(alpha: viva ? 0.85 : 0.16);
-      canvas.drawCircle(situar(figura.puntos[i]), viva ? 2.6 : 1.6, punto);
+      final centro = situar(figura.puntos[i]);
+      if (i < encendidas) {
+        canvas.drawCircle(centro, 7.0, halo);
+        punto.color = tokens.streak;
+        canvas.drawCircle(centro, 3.4, punto);
+      } else {
+        punto.color = tokens.text.withValues(alpha: 0.16);
+        canvas.drawCircle(centro, 1.6, punto);
+      }
     }
   }
 
