@@ -193,17 +193,26 @@ class SuperficieIdentidad extends StatelessWidget {
               )
             : null,
         // Sólo la secundaria de glass es translúcida: deja asomar el cielo
-        // por detrás. La protagonista se queda OPACA a propósito — medido
-        // contra el peor caso (una estrella a opacidad 0.85 justo debajo),
-        // sobre la capa base al 88% todo pasa AA (text 9.1, textMuted 6.52,
-        // primary 4.62, streak 5.6), pero sobre la capa elevada translúcida
-        // `primary` cae a 3.59 y deja de pasar — y es justo la superficie que
-        // lleva las cifras destacadas. Las otras tres identidades siguen con
-        // `t.surface` opaco.
+        // por detrás. La protagonista se queda OPACA a propósito — sobre la
+        // capa elevada translúcida `primary` cae a 3.59 y deja de pasar, y es
+        // justo la superficie que lleva las cifras destacadas. Las otras tres
+        // identidades siguen con `t.surface` opaco.
+        //
+        // 0.80 y no menos. Medido contra el peor caso (una estrella a
+        // opacidad 0.85 justo debajo): text 7.41, textMuted 5.31, streak 4.56,
+        // primary 3.77. Quien pone el suelo es `streak`, que es texto —el
+        // naranja de la racha— y cruza el 4.5 de AA entre 0.80 y 0.78. A 0.78
+        // se queda en 4.33 y deja de pasar.
+        //
+        // `primary` a 3.77 NO es un fallo aquí: en una superficie secundaria
+        // es el `CheckCircular`, un control, y los controles se rigen por WCAG
+        // 1.4.11, que pide 3:1. Donde `primary` lleva cifras es en la
+        // protagonista, que es opaca. Si algún día una superficie secundaria
+        // pinta números en `primary`, este 0.80 deja de valer.
         color: (id.forma == FormaIdentidad.glass && protagonista)
             ? null
             : id.forma == FormaIdentidad.glass
-                ? t.surface.withValues(alpha: 0.88)
+                ? t.surface.withValues(alpha: 0.80)
                 : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
