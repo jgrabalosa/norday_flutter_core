@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import '../theme/progreso_dia.dart';
+import 'constelaciones.dart';
 
 /// Una estrella del cielo de Profundidad. Posición normalizada 0..1 para que
 /// valga a cualquier tamaño de pantalla.
@@ -67,8 +69,12 @@ class FondoEstelar extends StatelessWidget {
         if (id.forma != FormaIdentidad.glass) {
           return child ?? const SizedBox.shrink();
         }
-        return CustomPaint(
-          painter: _FondoEstelarPainter(id.tokens),
+        return ValueListenableBuilder<ProgresoDia>(
+          valueListenable: progresoDiaNotifier,
+          builder: (context, progreso, child) => CustomPaint(
+            painter: _FondoEstelarPainter(id.tokens, progreso),
+            child: child,
+          ),
           child: child,
         );
       },
@@ -82,7 +88,11 @@ class _FondoEstelarPainter extends CustomPainter {
   /// no lee ningún notifier global.
   final TokensContextuales tokens;
 
-  const _FondoEstelarPainter(this.tokens);
+  /// Cuántos hábitos hay hoy y cuántos están hechos, para dibujar la
+  /// constelación del día.
+  final ProgresoDia progreso;
+
+  const _FondoEstelarPainter(this.tokens, this.progreso);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -123,6 +133,58 @@ class _FondoEstelarPainter extends CustomPainter {
         pinturaEstrella,
       );
     }
+
+    _pintarConstelacion(canvas, size);
+  }
+
+  /// La constelación va sobre el campo estelar y ocupa la banda central de la
+  /// pantalla, no la parte alta: la cabecera de Hoy ("Hoy" y la fecha) es el
+  /// único texto que NO va sobre tarjeta opaca, y una figura brillante detrás
+  /// de ella rompería el contraste. En la banda central el texto va siempre
+  /// sobre tarjeta.
+  void _pintarConstelacion(Canvas canvas, Size size) {
+    final figura = constelacionPara(progreso.total);
+    if (figura == null) return;
+
+    // La caja destino conserva la proporción de la figura: sin esto la Cruz
+    // del Sur se estira a lo ancho en una pantalla de móvil y deja de ser
+    // una cruz.
+    final destino = Rect.fromLTWH(
+      size.width * 0.14,
+      size.height * 0.30,
+      size.width * 0.72,
+      size.height * 0.44,
+    );
+    final lado = destino.width < destino.height ? destino.width : destino.height;
+    final origenX = destino.center.dx - lado / 2;
+    final origenY = destino.center.dy - lado / 2;
+    Offset situar(Offset p) =>
+        Offset(origenX + p.dx * lado, origenY + p.dy * lado);
+
+    final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
+
+    // 0.85 es el techo y no es estético: es exactamente el peor caso contra
+    // el que se midieron los contrastes de `SuperficieIdentidad`. Una
+    // estrella más brillante invalidaría esa medición y con ella el 0.80 de
+    // las tarjetas.
+    final trazo = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.1
+      ..color = tokens.text.withValues(alpha: 0.28);
+
+    for (final (a, b) in figura.segmentos) {
+      if (a < encendidas && b < encendidas) {
+        canvas.drawLine(
+            situar(figura.puntos[a]), situar(figura.puntos[b]), trazo);
+      }
+    }
+
+    final punto = Paint();
+    for (var i = 0; i < figura.puntos.length; i++) {
+      final viva = i < encendidas;
+      punto.color = tokens.text.withValues(alpha: viva ? 0.85 : 0.16);
+      canvas.drawCircle(situar(figura.puntos[i]), viva ? 2.6 : 1.6, punto);
+    }
   }
 
   // `TokensContextuales` no define `operator ==`, así que comparar el objeto
@@ -135,5 +197,6 @@ class _FondoEstelarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _FondoEstelarPainter oldDelegate) =>
       oldDelegate.tokens.primary != tokens.primary ||
-      oldDelegate.tokens.text != tokens.text;
+      oldDelegate.tokens.text != tokens.text ||
+      oldDelegate.progreso != progreso;
 }
