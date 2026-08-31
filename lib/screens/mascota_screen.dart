@@ -422,7 +422,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
         // pierde el viewport determinista que necesita.
         fit: StackFit.expand,
         children: [
-          const Positioned.fill(child: FondoEstelar()),
+          // Nivel 2: cielo tenue, como el resto de pantallas que se abren
+          // encima del shell.
+          const Positioned.fill(child: FondoEstelar.tenue()),
           // `extendBodyBehindAppBar` ya mete la altura del AppBar en el
           // padding del MediaQuery del body, y esa altura incluye la barra de
           // estado: el `_BodyBuilder` del Scaffold pone el `padding.top` en

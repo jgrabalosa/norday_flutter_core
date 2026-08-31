@@ -10,6 +10,7 @@ import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import 'tienda_screen.dart';
+import '../widgets/fondo_estelar.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/selector_avatar_gratis.dart';
 import '../widgets/superficie_identidad.dart';
@@ -204,11 +205,31 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     // Ya no es pestaña del shell: se abre como ruta desde el icono de arriba,
     // asi que trae su propia cabecera y su boton de volver.
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(l.navColeccion,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        // Transparente para que la nebulosa verde —centrada contra el borde
+        // superior— se vea a través de la barra en vez de quedar tapada.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Imprescindible: sin esto Material 3 tiñe el AppBar en cuanto hay
+        // scroll debajo y vuelve a tapar la nebulosa.
+        scrolledUnderElevation: 0,
       ),
-      body: _loading ? _skeletonColeccion() : _contenido(l, t),
+      body: Stack(
+        // Un hijo no posicionado de Stack recibe constraints holgadas, no
+        // ajustadas como las que daba `body:` directamente.
+        fit: StackFit.expand,
+        children: [
+          // Nivel 2: esta pantalla se abre ENCIMA del shell, así que tiene
+          // cielo pero no constelación —la monta el shell—. El cielo tenue
+          // dice «sigues dentro» sin fingir un progreso que aquí no se
+          // muestra.
+          const Positioned.fill(child: FondoEstelar.tenue()),
+          SafeArea(child: _loading ? _skeletonColeccion() : _contenido(l, t)),
+        ],
+      ),
     );
   }
 

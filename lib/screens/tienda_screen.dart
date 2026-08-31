@@ -9,7 +9,9 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
+import '../widgets/fondo_estelar.dart';
 import '../widgets/preview_identidad_tienda.dart';
+import '../widgets/superficie_identidad.dart';
 
 class TiendaScreen extends StatefulWidget {
   final int usuarioId;
@@ -133,37 +135,58 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final l = NordayCoreLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.tiendaTitulo)),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _cargarDatos,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          Icon(LucideIcons.coins, color: t.points, size: 40),
-                          const SizedBox(height: 8),
-                          Text('$_saldo',
-                              style: TextStyle(
-                                  fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
-                          Text(l.puntos, style: TextStyle(color: t.textMuted)),
-                        ],
-                      ),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(l.tiendaTitulo),
+        // Transparente para que la nebulosa verde —centrada contra el borde
+        // superior— se vea a través de la barra en vez de quedar tapada.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Imprescindible: sin esto Material 3 tiñe el AppBar en cuanto hay
+        // scroll debajo y vuelve a tapar la nebulosa.
+        scrolledUnderElevation: 0,
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Nivel 2: esta pantalla se abre ENCIMA del shell, así que tiene
+          // cielo pero no constelación —la monta el shell—. El cielo tenue
+          // dice «sigues dentro» sin fingir un progreso que aquí no se
+          // muestra.
+          const Positioned.fill(child: FondoEstelar.tenue()),
+          SafeArea(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _cargarDatos,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        SuperficieIdentidad(
+                          protagonista: true,
+                          relleno: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Icon(LucideIcons.coins, color: t.points, size: 40),
+                              const SizedBox(height: 8),
+                              Text('$_saldo',
+                                  style: TextStyle(
+                                      fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
+                              Text(l.puntos, style: TextStyle(color: t.textMuted)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(l.tiendaCatalogo,
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                        const SizedBox(height: 8),
+                        ..._catalogo.map((producto) => _productoCard(l, producto, t)),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(l.tiendaCatalogo,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
-                  const SizedBox(height: 8),
-                  ..._catalogo.map((producto) => _productoCard(l, producto, t)),
-                ],
-              ),
-            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -180,70 +203,71 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final procesandoEste = _procesando == productoId;
     final identidad = codigo != null ? catalogoIdentidades[codigo] : null;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      // El ripple de la previsualización tiene que respetar las esquinas.
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        // Sólo los temas se pueden previsualizar: del resto no hay nada que
-        // enseñar que no esté ya en la propia tarjeta.
-        onTap: identidad != null
-            ? () => _abrirPrevisualizacion(l, producto, identidad)
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return SuperficieIdentidad(
+      // Es un elemento de lista, no el protagonista de la pantalla: radio
+      // secundario, y en Alba línea fina debajo en vez de caja.
+      esFila: true,
+      margen: const EdgeInsets.only(bottom: 8),
+      relleno: const EdgeInsets.all(16),
+      // Sólo los temas se pueden previsualizar: del resto no hay nada que
+      // enseñar que no esté ya en la propia tarjeta.
+      //
+      // El `clipBehavior: Clip.antiAlias` que había aquí ya no hace falta:
+      // `SuperficieIdentidad` pasa `customBorder: forma` al InkWell, así que
+      // el ripple respeta la figura de la identidad, chaflán incluido.
+      onTap: identidad != null
+          ? () => _abrirPrevisualizacion(l, producto, identidad)
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  _iconoProducto(categoria, codigo, icono),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
-                        style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+              _iconoProducto(categoria, codigo, icono),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+              ),
+              if (equipado)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: t.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  if (equipado)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: t.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(l.tiendaEquipado,
-                          style: TextStyle(
-                              color: t.primary, fontSize: 12, fontWeight: FontWeight.bold)),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                  CatalogosCore.productoDescripcion(
-                      context, producto['codigo'], producto['descripcion']),
-                  style: TextStyle(color: t.textMuted)),
-              if (identidad != null) ...[
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    ChipIdentidad(identidad: identidad),
-                    const Spacer(),
-                    // Pista de que la tarjeta se puede tocar para verlo.
-                    Icon(LucideIcons.eye, size: 16, color: t.textMuted),
-                  ],
+                  child: Text(l.tiendaEquipado,
+                      style: TextStyle(
+                          color: t.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(l.tiendaPrecio(producto['precio'] as int),
-                      style: TextStyle(color: t.textMuted, fontWeight: FontWeight.w600)),
-                  _botonAccion(l, productoId, tipo, poseido, equipado, cantidad, codigo, categoria, procesandoEste),
-                ],
-              ),
             ],
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+              CatalogosCore.productoDescripcion(
+                  context, producto['codigo'], producto['descripcion']),
+              style: TextStyle(color: t.textMuted)),
+          if (identidad != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ChipIdentidad(identidad: identidad),
+                const Spacer(),
+                // Pista de que la tarjeta se puede tocar para verlo.
+                Icon(LucideIcons.eye, size: 16, color: t.textMuted),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(l.tiendaPrecio(producto['precio'] as int),
+                  style: TextStyle(color: t.textMuted, fontWeight: FontWeight.w600)),
+              _botonAccion(l, productoId, tipo, poseido, equipado, cantidad, codigo, categoria, procesandoEste),
+            ],
+          ),
+        ],
       ),
     );
   }

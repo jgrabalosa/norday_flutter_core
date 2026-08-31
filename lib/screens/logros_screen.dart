@@ -7,6 +7,7 @@ import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import '../widgets/fondo_estelar.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/superficie_identidad.dart';
 
@@ -78,65 +79,87 @@ class _LogrosScreenState extends State<LogrosScreen> {
     final pct = total > 0 ? conseguidos / total : 0.0;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.logrosTitulo)),
-      body: _loading
-          ? _skeletonLogros()
-          : RefreshIndicator(
-              onRefresh: _cargarDatos,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Saldo — el protagonista de la pantalla.
-                  SuperficieIdentidad(
-                    protagonista: true,
-                    relleno: const EdgeInsets.all(20),
-                    child: Column(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(l.logrosTitulo),
+        // Transparente para que la nebulosa verde —centrada contra el borde
+        // superior— se vea a través de la barra en vez de quedar tapada.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Imprescindible: sin esto Material 3 tiñe el AppBar en cuanto hay
+        // scroll debajo y vuelve a tapar la nebulosa.
+        scrolledUnderElevation: 0,
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Nivel 2: esta pantalla se abre ENCIMA del shell, así que tiene
+          // cielo pero no constelación —la monta el shell—. El cielo tenue
+          // dice «sigues dentro» sin fingir un progreso que aquí no se
+          // muestra.
+          const Positioned.fill(child: FondoEstelar.tenue()),
+          SafeArea(
+            child: _loading
+                ? _skeletonLogros()
+                : RefreshIndicator(
+                    onRefresh: _cargarDatos,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
                       children: [
-                        Icon(LucideIcons.coins, color: t.points, size: 40),
-                        const SizedBox(height: 8),
-                        Text('$_saldo',
-                            style: TextStyle(
-                                fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
-                        Text(l.puntos, style: TextStyle(color: t.textMuted)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Progreso global
-                  SuperficieIdentidad(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(l.detLogrosDe(conseguidos, total),
-                                style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
-                            Text(l.logrosPorcentaje((pct * 100).round()),
-                                style: TextStyle(color: t.textMuted)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: LinearProgressIndicator(
-                            value: pct,
-                            minHeight: 10,
-                            backgroundColor: t.surface2,
-                            valueColor: AlwaysStoppedAnimation(t.points),
+                        // Saldo — el protagonista de la pantalla.
+                        SuperficieIdentidad(
+                          protagonista: true,
+                          relleno: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Icon(LucideIcons.coins, color: t.points, size: 40),
+                              const SizedBox(height: 8),
+                              Text('$_saldo',
+                                  style: TextStyle(
+                                      fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
+                              Text(l.puntos, style: TextStyle(color: t.textMuted)),
+                            ],
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        // Progreso global
+                        SuperficieIdentidad(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(l.detLogrosDe(conseguidos, total),
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+                                  Text(l.logrosPorcentaje((pct * 100).round()),
+                                      style: TextStyle(color: t.textMuted)),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(999),
+                                child: LinearProgressIndicator(
+                                  value: pct,
+                                  minHeight: 10,
+                                  backgroundColor: t.surface2,
+                                  valueColor: AlwaysStoppedAnimation(t.points),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(l.logrosSeccion,
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                        const SizedBox(height: 8),
+                        ..._catalogo.map((logro) => _logroCard(l, logro, t)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(l.logrosSeccion,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
-                  const SizedBox(height: 8),
-                  ..._catalogo.map((logro) => _logroCard(l, logro, t)),
-                ],
-              ),
-            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -238,33 +261,30 @@ class _LogrosScreenState extends State<LogrosScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // Tarjeta de saldo
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: const [
-                  SkeletonBox(width: 40, height: 40, radius: 20),
-                  SizedBox(height: 12),
-                  SkeletonBox(width: 80, height: 24),
-                  SizedBox(height: 6),
-                  SkeletonBox(width: 50, height: 12),
-                ],
-              ),
+          SuperficieIdentidad(
+            protagonista: true,
+            relleno: const EdgeInsets.all(20),
+            child: Column(
+              children: const [
+                SkeletonBox(width: 40, height: 40, radius: 20),
+                SizedBox(height: 12),
+                SkeletonBox(width: 80, height: 24),
+                SizedBox(height: 6),
+                SkeletonBox(width: 50, height: 12),
+              ],
             ),
           ),
           const SizedBox(height: 12),
           // Barra de progreso
-          const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SkeletonBox(height: 14),
-                  SizedBox(height: 12),
-                  SkeletonBox(height: 10, radius: 999),
-                ],
-              ),
+          SuperficieIdentidad(
+            relleno: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(height: 14),
+                SizedBox(height: 12),
+                SkeletonBox(height: 10, radius: 999),
+              ],
             ),
           ),
           const SizedBox(height: 16),

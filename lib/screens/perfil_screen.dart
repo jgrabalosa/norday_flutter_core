@@ -8,6 +8,7 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
 import '../widgets/campo_identidad.dart';
+import '../widgets/fondo_estelar.dart';
 import '../widgets/selector_preferencias.dart';
 import '../widgets/superficie_identidad.dart';
 import 'login_screen.dart';
@@ -214,31 +215,45 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final id = identidad(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(l.perfilTitulo,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        // Transparente para que la nebulosa verde —centrada contra el borde
+        // superior— se vea a través de la barra en vez de quedar tapada.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Imprescindible: sin esto Material 3 tiñe el AppBar en cuanto hay
+        // scroll debajo y vuelve a tapar la nebulosa.
+        scrolledUnderElevation: 0,
       ),
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SelectorPreferencias(usuarioId: widget.usuarioId),
-                    const SizedBox(height: 12),
-                    _tarjetaDatos(l, t, id),
-                    if (!_esGoogle) ...[
-                      const SizedBox(height: 12),
-                      _tarjetaContrasena(l, t, id),
-                    ],
-                    const SizedBox(height: 12),
-                    _tarjetaZonaPeligro(l, id),
-                  ],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const Positioned.fill(child: FondoEstelar.tenue()),
+          _cargando
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SelectorPreferencias(usuarioId: widget.usuarioId),
+                        const SizedBox(height: 12),
+                        _tarjetaDatos(l, t, id),
+                        if (!_esGoogle) ...[
+                          const SizedBox(height: 12),
+                          _tarjetaContrasena(l, t, id),
+                        ],
+                        const SizedBox(height: 12),
+                        _tarjetaZonaPeligro(l, id),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
+        ],
+      ),
     );
   }
 
