@@ -113,7 +113,7 @@ class _SelectorAvatarGratisState extends State<SelectorAvatarGratis> {
                         backgroundColor: fondoAvatar,
                         child: Image.asset(info.asset, package: 'norday_flutter_core', width: 42, height: 42))
                   else
-                    CircleAvatar(radius: 28, backgroundColor: t.surface2),
+                    CircleAvatar(radius: 28, backgroundColor: t.inactivo),
                   const SizedBox(height: 8),
                   Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
                       maxLines: 1,

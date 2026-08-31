@@ -109,7 +109,7 @@ class _OnboardingContentState extends State<_OnboardingContent> {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: activo ? t.primary : t.surface2,
+            color: activo ? t.primary : t.inactivo,
           ),
         );
       }),

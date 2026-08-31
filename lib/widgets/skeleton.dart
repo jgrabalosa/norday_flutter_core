@@ -79,7 +79,10 @@ class SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: t.surface2,
+        // Un esqueleto se dibuja encima de lo que haya detrás, y desde que las
+        // pantallas de nivel 2 tienen cielo eso ya no es una superficie
+        // opaca: con `surface2` la carga se veía como una pantalla vacía.
+        color: t.inactivo,
         borderRadius: BorderRadius.circular(radius),
       ),
     );

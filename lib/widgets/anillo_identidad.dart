@@ -26,7 +26,9 @@ class AnilloIdentidad extends StatelessWidget {
   /// para quien ya venía eligiéndolo (`AnilloProgreso`).
   final Color? color;
 
-  /// Color de la pista de fondo. Por defecto `surface2`.
+  /// Color de la pista de fondo. Por defecto `inactivo`, que es el token que
+  /// nombra este trabajo. Quien lo pase explícitamente está tomando una
+  /// decisión de tema desde fuera de la paleta: piénsalo dos veces.
   final Color? colorPista;
 
   const AnilloIdentidad({
@@ -59,7 +61,7 @@ class AnilloIdentidad extends StatelessWidget {
             forma: id.forma,
             progreso: progreso,
             color: color ?? t.primary,
-            colorPista: colorPista ?? t.surface2,
+            colorPista: colorPista ?? t.inactivo,
           ),
         ),
       ),

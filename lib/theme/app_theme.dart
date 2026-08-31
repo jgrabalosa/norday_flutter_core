@@ -97,9 +97,17 @@ class TokensContextuales {
   /// se queda en `surface` y no cambia nada.
   final Color surfaceAlta;
 
-  /// La mitad ausente de un par presente/ausente: la pista de una barra o un
-  /// anillo de progreso, la celda de un heatmap sin datos, el día de descanso,
-  /// el día no seleccionado, la identidad que aún no se posee.
+  /// Lo que se dibuja donde no hay nada: la pista de una barra o un anillo de
+  /// progreso, la celda de un heatmap sin datos, el día de descanso, el día no
+  /// seleccionado, la identidad que aún no se posee, el hueco de un avatar sin
+  /// asset y la caja de un esqueleto de carga.
+  ///
+  /// Las dos primeras familias son «la mitad ausente de un par
+  /// presente/ausente» y la última es «contenido que todavía no ha llegado».
+  /// Comparten token a propósito: visualmente hacen lo mismo —marcar un hueco
+  /// sin llamar la atención— y deben pesar igual, porque a menudo se ven en la
+  /// misma pantalla. Lo que NO entra aquí es una superficie: si algo es una
+  /// capa del sistema de estratos, su color es `surface2`, no éste.
   ///
   /// Existe porque `surface2` hacía dos trabajos a la vez —la capa hundida del
   /// sistema de estratos y éste—, y eran el mismo color sólo mientras todo iba
