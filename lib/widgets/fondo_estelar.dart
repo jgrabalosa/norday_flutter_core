@@ -57,7 +57,27 @@ final List<_Estrella> _estrellas = _generarEstrellas();
 class FondoEstelar extends StatelessWidget {
   final Widget? child;
 
-  const FondoEstelar({super.key, this.child});
+  /// Cuánta luz llega. Es el mismo cielo en los dos casos —las mismas 44
+  /// estrellas en las mismas posiciones, las mismas dos nebulosas—, sólo que
+  /// más lejos. Menos estrellas sería OTRO cielo, y el nivel 2 son
+  /// habitaciones del mismo mundo, no otro sitio.
+  ///
+  /// Un solo factor para nebulosas y estrellas, y no uno por cosa, porque es
+  /// lo que hace la distancia de verdad: todo se apaga a la vez.
+  ///
+  /// Nivel 1 (1.0): las tres pestañas del shell, donde además va la
+  /// constelación. Nivel 2 (0.55): lo que se abre encima con
+  /// `Navigator.push` —Colección, Logros, Tienda, Perfil, Mascota a pantalla
+  /// completa—, que tiene cielo pero no constelación.
+  ///
+  /// Aquí no hay suelo de contraste que respetar: esto va detrás del
+  /// contenido y ninguna información depende de ello.
+  final double atenuacion;
+
+  const FondoEstelar({super.key, this.child}) : atenuacion = 1.0;
+
+  /// El cielo del nivel 2. Ver [atenuacion].
+  const FondoEstelar.tenue({super.key, this.child}) : atenuacion = 0.55;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +88,7 @@ class FondoEstelar extends StatelessWidget {
           return child ?? const SizedBox.shrink();
         }
         return CustomPaint(
-          painter: _FondoEstelarPainter(id.tokens),
+          painter: _FondoEstelarPainter(id.tokens, atenuacion),
           child: child,
         );
       },
@@ -82,7 +102,10 @@ class _FondoEstelarPainter extends CustomPainter {
   /// no lee ningún notifier global.
   final TokensContextuales tokens;
 
-  const _FondoEstelarPainter(this.tokens);
+  /// Ver [FondoEstelar.atenuacion].
+  final double atenuacion;
+
+  const _FondoEstelarPainter(this.tokens, this.atenuacion);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -94,7 +117,7 @@ class _FondoEstelarPainter extends CustomPainter {
         center: const Alignment(0.44, -0.84),
         radius: 1.3,
         colors: [
-          tokens.primary.withValues(alpha: 0.13),
+          tokens.primary.withValues(alpha: 0.13 * atenuacion),
           tokens.primary.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.62],
@@ -107,7 +130,7 @@ class _FondoEstelarPainter extends CustomPainter {
         center: const Alignment(-0.64, 0.64),
         radius: 1.0,
         colors: [
-          azulNebulosa.withValues(alpha: 0.16),
+          azulNebulosa.withValues(alpha: 0.16 * atenuacion),
           azulNebulosa.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.68],
@@ -116,7 +139,8 @@ class _FondoEstelarPainter extends CustomPainter {
 
     final pinturaEstrella = Paint();
     for (final estrella in _estrellas) {
-      pinturaEstrella.color = tokens.text.withValues(alpha: estrella.opacidad);
+      pinturaEstrella.color =
+          tokens.text.withValues(alpha: estrella.opacidad * atenuacion);
       canvas.drawCircle(
         Offset(estrella.x * size.width, estrella.y * size.height),
         estrella.radio,
@@ -135,5 +159,6 @@ class _FondoEstelarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _FondoEstelarPainter oldDelegate) =>
       oldDelegate.tokens.primary != tokens.primary ||
-      oldDelegate.tokens.text != tokens.text;
+      oldDelegate.tokens.text != tokens.text ||
+      oldDelegate.atenuacion != atenuacion;
 }
