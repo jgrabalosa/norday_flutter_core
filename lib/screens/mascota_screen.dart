@@ -423,15 +423,13 @@ class _MascotaScreenState extends State<MascotaScreen> {
         fit: StackFit.expand,
         children: [
           const Positioned.fill(child: FondoEstelar()),
-          // `contenido` no lleva SafeArea propio —sólo un padding de
-          // (24, 8, 24, 24)— y con extendBodyBehindAppBar empezaría debajo de
-          // la barra de estado si no se compensa aquí con kToolbarHeight.
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: kToolbarHeight),
-              child: contenido,
-            ),
-          ),
+          // `extendBodyBehindAppBar` ya mete la altura del AppBar en el
+          // padding del MediaQuery del body, y esa altura incluye la barra de
+          // estado: el `_BodyBuilder` del Scaffold pone el `padding.top` en
+          // `max(padding.top, altura del AppBar)`. Este SafeArea aparta las
+          // dos cosas de una vez. El `Padding(top: kToolbarHeight)` que había
+          // aquí reservaba el mismo espacio por segunda vez.
+          SafeArea(child: contenido),
         ],
       ),
     );
