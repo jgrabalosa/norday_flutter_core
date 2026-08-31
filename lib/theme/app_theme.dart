@@ -97,6 +97,31 @@ class TokensContextuales {
   /// se queda en `surface` y no cambia nada.
   final Color surfaceAlta;
 
+  /// La mitad ausente de un par presente/ausente: la pista de una barra o un
+  /// anillo de progreso, la celda de un heatmap sin datos, el día de descanso,
+  /// el día no seleccionado, la identidad que aún no se posee.
+  ///
+  /// Existe porque `surface2` hacía dos trabajos a la vez —la capa hundida del
+  /// sistema de estratos y éste—, y eran el mismo color sólo mientras todo iba
+  /// encima de una superficie opaca. En cuanto el contenido se apoya en el
+  /// fondo de la identidad dejan de serlo: `surface2` sobre el fondo de
+  /// Profundidad da 1.13 y desaparece.
+  ///
+  /// Cada paleta declara el suyo en vez de calcularse con una fórmula común,
+  /// porque la misma fórmula NO pesa igual en las cuatro: para llegar al mismo
+  /// contraste sobre su propio `bg`, Profundidad necesita `textMuted` al 0.29
+  /// y Alba al 0.48. Los cuatro valores están medidos a ~2.0 de contraste
+  /// sobre el `bg` de su paleta, que es lo que hace que el estado apagado pese
+  /// igual en todas.
+  ///
+  /// No se rige por WCAG 1.4.11: esto no es el contorno de un control, es la
+  /// mitad vacía de una figura, y la información la dan el `Semantics` y la
+  /// mitad llena. Un control que además use este color se gana su presencia
+  /// con lo suyo —grosor, borde—, no subiendo el token.
+  ///
+  /// Quien no lo declare se queda en `surface2` y no cambia nada.
+  final Color inactivo;
+
   const TokensContextuales({
     required this.primary, required this.success, required this.streak,
     required this.points, required this.bg, required this.surface,
@@ -104,9 +129,11 @@ class TokensContextuales {
     Color? successText,
     Color? streakText,
     Color? surfaceAlta,
+    Color? inactivo,
   })  : successText = successText ?? success,
         streakText = streakText ?? streak,
-        surfaceAlta = surfaceAlta ?? surface;
+        surfaceAlta = surfaceAlta ?? surface,
+        inactivo = inactivo ?? surface2;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
@@ -132,6 +159,8 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   surfaceAlta: Color(0xFF2B4068),
   text: Color(0xFFEEF2F6),
   textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
+  // `textMuted` al 0.29 sobre `bg`, resuelto a opaco. 2.02 de contraste.
+  inactivo: Color(0xFF3F4551),
 );
 
 /// Las dos familias tipográficas de la identidad equipada.

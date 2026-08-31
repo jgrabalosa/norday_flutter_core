@@ -142,7 +142,7 @@ class _LogrosScreenState extends State<LogrosScreen> {
                                 child: LinearProgressIndicator(
                                   value: pct,
                                   minHeight: 10,
-                                  backgroundColor: t.surface2,
+                                  backgroundColor: t.inactivo,
                                   valueColor: AlwaysStoppedAnimation(t.points),
                                 ),
                               ),

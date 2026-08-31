@@ -407,7 +407,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           child: LinearProgressIndicator(
             value: total == 0 ? 0 : poseidos / total,
             minHeight: 4,
-            backgroundColor: t.surface2,
+            backgroundColor: t.inactivo,
             valueColor: AlwaysStoppedAnimation(t.successText),
           ),
         ),
@@ -528,7 +528,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             identidadTema.tokens.success,
             identidadTema.tokens.points
           ]
-        : [t.surface2, t.surface2, t.surface2];
+        : [t.inactivo, t.inactivo, t.inactivo];
 
     final contenido = _cajaTarjeta(
       child: Row(

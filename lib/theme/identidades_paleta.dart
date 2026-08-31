@@ -36,6 +36,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       surface2: Color(0xFF160F28),
       text: Color(0xFFF5EEFF),
       textMuted: Color(0xFFA08FC2),
+      // `textMuted` al 0.41 sobre `bg`, resuelto a opaco. 2.01 de contraste.
+      inactivo: Color(0xFF473E5B),
     ),
     fontDisplay: 'Chakra Petch', // SÓLO títulos/cifras/chips — mayúsculas+tracking
     fontBody: 'IBM Plex Sans', // cuerpo de artículo/lista SIEMPRE aquí, nunca en Chakra Petch mayúscula
@@ -60,6 +62,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       surface2: Color(0xFFEAE5DB),
       text: Color(0xFF2C2824),
       textMuted: Color(0xFF6B6259),
+      // `textMuted` al 0.48 sobre `bg`, resuelto a opaco. 2.00 de contraste.
+      // Sobre fondo claro el apagado va hacia abajo, no hacia arriba, y hace
+      // falta casi el doble de mezcla que en Profundidad para pesar lo mismo.
+      inactivo: Color(0xFFB2ACA5),
       // El terracota ya contrasta como texto sobre los tres fondos de Alba
       // —6.13 sobre surface, 5.67 sobre bg, 5.09 sobre surface2 (WebAIM)—,
       // así que la variante de texto es su propio valor: se declara para
@@ -93,6 +99,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // se oscureció conservando el tono: éste pasa los tres fondos
       // (5.52 / 4.95 / 4.53).
       textMuted: Color(0xFFA04A83),
+      // `textMuted` al 0.48 sobre `bg`, resuelto a opaco. 2.00 de contraste.
+      inactivo: Color(0xFFCFA0BE),
       // Sobre fondo claro ni el rosa ni el coral de relleno valen como texto:
       // hacen falta las variantes oscurecidas. Verificadas con WebAIM sobre
       // los tres fondos de la identidad (surface / bg / surface2).
