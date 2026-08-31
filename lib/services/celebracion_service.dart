@@ -26,10 +26,12 @@ class CelebracionService {
 
 static Future<void> _procesarCola() async {
     Map<String, String> nombres = {};
+    Map<String, String> descripciones = {};
     try {
       final catalogo = await ApiServiceCore.getCatalogoLogros();
       for (var l in catalogo) {
         nombres[l['codigo']] = l['nombre'];
+        descripciones[l['codigo']] = l['descripcion'] ?? '';
       }
     } catch (_) {}
 
@@ -59,6 +61,7 @@ static Future<void> _procesarCola() async {
                   child: _CelebracionDialog(
                     codigo: codigo,
                     nombreBackend: nombres[codigo] ?? codigo,
+                    descripcionBackend: descripciones[codigo] ?? '',
                   ),
                 ),
               ),
@@ -83,7 +86,12 @@ static Future<void> _procesarCola() async {
 class _CelebracionDialog extends StatelessWidget {
   final String codigo;
   final String nombreBackend;
-  const _CelebracionDialog({required this.codigo, required this.nombreBackend});
+  final String descripcionBackend;
+  const _CelebracionDialog({
+    required this.codigo,
+    required this.nombreBackend,
+    required this.descripcionBackend,
+  });
 
   /// Lado de la insignia del trofeo. Manda en el diálogo, como mandaba el
   /// confeti de 140 que había antes en su sitio.
@@ -120,19 +128,35 @@ class _CelebracionDialog extends StatelessWidget {
             children: [
               _insignia(id, t),
               const SizedBox(height: 20),
+              // «Logro desbloqueado» pasa a ser una etiqueta pequeña: dice qué
+              // ha ocurrido, pero no merece el titular. El titular es el
+              // nombre del logro, que es la información de verdad, y debajo va
+              // el porqué. `logroDescripcion` ya existía traducida y no se
+              // usaba en ningún sitio.
               Text(l.celLogroDesbloqueado,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: t.textMuted),
+                  textAlign: TextAlign.center),
+              const SizedBox(height: 6),
+              Text(CatalogosCore.logro(context, codigo, nombreBackend),
                   style: Theme.of(context)
                       .textTheme
                       .headlineSmall
                       ?.copyWith(color: t.text),
                   textAlign: TextAlign.center),
-              const SizedBox(height: 8),
-              Text(CatalogosCore.logro(context, codigo, nombreBackend),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: t.textMuted),
-                  textAlign: TextAlign.center),
+              if (descripcionBackend.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                    CatalogosCore.logroDescripcion(
+                        context, codigo, descripcionBackend),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: t.textMuted),
+                    textAlign: TextAlign.center),
+              ],
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
