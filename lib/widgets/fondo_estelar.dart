@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
-import '../theme/progreso_dia.dart';
-import 'constelaciones.dart';
 
 /// Una estrella del cielo de Profundidad. Posición normalizada 0..1 para que
 /// valga a cualquier tamaño de pantalla.
@@ -69,12 +67,8 @@ class FondoEstelar extends StatelessWidget {
         if (id.forma != FormaIdentidad.glass) {
           return child ?? const SizedBox.shrink();
         }
-        return ValueListenableBuilder<ProgresoDia>(
-          valueListenable: progresoDiaNotifier,
-          builder: (context, progreso, child) => CustomPaint(
-            painter: _FondoEstelarPainter(id.tokens, progreso),
-            child: child,
-          ),
+        return CustomPaint(
+          painter: _FondoEstelarPainter(id.tokens),
           child: child,
         );
       },
@@ -88,11 +82,7 @@ class _FondoEstelarPainter extends CustomPainter {
   /// no lee ningún notifier global.
   final TokensContextuales tokens;
 
-  /// Cuántos hábitos hay hoy y cuántos están hechos, para dibujar la
-  /// constelación del día.
-  final ProgresoDia progreso;
-
-  const _FondoEstelarPainter(this.tokens, this.progreso);
+  const _FondoEstelarPainter(this.tokens);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -133,81 +123,6 @@ class _FondoEstelarPainter extends CustomPainter {
         pinturaEstrella,
       );
     }
-
-    _pintarConstelacion(canvas, size);
-  }
-
-  /// La constelación va sobre el campo estelar y ocupa la banda central de la
-  /// pantalla, no la parte alta: la cabecera de Hoy ("Hoy" y la fecha) es el
-  /// único texto que NO va sobre tarjeta opaca, y una figura brillante detrás
-  /// de ella rompería el contraste. En la banda central el texto va siempre
-  /// sobre tarjeta.
-  void _pintarConstelacion(Canvas canvas, Size size) {
-    final figura = constelacionPara(progreso.total);
-    if (figura == null) return;
-
-    // La caja destino conserva la proporción de la figura: sin esto la Cruz
-    // del Sur se estira a lo ancho en una pantalla de móvil y deja de ser
-    // una cruz.
-    final destino = Rect.fromLTWH(
-      size.width * 0.14,
-      size.height * 0.30,
-      size.width * 0.72,
-      size.height * 0.44,
-    );
-    final lado = destino.width < destino.height ? destino.width : destino.height;
-    final origenX = destino.center.dx - lado / 2;
-    final origenY = destino.center.dy - lado / 2;
-    Offset situar(Offset p) =>
-        Offset(origenX + p.dx * lado, origenY + p.dy * lado);
-
-    final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
-
-    // Lo hecho va en ÁMBAR (`tokens.streak`, el mismo color de las rachas) y
-    // lo que falta en blanco frío. No es decoración: mantiene el estado
-    // binario. Un ámbar apagado se leería como "a medias", y aquí una
-    // estrella está encendida o no está.
-    //
-    // El ámbar a opacidad PLENA es más seguro que el blanco a 0.85 que había
-    // antes, y no es intuición: `streak` (#FFB020) tiene luminancia relativa
-    // 0.524 contra el 0.883 de `text` (#EEF2F6), así que estorba mucho menos
-    // al texto de la tarjeta que tenga encima. Medido sobre tarjeta al 0.80
-    // con la estrella justo debajo: con blanco a 0.85 el peor contraste era
-    // `streak` a 4.56; con ámbar a 1.0 sube a 4.98. Se ve más Y pasa AA con
-    // más holgura.
-    //
-    // OJO al aclarar el ámbar hacia el crema: #FFD9A0 sube a luminancia 0.734
-    // y ese peor contraste cae a 4.40, por debajo de AA. El color es
-    // `tokens.streak` tal cual, no una versión aclarada.
-    final trazo = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..color = tokens.streak.withValues(alpha: 0.38);
-
-    for (final (a, b) in figura.segmentos) {
-      if (a < encendidas && b < encendidas) {
-        canvas.drawLine(
-            situar(figura.puntos[a]), situar(figura.puntos[b]), trazo);
-      }
-    }
-
-    // El halo va antes que el núcleo para que quede debajo. Es lo que hace
-    // que un punto se lea como estrella: sube el área iluminada sin subir el
-    // brillo máximo, que es lo único que la medición de contraste limita.
-    final halo = Paint()..color = tokens.streak.withValues(alpha: 0.22);
-    final punto = Paint();
-
-    for (var i = 0; i < figura.puntos.length; i++) {
-      final centro = situar(figura.puntos[i]);
-      if (i < encendidas) {
-        canvas.drawCircle(centro, 7.0, halo);
-        punto.color = tokens.streak;
-        canvas.drawCircle(centro, 3.4, punto);
-      } else {
-        punto.color = tokens.text.withValues(alpha: 0.16);
-        canvas.drawCircle(centro, 1.6, punto);
-      }
-    }
   }
 
   // `TokensContextuales` no define `operator ==`, así que comparar el objeto
@@ -220,6 +135,5 @@ class _FondoEstelarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _FondoEstelarPainter oldDelegate) =>
       oldDelegate.tokens.primary != tokens.primary ||
-      oldDelegate.tokens.text != tokens.text ||
-      oldDelegate.progreso != progreso;
+      oldDelegate.tokens.text != tokens.text;
 }

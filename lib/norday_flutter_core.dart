@@ -46,6 +46,7 @@ export 'widgets/campo_identidad.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
 export 'widgets/constelaciones.dart';
+export 'widgets/capa_constelacion.dart';
 export 'widgets/fondo_estelar.dart';
 export 'widgets/halo_identidad.dart';
 export 'widgets/logo_google.dart';
