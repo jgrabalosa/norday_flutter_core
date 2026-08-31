@@ -158,9 +158,12 @@ class SuperficieIdentidad extends StatelessWidget {
       radio: protagonista ? id.radioHero : id.radioSecundario,
       lado: filo ??
           switch (id.forma) {
-            // El filo claro es lo que hace que el cristal tenga canto.
-            FormaIdentidad.glass =>
-              BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            // El filo claro es lo que hace que el cristal tenga canto, y
+            // ahora sólo lo lleva la protagonista: la secundaria de
+            // Profundidad ya no tiene superficie que enmarcar.
+            FormaIdentidad.glass => protagonista
+                ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
+                : BorderSide.none,
             FormaIdentidad.chamfer =>
               BorderSide(color: t.primary.withValues(alpha: 0.55), width: 1.2),
             _ => BorderSide.none,
@@ -192,28 +195,18 @@ class SuperficieIdentidad extends StatelessWidget {
                 stops: const [0.0, 0.035, 1.0],
               )
             : null,
-        // Sólo la secundaria de glass es translúcida: deja asomar el cielo
-        // por detrás. La protagonista se queda OPACA a propósito — sobre la
-        // capa elevada translúcida `primary` cae a 3.59 y deja de pasar, y es
-        // justo la superficie que lleva las cifras destacadas. Las otras tres
-        // identidades siguen con `t.surface` opaco.
+        // Profundidad ya no pinta superficie en las secundarias: las filas
+        // van directamente sobre el cielo. Lo que separa una fila de la
+        // siguiente ya no es una caja, y lo que dice «esto se toca» es el
+        // propio CheckCircular, que en glass lleva aro grueso, base propia y
+        // el check insinuado.
         //
-        // 0.80 y no menos. Medido contra el peor caso (una estrella a
-        // opacidad 0.85 justo debajo): text 7.41, textMuted 5.31, streak 4.56,
-        // primary 3.77. Quien pone el suelo es `streak`, que es texto —el
-        // naranja de la racha— y cruza el 4.5 de AA entre 0.80 y 0.78. A 0.78
-        // se queda en 4.33 y deja de pasar.
+        // La protagonista sigue OPACA y con degradado, y por la misma razón
+        // de siempre: sobre capa translúcida `primary` cae a 3.59 y es justo
+        // la superficie que lleva las cifras destacadas.
         //
-        // `primary` a 3.77 NO es un fallo aquí: en una superficie secundaria
-        // es el `CheckCircular`, un control, y los controles se rigen por WCAG
-        // 1.4.11, que pide 3:1. Donde `primary` lleva cifras es en la
-        // protagonista, que es opaca. Si algún día una superficie secundaria
-        // pinta números en `primary`, este 0.80 deja de valer.
-        color: (id.forma == FormaIdentidad.glass && protagonista)
-            ? null
-            : id.forma == FormaIdentidad.glass
-                ? t.surface.withValues(alpha: 0.80)
-                : t.surface,
+        // Las otras tres identidades no cambian: `t.surface` opaco.
+        color: id.forma == FormaIdentidad.glass ? null : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
           // de la capa y, en la protagonista, el canto del degradado. Una

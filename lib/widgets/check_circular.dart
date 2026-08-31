@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 
@@ -111,6 +112,7 @@ class _CheckCircularState extends State<CheckCircular>
 
   @override
   Widget build(BuildContext context) {
+    final t = tokens(context);
     return Semantics(
       button: true,
       enabled: widget.onTap != null,
@@ -134,6 +136,8 @@ class _CheckCircularState extends State<CheckCircular>
                     trazo: _trazo.value,
                     color: widget.color,
                     colorVacio: widget.colorVacio,
+                    colorAro: t.textMuted.withValues(alpha: 0.70),
+                    colorBase: t.surface,
                     forma: identidad(context).forma,
                     chaflan: identidad(context).chaflan,
                   ),
@@ -159,14 +163,21 @@ class _TrazoCheck {
   /// Halo alrededor del relleno. A 0 no lo hay.
   final double glow;
 
+  /// Si esta identidad pinta el control sin tarjeta detrás. Cuando es cierto
+  /// el aro se dibuja sobre el fondo de la pantalla, así que necesita base
+  /// propia, color claro y el check insinuado.
+  final bool sinTarjeta;
+
   const _TrazoCheck({
     required this.aro,
     required this.check,
     this.glow = 0,
+    this.sinTarjeta = false,
   });
 }
 
-const _checkGlass = _TrazoCheck(aro: 2.5, check: 0.09, glow: 5);
+const _checkGlass =
+    _TrazoCheck(aro: 3.4, check: 0.09, glow: 5, sinTarjeta: true);
 const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10);
 const _checkHairline = _TrazoCheck(aro: 1.2, check: 0.07);
 const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10, glow: 7);
@@ -176,6 +187,12 @@ class _CheckPainter extends CustomPainter {
   final double trazo;
   final Color color;
   final Color colorVacio;
+
+  /// Sólo los usa la identidad sin tarjeta: el aro claro, que es lo único que
+  /// se lee sobre el cielo, y la base opaca, que impide que una estrella lo
+  /// cruce y lo parta.
+  final Color colorAro;
+  final Color colorBase;
   final FormaIdentidad forma;
   final double chaflan;
 
@@ -184,6 +201,8 @@ class _CheckPainter extends CustomPainter {
     required this.trazo,
     required this.color,
     required this.colorVacio,
+    required this.colorAro,
+    required this.colorBase,
     required this.forma,
     required this.chaflan,
   });
@@ -219,11 +238,41 @@ class _CheckPainter extends CustomPainter {
       ..close();
   }
 
+  /// El trazo del check dibujado hasta [progreso] (0 nada, 1 entero): dos
+  /// segmentos, bajada corta y subida larga.
+  Path _caminoCheck(Size size, double progreso) {
+    final p1 = Offset(size.width * 0.28, size.height * 0.53);
+    final p2 = Offset(size.width * 0.44, size.height * 0.68);
+    final p3 = Offset(size.width * 0.73, size.height * 0.35);
+
+    final path = Path()..moveTo(p1.dx, p1.dy);
+    final primerTramo = (progreso * 2).clamp(0.0, 1.0);
+    path.lineTo(
+      p1.dx + (p2.dx - p1.dx) * primerTramo,
+      p1.dy + (p2.dy - p1.dy) * primerTramo,
+    );
+    if (progreso > 0.5) {
+      final segundoTramo = ((progreso - 0.5) * 2).clamp(0.0, 1.0);
+      path.lineTo(
+        p2.dx + (p3.dx - p2.dx) * segundoTramo,
+        p2.dy + (p3.dy - p2.dy) * segundoTramo,
+      );
+    }
+    return path;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final t = _trazoDe;
     final centro = Offset(size.width / 2, size.height / 2);
     final radio = size.width / 2 - t.aro / 2;
+
+    // Sin tarjeta detrás, el control necesita base propia: le da cuerpo para
+    // que se lea como pulsable, y tapa el campo estelar, que si no cruza el
+    // aro y lo parte.
+    if (t.sinTarjeta) {
+      canvas.drawPath(_figura(centro, radio, 1.0), Paint()..color = colorBase);
+    }
 
     // Aro exterior (estado vacío)
     canvas.drawPath(
@@ -231,8 +280,23 @@ class _CheckPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = t.aro
-        ..color = colorVacio,
+        ..color = t.sinTarjeta ? colorAro : colorVacio,
     );
+
+    // El check insinuado: dice qué va a aparecer al pulsar, y hace que el
+    // trazo animado rellene un hueco que ya estaba ahí en vez de salir de la
+    // nada. Va debajo del relleno a propósito: cuando el círculo se llena, el
+    // verde lo tapa solo, sin necesidad de animar su desaparición.
+    if (t.sinTarjeta) {
+      canvas.drawPath(
+        _caminoCheck(size, 1.0),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.width * t.check
+          ..strokeCap = StrokeCap.round
+          ..color = colorAro.withValues(alpha: 0.15),
+      );
+    }
 
     // Relleno que crece desde el centro
     if (relleno > 0) {
@@ -250,33 +314,17 @@ class _CheckPainter extends CustomPainter {
       canvas.drawPath(dentro, Paint()..color = color);
     }
 
-    // Check dibujándose (dos segmentos: bajada corta + subida larga)
+    // Check dibujándose, ahora con el camino compartido.
     if (trazo > 0) {
-      final paintCheck = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.width * t.check
-        ..strokeCap =
-            forma == FormaIdentidad.chamfer ? StrokeCap.butt : StrokeCap.round
-        ..color = Colors.white;
-
-      final p1 = Offset(size.width * 0.28, size.height * 0.53);
-      final p2 = Offset(size.width * 0.44, size.height * 0.68);
-      final p3 = Offset(size.width * 0.73, size.height * 0.35);
-
-      final path = Path()..moveTo(p1.dx, p1.dy);
-      final primerTramo = (trazo * 2).clamp(0.0, 1.0);
-      path.lineTo(
-        p1.dx + (p2.dx - p1.dx) * primerTramo,
-        p1.dy + (p2.dy - p1.dy) * primerTramo,
+      canvas.drawPath(
+        _caminoCheck(size, trazo),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.width * t.check
+          ..strokeCap =
+              forma == FormaIdentidad.chamfer ? StrokeCap.butt : StrokeCap.round
+          ..color = Colors.white,
       );
-      if (trazo > 0.5) {
-        final segundoTramo = ((trazo - 0.5) * 2).clamp(0.0, 1.0);
-        path.lineTo(
-          p2.dx + (p3.dx - p2.dx) * segundoTramo,
-          p2.dy + (p3.dy - p2.dy) * segundoTramo,
-        );
-      }
-      canvas.drawPath(path, paintCheck);
     }
   }
 
@@ -285,5 +333,7 @@ class _CheckPainter extends CustomPainter {
       old.relleno != relleno ||
       old.trazo != trazo ||
       old.color != color ||
+      old.colorAro != colorAro ||
+      old.colorBase != colorBase ||
       old.forma != forma;
 }
