@@ -15,8 +15,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     // Definidos en app_theme.dart porque son también el arranque de
     // temaEquipadoNotifier — ver la nota allí.
     tokens: tokensProfundidad,
-    fontDisplay: 'Manrope',
-    fontBody: 'Manrope', // única familia en toda la identidad
+    fontDisplay: 'Space Grotesk',
+    fontBody: 'Manrope', // Space Grotesk sólo titula; el cuerpo nunca
     radioHero: 24,
     radioSecundario: 18,
     forma: FormaIdentidad.glass,

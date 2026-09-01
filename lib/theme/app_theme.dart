@@ -185,12 +185,13 @@ class FuentesIdentidad {
   const FuentesIdentidad({required this.display, required this.body});
 }
 
-/// La tipografía de "Profundidad", la de serie: una sola familia para todo.
+/// La tipografía de "Profundidad", la de serie: Space Grotesk para los
+/// titulares y Manrope para el cuerpo.
 ///
 /// Vive aquí por lo mismo que [tokensProfundidad] —ver la nota de arriba—:
 /// este fichero es la capa de abajo y no puede importar el catálogo.
 const FuentesIdentidad fuentesProfundidad =
-    FuentesIdentidad(display: 'Manrope', body: 'Manrope');
+    FuentesIdentidad(display: 'Space Grotesk', body: 'Manrope');
 
 /// La tipografía de la identidad equipada.
 ///
@@ -230,18 +231,24 @@ class AppTheme {
       surface: t.surface,
     );
 
+    // La letra sale de la identidad equipada, no del parámetro: `deTema`
+    // recibe sólo colores y las apps la llaman así desde antes de que una
+    // identidad fuera algo más que su paleta.
+    final tipografia = _tipografia(fuentesEquipadasNotifier.value);
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: t.bg,
-      // La letra sale de la identidad equipada, no del parámetro: `deTema`
-      // recibe sólo colores y las apps la llaman así desde antes de que una
-      // identidad fuera algo más que su paleta.
-      textTheme: _tipografia(fuentesEquipadasNotifier.value),
+      textTheme: tipografia,
       appBarTheme: AppBarTheme(
         backgroundColor: t.surface,
         foregroundColor: t.text,
         elevation: 1,
+        // Explícito y no heredado: Material saca el título del AppBar de
+        // `titleLarge`, que en esta escala es la cabecera de grupo y vale 16.
+        // El título de una pantalla es `headlineSmall`.
+        titleTextStyle: tipografia.headlineSmall?.copyWith(color: t.text),
       ),
       cardTheme: CardThemeData(
         color: t.surface,
@@ -273,19 +280,21 @@ class AppTheme {
 
   /// La escala tipográfica de la identidad equipada.
   ///
-  /// Los tamaños y la escala son los de Material, los mismos de siempre: lo
-  /// único que cambia con la identidad es la familia. Los roles de titular,
-  /// cifra y etiqueta corta (`display*`, `headline*`, `title*`) van en
-  /// [FuentesIdentidad.display]; los de texto de lectura (`body*`, `label*`)
-  /// en [FuentesIdentidad.body], que es SIEMPRE la más legible de la identidad.
+  /// La escala se declara aquí entera —tamaño y peso— y es la misma para las
+  /// cuatro identidades: lo único que cambia con la identidad es la familia.
+  /// Una identidad no puede tocar tamaños ni pesos porque no tiene dónde
+  /// declararlos, y ese es justo el motivo de que no se le añada el campo.
+  /// Los roles de titular, cifra y etiqueta corta (`display*`, `headline*`,
+  /// `title*`) van en [FuentesIdentidad.display]; los de texto de lectura
+  /// (`body*`, `label*`) en [FuentesIdentidad.body], que es SIEMPRE la más
+  /// legible de la identidad.
   ///
   /// `fontAcento` no entra aquí a propósito: es un detalle puntual que se
   /// invoca a mano donde toca, nunca una familia de uso general.
   ///
-  /// Pesos, los oficiales de siempre: Títulos 700 · Subtítulos 500 · Cuerpo 400
-  /// · Etiquetas 600. Se aplican ANTES de resolver la familia, y no después
-  /// como se hacía: google_fonts carga un fichero por variante y elige cuál
-  /// mirando el peso del estilo de partida, así que un `copyWith(fontWeight:)`
+  /// Tamaño y peso se aplican ANTES de resolver la familia, y no después como
+  /// se hacía: google_fonts carga un fichero por variante y elige cuál mirando
+  /// el peso del estilo de partida, así que un `copyWith(fontWeight:)`
   /// posterior cambiaba el número pero seguía pintando con el fichero regular.
   ///
   /// Y aquí entra la familia, nada más. Las mayúsculas y el tracking de
@@ -294,27 +303,57 @@ class AppTheme {
   /// Neotokyo+ pondría en mayúsculas hasta el cuerpo de un artículo.
   static TextTheme _tipografia(FuentesIdentidad fuentes) {
     final base = ThemeData.dark().textTheme;
-    final conPesos = base.copyWith(
-      // Títulos (H1-H3) → Bold 700
+    final escala = base.copyWith(
+      // ── Titulares — familia display ──────────────────────────────────────
+      // La cifra. Hoy, el saldo de puntos de Tienda y Logros.
+      displaySmall: base.displaySmall
+          ?.copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+      // Título de pantalla.
+      headlineMedium: base.headlineMedium
+          ?.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+      // Título de sección, y también el título del AppBar: `deTema` lo apunta
+      // explícitamente en `appBarTheme`, porque el de Material es `titleLarge`
+      // y aquí `titleLarge` vale otra cosa.
+      headlineSmall: base.headlineSmall
+          ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+      // Cabecera de grupo y título de estado vacío.
+      titleLarge: base.titleLarge
+          ?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+      // Nombre de ítem: un hábito, un producto, un logro. Va en la display a
+      // propósito — es lo que se nombra, no lo que se lee.
+      titleMedium: base.titleMedium
+          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
+      // Antetítulo: la etiqueta que encabeza un grupo. El tracking es suyo,
+      // no de quien lo usa.
+      titleSmall: base.titleSmall?.copyWith(
+          fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1),
+      // `displayLarge`, `displayMedium` y `headlineLarge` se quedan sin uso y
+      // sin tamaño declarado, para que quepa algo mayor que un título de
+      // pantalla el día que haga falta.
       headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.w700),
-      headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
-      headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-      titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-      // Subtítulos (H4-H5) → Medium 500
-      titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-      titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w500),
-      // Cuerpo → Regular 400
-      bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w400),
-      bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w400),
-      bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w400),
-      // Etiquetas/botones → SemiBold 600
-      labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+
+      // ── Cuerpo — familia body ────────────────────────────────────────────
+      // Texto largo, y título de `ListTile`, que hereda de aquí.
+      bodyLarge:
+          base.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.w400),
+      // Texto corriente.
+      bodyMedium:
+          base.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+      // Metadato y subtítulo.
+      bodySmall:
+          base.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+      // Botones.
+      labelLarge:
+          base.labelLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+      // Chips y contadores.
+      labelMedium:
+          base.labelMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w600),
     );
 
     // Dos pasadas sobre la misma escala: cada una devuelve los quince roles en
     // su familia, y de cada una se conservan los que le tocan.
-    final display = GoogleFonts.getTextTheme(fuentes.display, conPesos);
-    final cuerpo = GoogleFonts.getTextTheme(fuentes.body, conPesos);
+    final display = GoogleFonts.getTextTheme(fuentes.display, escala);
+    final cuerpo = GoogleFonts.getTextTheme(fuentes.body, escala);
 
     return TextTheme(
       displayLarge: display.displayLarge,

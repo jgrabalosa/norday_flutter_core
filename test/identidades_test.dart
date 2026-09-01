@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
@@ -9,6 +10,10 @@ import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 /// la busca en tiempo de ejecucion, y un codigo que no case con su clave rompe
 /// el equipado sin decir nada.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Sin esto, construir un tema en un test intenta bajar las fuentes por HTTP.
+  GoogleFonts.config.allowRuntimeFetching = false;
+
   final identidadInicial = identidadEquipadaNotifier.value;
 
   tearDown(() => aplicarIdentidadEquipada(identidadInicial.codigo));
@@ -77,5 +82,52 @@ void main() {
     aplicarIdentidadEquipada('TEMA_QUE_LLEGARA_EN_LA_PROXIMA_VERSION');
     expect(identidadEquipadaNotifier.value.codigo, 'TEMA_PROFUNDIDAD');
     expect(temaEquipadoNotifier.value, same(tokensProfundidad));
+  });
+
+  /// La escala vive en `AppTheme`, no en la paleta, y esto es lo que impide
+  /// que se le escape a una identidad. Profundidad es donde se mide; las otras
+  /// tres se la encuentran hecha y sólo aportan dos nombres de familia. El día
+  /// que alguien meta un tamaño en una paleta, esto se cae.
+  test('la escala tipografica es identica en las cuatro identidades', () {
+    Map<String, TextStyle?> rolesDe(TextTheme tt) => {
+          'displayLarge': tt.displayLarge,
+          'displayMedium': tt.displayMedium,
+          'displaySmall': tt.displaySmall,
+          'headlineLarge': tt.headlineLarge,
+          'headlineMedium': tt.headlineMedium,
+          'headlineSmall': tt.headlineSmall,
+          'titleLarge': tt.titleLarge,
+          'titleMedium': tt.titleMedium,
+          'titleSmall': tt.titleSmall,
+          'bodyLarge': tt.bodyLarge,
+          'bodyMedium': tt.bodyMedium,
+          'bodySmall': tt.bodySmall,
+          'labelLarge': tt.labelLarge,
+          'labelMedium': tt.labelMedium,
+          'labelSmall': tt.labelSmall,
+        };
+
+    Map<String, TextStyle?>? referencia;
+    String? codigoReferencia;
+
+    for (final entrada in catalogoIdentidades.entries) {
+      aplicarIdentidadEquipada(entrada.key);
+      final roles = rolesDe(AppTheme.deTema(entrada.value.tokens).textTheme);
+
+      if (referencia == null) {
+        referencia = roles;
+        codigoReferencia = entrada.key;
+        continue;
+      }
+
+      for (final rol in referencia.keys) {
+        final motivo = '$rol — ${entrada.key} frente a $codigoReferencia';
+        expect(roles[rol]?.fontSize, referencia[rol]?.fontSize, reason: motivo);
+        expect(roles[rol]?.fontWeight, referencia[rol]?.fontWeight,
+            reason: motivo);
+        expect(roles[rol]?.letterSpacing, referencia[rol]?.letterSpacing,
+            reason: motivo);
+      }
+    }
   });
 }
