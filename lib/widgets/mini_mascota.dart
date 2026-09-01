@@ -16,7 +16,24 @@ class MiniMascota extends StatefulWidget {
   final int usuarioId;
   final Size areaSize;
 
-  const MiniMascota({super.key, required this.usuarioId, required this.areaSize});
+  /// Franja derecha prohibida, para no taparle el toque a la columna de
+  /// acciones de la lista que haya debajo.
+  ///
+  /// El valor por defecto es el de la lista de Hoy: 44 del `CheckCircular`,
+  /// 6 de aire y 16 de relleno de la fila, redondeado a 72. Una pantalla con
+  /// otra maquetación pasa el suyo.
+  ///
+  /// Sin esto, Nori acaba encima de un aro —está encerrada en la mitad
+  /// inferior, que es justo la lista—, y como su caja es opaca al hit test se
+  /// come el toque: el hábito no se marca y no hay forma de saber por qué.
+  final double margenDerecho;
+
+  const MiniMascota({
+    super.key,
+    required this.usuarioId,
+    required this.areaSize,
+    this.margenDerecho = 72,
+  });
 
   @override
   State<MiniMascota> createState() => _MiniMascotaState();
@@ -123,6 +140,7 @@ class _MiniMascotaState extends State<MiniMascota> {
       size: tamano,
       onTap: _onTap,
       minTopFraction: 0.5,
+      margenDerecho: widget.margenDerecho,
       vagabundeo: true,
       // Agarra la caja entera, no solo el trozo que pinta la ilustración. Es
       // la misma caja de `size` con la que la burbuja calcula sus límites: sin

@@ -46,6 +46,15 @@ class BurbujaFlotante extends StatefulWidget {
   final double size;
   final VoidCallback? onTap;
   final double minTopFraction; // 0.0 = puede vivir en toda el área, 0.5 = solo mitad inferior
+
+  /// Franja del borde derecho donde la burbuja no puede entrar, en píxeles
+  /// lógicos. 0 = puede llegar hasta el margen normal.
+  ///
+  /// Sirve para dejar libre la columna de acciones de la lista que haya
+  /// debajo: una burbuja opaca al hit test encima de un control se come su
+  /// toque, y el usuario no tiene forma de saber por qué su pulsación no hizo
+  /// nada. Quien monta la burbuja es quien sabe dónde están sus controles.
+  final double margenDerecho;
   final bool vagabundeo;
   final Duration pasoMin;
   final Duration pasoMax;
@@ -70,6 +79,7 @@ class BurbujaFlotante extends StatefulWidget {
     this.size = 64,
     this.onTap,
     this.minTopFraction = 0.0,
+    this.margenDerecho = 0.0,
     this.vagabundeo = false,
     this.pasoMin = const Duration(seconds: 2),
     this.pasoMax = const Duration(seconds: 3),
@@ -87,6 +97,11 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
   double _dy = 0.75;
   bool _cargada = false;
   bool _arrastrando = false;
+
+  /// Hay un dedo apoyado encima. No es lo mismo que `_arrastrando`: eso no se
+  /// pone a true hasta que el arrastre gana el gesto, y para entonces la
+  /// burbuja ya se ha escapado del dedo.
+  bool _dedoEncima = false;
 
   late final AnimationController _snapController;
   Animation<double>? _dxAnim;
@@ -164,7 +179,7 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
         );
     Future.delayed(espera, () {
       if (!mounted || !_vivo) return;
-      if (!_arrastrando) _darPaso();
+      if (!_arrastrando && !_dedoEncima) _darPaso();
       _programarProximoPaso();
     });
   }
@@ -186,50 +201,71 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
     final minY = (tamano.height * widget.minTopFraction) + margen;
     final maxY = tamano.height - widget.size - margen;
 
-    final left = _dx * (tamano.width - widget.size - margen * 2) + margen;
+    // El borde derecho útil se recorta con `margenDerecho`. El `max(1.0, …)`
+    // protege la división de más abajo: en un área absurdamente estrecha el
+    // recorrido saldría cero o negativo.
+    final maxX = tamano.width - widget.size - margen - widget.margenDerecho;
+    final recorridoX = max(1.0, maxX - margen);
+
+    final left = _dx.clamp(0.0, 1.0) * recorridoX + margen;
     final top = _dy.clamp(0.0, 1.0) * (maxY - minY) + minY;
 
     return Positioned(
       left: left,
       top: top,
-      child: RawGestureDetector(
-        behavior: widget.behavior,
-        gestures: {
-          TapGestureRecognizer:
-              GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-            TapGestureRecognizer.new,
-            (r) => r.onTap = () {
-              HapticFeedback.lightImpact();
-              widget.onTap?.call();
-            },
-          ),
-          _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
-            _ArrastreLibre.new,
-            (r) {
-              r.onStart = (_) => setState(() => _arrastrando = true);
-              r.onUpdate = (details) {
-                setState(() {
-                  final nuevoLeft = (left + details.delta.dx)
-                      .clamp(margen, tamano.width - widget.size - margen);
-                  final nuevoTop = (top + details.delta.dy).clamp(minY, maxY);
-                  _dx = (nuevoLeft - margen) /
-                      (tamano.width - widget.size - margen * 2);
-                  _dy = (nuevoTop - minY) / (maxY - minY);
-                });
-              };
-              r.onEnd = (_) {
-                setState(() => _arrastrando = false);
-                // Se queda donde se suelte (sin imán a los lados). Si tiene
-                // vagabundeo, retoma sus paseos solos desde ahí.
-                _guardarPosicion();
-              };
-            },
-          ),
+      // El paseo se corta al APOYAR el dedo, no al empezar a arrastrar: el
+      // arrastre no gana el gesto hasta que hay movimiento, y hasta entonces
+      // una animación de paso en vuelo seguía deslizando la burbuja por debajo
+      // del dedo. Ésa era la causa de que costase cogerla, no el área táctil.
+      //
+      // `stop()` sin más deja `_dx`/`_dy` en el último fotograma pintado,
+      // porque el listener del controlador los escribe en cada tick: la
+      // burbuja se queda exactamente donde se ve.
+      child: Listener(
+        onPointerDown: (_) {
+          _snapController.stop();
+          _dedoEncima = true;
         },
-        child: AnimatedScale(
-          scale: _arrastrando ? 1.08 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          child: widget.child,
+        onPointerUp: (_) => _dedoEncima = false,
+        onPointerCancel: (_) => _dedoEncima = false,
+        child: RawGestureDetector(
+          behavior: widget.behavior,
+          gestures: {
+            TapGestureRecognizer:
+                GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+              TapGestureRecognizer.new,
+              (r) => r.onTap = () {
+                HapticFeedback.lightImpact();
+                widget.onTap?.call();
+              },
+            ),
+            _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
+              _ArrastreLibre.new,
+              (r) {
+                r.onStart = (_) => setState(() => _arrastrando = true);
+                r.onUpdate = (details) {
+                  setState(() {
+                    final nuevoLeft =
+                        (left + details.delta.dx).clamp(margen, maxX);
+                    final nuevoTop = (top + details.delta.dy).clamp(minY, maxY);
+                    _dx = (nuevoLeft - margen) / recorridoX;
+                    _dy = (nuevoTop - minY) / (maxY - minY);
+                  });
+                };
+                r.onEnd = (_) {
+                  setState(() => _arrastrando = false);
+                  // Se queda donde se suelte (sin imán a los lados). Si tiene
+                  // vagabundeo, retoma sus paseos solos desde ahí.
+                  _guardarPosicion();
+                };
+              },
+            ),
+          },
+          child: AnimatedScale(
+            scale: _arrastrando ? 1.08 : 1.0,
+            duration: const Duration(milliseconds: 150),
+            child: widget.child,
+          ),
         ),
       ),
     );
