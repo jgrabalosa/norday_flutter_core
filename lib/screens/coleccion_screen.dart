@@ -207,8 +207,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l.navColeccion,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(l.navColeccion),
         // Transparente para que la nebulosa verde —centrada contra el borde
         // superior— se vea a través de la barra en vez de quedar tapada.
         backgroundColor: Colors.transparent,
@@ -300,11 +299,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l.colSeleccionActual,
-              style: TextStyle(
-                  fontSize: 12,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w600,
-                  color: t.textMuted)),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(color: t.textMuted)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -314,8 +312,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                 child: Text(_nombre,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700, color: t.text)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(color: t.text)),
               ),
             ],
           ),
@@ -362,7 +362,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(l.colEligeAvatar,
-                  style: TextStyle(color: t.primary, fontWeight: FontWeight.w600)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelLarge
+                      ?.copyWith(color: t.primary)),
             ),
             SelectorAvatarGratis(
               usuarioId: widget.usuarioId,
@@ -393,12 +396,16 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(seccion.titulo(l),
-                  style: TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w700, color: t.text)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(color: t.text)),
             ),
             Text(l.colContador(poseidos, total),
-                style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600, color: t.textMuted)),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: t.textMuted)),
           ],
         ),
         const SizedBox(height: 8),
@@ -442,7 +449,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
       child: GestureDetector(
         onTap: _irATienda,
         child: Text(l.colDescubre(titulo),
-            style: TextStyle(color: t.primary, fontWeight: FontWeight.w600)),
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge
+                ?.copyWith(color: t.primary)),
       ),
     );
   }
@@ -542,7 +552,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             child: Text(CatalogosCore.producto(context, codigo, producto['nombre']),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.w700, color: t.text)),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: t.text)),
           ),
           if (poseido) ...[
             const SizedBox(width: 8),
@@ -576,8 +589,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(l.tiendaEquipado,
-          style: TextStyle(
-              color: t.successText, fontSize: 12, fontWeight: FontWeight.bold)),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: t.successText)),
     );
   }
 
@@ -618,11 +633,17 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                 Text(CatalogosCore.producto(context, codigo, producto['nombre']),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.w700, color: t.text)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: t.text)),
                 if (automatico) ...[
                   const SizedBox(height: 2),
                   Text(l.colSeActivaSolo,
-                      style: TextStyle(fontSize: 12, color: t.textMuted)),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: t.textMuted)),
                 ],
               ],
             ),
@@ -630,8 +651,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           if (poseido) ...[
             const SizedBox(width: 8),
             Text(l.colCantidad(cantidad),
-                style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w700, color: t.text)),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: t.text)),
             if (!automatico) ...[
               const SizedBox(width: 10),
               if (procesandoEste)

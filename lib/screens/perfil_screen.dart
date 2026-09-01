@@ -143,7 +143,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
             // El tono de error de la identidad equipada, no un rojo fijo:
             // ver `tonoError`.
             child: Text(l.comunContinuar,
-                style: TextStyle(color: tonoError(context).texto)),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(color: tonoError(context).texto)),
           ),
         ],
       ),
@@ -217,8 +220,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l.perfilTitulo,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(l.perfilTitulo),
         // Transparente para que la nebulosa verde —centrada contra el borde
         // superior— se vea a través de la barra en vez de quedar tapada.
         backgroundColor: Colors.transparent,
@@ -336,9 +338,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           children: [
             Text(
               l.perfilCambiarPass,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: t.text,
               ),
             ),
@@ -411,9 +411,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
         children: [
           Text(
             l.perfilZonaPeligro,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: tono.texto,
             ),
           ),

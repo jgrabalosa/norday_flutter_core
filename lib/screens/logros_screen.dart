@@ -115,9 +115,15 @@ class _LogrosScreenState extends State<LogrosScreen> {
                               Icon(LucideIcons.coins, color: t.points, size: 40),
                               const SizedBox(height: 8),
                               Text('$_saldo',
-                                  style: TextStyle(
-                                      fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
-                              Text(l.puntos, style: TextStyle(color: t.textMuted)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displaySmall
+                                      ?.copyWith(color: t.text)),
+                              Text(l.puntos,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: t.textMuted)),
                             ],
                           ),
                         ),
@@ -131,9 +137,15 @@ class _LogrosScreenState extends State<LogrosScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(l.detLogrosDe(conseguidos, total),
-                                      style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(color: t.text)),
                                   Text(l.logrosPorcentaje((pct * 100).round()),
-                                      style: TextStyle(color: t.textMuted)),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: t.textMuted)),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -151,7 +163,10 @@ class _LogrosScreenState extends State<LogrosScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(l.logrosSeccion,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: t.text)),
                         const SizedBox(height: 8),
                         ..._catalogo.map((logro) => _logroCard(l, logro, t)),
                       ],
@@ -198,14 +213,15 @@ class _LogrosScreenState extends State<LogrosScreen> {
                         child: Text(
                             CatalogosCore.logro(
                                 context, logro['codigo'], logro['nombre']),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, color: t.text)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: t.text)),
                       ),
                       const SizedBox(width: 8),
                       Text(l.logrosPuntos(logro['puntos'] as int),
-                          style: TextStyle(
-                              color: conseguido ? t.points : t.textMuted,
-                              fontWeight: FontWeight.w600)),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: conseguido ? t.points : t.textMuted)),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -216,7 +232,10 @@ class _LogrosScreenState extends State<LogrosScreen> {
                         CatalogosCore.logroCategoria(context, logro['categoria']),
                         CatalogosCore.logroNivel(context, logro['nivel']),
                       ),
-                      style: TextStyle(color: t.textMuted, fontSize: 12)),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: t.textMuted)),
                 ],
               ),
             ),

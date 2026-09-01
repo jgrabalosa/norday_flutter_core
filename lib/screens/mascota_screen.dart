@@ -314,10 +314,10 @@ class _MascotaScreenState extends State<MascotaScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(_nombreVisible(l),
-                                    style: TextStyle(
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.bold,
-                                        color: t.text)),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall
+                                        ?.copyWith(color: t.text)),
                                 const SizedBox(width: 6),
                                 Icon(LucideIcons.pencil,
                                     size: 16, color: t.textMuted),
@@ -343,12 +343,17 @@ class _MascotaScreenState extends State<MascotaScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(l.mascotaNivel(_nivel),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: t.text)),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: t.text)),
                             Text(
                                 l.mascotaXp(
                                     _xpEnNivelActual, _xpParaSiguienteNivel),
-                                style: TextStyle(color: t.textMuted)),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(color: t.textMuted)),
                           ],
                         ),
                         // El progreso ya no va aquí: es el aro que rodea a la

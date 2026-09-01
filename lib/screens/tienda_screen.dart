@@ -170,15 +170,24 @@ class _TiendaScreenState extends State<TiendaScreen> {
                               Icon(LucideIcons.coins, color: t.points, size: 40),
                               const SizedBox(height: 8),
                               Text('$_saldo',
-                                  style: TextStyle(
-                                      fontSize: 28, fontWeight: FontWeight.w800, color: t.text)),
-                              Text(l.puntos, style: TextStyle(color: t.textMuted)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displaySmall
+                                      ?.copyWith(color: t.text)),
+                              Text(l.puntos,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: t.textMuted)),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(l.tiendaCatalogo,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: t.text)),
                         const SizedBox(height: 8),
                         ..._catalogo.map((producto) => _productoCard(l, producto, t)),
                       ],
@@ -227,7 +236,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
-                    style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: t.text)),
               ),
               if (equipado)
                 Container(
@@ -237,8 +249,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(l.tiendaEquipado,
-                      style: TextStyle(
-                          color: t.primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: t.primary)),
                 ),
             ],
           ),
@@ -246,7 +260,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
           Text(
               CatalogosCore.productoDescripcion(
                   context, producto['codigo'], producto['descripcion']),
-              style: TextStyle(color: t.textMuted)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: t.textMuted)),
           if (identidad != null) ...[
             const SizedBox(height: 10),
             Row(
@@ -263,7 +280,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(l.tiendaPrecio(producto['precio'] as int),
-                  style: TextStyle(color: t.textMuted, fontWeight: FontWeight.w600)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: t.textMuted)),
               _botonAccion(l, productoId, tipo, poseido, equipado, cantidad, codigo, categoria, procesandoEste),
             ],
           ),
@@ -318,7 +338,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
               Text(CatalogosCore.producto(context, codigo, producto['nombre']),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 16),
               MaquetaPreviewIdentidad(identidad: identidad),
               const SizedBox(height: 16),
