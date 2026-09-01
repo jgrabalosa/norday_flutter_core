@@ -348,6 +348,11 @@ class AppTheme {
       // Chips y contadores.
       labelMedium:
           base.labelMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+      // Micro-etiqueta: el pie de una cifra, la leyenda de un heatmap. Es el
+      // suelo de la escala y no hay nada por debajo: si algo pide menos de 11,
+      // el problema es el sitio, no el tamaño.
+      labelSmall:
+          base.labelSmall?.copyWith(fontSize: 11, fontWeight: FontWeight.w600),
     );
 
     // Dos pasadas sobre la misma escala: cada una devuelve los quince roles en
