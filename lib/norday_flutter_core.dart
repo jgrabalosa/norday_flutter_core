@@ -37,16 +37,16 @@ export 'theme/tono_error.dart';
 export 'models/usuario.dart';
 
 // ── Widgets ──────────────────────────────────────────────
-export 'widgets/anillo_progreso.dart';
 export 'widgets/anillo_identidad.dart';
+export 'widgets/anillo_progreso.dart';
 export 'widgets/animacion_puntos.dart';
 export 'widgets/burbuja_contexto.dart';
 export 'widgets/burbuja_flotante.dart';
 export 'widgets/campo_identidad.dart';
+export 'widgets/capa_constelacion.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
 export 'widgets/constelaciones.dart';
-export 'widgets/capa_constelacion.dart';
 export 'widgets/fondo_estelar.dart';
 export 'widgets/halo_identidad.dart';
 export 'widgets/logo_google.dart';
@@ -62,6 +62,12 @@ export 'widgets/superficie_identidad.dart';
 export 'widgets/terrario_identidad.dart';
 export 'widgets/valoracion_sheet.dart';
 export 'widgets/wordmark_identidad.dart';
+
+// `preview_identidad_tienda.dart` NO se exporta a propósito: declara una
+// `ChipIdentidad` que colisiona con la de `identidad_ui.dart` de
+// habitos_app_mobile, y seis pantallas del móvil importan las dos cosas en el
+// mismo fichero. Exportarlo rompe la compilación del móvil. Dentro del core se
+// usa por import relativo desde Tienda y Elección de identidad.
 
 // ── Pantallas ────────────────────────────────────────────
 export 'screens/eleccion_identidad_screen.dart';
