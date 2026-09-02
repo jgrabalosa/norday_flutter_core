@@ -62,7 +62,6 @@ export 'widgets/superficie_identidad.dart';
 export 'widgets/terrario_identidad.dart';
 export 'widgets/valoracion_sheet.dart';
 export 'widgets/wordmark_identidad.dart';
-
 // `preview_identidad_tienda.dart` NO se exporta a propósito: declara una
 // `ChipIdentidad` que colisiona con la de `identidad_ui.dart` de
 // habitos_app_mobile, y seis pantallas del móvil importan las dos cosas en el
