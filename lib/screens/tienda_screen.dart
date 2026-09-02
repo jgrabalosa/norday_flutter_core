@@ -4,6 +4,7 @@ import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
+import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
@@ -80,14 +81,19 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   Future<void> _comprar(int productoId) async {
     setState(() => _procesando = productoId);
+    List<String> logros = const [];
     try {
-      await ApiServiceCore.comprarProducto(widget.usuarioId, productoId);
+      logros = await ApiServiceCore.comprarProducto(widget.usuarioId, productoId);
       await _cargarDatos();
     } catch (e) {
       _mostrarError(e);
     } finally {
       if (mounted) setState(() => _procesando = null);
     }
+    // Después de recargar, para que al cerrar el diálogo la tienda ya muestre
+    // el producto como poseído. Y fuera del try: si falla la recarga, la
+    // compra sí ocurrió y su logro se celebra igual.
+    if (mounted) await CelebracionService.mostrar(logros);
   }
 
   Future<void> _equipar(int productoId, String? codigo, String categoria) async {

@@ -363,13 +363,34 @@ class ApiServiceCore {
     return parsear(() => jsonDecode(response.body) as List<dynamic>);
   }
 
-  static Future<void> comprarProducto(int usuarioId, int productoId) async {
+  /// Los códigos de logro de una respuesta que los trae en `logrosOtorgados`.
+  ///
+  /// A propósito NO usa `parsear`: un 200 ya significa que la operación se
+  /// hizo, y la lista es decorativa. Si el cuerpo no se puede leer —porque el
+  /// backend nuevo aún no está desplegado y devuelve una cadena suelta— se
+  /// devuelve lista vacía, nunca un error sobre una compra que sí ocurrió.
+  static List<String> _logrosDelCuerpo(String cuerpo) {
+    try {
+      final data = jsonDecode(cuerpo);
+      if (data is Map && data['logrosOtorgados'] is List) {
+        return List<String>.from(data['logrosOtorgados'] as List);
+      }
+    } catch (_) {
+      // Cuerpo no JSON o con otra forma: sin logros que celebrar.
+    }
+    return const [];
+  }
+
+  /// Devuelve los códigos de logro desbloqueados por la compra — hoy sólo los
+  /// `IDENTIDAD_*` de los temas.
+  static Future<List<String>> comprarProducto(int usuarioId, int productoId) async {
     final headers = await getHeaders();
     final response = await enviar(() => cliente.post(
           Uri.parse('$baseUrl/gamificacion/productos/comprar/$usuarioId/$productoId'),
           headers: headers,
         ));
     verificar(response);
+    return _logrosDelCuerpo(response.body);
   }
 
   static Future<void> otorgarProducto(int usuarioId, int productoId) async {
@@ -383,13 +404,14 @@ class ApiServiceCore {
 
   /// Identidad gratuita del onboarding. Endpoint distinto de otorgarProducto:
   /// el backend solo permite una por cuenta y solo de categoría Tema.
-  static Future<void> elegirIdentidad(int usuarioId, int productoId) async {
+  static Future<List<String>> elegirIdentidad(int usuarioId, int productoId) async {
     final headers = await getHeaders();
     final response = await enviar(() => cliente.post(
           Uri.parse('$baseUrl/gamificacion/identidad/elegir/$usuarioId/$productoId'),
           headers: headers,
         ));
     verificar(response);
+    return _logrosDelCuerpo(response.body);
   }
 
   static Future<void> equiparProducto(int usuarioId, int productoId) async {

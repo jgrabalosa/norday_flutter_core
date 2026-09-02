@@ -3,6 +3,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import '../services/api_error.dart';
 import '../services/api_service_core.dart';
+import '../services/celebracion_service.dart';
 import '../theme/equipamiento.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
@@ -120,11 +121,19 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
 
     final productoId = _items[_paginaActual].productoId;
     try {
-      await ApiServiceCore.elegirIdentidad(widget.usuarioId, productoId);
+      final logros =
+          await ApiServiceCore.elegirIdentidad(widget.usuarioId, productoId);
       // El backend ya la equipó, pero los notifiers que pintan la app siguen
       // como estaban desde el login, cuando el usuario no tenía ninguna. Sin
       // esto se entra con el aspecto por defecto aunque se haya elegido otro.
       aplicarIdentidadEquipada(_items[_paginaActual].identidad.codigo);
+      if (!mounted) return;
+      // La celebración va ANTES de alElegir(), no después: la pantalla sigue
+      // montada, la identidad recién elegida ya está aplicada —así que el
+      // diálogo se pinta con su piel— y al cerrarlo se navega. Después de
+      // alElegir() caería encima del overlay de onboarding, que HomeShell
+      // dispara en su primer frame para todo usuario nuevo.
+      await CelebracionService.mostrar(logros);
       if (!mounted) return;
       widget.alElegir();
     } on ApiException catch (e) {
