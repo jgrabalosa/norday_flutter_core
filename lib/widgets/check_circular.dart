@@ -20,10 +20,20 @@ class CheckCircular extends StatefulWidget {
   final Color colorVacio;
   final double tamano;
 
+  /// Qué hace un toque cuando ya está [hecho]. Sin esto el check marcado no
+  /// es tocable, que es como se ha comportado siempre y como se siguen
+  /// comportando los usos de solo lectura.
+  final VoidCallback? onDeshacer;
+
   /// Etiqueta para lectores de pantalla. La pone quien usa el widget: el
   /// core no conoce el dominio y no puede saber si esto completa un hábito,
   /// marca una píldora o cualquier otra cosa.
   final String? etiquetaSemantica;
+
+  /// La etiqueta cuando está [hecho] y hay [onDeshacer]: el botón ya no
+  /// promete lo mismo, y un lector de pantalla tiene que anunciar la acción
+  /// que de verdad va a ocurrir.
+  final String? etiquetaSemanticaDeshacer;
 
   const CheckCircular({
     super.key,
@@ -32,7 +42,9 @@ class CheckCircular extends StatefulWidget {
     required this.color,
     required this.colorVacio,
     this.tamano = 44,
+    this.onDeshacer,
     this.etiquetaSemantica,
+    this.etiquetaSemanticaDeshacer,
   });
 
   @override
@@ -52,12 +64,19 @@ class _CheckCircularState extends State<CheckCircular>
   /// y este gesto es de los más aparatosos que tiene la app.
   bool _animacionesDesactivadas = false;
 
+  /// Qué hace un toque ahora mismo: completar si no está hecho, deshacer si
+  /// lo está. Sin la acción que toque, el check no es tocable.
+  VoidCallback? get _accion => widget.hecho ? widget.onDeshacer : widget.onTap;
+
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 550),
+      // Deshacer va más rápido que completar: es una corrección, no un logro,
+      // y no merece el mismo recorrido.
+      reverseDuration: const Duration(milliseconds: 320),
     );
     _relleno = CurvedAnimation(
       parent: _controller,
@@ -100,7 +119,14 @@ class _CheckCircularState extends State<CheckCircular>
         _controller.forward(from: 0);
       }
     } else if (!widget.hecho && oldWidget.hecho) {
-      _controller.value = 0; // reset (p. ej. cambio de día)
+      // Deja de estar hecho —se deshace, o cambia el día—: el trazo se retira
+      // y el relleno se vacía, el mismo gesto al revés. Con "reducir
+      // movimiento" se vuelve al estado vacío de golpe, como antes.
+      if (_animacionesDesactivadas) {
+        _controller.value = 0;
+      } else {
+        _controller.reverse();
+      }
     }
   }
 
@@ -115,11 +141,13 @@ class _CheckCircularState extends State<CheckCircular>
     final t = tokens(context);
     return Semantics(
       button: true,
-      enabled: widget.onTap != null,
+      enabled: _accion != null,
       checked: widget.hecho,
-      label: widget.etiquetaSemantica,
+      label: widget.hecho
+          ? (widget.etiquetaSemanticaDeshacer ?? widget.etiquetaSemantica)
+          : widget.etiquetaSemantica,
       child: GestureDetector(
-        onTap: widget.hecho ? null : widget.onTap,
+        onTap: _accion,
         behavior: HitTestBehavior.opaque,
         child: Padding(
           // Amplía el área táctil sin agrandar el dibujo
