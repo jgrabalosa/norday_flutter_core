@@ -314,11 +314,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 shape: _formaBoton(id),
               ),
               child: _guardando
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2, color: t.tinta),
                     )
                   : Text(l.perfilGuardarCambios),
             ),

@@ -83,6 +83,7 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
   @override
   Widget build(BuildContext context) {
     final l = NordayCoreLocalizations.of(context)!;
+    final t = tokens(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(l.recTitulo),
@@ -94,7 +95,7 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 8),
-              Icon(LucideIcons.keyRound, size: 48, color: AppColors.primary),
+              Icon(LucideIcons.keyRound, size: 48, color: t.primary),
               const SizedBox(height: 16),
               Text(
                 _codigoEnviado ? l.recCodigoEnviado : l.recIntro,
@@ -172,19 +173,19 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                       ? null
                       : (_codigoEnviado ? _restablecer : _enviarCodigo),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: t.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: _loading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? CircularProgressIndicator(color: t.tinta)
                       : Text(
                           _codigoEnviado
                               ? l.recBotonRestablecer
                               : l.recBotonEnviar,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 16),
+                          style: TextStyle(
+                              color: t.tinta, fontSize: 16),
                         ),
                 ),
               ),

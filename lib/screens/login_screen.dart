@@ -595,17 +595,17 @@ Future<void> _registro() async {
           shape: _formaBoton(id),
         ),
         child: _loading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2.4, color: Colors.white),
+                    strokeWidth: 2.4, color: t.tinta),
               )
             : Text(
                 esNeotokyo ? etiqueta.toUpperCase() : etiqueta,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 16,
-                      color: Colors.white,
+                      color: t.tinta,
                       letterSpacing: esNeotokyo ? 1.2 : null,
                     ),
               ),
