@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import 'capa_constelacion.dart';
+import 'fondo_amanecer.dart';
 import 'fondo_burbujas.dart';
 import 'fondo_ciudad.dart';
 import 'fondo_estelar.dart';
@@ -38,11 +39,8 @@ class FondoIdentidad extends StatelessWidget {
             return FondoCiudad(tokens: id.tokens, nivel: nivel);
           case FondoIdentidadTipo.acumulacion:
             return FondoBurbujas(tokens: id.tokens, nivel: nivel);
-          // Alba se queda sin fondo hasta que se dibuje su amanecer: no es una
-          // capa de intensidad como las otras tres, sino un sol que sube y un
-          // cielo que cambia de tono, y eso se decide con la pantalla delante.
           case FondoIdentidadTipo.luz:
-            return const SizedBox.shrink();
+            return FondoAmanecer(tokens: id.tokens, nivel: nivel);
         }
       },
     );
