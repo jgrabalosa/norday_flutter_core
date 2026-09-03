@@ -3,7 +3,7 @@ description: >-
   Motor compartido del ecosistema Norday: red, temas, gamificación, mascota,
   onboarding y preferencias. Genérico y sin conceptos de dominio — las apps
   que lo consumen ponen los disparadores.
-version: 0.1.0
+version: 0.2.0
 publish_to: 'none'
 
 environment:
