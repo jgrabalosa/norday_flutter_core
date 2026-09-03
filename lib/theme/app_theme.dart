@@ -146,6 +146,21 @@ class TokensContextuales {
   /// Quien no lo declare se queda en `surface2`, que es como estaba.
   final Color aroVacio;
 
+  /// La tinta que va ENCIMA de `primary` cuando `primary` es relleno: el texto
+  /// de un botón lleno, el icono de un FAB.
+  ///
+  /// Se rige por AA de texto normal, 4.5, porque eso es lo que es: el texto de
+  /// los botones es `labelLarge`, 14px, y no llega al umbral de texto grande
+  /// ni siendo negrita. Antes era `Colors.white` para las cuatro y ninguna
+  /// pasaba: 2.21 en Profundidad, 3.50 en Neotokyo+, 3.33 en Alba y 2.60 en
+  /// Dulce.
+  ///
+  /// Los valores son los que la landing ya declaraba como `--tinta`, salvo el
+  /// de Alba: el suyo daba 4.39 y se ha hundido un punto hasta pasar.
+  ///
+  /// Quien no lo declare se queda en blanco, que es como estaba.
+  final Color tinta;
+
   const TokensContextuales({
     required this.primary, required this.success, required this.streak,
     required this.points, required this.bg, required this.surface,
@@ -155,11 +170,13 @@ class TokensContextuales {
     Color? surfaceAlta,
     Color? inactivo,
     Color? aroVacio,
+    Color? tinta,
   })  : successText = successText ?? success,
         streakText = streakText ?? streak,
         surfaceAlta = surfaceAlta ?? surface,
         inactivo = inactivo ?? surface2,
-        aroVacio = aroVacio ?? surface2;
+        aroVacio = aroVacio ?? surface2,
+        tinta = tinta ?? Colors.white;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
@@ -190,6 +207,8 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   // `textMuted` al 0.70 sobre `bg`, resuelto a opaco: el mismo valor que la
   // rama `sinTarjeta` ya calculaba al vuelo. 6.42 sobre el cielo.
   aroVacio: Color(0xFF8D95A0),
+  // 6.19 sobre el verde. El mismo valor que la landing.
+  tinta: Color(0xFF04342C),
 );
 
 /// Las dos familias tipográficas de la identidad equipada.
@@ -280,7 +299,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: t.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: t.tinta,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -294,7 +313,7 @@ class AppTheme {
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: t.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: t.tinta,
       ),
     );
   }

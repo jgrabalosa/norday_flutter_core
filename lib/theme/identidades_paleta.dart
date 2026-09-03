@@ -42,6 +42,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // `textMuted` al 0.62 sobre `surface`, que es el fondo de sus filas,
       // resuelto a opaco. 3.36 / 3.22 / 3.10 sobre bg / surface / surface2.
       aroVacio: Color(0xFF6A5D85),
+      // 5.82 sobre el rosa. El mismo valor que la landing.
+      tinta: Color(0xFF12000A),
     ),
     fontDisplay: 'Chakra Petch', // SÓLO títulos/cifras/chips — mayúsculas+tracking
     fontBody: 'IBM Plex Sans', // cuerpo de artículo/lista SIEMPRE aquí, nunca en Chakra Petch mayúscula
@@ -75,6 +77,11 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // línea debajo, así que el aro se apoya en el fondo de la pantalla.
       // Resuelto a opaco. 3.40 / 3.68 / 3.05 sobre bg / surface / surface2.
       aroVacio: Color(0xFF898179),
+      // 4.86 sobre el verde. La landing declara #2C2824 —su propio `text`—,
+      // que aquí sólo da 4.39: éste es ese mismo tono un punto más hondo, lo
+      // justo para pasar AA con margen. Si se toca la landing, este es el
+      // valor bueno.
+      tinta: Color(0xFF23201D),
       // El terracota ya contrasta como texto sobre los tres fondos de Alba
       // —6.13 sobre surface, 5.67 sobre bg, 5.09 sobre surface2 (WebAIM)—,
       // así que la variante de texto es su propio valor: se declara para
@@ -114,6 +121,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // `textMuted` al 0.80 sobre `surface`, que es el fondo de sus filas,
       // resuelto a opaco. 3.35 / 3.73 / 3.06 sobre bg / surface / surface2.
       aroVacio: Color(0xFFB36E9C),
+      // 4.61 sobre el rosa. El mismo valor que la landing.
+      tinta: Color(0xFF4A2E3D),
       // Sobre fondo claro ni el rosa ni el coral de relleno valen como texto:
       // hacen falta las variantes oscurecidas. Verificadas con WebAIM sobre
       // los tres fondos de la identidad (surface / bg / surface2).

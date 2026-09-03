@@ -309,7 +309,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
               onPressed: _guardando ? null : _guardar,
               style: FilledButton.styleFrom(
                 backgroundColor: t.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: t.tinta,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: _formaBoton(id),
               ),

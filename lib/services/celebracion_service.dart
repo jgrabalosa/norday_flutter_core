@@ -162,7 +162,7 @@ class _CelebracionDialog extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: t.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: t.tinta,
                   shape: formaIdentidad(id, radio: id.radioSecundario)
                       as OutlinedBorder,
                 ),

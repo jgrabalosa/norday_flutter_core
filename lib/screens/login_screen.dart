@@ -590,7 +590,7 @@ Future<void> _registro() async {
         onPressed: _loading ? null : (_isLogin ? _login : _registro),
         style: ElevatedButton.styleFrom(
           backgroundColor: t.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: t.tinta,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: _formaBoton(id),
         ),
