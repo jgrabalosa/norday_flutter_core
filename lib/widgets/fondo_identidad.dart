@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import 'capa_constelacion.dart';
+import 'fondo_ciudad.dart';
 import 'fondo_estelar.dart';
 
 /// El fondo de la identidad equipada: la capa quieta, detrás de todo.
@@ -32,10 +33,10 @@ class FondoIdentidad extends StatelessWidget {
         switch (id.fondo) {
           case FondoIdentidadTipo.cielo:
             return FondoEstelar(tokens: id.tokens, nivel: nivel);
-          // Sin painter todavía — es la fase C1 del roadmap. Devolver nada es
-          // exactamente lo que estas tres hacen hoy, así que la tubería entra
-          // sin cambiar el aspecto de ninguna.
           case FondoIdentidadTipo.ciudad:
+            return FondoCiudad(tokens: id.tokens, nivel: nivel);
+          // Sin painter todavía — es lo que queda de la fase C1. Devolver nada
+          // es exactamente lo que estas dos hacen hoy.
           case FondoIdentidadTipo.luz:
           case FondoIdentidadTipo.acumulacion:
             return const SizedBox.shrink();
