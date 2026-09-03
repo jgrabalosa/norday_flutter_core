@@ -17,7 +17,6 @@ class CheckCircular extends StatefulWidget {
   final bool hecho;
   final VoidCallback? onTap;
   final Color color;
-  final Color colorVacio;
   final double tamano;
 
   /// Qué hace un toque cuando ya está [hecho]. Sin esto el check marcado no
@@ -40,7 +39,6 @@ class CheckCircular extends StatefulWidget {
     required this.hecho,
     required this.onTap,
     required this.color,
-    required this.colorVacio,
     this.tamano = 44,
     this.onDeshacer,
     this.etiquetaSemantica,
@@ -163,8 +161,7 @@ class _CheckCircularState extends State<CheckCircular>
                     relleno: _relleno.value,
                     trazo: _trazo.value,
                     color: widget.color,
-                    colorVacio: widget.colorVacio,
-                    colorAro: t.textMuted.withValues(alpha: 0.70),
+                    colorAro: t.aroVacio,
                     colorBase: t.surface,
                     forma: identidad(context).forma,
                     chaflan: identidad(context).chaflan,
@@ -214,12 +211,14 @@ class _CheckPainter extends CustomPainter {
   final double relleno;
   final double trazo;
   final Color color;
-  final Color colorVacio;
 
-  /// Sólo los usa la identidad sin tarjeta: el aro claro, que es lo único que
-  /// se lee sobre el cielo, y la base opaca, que impide que una estrella lo
-  /// cruce y lo parta.
+  /// El aro del estado vacío, que viene del token `aroVacio` de la identidad.
+  /// Lo usan las cuatro: antes las tres con tarjeta pintaban `surface2` aquí y
+  /// no se veía. Ver `TokensContextuales.aroVacio`.
   final Color colorAro;
+
+  /// La base opaca, que impide que una estrella cruce el aro y lo parta. Sólo
+  /// la usa la identidad sin tarjeta.
   final Color colorBase;
   final FormaIdentidad forma;
   final double chaflan;
@@ -228,7 +227,6 @@ class _CheckPainter extends CustomPainter {
     required this.relleno,
     required this.trazo,
     required this.color,
-    required this.colorVacio,
     required this.colorAro,
     required this.colorBase,
     required this.forma,
@@ -308,7 +306,7 @@ class _CheckPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = t.aro
-        ..color = t.sinTarjeta ? colorAro : colorVacio,
+        ..color = colorAro,
     );
 
     // El check insinuado: dice qué va a aparecer al pulsar, y hace que el

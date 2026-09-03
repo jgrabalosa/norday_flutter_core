@@ -130,6 +130,22 @@ class TokensContextuales {
   /// Quien no lo declare se queda en `surface2` y no cambia nada.
   final Color inactivo;
 
+  /// El aro del estado vacío de un control: hoy el `CheckCircular`.
+  ///
+  /// A diferencia de [inactivo], esto SÍ se rige por WCAG 1.4.11 y se mide a
+  /// 3.0 como mínimo: no es la mitad vacía de una figura, es el contorno del
+  /// control, y es lo único que dice que ahí hay algo pulsable. Antes lo
+  /// pintaba `surface2` sobre el fondo de la fila y daba 1.11 en Alba, 1.04
+  /// en Neotokyo+ y 1.22 en Dulce: no se veía en ninguna de las tres.
+  ///
+  /// Cada paleta declara el suyo, medido sobre el fondo real de su fila y
+  /// verificado contra los tres fondos de la identidad. La alfa de `textMuted`
+  /// que hace falta NO es la misma en las cuatro: 0.70 en Profundidad, 0.62 en
+  /// Neotokyo+, 0.78 en Alba y 0.80 en Dulce.
+  ///
+  /// Quien no lo declare se queda en `surface2`, que es como estaba.
+  final Color aroVacio;
+
   const TokensContextuales({
     required this.primary, required this.success, required this.streak,
     required this.points, required this.bg, required this.surface,
@@ -138,10 +154,12 @@ class TokensContextuales {
     Color? streakText,
     Color? surfaceAlta,
     Color? inactivo,
+    Color? aroVacio,
   })  : successText = successText ?? success,
         streakText = streakText ?? streak,
         surfaceAlta = surfaceAlta ?? surface,
-        inactivo = inactivo ?? surface2;
+        inactivo = inactivo ?? surface2,
+        aroVacio = aroVacio ?? surface2;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
@@ -169,6 +187,9 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
   // `textMuted` al 0.29 sobre `bg`, resuelto a opaco. 2.02 de contraste.
   inactivo: Color(0xFF3F4551),
+  // `textMuted` al 0.70 sobre `bg`, resuelto a opaco: el mismo valor que la
+  // rama `sinTarjeta` ya calculaba al vuelo. 6.42 sobre el cielo.
+  aroVacio: Color(0xFF8D95A0),
 );
 
 /// Las dos familias tipográficas de la identidad equipada.
