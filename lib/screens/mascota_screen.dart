@@ -10,7 +10,7 @@ import '../widgets/anillo_identidad.dart';
 import '../widgets/animacion_puntos.dart';
 import '../widgets/burbuja_contexto.dart';
 import '../widgets/celebracion_nivel.dart';
-import '../widgets/fondo_estelar.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/halo_identidad.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/skeleton.dart';
@@ -429,7 +429,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
         children: [
           // Nivel 2: cielo tenue, como el resto de pantallas que se abren
           // encima del shell.
-          const Positioned.fill(child: FondoEstelar.tenue()),
+          const Positioned.fill(child: FondoIdentidad.habitacion()),
           // `extendBodyBehindAppBar` ya mete la altura del AppBar en el
           // padding del MediaQuery del body, y esa altura incluye la barra de
           // estado: el `_BodyBuilder` del Scaffold pone el `padding.top` en

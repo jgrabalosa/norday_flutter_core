@@ -10,7 +10,7 @@ import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import 'tienda_screen.dart';
-import '../widgets/fondo_estelar.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/selector_avatar_gratis.dart';
 import '../widgets/superficie_identidad.dart';
@@ -225,7 +225,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           // cielo pero no constelación —la monta el shell—. El cielo tenue
           // dice «sigues dentro» sin fingir un progreso que aquí no se
           // muestra.
-          const Positioned.fill(child: FondoEstelar.tenue()),
+          const Positioned.fill(child: FondoIdentidad.habitacion()),
           SafeArea(child: _loading ? _skeletonColeccion() : _contenido(l, t)),
         ],
       ),

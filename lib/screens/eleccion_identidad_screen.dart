@@ -7,7 +7,6 @@ import '../services/celebracion_service.dart';
 import '../theme/equipamiento.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
-import '../widgets/fondo_estelar.dart';
 import '../widgets/preview_identidad_tienda.dart';
 
 /// Una identidad del catálogo emparejada con el productoId que le asignó el
@@ -172,7 +171,6 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            const Positioned.fill(child: FondoEstelar()),
             SafeArea(
               child: _cargandoCatalogo
                   ? const Center(child: CircularProgressIndicator())

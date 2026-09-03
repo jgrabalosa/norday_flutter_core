@@ -8,7 +8,7 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
 import '../widgets/campo_identidad.dart';
-import '../widgets/fondo_estelar.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/selector_preferencias.dart';
 import '../widgets/superficie_identidad.dart';
 import 'login_screen.dart';
@@ -232,7 +232,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned.fill(child: FondoEstelar.tenue()),
+          const Positioned.fill(child: FondoIdentidad.habitacion()),
           _cargando
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(

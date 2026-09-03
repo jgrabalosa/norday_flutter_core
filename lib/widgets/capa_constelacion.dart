@@ -1,40 +1,32 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../theme/identidad_paleta.dart';
-import '../theme/identidades_paleta.dart';
 import '../theme/progreso_dia.dart';
 import 'constelaciones.dart';
 
-/// La constelación del día, en su propia capa por ENCIMA del contenido.
+/// La constelación del día de Profundidad, en su propia capa por ENCIMA del
+/// contenido.
 ///
-/// Sólo se enciende cuando la identidad equipada resuelve sus superficies
-/// como [FormaIdentidad.glass] — las demás identidades no tienen cielo.
-/// Pensado para ir en un `Positioned.fill` por encima de las tarjetas: por
-/// eso pinta con mezcla aditiva (ver [_CapaConstelacionPainter]) y por eso
-/// envuelve el `CustomPaint` en [IgnorePointer], imprescindible para que la
-/// capa no se coma los toques de lo que hay debajo.
+/// NO se exporta en el barrel. La puerta es `CapaProgresoIdentidad`. Pinta con
+/// mezcla aditiva (ver [_CapaConstelacionPainter]) y lleva [IgnorePointer]
+/// dentro, imprescindible para que la capa no se coma los toques de lo que hay
+/// debajo.
 class CapaConstelacion extends StatelessWidget {
-  const CapaConstelacion({super.key});
+  /// Los colores de la identidad, que los da el despachador.
+  final TokensContextuales tokens;
+
+  const CapaConstelacion({super.key, required this.tokens});
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<IdentidadPaleta>(
-      valueListenable: identidadEquipadaNotifier,
-      builder: (context, id, child) {
-        if (id.forma != FormaIdentidad.glass) {
-          return const SizedBox.shrink();
-        }
-        return ValueListenableBuilder<ProgresoDia>(
-          valueListenable: progresoDiaNotifier,
-          builder: (context, progreso, child) => IgnorePointer(
-            child: CustomPaint(
-              painter: _CapaConstelacionPainter(id.tokens, progreso),
-              size: Size.infinite,
-            ),
-          ),
-        );
-      },
+    return ValueListenableBuilder<ProgresoDia>(
+      valueListenable: progresoDiaNotifier,
+      builder: (context, progreso, child) => IgnorePointer(
+        child: CustomPaint(
+          painter: _CapaConstelacionPainter(tokens, progreso),
+          size: Size.infinite,
+        ),
+      ),
     );
   }
 }

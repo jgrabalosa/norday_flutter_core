@@ -7,7 +7,7 @@ import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
-import '../widgets/fondo_estelar.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/superficie_identidad.dart';
 
@@ -97,7 +97,7 @@ class _LogrosScreenState extends State<LogrosScreen> {
           // cielo pero no constelación —la monta el shell—. El cielo tenue
           // dice «sigues dentro» sin fingir un progreso que aquí no se
           // muestra.
-          const Positioned.fill(child: FondoEstelar.tenue()),
+          const Positioned.fill(child: FondoIdentidad.habitacion()),
           SafeArea(
             child: _loading
                 ? _skeletonLogros()

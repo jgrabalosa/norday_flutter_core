@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
-import '../theme/identidades_paleta.dart';
 
 /// Una estrella del cielo de Profundidad. Posición normalizada 0..1 para que
 /// valga a cualquier tamaño de pantalla.
@@ -41,21 +40,25 @@ List<_Estrella> _generarEstrellas() {
 /// recalculado dentro de `paint`.
 final List<_Estrella> _estrellas = _generarEstrellas();
 
-/// Campo estelar de la identidad Profundidad: dos nebulosas difusas y un
-/// cielo de 44 estrellas fijas, pintados detrás de [child].
+/// Campo estelar de Profundidad: dos nebulosas difusas y un cielo de 44
+/// estrellas fijas.
 ///
-/// Sólo enciende el `CustomPaint` cuando la identidad equipada resuelve sus
-/// superficies como [FormaIdentidad.glass] — las demás identidades no tienen
-/// cielo, y con cualquier otra el widget devuelve [child] tal cual, sin coste
-/// añadido. Escucha [identidadEquipadaNotifier] para encenderse o apagarse
-/// solo al cambiar de identidad.
-///
-/// Sin [child], este widget necesita que el padre le dé constraints
-/// ajustadas —un `Positioned.fill`, un `SizedBox.expand`— o medirá cero y no
-/// pintará nada: un `CustomPaint` sin hijo y sin `size` no ocupa espacio por
-/// sí mismo.
+/// NO se exporta en el barrel. La puerta es `FondoIdentidad`, que es quien
+/// decide si esta identidad tiene cielo. Aquí ya no se comprueba nada: si este
+/// widget se construye es porque el despacho ya dijo que sí.
 class FondoEstelar extends StatelessWidget {
-  final Widget? child;
+  /// Los colores de la identidad, que los da el despachador. Este widget no
+  /// lee ningún notifier: quien escucha es `FondoIdentidad`.
+  final TokensContextuales tokens;
+
+  /// Ver [NivelFondo].
+  final NivelFondo nivel;
+
+  const FondoEstelar({
+    super.key,
+    required this.tokens,
+    required this.nivel,
+  });
 
   /// Cuánta luz llega. Es el mismo cielo en los dos casos —las mismas 44
   /// estrellas en las mismas posiciones, las mismas dos nebulosas—, sólo que
@@ -65,34 +68,15 @@ class FondoEstelar extends StatelessWidget {
   /// Un solo factor para nebulosas y estrellas, y no uno por cosa, porque es
   /// lo que hace la distancia de verdad: todo se apaga a la vez.
   ///
-  /// Nivel 1 (1.0): las tres pestañas del shell, donde además va la
-  /// constelación. Nivel 2 (0.55): lo que se abre encima con
-  /// `Navigator.push` —Colección, Logros, Tienda, Perfil, Mascota a pantalla
-  /// completa—, que tiene cielo pero no constelación.
-  ///
-  /// Aquí no hay suelo de contraste que respetar: esto va detrás del
-  /// contenido y ninguna información depende de ello.
-  final double atenuacion;
-
-  const FondoEstelar({super.key, this.child}) : atenuacion = 1.0;
-
-  /// El cielo del nivel 2. Ver [atenuacion].
-  const FondoEstelar.tenue({super.key, this.child}) : atenuacion = 0.55;
+  /// Aquí no hay suelo de contraste que respetar: esto va detrás del contenido
+  /// y ninguna información depende de ello.
+  double get _atenuacion =>
+      nivel == NivelFondo.mundo ? 1.0 : 0.55;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<IdentidadPaleta>(
-      valueListenable: identidadEquipadaNotifier,
-      builder: (context, id, child) {
-        if (id.forma != FormaIdentidad.glass) {
-          return child ?? const SizedBox.shrink();
-        }
-        return CustomPaint(
-          painter: _FondoEstelarPainter(id.tokens, atenuacion),
-          child: child,
-        );
-      },
-      child: child,
+    return CustomPaint(
+      painter: _FondoEstelarPainter(tokens, _atenuacion),
     );
   }
 }

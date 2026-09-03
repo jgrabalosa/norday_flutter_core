@@ -10,7 +10,7 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
-import '../widgets/fondo_estelar.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/preview_identidad_tienda.dart';
 import '../widgets/superficie_identidad.dart';
 
@@ -159,7 +159,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
           // cielo pero no constelación —la monta el shell—. El cielo tenue
           // dice «sigues dentro» sin fingir un progreso que aquí no se
           // muestra.
-          const Positioned.fill(child: FondoEstelar.tenue()),
+          const Positioned.fill(child: FondoIdentidad.habitacion()),
           SafeArea(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())

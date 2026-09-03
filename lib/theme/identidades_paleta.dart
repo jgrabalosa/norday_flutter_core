@@ -20,6 +20,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     radioHero: 24,
     radioSecundario: 18,
     forma: FormaIdentidad.glass,
+    fondo: FondoIdentidadTipo.cielo,
     duracionAnimacionFirma: Duration(milliseconds: 3200),
   ),
 
@@ -46,6 +47,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     radioSecundario: 8,
     chaflan: 10,
     forma: FormaIdentidad.chamfer,
+    fondo: FondoIdentidadTipo.ciudad,
     duracionAnimacionFirma: Duration(milliseconds: 2400),
   ),
 
@@ -79,6 +81,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     // de cards), así que este radio se usa poco: cuando se use, este valor.
     radioSecundario: 14,
     forma: FormaIdentidad.hairline,
+    fondo: FondoIdentidadTipo.luz,
     duracionAnimacionFirma: Duration(milliseconds: 4000),
   ),
 
@@ -114,6 +117,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     radioHero: 26, // casi píldora
     radioSecundario: 20,
     forma: FormaIdentidad.pill,
+    fondo: FondoIdentidadTipo.acumulacion,
     duracionAnimacionFirma: Duration(milliseconds: 2600),
   ),
 };
