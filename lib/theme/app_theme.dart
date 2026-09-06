@@ -292,8 +292,11 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: t.surface,
-        elevation: 2,
-        shadowColor: Colors.black.withValues(alpha: 0.4),
+        // Sin sombra a proposito. La profundidad la decide SuperficieIdentidad
+        // por identidad — glass y chamfer sin sombra, pill con resplandor del
+        // color primario — y esta sombra negra global la contradecia en todo
+        // Card de Material que no pasa por ahi (Logros, Login, SkeletonCard).
+        elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

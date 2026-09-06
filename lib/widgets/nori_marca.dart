@@ -36,7 +36,7 @@ class NoriMarca extends StatelessWidget {
   static const double _proporcionCaja = 1.12;
 
   /// Fase y estado fijos: aquí no hay usuario a quien preguntarle los suyos.
-  static const String _fase = 'adulto';
+  static const String _fase = 'huevo';
   static const String _estado = 'feliz';
 
   @override
