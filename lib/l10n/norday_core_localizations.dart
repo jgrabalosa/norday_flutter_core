@@ -823,11 +823,11 @@ abstract class NordayCoreLocalizations {
   /// **'{n} pts'**
   String tiendaPrecio(int n);
 
-  /// No description provided for @tiendaUsar.
+  /// No description provided for @tiendaPrecioConCantidad.
   ///
   /// In es, this message translates to:
-  /// **'Usar (x{n})'**
-  String tiendaUsar(int n);
+  /// **'{precio} pts · tienes {n}'**
+  String tiendaPrecioConCantidad(int precio, int n);
 
   /// No description provided for @tiendaError.
   ///

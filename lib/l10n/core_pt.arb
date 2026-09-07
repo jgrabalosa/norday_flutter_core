@@ -120,7 +120,7 @@
   "tiendaEquipar": "Equipar",
   "tiendaEquipado": "Equipado",
   "tiendaPrecio": "{n} pts",
-  "tiendaUsar": "Usar (x{n})",
+  "tiendaPrecioConCantidad": "{precio} pts · você tem {n}",
   "tiendaError": "Não foi possível concluir a operação. Tente de novo.",
   "tiendaPreviewNavHabitos": "Hábitos",
   "tiendaPreviewNavPerfil": "Perfil",

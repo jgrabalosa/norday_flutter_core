@@ -394,8 +394,8 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   }
 
   @override
-  String tiendaUsar(int n) {
-    return 'Usar (x$n)';
+  String tiendaPrecioConCantidad(int precio, int n) {
+    return '$precio pts · você tem $n';
   }
 
   @override

@@ -175,9 +175,12 @@
       }
     }
   },
-  "tiendaUsar": "Usar (x{n})",
-  "@tiendaUsar": {
+  "tiendaPrecioConCantidad": "{precio} pts · tienes {n}",
+  "@tiendaPrecioConCantidad": {
     "placeholders": {
+      "precio": {
+        "type": "int"
+      },
       "n": {
         "type": "int"
       }

@@ -112,18 +112,6 @@ class _TiendaScreenState extends State<TiendaScreen> {
     }
   }
 
-  Future<void> _usar(int productoId) async {
-    setState(() => _procesando = productoId);
-    try {
-      await ApiServiceCore.usarProducto(widget.usuarioId, productoId);
-      await _cargarDatos();
-    } catch (e) {
-      _mostrarError(e);
-    } finally {
-      if (mounted) setState(() => _procesando = null);
-    }
-  }
-
   void _mostrarError(Object e) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -285,12 +273,15 @@ class _TiendaScreenState extends State<TiendaScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l.tiendaPrecio(producto['precio'] as int),
+              Text(
+                  tipo == 'CONSUMIBLE' && cantidad > 0
+                      ? l.tiendaPrecioConCantidad(producto['precio'] as int, cantidad)
+                      : l.tiendaPrecio(producto['precio'] as int),
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium
                       ?.copyWith(color: t.textMuted)),
-              _botonAccion(l, productoId, tipo, poseido, equipado, cantidad, codigo, categoria, procesandoEste),
+              _botonAccion(l, productoId, tipo, poseido, equipado, codigo, categoria, procesandoEste),
             ],
           ),
         ],
@@ -383,7 +374,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
   }
 
   Widget _botonAccion(NordayCoreLocalizations l, int productoId, String tipo, bool poseido, bool equipado,
-      int cantidad, String? codigo, String categoria, bool procesando) {
+      String? codigo, String categoria, bool procesando) {
     if (procesando) {
       return const SizedBox(
         width: 20,
@@ -408,22 +399,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
       );
     }
 
-    // CONSUMIBLE
-    if (cantidad > 0) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton(
-            onPressed: () => _comprar(productoId),
-            child: const Text('+1'),
-          ),
-          ElevatedButton(
-            onPressed: () => _usar(productoId),
-            child: Text(l.tiendaUsar(cantidad)),
-          ),
-        ],
-      );
-    }
+    // CONSUMIBLE. Se compra aquí y se gasta en Mascota, que es donde está la
+    // mascota a la que alimenta. La cantidad que ya tienes se lee en el
+    // precio, no en el botón: el botón siempre hace lo mismo.
     return ElevatedButton(
       onPressed: () => _comprar(productoId),
       child: Text(l.tiendaComprar),
