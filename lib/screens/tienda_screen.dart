@@ -118,12 +118,8 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   void _mostrarError(Object e) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(MensajesError.de(context, e,
-              generico: NordayCoreLocalizations.of(context)!.tiendaError)),
-        ),
-      );
+      MensajesError.enSnackBar(context, e,
+          generico: NordayCoreLocalizations.of(context)!.tiendaError);
     }
   }
 

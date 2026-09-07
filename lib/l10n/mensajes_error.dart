@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+// material y no widgets: enSnackBar necesita ScaffoldMessenger y SnackBar.
+// Este fichero era traducción pura; con el helper pasa a tocar UI.
+import 'package:flutter/material.dart';
 import '../services/api_error.dart';
 import 'norday_core_localizations.dart';
 
@@ -23,5 +25,16 @@ class MensajesError {
       TipoErrorApi.respuestaInesperada => l.errorRespuesta,
       TipoErrorApi.peticionInvalida => generico ?? l.errorGenerico,
     };
+  }
+
+  /// Enseña [error] en un SnackBar, ya traducido por [de].
+  ///
+  /// Comprobar `mounted` es responsabilidad de quien llama: esto no es un
+  /// State y no puede saberlo. Todas las pantallas que lo usan lo hacen
+  /// desde un `if (mounted)`.
+  static void enSnackBar(BuildContext context, Object error, {String? generico}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(de(context, error, generico: generico))),
+    );
   }
 }

@@ -159,12 +159,8 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   void _mostrarError(Object e) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(MensajesError.de(context, e,
-              generico: NordayCoreLocalizations.of(context)!.colError)),
-        ),
-      );
+      MensajesError.enSnackBar(context, e,
+          generico: NordayCoreLocalizations.of(context)!.colError);
     }
   }
 
