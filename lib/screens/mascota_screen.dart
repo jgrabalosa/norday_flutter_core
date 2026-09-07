@@ -130,9 +130,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
     try {
       final resultado = await ApiServiceCore.usarProducto(widget.usuarioId, productoId);
       if (!mounted) return;
-      // Consumir la comida siempre da XP; subir de nivel es el caso vistoso.
-      if (resultado['subioNivel'] == true || resultado['codigoConsumido'] != null) {
-        AnimacionPuntos.mostrar(context, 10, simbolo: 'XP');
+      // La XP la manda el backend: aquí no se cablea. Y se anima sólo si hay
+      // XP de verdad — no todos los consumibles la dan, aunque hoy la comida
+      // sea el único que existe.
+      final xp = resultado['xpGanada'] as int? ?? 0;
+      if (xp > 0) {
+        AnimacionPuntos.mostrar(context, xp, simbolo: 'XP');
       }
       if (resultado['subioNivel'] == true) {
         // El nivel nuevo lo manda el backend en la misma respuesta. Se usa ése

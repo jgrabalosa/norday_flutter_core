@@ -436,6 +436,10 @@ class ApiServiceCore {
         'codigoConsumido': data['codigoConsumido'],
         'subioNivel': data['subioNivel'] ?? false,
         'nivelNuevo': data['nivelNuevo'] ?? 0,
+        // El `?? 0` cubre a un servidor anterior al commit que lo expone: sin
+        // el campo no se anima XP, que es preferible a anunciar una cifra
+        // inventada.
+        'xpGanada': data['xpGanada'] ?? 0,
       };
     });
   }
