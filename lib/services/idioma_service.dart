@@ -17,6 +17,15 @@ class IdiomaService {
 
   static const _clave = 'idioma';
 
+  /// Marca que el último cambio local no llegó al backend.
+  ///
+  /// Mismo problema que en ZonaService: un fallo de red al guardar el idioma
+  /// se perdía en silencio y el siguiente login traía el idioma viejo del
+  /// servidor, pisando la elección del usuario. Aquí el daño no son las
+  /// rachas sino los emails y los push, que el backend redacta con este
+  /// valor y salen sin la app abierta.
+  static const _clavePendiente = 'idiomaPendienteDeSync';
+
   /// Escuchado por MaterialApp: cambiarlo repinta la app sin reiniciarla.
   static final ValueNotifier<Locale> localeNotifier =
       ValueNotifier(const Locale(porDefecto));
@@ -58,10 +67,37 @@ class IdiomaService {
 
     if (usuarioId != null) {
       // Que falle la sincronización no debe deshacer el cambio local: la app
-      // ya está en el idioma nuevo y el backend se pondrá al día al reintentar.
+      // ya está en el idioma nuevo. Lo que no puede perderse es que el
+      // backend no se enteró, y de eso se encarga la bandera.
       try {
         await ApiServiceCore.actualizarPreferencias(usuarioId, idioma: codigo);
-      } catch (_) {}
+        await prefs.remove(_clavePendiente);
+      } catch (_) {
+        await prefs.setBool(_clavePendiente, true);
+      }
+    }
+  }
+
+  /// Reenvía el idioma local si el último intento no llegó.
+  ///
+  /// Va ANTES de leer las preferencias del backend en el login, igual que
+  /// ZonaService.reintentarPendiente: así el servidor ya tiene el valor
+  /// corregido cuando se lee, y sincronizarDesdeBackend no devuelve al
+  /// usuario al idioma viejo.
+  static Future<void> reintentarPendiente(int usuarioId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_clavePendiente) != true) return;
+
+    final codigo = prefs.getString(_clave);
+    if (codigo == null || !soportados.contains(codigo)) {
+      await prefs.remove(_clavePendiente);
+      return;
+    }
+    try {
+      await ApiServiceCore.actualizarPreferencias(usuarioId, idioma: codigo);
+      await prefs.remove(_clavePendiente);
+    } catch (_) {
+      // Sigue pendiente. Se reintentará en el próximo login.
     }
   }
 
