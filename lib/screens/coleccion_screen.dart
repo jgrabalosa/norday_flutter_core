@@ -682,7 +682,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// consumible nuevo del backend siga saliendo con un icono que dice algo.
   IconData _iconoConsumible(String? codigo, String categoria) => switch (codigo) {
         'ESCUDO_RACHA' => LucideIcons.shield,
-        'COMIDA_BASICA' => LucideIcons.drumstick,
+        'COMIDA_BASICA' => LucideIcons.apple,
         _ => categoria == 'Protección' ? LucideIcons.shield : LucideIcons.package,
       };
 

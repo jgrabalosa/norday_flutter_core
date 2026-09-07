@@ -380,7 +380,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
                                       child: CircularProgressIndicator(
                                           strokeWidth: 2),
                                     )
-                                  : const Icon(LucideIcons.drumstick, size: 18),
+                                  : const Icon(LucideIcons.apple, size: 18),
                               label: Text(
                                   '${l.mascotaAlimentar} ($_comidaCantidad)'),
                             ),

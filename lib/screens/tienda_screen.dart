@@ -38,6 +38,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
     'Tema': LucideIcons.palette,
     'Protección': LucideIcons.shield,
     'Avatar': LucideIcons.userRound,
+    // Sin esta entrada, la comida caía en iconoCategoriaDesconocida y se
+    // dibujaba con la caja genérica. La categoría la manda el backend con
+    // la C mayúscula: 'Consumible', no 'CONSUMIBLE' (eso es el `tipo`).
+    'Consumible': LucideIcons.apple,
   };
 
   /// Una categoría que este cliente aún no conozca — el catálogo lo manda el
