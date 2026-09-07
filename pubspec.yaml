@@ -3,7 +3,7 @@ description: >-
   Motor compartido del ecosistema Norday: red, temas, gamificación, mascota,
   onboarding y preferencias. Genérico y sin conceptos de dominio — las apps
   que lo consumen ponen los disparadores.
-version: 0.2.1
+version: 0.2.2
 publish_to: 'none'
 
 environment:
@@ -20,11 +20,15 @@ dependencies:
   shared_preferences: 2.2.2
   flutter_secure_storage: ^9.2.2
   google_sign_in: ^6.2.1
-  # Las familias de las cuatro identidades (Manrope, Chakra Petch, IBM Plex
-  # Sans, Fraunces —con itálica—, Work Sans, Quicksand, Nunito y Caveat) se
-  # resuelven por HTTP en tiempo de ejecución: no hay nada que declarar aquí.
-  # Sólo habría que bajar los .ttf y listarlos en `assets:` si algún día se
-  # quiere que las fuentes funcionen sin red desde el primer arranque.
+  # Las familias de las identidades (Space Grotesk, Manrope, Chakra Petch,
+  # IBM Plex Sans, Fraunces, Work Sans, Quicksand, Nunito y Caveat) NO se
+  # resuelven por HTTP: van empaquetadas como assets en la app que consume
+  # este paquete —`habitos_app_mobile/google_fonts/`—, que es donde hay que
+  # tocarlas. `google_fonts` mira primero en los assets y sólo baja por red
+  # si no encuentra el fichero, así que borrar uno que el código sí pide no
+  # da error: lo descarga en silencio.
+  # Sin itálicas salvo Fraunces. Salen a Play tres identidades; Alba está
+  # desactivada pero viva en código, y su `fontDisplay` es Fraunces.
   google_fonts: ^8.1.0
   lottie: ^3.1.2
   audioplayers: ^6.1.0
