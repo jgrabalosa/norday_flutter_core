@@ -79,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
   /// alta nueva aun no hay nada guardado, asi que se propone la zona del
   /// dispositivo.
   Future<void> _sincronizarPreferencias(int usuarioId) async {
+    await ZonaService.reintentarPendiente(usuarioId);
     try {
       final prefs = await ApiServiceCore.getPreferencias(usuarioId);
       await IdiomaService.sincronizarDesdeBackend(prefs['idioma']);

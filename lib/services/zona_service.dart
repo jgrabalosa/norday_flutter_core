@@ -10,6 +10,14 @@ class ZonaService {
   static const String porDefecto = 'Europe/Madrid';
   static const _clave = 'zonaHoraria';
 
+  /// Marca que el último cambio local no llegó al backend.
+  ///
+  /// Sin esto, un fallo de red al guardar la zona se perdía en silencio y,
+  /// peor, el siguiente login traía la zona vieja del servidor y pisaba la
+  /// corrección del usuario. Como el backend usa la zona para decidir qué
+  /// día es, esa divergencia rompe rachas sin que nada dé error.
+  static const _clavePendiente = 'zonaPendienteDeSync';
+
   /// Zona detectada del dispositivo.
   ///
   /// Dart no expone el nombre IANA de la zona del sistema, solo el desfase,
@@ -63,7 +71,34 @@ class ZonaService {
     if (usuarioId != null) {
       try {
         await ApiServiceCore.actualizarPreferencias(usuarioId, zonaHoraria: zona);
-      } catch (_) {}
+        await prefs.remove(_clavePendiente);
+      } catch (_) {
+        // El cambio local se queda: la app ya funciona con la zona nueva.
+        // Lo que no puede perderse es que el backend no se enteró.
+        await prefs.setBool(_clavePendiente, true);
+      }
+    }
+  }
+
+  /// Reenvía la zona local si el último intento no llegó.
+  ///
+  /// Va ANTES de leer las preferencias del backend en el login: así el
+  /// servidor ya tiene el valor corregido cuando se lee, y
+  /// sincronizarDesdeBackend no devuelve el usuario a la zona vieja.
+  static Future<void> reintentarPendiente(int usuarioId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_clavePendiente) != true) return;
+
+    final zona = prefs.getString(_clave);
+    if (zona == null) {
+      await prefs.remove(_clavePendiente);
+      return;
+    }
+    try {
+      await ApiServiceCore.actualizarPreferencias(usuarioId, zonaHoraria: zona);
+      await prefs.remove(_clavePendiente);
+    } catch (_) {
+      // Sigue pendiente. Se reintentará en el próximo login.
     }
   }
 
