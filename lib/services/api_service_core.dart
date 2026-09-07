@@ -302,15 +302,6 @@ class ApiServiceCore {
     await _almacenSeguro.delete(key: _claveToken);
   }
 
-  static Future<void> registrarInteraccionResena(int usuarioId) async {
-    final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/resena/$usuarioId'),
-          headers: headers,
-        ));
-    verificar(response);
-  }
-
   // ── Gamificación ───────────────────────────────────────
   static Future<int> getSaldoPuntos(int usuarioId) async {
     final headers = await getHeaders();
