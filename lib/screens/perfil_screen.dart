@@ -167,7 +167,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: tonoError(context).borde,
-              foregroundColor: Colors.white,
+              foregroundColor: tonoError(context).tinta,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.perfilSiEliminar),

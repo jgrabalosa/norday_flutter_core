@@ -26,10 +26,18 @@ class TonoError {
   /// Relleno del banner. Transparente en las identidades que no encajonan.
   final Color fondo;
 
+  /// La tinta que va ENCIMA de [borde] cuando éste hace de fondo sólido —
+  /// el botón de un diálogo destructivo, por ejemplo. Tiene que llegar a
+  /// 4.5:1 sobre [borde]. No se puede fijar a blanco ni a negro para todas:
+  /// las identidades de borde claro piden tinta oscura y Alba, que lo tiene
+  /// oscuro, la pide blanca.
+  final Color tinta;
+
   const TonoError({
     required this.texto,
     required this.borde,
     required this.fondo,
+    required this.tinta,
   });
 }
 
@@ -47,6 +55,7 @@ TonoError tonoError(BuildContext context) {
         texto: const Color(0xFFFF8A8A),
         borde: const Color(0xFFFF6B6B),
         fondo: const Color(0xFFFF6B6B).withValues(alpha: 0.12),
+        tinta: const Color(0xFF1A1A1A), // 6.27:1 sobre #FF6B6B
       ),
 
     // Neotokyo+ — su propio `streak` (#FF4D2E). Es el único rojo de la paleta,
@@ -57,6 +66,7 @@ TonoError tonoError(BuildContext context) {
         texto: t.streak,
         borde: t.streak,
         fondo: t.streak.withValues(alpha: 0.12),
+        tinta: const Color(0xFF1A1A1A), // 5.27:1 sobre #FF4D2E
       ),
 
     // Alba — el terracota de `streakText` (#8C4F35), que ya está verificado
@@ -68,6 +78,7 @@ TonoError tonoError(BuildContext context) {
         texto: t.streakText,
         borde: t.streakText,
         fondo: Colors.transparent,
+        tinta: Colors.white, // 6.39:1 sobre #8C4F35 — Alba invierte el signo
       ),
 
     // Dulce — rosa-rojo propio para el texto (5.4:1 sobre el blanco de la
@@ -80,6 +91,7 @@ TonoError tonoError(BuildContext context) {
         texto: const Color(0xFFC2325A),
         borde: t.streak,
         fondo: t.streak.withValues(alpha: 0.14),
+        tinta: const Color(0xFF1A1A1A), // 5.50:1 sobre #E86A58
       ),
   };
 }
