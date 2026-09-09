@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -81,9 +83,44 @@ class _CapaConstelacionPainter extends CustomPainter {
       ..color = tokens.streak.withValues(alpha: 0.38);
 
     for (final (a, b) in figura.segmentos) {
-      if (a < encendidas && b < encendidas) {
+      final pa = situar(figura.puntos[a]);
+      final pb = situar(figura.puntos[b]);
+      final aEncendida = a < encendidas;
+      final bEncendida = b < encendidas;
+
+      if (aEncendida && bEncendida) {
+        canvas.drawLine(pa, pb, trazo);
+      } else if (aEncendida || bEncendida) {
+        // Un trazo con un solo extremo encendido no desaparece: sale de la
+        // estrella que ya está y se apaga antes de llegar a la que falta.
+        //
+        // Sin esto la figura a medias no se lee. El caso peor era la Cruz del
+        // Sur con 3 de 4: sus dos segmentos no comparten ningún punto, así
+        // que salía la barra vertical y una estrella suelta al lado, que no
+        // parece media cruz sino una errata. El cabo le da su medio brazo y
+        // la cruz se reconoce. Vale para las ocho figuras, no sólo para ésa.
+        //
+        // El punto apagado ya se dibuja tenue más abajo, así que el cabo no
+        // apunta al vacío: va hacia una estrella que se ve.
+        final desde = aEncendida ? pa : pb;
+        final hacia = aEncendida ? pb : pa;
         canvas.drawLine(
-            situar(figura.puntos[a]), situar(figura.puntos[b]), trazo);
+          desde,
+          hacia,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2
+            ..strokeCap = StrokeCap.round
+            ..shader = ui.Gradient.linear(
+              desde,
+              hacia,
+              [
+                tokens.streak.withValues(alpha: 0.22),
+                tokens.streak.withValues(alpha: 0.0),
+              ],
+              [0.0, 0.55],
+            ),
+        );
       }
     }
 
