@@ -42,7 +42,20 @@ const List<_Bloque> _bloques = [
 ];
 
 /// Qué parte de la pantalla ocupa la ciudad, medida desde abajo.
-const double _bandaCiudad = 0.42;
+///
+/// Subida de 0.42 a 0.60: a 0.42 la silueta se leía como un zócalo decorativo
+/// al pie de la pantalla. A 0.60 se mete en la zona de la lista y la ciudad
+/// pasa a ser el sitio donde ocurre la pantalla, que es lo que Neotokyo+
+/// quiere decir. El perfil no cambia: las alturas de `_bloques` son
+/// fracciones de esta banda, así que sube entero conservando su ritmo.
+///
+/// Se descartó la vía alternativa —tarjetas translúcidas en Hoy— porque el
+/// aro del check (`aroVacio`) sólo tiene 3.22 de contraste sobre `surface` y
+/// una ventana encendida resuelve a #D0B941: con la tarjeta a alfa 0.92 el
+/// aro cae a 2.87 y se sale de WCAG 1.4.11. En chamfer el check no pinta base
+/// propia (`sinTarjeta` sólo lo lleva glass), así que se apoya en que la
+/// tarjeta sea opaca.
+const double _bandaCiudad = 0.60;
 
 /// La rejilla de ventanas, en píxeles lógicos y NO normalizada.
 ///
