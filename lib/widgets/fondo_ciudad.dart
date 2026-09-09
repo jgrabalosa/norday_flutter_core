@@ -149,6 +149,23 @@ class _FondoCiudadPainter extends CustomPainter {
     final encendida = Paint()
       ..color = _amarilloVentana.withValues(alpha: 0.80 * atenuacion);
 
+    // El halo de las ventanas encendidas. Alfa 0.10 y NO más: a 0.15 el
+    // `textMuted` de la identidad cae a 4.45 sobre el bloque y se sale de AA;
+    // a 0.10 se queda en 5.15. La ventana en sí puede ir a 0.80 porque mide
+    // 4x6 px y el texto la cruza como una mota; un halo tiene el tamaño de
+    // una letra y por eso a él sí le aplica el límite.
+    final halo = Paint()
+      ..color = _amarilloVentana.withValues(alpha: 0.10 * atenuacion)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
+
+    // El canto iluminado del edificio. Es una LÍNEA, no una superficie: no
+    // aclara ningún área donde pueda caer texto, que es justo lo que impide
+    // subir el halo de arriba.
+    final canto = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..color = tokens.primary.withValues(alpha: 0.45 * atenuacion);
+
     final fraccion = _fraccionEncendida;
 
     for (var i = 0; i < _bloques.length; i++) {
@@ -161,6 +178,11 @@ class _FondoCiudadPainter extends CustomPainter {
       canvas.drawRect(
         Rect.fromLTWH(izquierda, arriba, ancho, alto),
         pinturaBloque,
+      );
+      canvas.drawLine(
+        Offset(izquierda, arriba),
+        Offset(izquierda + ancho, arriba),
+        canto,
       );
 
       var columna = 0;
@@ -175,10 +197,13 @@ class _FondoCiudadPainter extends CustomPainter {
           vy + _ventanaAlto <= suelo;
           vy += _pasoY
         ) {
-          canvas.drawRect(
-            Rect.fromLTWH(vx, vy, _ventanaAncho, _ventanaAlto),
-            _ruido(i, columna, fila) < fraccion ? encendida : apagada,
-          );
+          final rectVentana =
+              Rect.fromLTWH(vx, vy, _ventanaAncho, _ventanaAlto);
+          final estaEncendida = _ruido(i, columna, fila) < fraccion;
+          if (estaEncendida) {
+            canvas.drawRect(rectVentana.inflate(3.0), halo);
+          }
+          canvas.drawRect(rectVentana, estaEncendida ? encendida : apagada);
           fila++;
         }
         columna++;
@@ -192,6 +217,7 @@ class _FondoCiudadPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _FondoCiudadPainter oldDelegate) =>
       oldDelegate.tokens.surface2 != tokens.surface2 ||
+      oldDelegate.tokens.primary != tokens.primary ||
       oldDelegate.atenuacion != atenuacion ||
       oldDelegate.progreso != progreso;
 }

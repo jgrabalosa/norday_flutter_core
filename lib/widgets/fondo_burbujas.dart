@@ -114,15 +114,36 @@ class _FondoBurbujasPainter extends CustomPainter {
     final cuantas = _visibles;
     if (cuantas == 0) return;
 
-    final pintura = Paint()
-      ..color = tokens.surface.withValues(alpha: 0.85 * atenuacion);
+    // El punto de luz se prepara una vez: es el mismo blanco en todas.
+    final brillo = Paint()
+      ..color = Colors.white.withValues(alpha: 0.55 * atenuacion);
 
     for (var i = 0; i < cuantas && i < _burbujas.length; i++) {
       final b = _burbujas[i];
+      final centro = Offset(b.x * size.width, b.y * size.height);
+
+      // Volumen: del blanco casi opaco arriba-izquierda al blanco tenue del
+      // borde de abajo. TODO el rango es blanco y el fondo de Dulce es rosa,
+      // así que la burbuja sigue siendo más clara que el fondo en cualquier
+      // punto: el invariante de la cabecera de esta clase se cumple por
+      // construcción y no hay nada que volver a medir.
+      final cuerpo = Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.4, -0.4),
+          radius: 0.95,
+          colors: [
+            tokens.surface.withValues(alpha: 0.95 * atenuacion),
+            tokens.surface.withValues(alpha: 0.62 * atenuacion),
+          ],
+        ).createShader(Rect.fromCircle(center: centro, radius: b.radio));
+      canvas.drawCircle(centro, b.radio, cuerpo);
+
+      // Proporcional al radio: una burbuja grande no puede llevar el mismo
+      // destello que una pequeña o dejaría de leerse como la misma cosa.
       canvas.drawCircle(
-        Offset(b.x * size.width, b.y * size.height),
-        b.radio,
-        pintura,
+        centro.translate(-b.radio * 0.34, -b.radio * 0.34),
+        b.radio * 0.22,
+        brillo,
       );
     }
   }
