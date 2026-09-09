@@ -5,6 +5,7 @@ import '../l10n/mensajes_mascota.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
+import '../theme/identidades_paleta.dart';
 import '../theme/mascota_assets.dart';
 import '../widgets/anillo_identidad.dart';
 import '../widgets/animacion_puntos.dart';
@@ -14,6 +15,7 @@ import '../widgets/fondo_identidad.dart';
 import '../widgets/halo_identidad.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/superficie_identidad.dart';
 import '../widgets/terrario_identidad.dart';
 import 'tienda_screen.dart';
 
@@ -180,6 +182,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
       nuevoNombre = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
+          shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
           title: Text(l.mascotaPonleNombre),
           content: TextField(
             controller: controller,

@@ -302,6 +302,18 @@ class AppTheme {
         // El título de una pantalla es `headlineSmall`.
         titleTextStyle: tipografia.headlineSmall?.copyWith(color: t.text),
       ),
+      // Explícito y no heredado, por el mismo motivo que `appBarTheme`: hoy
+      // Material 3 saca el título del diálogo de `headlineSmall`, que en esta
+      // escala vale 18 y es el valor correcto, pero eso es una decisión de
+      // Material y puede cambiar de versión. Apuntándolo aquí, el título de
+      // un diálogo es 18 porque lo dice esta escala, no porque coincida.
+      //
+      // La FORMA no cabe aquí: `deTema` recibe colores y fuentes, no la
+      // identidad, y este fichero es la capa de abajo — no puede importar el
+      // catálogo sin montar un ciclo. La ponen las cinco llamadas.
+      dialogTheme: DialogThemeData(
+        titleTextStyle: tipografia.headlineSmall?.copyWith(color: t.text),
+      ),
       cardTheme: CardThemeData(
         color: t.surface,
         // Sin sombra a proposito. La profundidad la decide SuperficieIdentidad

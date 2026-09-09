@@ -131,6 +131,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final primera = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        // Un diálogo es lo protagonista del momento: cristal en Profundidad,
+        // panel cortado en Neotokyo+, píldora en Dulce, esquinas sobrias en
+        // Alba. Sin esto sale con las esquinas de Material y es la única
+        // superficie de la app que no habla el idioma de la identidad.
+        shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
         title: Text(l.perfilEliminarTitulo),
         content: Text(l.perfilEliminarCuerpo),
         actions: [
@@ -157,6 +162,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final segunda = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
         title: Text(l.perfilUltimaConfirmacion),
         content: Text(l.perfilUltimaConfirmacionCuerpo),
         actions: [
