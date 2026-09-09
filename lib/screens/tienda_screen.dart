@@ -102,9 +102,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   Future<void> _equipar(int productoId, String? codigo, String categoria) async {
     setState(() => _procesando = productoId);
+    List<String> logros = const [];
     try {
       if (categoria == 'Tema') {
-        await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
+        logros = await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
       } else if (categoria == 'Avatar') {
         await Equipamiento.equiparAvatar(widget.usuarioId, productoId, codigo);
       }
@@ -114,6 +115,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
     } finally {
       if (mounted) setState(() => _procesando = null);
     }
+    // Fuera del try y tras recargar, igual que en _comprar: si falla la
+    // recarga, el equipado sí ocurrió y su logro se celebra igual.
+    if (mounted) await CelebracionService.mostrar(logros);
   }
 
   void _mostrarError(Object e) {

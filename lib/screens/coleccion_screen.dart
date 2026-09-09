@@ -4,6 +4,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import '../services/api_service_core.dart';
+import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
@@ -131,9 +132,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   // borraba el tema premium equipado al elegir un avatar.
   Future<void> _equipar(int productoId, String? codigo, String categoria) async {
     setState(() => _procesando = productoId);
+    List<String> logros = const [];
     try {
       if (categoria == 'Tema') {
-        await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
+        logros = await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
       } else if (categoria == 'Avatar') {
         await Equipamiento.equiparAvatar(widget.usuarioId, productoId, codigo);
       }
@@ -143,6 +145,9 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     } finally {
       if (mounted) setState(() => _procesando = null);
     }
+    // Fuera del try y tras recargar, igual que en _comprar: si falla la
+    // recarga, el equipado sí ocurrió y su logro se celebra igual.
+    if (mounted) await CelebracionService.mostrar(logros);
   }
 
   Future<void> _usar(int productoId) async {

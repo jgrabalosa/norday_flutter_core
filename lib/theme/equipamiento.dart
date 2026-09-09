@@ -60,15 +60,19 @@ class Equipamiento {
   }
 
   /// Equipa un tema: lo dice el backend y, si acepta, se pinta.
-  static Future<void> equiparTema(
+  ///
+  /// Devuelve los logros que el backend haya otorgado por equiparlo.
+  static Future<List<String>> equiparTema(
       int usuarioId, int productoId, String? codigo) async {
-    await ApiServiceCore.equiparProducto(usuarioId, productoId);
+    final logros = await ApiServiceCore.equiparProducto(usuarioId, productoId);
     aplicarIdentidadEquipada(codigo);
+    return logros;
   }
 
   /// Equipa un avatar: lo dice el backend y, si acepta, se pinta.
   static Future<void> equiparAvatar(
       int usuarioId, int productoId, String? codigo) async {
+    // Un avatar nunca otorga logro: se descarta la lista a propósito.
     await ApiServiceCore.equiparProducto(usuarioId, productoId);
     aplicarAvatarEquipado(codigo);
   }

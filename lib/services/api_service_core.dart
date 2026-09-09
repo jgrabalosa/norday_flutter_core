@@ -405,13 +405,16 @@ class ApiServiceCore {
     return _logrosDelCuerpo(response.body);
   }
 
-  static Future<void> equiparProducto(int usuarioId, int productoId) async {
+  /// Devuelve los códigos de logro desbloqueados al equipar — hoy sólo los
+  /// `IDENTIDAD_*` de los temas. Un avatar siempre devuelve lista vacía.
+  static Future<List<String>> equiparProducto(int usuarioId, int productoId) async {
     final headers = await getHeaders();
     final response = await enviar(() => cliente.post(
           Uri.parse('$baseUrl/gamificacion/productos/equipar/$usuarioId/$productoId'),
           headers: headers,
         ));
     verificar(response);
+    return _logrosDelCuerpo(response.body);
   }
 
   static Future<void> desequiparProducto(int usuarioId, int productoId) async {
