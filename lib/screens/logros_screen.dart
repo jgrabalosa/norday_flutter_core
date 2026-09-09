@@ -109,6 +109,7 @@ class _LogrosScreenState extends State<LogrosScreen> {
                         // Saldo — el protagonista de la pantalla.
                         SuperficieIdentidad(
                           protagonista: true,
+                          opacidadSuperficie: 0.75,
                           relleno: const EdgeInsets.all(20),
                           child: Column(
                             children: [
@@ -282,6 +283,9 @@ class _LogrosScreenState extends State<LogrosScreen> {
           // Tarjeta de saldo
           SuperficieIdentidad(
             protagonista: true,
+            // La misma que la tarjeta real: si el esqueleto fuese opaco, la
+            // tarjeta se solidificaría al acabar de cargar y eso se ve.
+            opacidadSuperficie: 0.75,
             relleno: const EdgeInsets.all(20),
             child: Column(
               children: const [

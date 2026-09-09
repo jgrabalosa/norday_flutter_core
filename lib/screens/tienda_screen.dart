@@ -162,6 +162,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                       children: [
                         SuperficieIdentidad(
                           protagonista: true,
+                          opacidadSuperficie: 0.75,
                           relleno: const EdgeInsets.all(20),
                           child: Column(
                             children: [

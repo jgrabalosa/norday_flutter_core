@@ -295,6 +295,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     // propio: lo que se lleva puesto tiene que separarse de lo que no.
     return SuperficieIdentidad(
       protagonista: true,
+      opacidadSuperficie: 0.75,
       filo: BorderSide(color: t.successText, width: 1.5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

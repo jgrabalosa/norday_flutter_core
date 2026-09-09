@@ -115,6 +115,12 @@ class SuperficieIdentidad extends StatelessWidget {
 
   /// Deja ver el fondo de la identidad a través de la superficie.
   ///
+  /// La usan las cinco protagonistas a 0.75: login, Tienda, Colección, Logros
+  /// y el esqueleto de Logros. Sobre el cielo de Profundidad eso deja la
+  /// tarjeta a 1,54 de contraste sobre el fondo —frente a 1,88 opaca— y SUBE
+  /// el del texto encima: `text` pasa de 9,17 a 11,18 y `primary` de 4,66 a
+  /// 5,68, porque la tarjeta se oscurece hacia el fondo y el texto es claro.
+  ///
   /// Sólo tiene efecto en la protagonista de glass: en Neotokyo+ y Dulce la
   /// tarjeta ya está a 1,04 y 1,11 de contraste sobre su fondo —lo que la
   /// define es el borde rosa y el resplandor, no el relleno—, así que bajar
