@@ -133,6 +133,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // sobre los tres fondos de la identidad (surface / bg / surface2).
       streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
       successText: Color(0xFF2F6B5C), // 6.22 / 5.58 / 5.10
+      // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
+      // y no separaba la nota del fondo. Sobre este amarillo, `text` da
+      // 10.95, `successText` 5.67 y `textMuted` 5.04.
+      fondoNota: Color(0xFFFFF4D6),
     ),
     fontDisplay: 'Quicksand',
     fontBody: 'Nunito', // cuerpo SIEMPRE aquí

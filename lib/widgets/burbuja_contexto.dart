@@ -18,7 +18,11 @@ import '../theme/identidades_paleta.dart';
 class BurbujaContexto extends StatelessWidget {
   final String texto;
 
-  const BurbujaContexto({super.key, required this.texto});
+  /// Color del texto, cuando la pantalla necesita que diga algo más que la
+  /// frase. Sin él, cada forma pinta el suyo, que es lo que hacía siempre.
+  final Color? color;
+
+  const BurbujaContexto({super.key, required this.texto, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +68,7 @@ class BurbujaContexto extends StatelessWidget {
           id.fontBody,
           fontSize: 14,
           height: 1.3,
-          color: t.textMuted,
+          color: color ?? t.textMuted,
         ),
       ),
     );
@@ -91,7 +95,7 @@ class BurbujaContexto extends StatelessWidget {
             height: 1.3,
             letterSpacing: 1.4,
             fontWeight: FontWeight.w600,
-            color: t.textMuted,
+            color: color ?? t.textMuted,
           ),
         ),
       ),
@@ -111,7 +115,7 @@ class BurbujaContexto extends StatelessWidget {
           fontSize: 15,
           height: 1.4,
           fontStyle: FontStyle.italic,
-          color: t.textMuted,
+          color: color ?? t.textMuted,
         ),
       ),
     );
@@ -126,7 +130,7 @@ class BurbujaContexto extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: t.surface2,
+          color: t.fondoNota,
           borderRadius: BorderRadius.circular(id.radioSecundario),
           boxShadow: [
             BoxShadow(
@@ -146,7 +150,7 @@ class BurbujaContexto extends StatelessWidget {
             // igual de bien.
             fontSize: 19,
             height: 1.2,
-            color: t.text,
+            color: color ?? t.text,
           ),
         ),
       ),

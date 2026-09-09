@@ -161,6 +161,16 @@ class TokensContextuales {
   /// Quien no lo declare se queda en blanco, que es como estaba.
   final Color tinta;
 
+  /// El fondo de una nota al margen: hoy la `BurbujaContexto`.
+  ///
+  /// No es una capa del sistema de estratos —eso es `surface2`— sino el papel
+  /// de algo que se pega encima y se lee como ajeno a la pantalla. Se separa
+  /// porque en Dulce `surface2` es el rosa `#FFE1EC` y una nota rosa sobre
+  /// fondo rosa no es una nota: es la misma pantalla un tono más.
+  ///
+  /// Quien no lo declare se queda en `surface2`, que es como estaba.
+  final Color fondoNota;
+
   const TokensContextuales({
     required this.primary, required this.success, required this.streak,
     required this.points, required this.bg, required this.surface,
@@ -171,12 +181,14 @@ class TokensContextuales {
     Color? inactivo,
     Color? aroVacio,
     Color? tinta,
+    Color? fondoNota,
   })  : successText = successText ?? success,
         streakText = streakText ?? streak,
         surfaceAlta = surfaceAlta ?? surface,
         inactivo = inactivo ?? surface2,
         aroVacio = aroVacio ?? surface2,
-        tinta = tinta ?? Colors.white;
+        tinta = tinta ?? Colors.white,
+        fondoNota = fondoNota ?? surface2;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
