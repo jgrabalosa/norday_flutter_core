@@ -194,10 +194,12 @@ class SuperficieIdentidad extends StatelessWidget {
             ? LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
+                // PRUEBA TEMPORAL — revertir. Rojo/verde para comprobar si
+                // este degradado llega a pintarse en pantalla.
                 colors: [
-                  Colors.white.withValues(alpha: 0.22),
-                  t.surfaceAlta,
-                  t.surface,
+                  const Color(0xFFFF0000),
+                  const Color(0xFFFF0000),
+                  const Color(0xFF00FF00),
                 ],
                 stops: const [0.0, 0.035, 1.0],
               )
