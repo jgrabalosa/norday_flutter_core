@@ -14,6 +14,7 @@ import '../services/idioma_service.dart';
 import '../services/zona_service.dart';
 import '../theme/equipamiento.dart';
 import '../widgets/campo_identidad.dart';
+import '../widgets/fondo_identidad.dart';
 import '../widgets/logo_google.dart';
 import '../widgets/nori_marca.dart';
 import '../widgets/superficie_identidad.dart';
@@ -238,30 +239,41 @@ Future<void> _registro() async {
 
     return Scaffold(
       backgroundColor: t.bg,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              // En tablet el formulario no tiene por quÃ© cruzar la pantalla.
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _cabecera(t, l),
-                  const SizedBox(height: 24),
-                  // Alba no encajona: ahÃ­ esto no pinta tarjeta ninguna, y el
-                  // formulario se apoya directamente en el fondo.
-                  SuperficieIdentidad(
-                    protagonista: true,
-                    relleno: const EdgeInsets.all(24),
-                    child: _formulario(id, t, l),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const FondoIdentidad(),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  // En tablet el formulario no tiene por quÃ© cruzar la pantalla.
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _cabecera(t, l),
+                      const SizedBox(height: 24),
+                      // Alba no encajona: ahÃ­ esto no pinta tarjeta ninguna, y el
+                      // formulario se apoya directamente en el fondo.
+                      SuperficieIdentidad(
+                        protagonista: true,
+                        // El cielo es lo bonito de esta pantalla: la tarjeta
+                        // lo deja pasar. 0,75 mantiene 1,54 de contraste
+                        // sobre el fondo — por debajo de 0,70 el canto
+                        // inferior vuelve a desvanecerse, que era el bug.
+                        opacidadSuperficie: 0.75,
+                        relleno: const EdgeInsets.all(24),
+                        child: _formulario(id, t, l),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

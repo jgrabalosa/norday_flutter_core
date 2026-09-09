@@ -113,6 +113,15 @@ class SuperficieIdentidad extends StatelessWidget {
   /// alrededor. Sin él manda el de la identidad.
   final BorderSide? filo;
 
+  /// Deja ver el fondo de la identidad a través de la superficie.
+  ///
+  /// Sólo tiene efecto en la protagonista de glass: en Neotokyo+ y Dulce la
+  /// tarjeta ya está a 1,04 y 1,11 de contraste sobre su fondo —lo que la
+  /// define es el borde rosa y el resplandor, no el relleno—, así que bajar
+  /// el alpha allí no aclararía nada y en cambio dejaría pasar las burbujas
+  /// y los edificios a través del formulario.
+  final double opacidadSuperficie;
+
   const SuperficieIdentidad({
     super.key,
     required this.child,
@@ -122,6 +131,7 @@ class SuperficieIdentidad extends StatelessWidget {
     this.protagonista = false,
     this.esFila = false,
     this.filo,
+    this.opacidadSuperficie = 1.0,
   });
 
   @override
@@ -174,27 +184,17 @@ class SuperficieIdentidad extends StatelessWidget {
       margin: margen,
       decoration: ShapeDecoration(
         shape: forma,
-        // Sólo la superficie protagonista de Profundidad lleva degradado: el
-        // canto claro superior + la caída de surfaceAlta a surface2. El resto
-        // (secundarias de glass y las otras identidades) es color plano — la
-        // jerarquía la lleva la luminosidad de la capa, no el degradado.
+        // La protagonista de Profundidad es `surfaceAlta` PLANA, sin
+        // degradado. Antes caía de `surfaceAlta` a `surface2`, y como
+        // `surface2` gobernaba desde el 3,5% hasta el 100% de la altura, el
+        // borde inferior de la tarjeta quedaba a 1,13 de contraste sobre el
+        // `bg`: invisible. La tarjeta se desvanecía hacia abajo y eso es lo
+        // que se leía como gris. Plana a `surfaceAlta` son 1,89 en toda su
+        // superficie. Verificado en dispositivo el 9-sep-2026 con una prueba
+        // en rojo: el degradado SÍ se pintaba, el problema eran los valores.
         //
-        // El canto va aquí, en un stop del relleno, y no en el `Border`: un
-        // borde con lados de distinto color no admite `borderRadius` en
-        // Flutter (assert de borde no uniforme). Es una restricción del
-        // framework, no una preferencia.
-        gradient: (id.forma == FormaIdentidad.glass && protagonista)
-            ? LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withValues(alpha: 0.22),
-                  t.surfaceAlta,
-                  t.surface2,
-                ],
-                stops: const [0.0, 0.035, 1.0],
-              )
-            : null,
+        // Las secundarias de glass siguen sin superficie (null): van
+        // directamente sobre el cielo. Las otras tres identidades, `surface`.
         // Profundidad ya no pinta superficie en las secundarias: las filas
         // van directamente sobre el cielo. Lo que separa una fila de la
         // siguiente ya no es una caja, y lo que dice «esto se toca» es el
@@ -206,7 +206,11 @@ class SuperficieIdentidad extends StatelessWidget {
         // la superficie que lleva las cifras destacadas.
         //
         // Las otras tres identidades no cambian: `t.surface` opaco.
-        color: id.forma == FormaIdentidad.glass ? null : t.surface,
+        color: id.forma == FormaIdentidad.glass
+            ? (protagonista
+                ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
+                : null)
+            : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
           // de la capa y, en la protagonista, el canto del degradado. Una
