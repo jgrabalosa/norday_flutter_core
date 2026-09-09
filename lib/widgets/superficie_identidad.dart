@@ -175,9 +175,16 @@ class SuperficieIdentidad extends StatelessWidget {
       decoration: ShapeDecoration(
         shape: forma,
         // Sólo la superficie protagonista de Profundidad lleva degradado: el
-        // canto claro superior + la caída de surfaceAlta a surface2. El resto
+        // canto claro superior + la caída de surfaceAlta a surface. El resto
         // (secundarias de glass y las otras identidades) es color plano — la
         // jerarquía la lleva la luminosidad de la capa, no el degradado.
+        //
+        // El extremo inferior es `surface`, la capa BASE, y no `surface2`: esa
+        // es la capa hundida (101B2F en Profundidad), casi el `bg`, y como
+        // ocupa desde el 3,5% hasta el 100% de la altura dominaba la tarjeta
+        // entera y la dejaba leyéndose gris. `surfaceAlta` sólo gobierna el
+        // arranque, así que cambiarlo no arreglaba nada: se probaron 24406F y
+        // 1E3358 en dispositivo el 7-sep-2026 sin ningún efecto visible.
         //
         // El canto va aquí, en un stop del relleno, y no en el `Border`: un
         // borde con lados de distinto color no admite `borderRadius` en
@@ -190,7 +197,7 @@ class SuperficieIdentidad extends StatelessWidget {
                 colors: [
                   Colors.white.withValues(alpha: 0.22),
                   t.surfaceAlta,
-                  t.surface2,
+                  t.surface,
                 ],
                 stops: const [0.0, 0.035, 1.0],
               )
