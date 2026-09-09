@@ -259,6 +259,11 @@ Future<void> _registro() async {
                       // formulario se apoya directamente en el fondo.
                       SuperficieIdentidad(
                         protagonista: true,
+                        // El cielo es lo bonito de esta pantalla: la tarjeta
+                        // lo deja pasar. 0,75 mantiene 1,54 de contraste
+                        // sobre el fondo — por debajo de 0,70 el canto
+                        // inferior vuelve a desvanecerse, que era el bug.
+                        opacidadSuperficie: 0.75,
                         relleno: const EdgeInsets.all(24),
                         child: _formulario(id, t, l),
                       ),

@@ -113,6 +113,15 @@ class SuperficieIdentidad extends StatelessWidget {
   /// alrededor. Sin él manda el de la identidad.
   final BorderSide? filo;
 
+  /// Deja ver el fondo de la identidad a través de la superficie.
+  ///
+  /// Sólo tiene efecto en la protagonista de glass: en Neotokyo+ y Dulce la
+  /// tarjeta ya está a 1,04 y 1,11 de contraste sobre su fondo —lo que la
+  /// define es el borde rosa y el resplandor, no el relleno—, así que bajar
+  /// el alpha allí no aclararía nada y en cambio dejaría pasar las burbujas
+  /// y los edificios a través del formulario.
+  final double opacidadSuperficie;
+
   const SuperficieIdentidad({
     super.key,
     required this.child,
@@ -122,6 +131,7 @@ class SuperficieIdentidad extends StatelessWidget {
     this.protagonista = false,
     this.esFila = false,
     this.filo,
+    this.opacidadSuperficie = 1.0,
   });
 
   @override
@@ -197,7 +207,9 @@ class SuperficieIdentidad extends StatelessWidget {
         //
         // Las otras tres identidades no cambian: `t.surface` opaco.
         color: id.forma == FormaIdentidad.glass
-            ? (protagonista ? t.surfaceAlta : null)
+            ? (protagonista
+                ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
+                : null)
             : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
