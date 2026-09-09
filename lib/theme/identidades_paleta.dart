@@ -127,9 +127,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       aroVacio: Color(0xFFB36E9C),
       // 4.61 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF4A2E3D),
-      // Sobre fondo claro ni el rosa ni el coral de relleno valen como texto:
-      // hacen falta las variantes oscurecidas. Verificadas con WebAIM sobre
-      // los tres fondos de la identidad (surface / bg / surface2).
+      // Sobre fondo claro ningún relleno de esta identidad vale como texto:
+      // ni el coral de `streak` ni la salvia de `success` llegan a 4.5, así
+      // que hacen falta las variantes oscurecidas. Verificadas con WebAIM
+      // sobre los tres fondos de la identidad (surface / bg / surface2).
       streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
       successText: Color(0xFF2F6B5C), // 6.22 / 5.58 / 5.10
     ),
