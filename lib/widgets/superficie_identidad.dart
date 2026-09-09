@@ -174,36 +174,17 @@ class SuperficieIdentidad extends StatelessWidget {
       margin: margen,
       decoration: ShapeDecoration(
         shape: forma,
-        // Sólo la superficie protagonista de Profundidad lleva degradado: el
-        // canto claro superior + la caída de surfaceAlta a surface. El resto
-        // (secundarias de glass y las otras identidades) es color plano — la
-        // jerarquía la lleva la luminosidad de la capa, no el degradado.
+        // La protagonista de Profundidad es `surfaceAlta` PLANA, sin
+        // degradado. Antes caía de `surfaceAlta` a `surface2`, y como
+        // `surface2` gobernaba desde el 3,5% hasta el 100% de la altura, el
+        // borde inferior de la tarjeta quedaba a 1,13 de contraste sobre el
+        // `bg`: invisible. La tarjeta se desvanecía hacia abajo y eso es lo
+        // que se leía como gris. Plana a `surfaceAlta` son 1,89 en toda su
+        // superficie. Verificado en dispositivo el 9-sep-2026 con una prueba
+        // en rojo: el degradado SÍ se pintaba, el problema eran los valores.
         //
-        // El extremo inferior es `surface`, la capa BASE, y no `surface2`: esa
-        // es la capa hundida (101B2F en Profundidad), casi el `bg`, y como
-        // ocupa desde el 3,5% hasta el 100% de la altura dominaba la tarjeta
-        // entera y la dejaba leyéndose gris. `surfaceAlta` sólo gobierna el
-        // arranque, así que cambiarlo no arreglaba nada: se probaron 24406F y
-        // 1E3358 en dispositivo el 7-sep-2026 sin ningún efecto visible.
-        //
-        // El canto va aquí, en un stop del relleno, y no en el `Border`: un
-        // borde con lados de distinto color no admite `borderRadius` en
-        // Flutter (assert de borde no uniforme). Es una restricción del
-        // framework, no una preferencia.
-        gradient: (id.forma == FormaIdentidad.glass && protagonista)
-            ? LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                // PRUEBA TEMPORAL — revertir. Rojo/verde para comprobar si
-                // este degradado llega a pintarse en pantalla.
-                colors: [
-                  const Color(0xFFFF0000),
-                  const Color(0xFFFF0000),
-                  const Color(0xFF00FF00),
-                ],
-                stops: const [0.0, 0.035, 1.0],
-              )
-            : null,
+        // Las secundarias de glass siguen sin superficie (null): van
+        // directamente sobre el cielo. Las otras tres identidades, `surface`.
         // Profundidad ya no pinta superficie en las secundarias: las filas
         // van directamente sobre el cielo. Lo que separa una fila de la
         // siguiente ya no es una caja, y lo que dice «esto se toca» es el
@@ -215,7 +196,9 @@ class SuperficieIdentidad extends StatelessWidget {
         // la superficie que lleva las cifras destacadas.
         //
         // Las otras tres identidades no cambian: `t.surface` opaco.
-        color: id.forma == FormaIdentidad.glass ? null : t.surface,
+        color: id.forma == FormaIdentidad.glass
+            ? (protagonista ? t.surfaceAlta : null)
+            : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
           // de la capa y, en la protagonista, el canto del degradado. Una
