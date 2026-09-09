@@ -104,7 +104,11 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     nombre: 'Dulce',
     tokens: TokensContextuales(
       primary: Color(0xFFFF6FA5),
-      success: Color(0xFFFF6FA5),
+      // El éxito deja de ser el rosa de `primary`: es el hábito hecho y tiene
+      // color propio. El rosa como relleno daba 2.60 / 2.33 / 2.14 sobre
+      // surface / bg / surface2 y no llegaba a los 3.0 de WCAG 1.4.11.
+      // Salvia con deriva a menta: 4.12 / 3.69 / 3.38.
+      success: Color(0xFF57876F),
       streak: Color(0xFFE86A58),
       points: Color(0xFFE86A58),
       bg: Color(0xFFFAF0F4),
@@ -127,7 +131,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // hacen falta las variantes oscurecidas. Verificadas con WebAIM sobre
       // los tres fondos de la identidad (surface / bg / surface2).
       streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
-      successText: Color(0xFFB23368), // 5.88 / 5.28 / 4.83
+      successText: Color(0xFF2F6B5C), // 6.22 / 5.58 / 5.10
     ),
     fontDisplay: 'Quicksand',
     fontBody: 'Nunito', // cuerpo SIEMPRE aquí
