@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 /// Widget genérico y exportable: muestra "+X" flotando hacia arriba
 /// con fade out, al estilo de los juegos. No conoce el dominio de la app;
@@ -101,7 +102,7 @@ class _PuntosFlotantesState extends State<_PuntosFlotantes>
                     child: Text(
                       widget.texto,
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Colors.amber.shade600,
+                        color: tokens(context).pointsText,
                         shadows: [
                           Shadow(
                             color: Colors.black.withValues(alpha: 0.25),
