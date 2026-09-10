@@ -135,7 +135,10 @@ class _OnboardingContentState extends State<_OnboardingContent> {
         const SizedBox(height: 16),
         Text(l.obTitulo1,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: t.text)),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: t.text)),
         const SizedBox(height: 12),
         Text(
           l.obCuerpo1,
@@ -163,7 +166,10 @@ class _OnboardingContentState extends State<_OnboardingContent> {
         const SizedBox(height: 16),
         Text(l.obTitulo2,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: t.text)),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: t.text)),
         const SizedBox(height: 12),
         Text(
           l.obCuerpo2,
@@ -182,7 +188,10 @@ class _OnboardingContentState extends State<_OnboardingContent> {
       children: [
         Text(l.obTitulo3,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: t.text)),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: t.text)),
         const SizedBox(height: 8),
         Text(
           l.obCuerpo3,
