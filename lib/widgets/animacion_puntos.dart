@@ -100,10 +100,8 @@ class _PuntosFlotantesState extends State<_PuntosFlotantes>
                     color: Colors.transparent,
                     child: Text(
                       widget.texto,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         color: Colors.amber.shade600,
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
                         shadows: [
                           Shadow(
                             color: Colors.black.withValues(alpha: 0.25),

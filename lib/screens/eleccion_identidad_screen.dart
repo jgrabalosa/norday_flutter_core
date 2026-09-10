@@ -216,7 +216,7 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
           Text(
             l.identidadTitulo,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
           const SizedBox(height: 8),
           Text(
@@ -243,7 +243,7 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
                         const SizedBox(height: 12),
                         Text(
                           id.nombre,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ],
                     ),

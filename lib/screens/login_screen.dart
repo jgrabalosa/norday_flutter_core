@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -24,7 +24,7 @@ import 'eleccion_identidad_screen.dart';
 import 'recuperacion_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  /// QuÃ© pantalla se abre cuando la sesiÃ³n ya es buena.
+  /// Qué pantalla se abre cuando la sesión ya es buena.
   ///
   /// El paquete no puede saberlo: cada app del ecosistema tiene su propia
   /// pantalla principal. [mostrarOnboarding] va a true cuando la cuenta se
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await ZonaService.inicializarSiHaceFalta(usuarioId: usuarioId);
   }
 
-  // â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Login ──────────────────────────────────────────────
   /// Adónde ir tras una sesión buena: si el usuario no posee identidad se
   /// intercala la elección antes del destino de la app.
   ///
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // â”€â”€ Registro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Registro ───────────────────────────────────────────
   final _nombreController = TextEditingController();
   final _usernameController = TextEditingController();
 
@@ -157,7 +157,7 @@ Future<void> _registro() async {
         _contrasenaController.text,
       );
 
-      // Auto-login tras registrarse, para poder ir directo a crear el primer hÃ¡bito
+      // Auto-login tras registrarse, para poder ir directo a crear el primer hábito
       final usuario = await ApiServiceCore.login(
         _emailController.text,
         _contrasenaController.text,
@@ -180,7 +180,7 @@ Future<void> _registro() async {
     }
   }
 
-  // â”€â”€ Login con Google â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Login con Google ───────────────────────────────────
   Future<void> _loginConGoogle() async {
     final l = NordayCoreLocalizations.of(context)!;
     setState(() { _loading = true; _error = null; });
@@ -218,16 +218,16 @@ Future<void> _registro() async {
     super.dispose();
   }
 
-  // â”€â”€ Pintado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Pintado ────────────────────────────────────────────
   //
-  // Tarjeta, campos, indicador de pestaÃ±a y aviso de error despachan por
+  // Tarjeta, campos, indicador de pestaña y aviso de error despachan por
   // `FormaIdentidad` con un switch exhaustivo, igual que la escena de mascota:
   // una identidad nueva declara su forma y los hereda; una forma nueva rompe la
-  // compilaciÃ³n justo en los sitios que hay que decidir. La cabecera no
-  // necesita switch propio â€” el tratamiento de la letra ya lo resuelve
+  // compilación justo en los sitios que hay que decidir. La cabecera no
+  // necesita switch propio — el tratamiento de la letra ya lo resuelve
   // `WordmarkIdentidad`.
 
-  /// Lado de la ilustraciÃ³n de la cabecera. Nori aquÃ­ acompaÃ±a, no manda: la
+  /// Lado de la ilustración de la cabecera. Nori aquí acompaña, no manda: la
   /// pantalla va de entrar.
   static const double _ladoNori = 88;
 
@@ -248,14 +248,14 @@ Future<void> _registro() async {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: ConstrainedBox(
-                  // En tablet el formulario no tiene por quÃ© cruzar la pantalla.
+                  // En tablet el formulario no tiene por qué cruzar la pantalla.
                   constraints: const BoxConstraints(maxWidth: 460),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _cabecera(t, l),
                       const SizedBox(height: 24),
-                      // Alba no encajona: ahÃ­ esto no pinta tarjeta ninguna, y el
+                      // Alba no encajona: ahí esto no pinta tarjeta ninguna, y el
                       // formulario se apoya directamente en el fondo.
                       SuperficieIdentidad(
                         protagonista: true,
@@ -278,9 +278,9 @@ Future<void> _registro() async {
     );
   }
 
-  /// Nori y el nombre. Sustituye al icono genÃ©rico de check que hacÃ­a de logo.
+  /// Nori y el nombre. Sustituye al icono genérico de check que hacía de logo.
   ///
-  /// El wordmark va en `text` y no en el verde de antes: aquel se eligiÃ³
+  /// El wordmark va en `text` y no en el verde de antes: aquel se eligió
   /// porque el esmeralda no contrastaba sobre el fondo claro, y con el color
   /// de texto de cada identidad el problema no existe en ninguna de las
   /// cuatro.
@@ -390,13 +390,13 @@ Future<void> _registro() async {
     );
   }
 
-  /// Iniciar sesiÃ³n / Registrarse. El mecanismo es el de siempre; lo que cambia
-  /// con la identidad es el indicador de la pestaÃ±a activa.
+  /// Iniciar sesión / Registrarse. El mecanismo es el de siempre; lo que cambia
+  /// con la identidad es el indicador de la pestaña activa.
   ///
   /// Activa y dormida se distinguen por color, no por peso: cambiar el peso
   /// sobre un estilo ya resuelto no carga la variante negrita de la familia
-  /// â€”google_fonts trae un fichero por varianteâ€”, asÃ­ que se verÃ­a un falso
-  /// negrita. El indicador ya dice cuÃ¡l es cuÃ¡l.
+  /// —google_fonts trae un fichero por variante—, así que se vería un falso
+  /// negrita. El indicador ya dice cuál es cuál.
   Widget _tabs(
       IdentidadPaleta id, TokensContextuales t, NordayCoreLocalizations l) {
     return Row(
@@ -418,8 +418,8 @@ Future<void> _registro() async {
     final base = Theme.of(context).textTheme.titleSmall;
     final color = activo ? t.text : t.textMuted;
 
-    // Neotokyo+ es la Ãºnica que admite mayÃºsculas y tracking, y sÃ³lo en la
-    // familia de titulares â€” que es la que el tema pone en `title*`.
+    // Neotokyo+ es la única que admite mayúsculas y tracking, y sólo en la
+    // familia de titulares — que es la que el tema pone en `title*`.
     final esNeotokyo = id.forma == FormaIdentidad.chamfer;
 
     return GestureDetector(
@@ -442,13 +442,13 @@ Future<void> _registro() async {
     );
   }
 
-  /// El subrayado de la pestaÃ±a activa, por identidad. Es relleno y no texto,
-  /// asÃ­ que aquÃ­ `primary` sÃ­ vale.
+  /// El subrayado de la pestaña activa, por identidad. Es relleno y no texto,
+  /// así que aquí `primary` sí vale.
   Widget _indicadorTab(IdentidadPaleta id, TokensContextuales t, bool activo) {
     final color = activo ? t.primary : Colors.transparent;
 
     return switch (id.forma) {
-      // Profundidad â€” barra redondeada con algo de luz debajo.
+      // Profundidad — barra redondeada con algo de luz debajo.
       FormaIdentidad.glass => Container(
           height: 3,
           decoration: BoxDecoration(
@@ -465,13 +465,13 @@ Future<void> _registro() async {
           ),
         ),
 
-      // Neotokyo+ â€” filo recto, sin radio: el corte es su lenguaje.
+      // Neotokyo+ — filo recto, sin radio: el corte es su lenguaje.
       FormaIdentidad.chamfer => Container(height: 2, color: color),
 
-      // Alba â€” lÃ­nea fina y nada mÃ¡s.
+      // Alba — línea fina y nada más.
       FormaIdentidad.hairline => Container(height: 1, color: color),
 
-      // Dulce â€” pÃ­ldora.
+      // Dulce — píldora.
       FormaIdentidad.pill => Container(
           height: 4,
           decoration: BoxDecoration(
@@ -523,7 +523,7 @@ Future<void> _registro() async {
     );
   }
 
-  /// El aviso de que algo ha ido mal, con el tono de la identidad equipada â€”
+  /// El aviso de que algo ha ido mal, con el tono de la identidad equipada —
   /// nunca un rojo fijo. Ver `tonoError`.
   Widget _banderaError(IdentidadPaleta id, String mensaje) {
     final tono = tonoError(context);
@@ -570,8 +570,8 @@ Future<void> _registro() async {
           child: fila,
         ),
 
-      // Alba â€” ni caja ni relleno: una lÃ­nea al margen y el texto. Un banner de
-      // color serÃ­a lo mÃ¡s ruidoso de toda la identidad.
+      // Alba — ni caja ni relleno: una línea al margen y el texto. Un banner de
+      // color sería lo más ruidoso de toda la identidad.
       FormaIdentidad.hairline => Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
@@ -627,7 +627,7 @@ Future<void> _registro() async {
     );
   }
 
-  /// La forma de los botones, del mismo lenguaje que la tarjeta: serÃ­a raro
+  /// La forma de los botones, del mismo lenguaje que la tarjeta: sería raro
   /// un panel achaflanado con los botones redondeados.
   OutlinedBorder _formaBoton(IdentidadPaleta id) => switch (id.forma) {
         FormaIdentidad.glass =>

@@ -76,7 +76,10 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(l.preferencias,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(color: t.text)),
             Text(l.preferenciasSubtitulo, style: TextStyle(color: t.textMuted, fontSize: 12)),
             const SizedBox(height: 16),
 
@@ -200,7 +203,10 @@ class _ListaZonasState extends State<_ListaZonas> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(l.cambiarZona,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: t.text)),
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(color: t.text)),
             const SizedBox(height: 12),
             TextField(
               autofocus: false,

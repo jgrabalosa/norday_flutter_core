@@ -394,10 +394,14 @@ class AppTheme {
       // no de quien lo usa.
       titleSmall: base.titleSmall?.copyWith(
           fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1),
-      // `displayLarge`, `displayMedium` y `headlineLarge` se quedan sin uso y
-      // sin tamaño declarado, para que quepa algo mayor que un título de
-      // pantalla el día que haga falta.
-      headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.w700),
+      // Título grande. Hoy sólo la pantalla de elección de identidad, que
+      // titula por encima de un título de pantalla normal. Ocupa el hueco que
+      // este comentario reservaba: el 22 estaba escrito a mano allí, fuera de
+      // la escala y sin familia de titulares.
+      headlineLarge: base.headlineLarge
+          ?.copyWith(fontSize: 22, fontWeight: FontWeight.w700),
+      // `displayLarge` y `displayMedium` siguen sin uso y sin tamaño
+      // declarado, para que quepa algo mayor el día que haga falta.
 
       // ── Cuerpo — familia body ────────────────────────────────────────────
       // Texto largo, y título de `ListTile`, que hereda de aquí.
