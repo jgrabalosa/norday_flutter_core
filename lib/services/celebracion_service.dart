@@ -33,6 +33,10 @@ static Future<void> _procesarCola() async {
         nombres[l['codigo']] = l['nombre'];
         descripciones[l['codigo']] = l['descripcion'] ?? '';
       }
+    // Silencio a propósito: el nombre y la descripción del logro salen primero
+    // de las traducciones del motor y de la app (CatalogosCore.logro). Lo del
+    // servidor sólo se usa para un código sin traducir; sin catálogo, ese caso
+    // enseña el código en crudo, pero la celebración sale igual.
     } catch (_) {}
 
     while (_cola.isNotEmpty) {
