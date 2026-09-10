@@ -69,6 +69,7 @@ void main() {
       final fondos = fondosDe(t);
       exigir(identidad.codigo, 'successText', t.successText, fondos, aaTexto);
       exigir(identidad.codigo, 'streakText', t.streakText, fondos, aaTexto);
+      exigir(identidad.codigo, 'pointsText', t.pointsText, fondos, aaTexto);
     }
   });
 

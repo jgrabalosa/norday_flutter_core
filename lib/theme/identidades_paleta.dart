@@ -132,6 +132,7 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // que hacen falta las variantes oscurecidas. Verificadas con WebAIM
       // sobre los tres fondos de la identidad (surface / bg / surface2).
       streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
+      pointsText: Color(0xFFBB2E1A), // 5.97 / 5.35 / 4.90
       successText: Color(0xFF2F6B5C), // 6.22 / 5.58 / 5.10
       // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
       // y no separaba la nota del fondo. Sobre este amarillo, `text` da

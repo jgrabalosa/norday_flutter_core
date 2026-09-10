@@ -92,6 +92,12 @@ class TokensContextuales {
   /// contrasta sobre el fondo de su propia paleta.
   final Color streakText;
 
+  /// Igual que `streakText` pero para `points`: como icono, borde o brillo
+  /// vale `points`; al escribir con él —el "+X pts" flotante, la cifra de
+  /// puntos de un logro— hace falta la variante que contrasta sobre el fondo
+  /// de su propia paleta.
+  final Color pointsText;
+
   /// La capa por encima de `surface`. La usan las identidades que resuelven
   /// la elevación por luminosidad en vez de por sombra. Quien no la declare
   /// se queda en `surface` y no cambia nada.
@@ -177,6 +183,7 @@ class TokensContextuales {
     required this.surface2, required this.text, required this.textMuted,
     Color? successText,
     Color? streakText,
+    Color? pointsText,
     Color? surfaceAlta,
     Color? inactivo,
     Color? aroVacio,
@@ -184,6 +191,7 @@ class TokensContextuales {
     Color? fondoNota,
   })  : successText = successText ?? success,
         streakText = streakText ?? streak,
+        pointsText = pointsText ?? points,
         surfaceAlta = surfaceAlta ?? surface,
         inactivo = inactivo ?? surface2,
         aroVacio = aroVacio ?? surface2,

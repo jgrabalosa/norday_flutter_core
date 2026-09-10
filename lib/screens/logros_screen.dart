@@ -222,7 +222,7 @@ class _LogrosScreenState extends State<LogrosScreen> {
                       const SizedBox(width: 8),
                       Text(l.logrosPuntos(logro['puntos'] as int),
                           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: conseguido ? t.points : t.textMuted)),
+                              color: conseguido ? t.pointsText : t.textMuted)),
                     ],
                   ),
                   const SizedBox(height: 4),
