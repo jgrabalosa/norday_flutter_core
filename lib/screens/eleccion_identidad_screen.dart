@@ -243,7 +243,7 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
                         const SizedBox(height: 12),
                         Text(
                           id.nombre,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ],
                     ),

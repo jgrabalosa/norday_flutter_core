@@ -115,10 +115,10 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
                 children: [
                   Text(
                     _esEdicion ? l.valEditar : l.valComoTeSentiste,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: t.text),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(color: t.text),
                   ),
                   const SizedBox(height: 12),
                   // FittedBox: si la fila de estrellas no cabe,
