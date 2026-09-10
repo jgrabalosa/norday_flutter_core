@@ -199,19 +199,15 @@ class SuperficieIdentidad extends StatelessWidget {
         // superficie. Verificado en dispositivo el 9-sep-2026 con una prueba
         // en rojo: el degradado SÍ se pintaba, el problema eran los valores.
         //
-        // Las secundarias de glass siguen sin superficie (null): van
-        // directamente sobre el cielo. Las otras tres identidades, `surface`.
-        // Profundidad ya no pinta superficie en las secundarias: las filas
-        // van directamente sobre el cielo. Lo que separa una fila de la
+        // Y translúcida cuando se lo piden: `opacidadSuperficie` a 0.75 en
+        // las cinco protagonistas. Lo que le da canto no es el relleno sino
+        // el filo claro de arriba.
+        //
+        // Las secundarias de glass no pintan superficie (null): van
+        // directamente sobre el cielo. Lo que separa una fila de la
         // siguiente ya no es una caja, y lo que dice «esto se toca» es el
         // propio CheckCircular, que en glass lleva aro grueso, base propia y
-        // el check insinuado.
-        //
-        // La protagonista sigue OPACA y con degradado, y por la misma razón
-        // de siempre: sobre capa translúcida `primary` cae a 3.59 y es justo
-        // la superficie que lleva las cifras destacadas.
-        //
-        // Las otras tres identidades no cambian: `t.surface` opaco.
+        // el check insinuado. Las otras tres identidades, `surface` opaco.
         color: id.forma == FormaIdentidad.glass
             ? (protagonista
                 ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
@@ -219,7 +215,7 @@ class SuperficieIdentidad extends StatelessWidget {
             : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
-          // de la capa y, en la protagonista, el canto del degradado. Una
+          // de la capa y, en la protagonista, el filo claro. Una
           // sombra negra sobre un fondo estelar apaga las estrellas en un
           // halo alrededor de cada tarjeta, justo lo contrario del efecto
           // buscado. Profundidad se queda sin sombra, como Neotokyo+.
