@@ -186,6 +186,8 @@ Future<void> _registro() async {
     setState(() { _loading = true; _error = null; });
     try {
       final esNuevo = await ApiServiceCore.loginConGoogle();
+      // Canceló el selector de cuenta: se queda en el login, sin mensaje.
+      if (esNuevo == null) return;
       final usuarioLocal = await ApiServiceCore.getUsuarioLocal();
       int? usuarioId;
       bool? posee;
