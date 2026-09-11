@@ -51,9 +51,13 @@ class ApiServiceCore {
   /// corrompe (restauración de backup, cambio de dispositivo), leer lanza
   /// excepción para siempre. Con esto se descarta y se trata como sesión
   /// caducada, que es lo correcto.
+  ///
+  /// flutter_secure_storage 11 ya no tiene encryptedSharedPreferences. Se
+  /// saltó de la 9 a la 11 sin pasar por la 10, así que el token guardado
+  /// antes no se puede leer: getToken devuelve null y el usuario vuelve a
+  /// iniciar sesión una vez.
   static const _almacenSeguro = FlutterSecureStorage(
     aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
       resetOnError: true,
     ),
   );

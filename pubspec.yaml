@@ -18,7 +18,7 @@ dependencies:
   intl: any
   http: ^1.2.0
   shared_preferences: ^2.5.5
-  flutter_secure_storage: ^9.2.2
+  flutter_secure_storage: ^11.1.0
   google_sign_in: ^7.2.0
   # Las familias de las identidades (Space Grotesk, Manrope, Chakra Petch,
   # IBM Plex Sans, Fraunces, Work Sans, Quicksand, Nunito y Caveat) NO se
