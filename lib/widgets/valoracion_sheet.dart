@@ -139,7 +139,7 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
                           icon: Icon(
                             LucideIcons.star,
                             color: marcada
-                                ? Colors.amber
+                                ? t.pointsText
                                 : t.textMuted.withValues(alpha: 0.45),
                           ),
                         );

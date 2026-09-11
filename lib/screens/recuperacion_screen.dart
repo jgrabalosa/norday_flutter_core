@@ -3,6 +3,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
+import '../theme/tono_error.dart';
 import '../services/api_service_core.dart';
 
 class RecuperacionScreen extends StatefulWidget {
@@ -158,11 +159,11 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: tonoError(context).fondo,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(_error!,
-                      style: const TextStyle(color: Colors.red)),
+                      style: TextStyle(color: tonoError(context).texto)),
                 ),
 
               // Botón principal
