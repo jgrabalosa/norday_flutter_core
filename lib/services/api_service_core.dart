@@ -468,8 +468,6 @@ class ApiServiceCore {
     verificar(response);
   }
 
-  // Devuelve true si la cuenta se acaba de crear en este login (para
-  // disparar el mini-onboarding), false si ya existía o si se canceló.
   static const String _googleServerClientId =
       '1086143132391-vprrrjr7s3u12q544flm2tclllj61ami.apps.googleusercontent.com';
 
@@ -488,8 +486,10 @@ class ApiServiceCore {
     });
   }
 
-  /// Devuelve `null` si el usuario cancela el selector de cuenta: no es un
-  /// error, y quien llama no debe navegar ni mostrar mensaje.
+  /// Devuelve true si la cuenta se acaba de crear en este login (para
+  /// disparar el mini-onboarding) y false si ya existía. Devuelve `null` si
+  /// el usuario cancela el selector de cuenta: no es un error, y quien llama
+  /// no debe navegar ni mostrar mensaje.
   static Future<bool?> loginConGoogle() async {
     await _asegurarGoogleIniciado();
 
