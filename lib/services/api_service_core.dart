@@ -470,16 +470,38 @@ class ApiServiceCore {
 
   // Devuelve true si la cuenta se acaba de crear en este login (para
   // disparar el mini-onboarding), false si ya existía o si se canceló.
-  static Future<bool> loginConGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      serverClientId: '1086143132391-vprrrjr7s3u12q544flm2tclllj61ami.apps.googleusercontent.com',
-    );
+  static const String _googleServerClientId =
+      '1086143132391-vprrrjr7s3u12q544flm2tclllj61ami.apps.googleusercontent.com';
 
-    final GoogleSignInAccount? account = await googleSignIn.signIn();
-    if (account == null) return false;
+  // google_sign_in 7 exige llamar a initialize una sola vez antes que a nada.
+  // Se hace aqui, la primera vez que hace falta, para que ninguna app tenga
+  // que acordarse de llamarlo al arrancar. Si falla, se olvida el intento y el
+  // siguiente login lo repite.
+  static Future<void>? _inicioGoogle;
 
-    final GoogleSignInAuthentication auth = await account.authentication;
-    final String? idToken = auth.idToken;
+  static Future<void> _asegurarGoogleIniciado() {
+    return _inicioGoogle ??= GoogleSignIn.instance
+        .initialize(serverClientId: _googleServerClientId)
+        .catchError((Object e, StackTrace s) {
+      _inicioGoogle = null;
+      Error.throwWithStackTrace(e, s);
+    });
+  }
+
+  /// Devuelve `null` si el usuario cancela el selector de cuenta: no es un
+  /// error, y quien llama no debe navegar ni mostrar mensaje.
+  static Future<bool?> loginConGoogle() async {
+    await _asegurarGoogleIniciado();
+
+    final GoogleSignInAccount account;
+    try {
+      account = await GoogleSignIn.instance.authenticate();
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
+      rethrow;
+    }
+
+    final String? idToken = account.authentication.idToken;
     // Google respondio, pero sin token utilizable: no es un fallo de red.
     if (idToken == null) {
       throw const ApiException(TipoErrorApi.respuestaInesperada);

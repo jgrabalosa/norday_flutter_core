@@ -19,7 +19,7 @@ dependencies:
   http: ^1.2.0
   shared_preferences: ^2.5.5
   flutter_secure_storage: ^9.2.2
-  google_sign_in: ^6.2.1
+  google_sign_in: ^7.2.0
   # Las familias de las identidades (Space Grotesk, Manrope, Chakra Petch,
   # IBM Plex Sans, Fraunces, Work Sans, Quicksand, Nunito y Caveat) NO se
   # resuelven por HTTP: van empaquetadas como assets en la app que consume
