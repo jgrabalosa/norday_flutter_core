@@ -146,3 +146,74 @@ de verdad y se desincronizaba al equipar desde otro dispositivo.
   no asumir.
 - Un cambio aquí afecta a todas las apps del ecosistema: antes de tocar una
   firma pública, comprobar quién la usa.
+
+## Lecciones aprendidas
+
+Errores que ya se cometieron una vez. No se vuelven a cometer.
+
+### Flutter y tests
+
+- **En `flutter test` Firebase no está inicializado**: acceder a
+  `FirebaseAnalytics.instance` lanza `[core/no-app]`. Sirve para probar que un
+  servicio no deja escapar el fallo. Ojo en sentido contrario: un servicio de
+  aquí que espere a Firebase sin que la app lo haya inicializado bloquea el
+  login de esa app.
+- **`MaterialApp` interpola el tema con `AnimatedTheme`** y `TextStyle.lerp` no
+  mezcla familias: en tests que cambian de identidad, `pumpAndSettle`, no
+  `pump`.
+- **El ticker de una animación toma la hora de inicio en su primer tic**: en
+  tests de duración, un `pump()` sin duración antes de medir.
+- **`containsSemantics` está deprecado desde Flutter 3.40** en favor de
+  `isSemantics`, que tiene los mismos parámetros y también sólo comprueba lo
+  indicado.
+- **Tras editar un ARB, `flutter analyze` no regenera las traducciones**:
+  `flutter gen-l10n` antes.
+- **El analizador de Dart promociona a no nulo a través de un `bool`
+  intermedio.** Si `final bool b = x != null && ...`, dentro de `if (b)` la
+  variable `x` ya es no nula: añadir `&& x != null` ahí dispara
+  `unnecessary_null_comparison`.
+- **Test en rojo antes del arreglo.** Si el test nuevo pasa contra el código
+  sin arreglar, no demuestra nada: parar.
+
+### Publicar una versión
+
+- **Antes de `git tag`, `git --no-pager log -1`.** Se creó y subió `v0.9.0`
+  sobre el commit de `v0.8.0` porque se saltaron el merge y el cambio de
+  versión. Se arregla con `git tag -d` y `git push origin --delete <tag>` si
+  nadie apunta aún a él.
+- **Un tag anotado resuelve a su commit, no a sí mismo**:
+  `git rev-parse <tag>^{commit}`.
+- **`git ls-remote origin <patrón>` no muestra la línea `^{}`** del tag: el
+  patrón no casa con ella. Listar con `--tags` para verla.
+- **Un cambio aquí no llega solo a las apps**: hay que hacer push y luego
+  `flutter pub upgrade norday_flutter_core` en cada una, porque la dependencia
+  va por `ref: main` y pub cachea el commit resuelto. Una app fijada a un
+  commit viejo del core seguirá con el comportamiento viejo aunque aquí esté
+  arreglado.
+
+### Método de trabajo (vale para los cuatro repos)
+
+- **La primera línea de un prompt se comprueba, no se recuerda.** Los cuatro
+  repos están en `C:\Dev\Norday\`.
+- **Un solo agente por repo a la vez.** Todo lo que haga otro agente se revisa
+  en el remoto antes de mergear.
+- **Las cifras de verificación se cuentan contra el repositorio**, nunca se
+  copian del roadmap. Y son cifras exactas, no adjetivos.
+- **Enumerar sin asumir el patrón**: buscar por la forma que ya has visto sólo
+  encuentra lo que ya sabías.
+- **Un filtro que no encuentra nada no es un resultado.** Ante una salida
+  vacía, mirar la fuente completa antes de concluir.
+- **Un fichero de diagnóstico no prueba nada por existir.** Abrirlo y
+  comprobar que contiene el fallo antes de darlo por documentado.
+- **La base de una rama `wip` envejece.** Antes de dar una cifra, comprobar de
+  qué commit sale la rama.
+- **Al sustituir un bloque, incluir el comentario de encima.** Si no, el
+  comentario queda sobre otra declaración y describe algo que ya no es cierto.
+- **No escribir en el código el término cuya ausencia se va a verificar.**
+- **Mirar dónde se pega cada bloque.** Un bloque para la máquina local,
+  lanzado en el VPS, llegó a `git push` y pidió credenciales.
+- **`git diff` y `git log` abren paginador**: `git --no-pager`.
+- **`git diff HEAD~1` compara con el directorio de trabajo**: incluye lo no
+  commiteado. Para ver sólo el commit, `git diff HEAD~1 HEAD` o el remoto.
+- **PowerShell 5.1 lee los `.ps1` sin BOM como ANSI**: scripts sin acentos, o
+  guardados con BOM.
