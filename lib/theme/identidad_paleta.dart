@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'app_theme.dart';
 
 /// Cómo se resuelve visualmente una tarjeta/superficie de esta identidad.
@@ -116,6 +118,24 @@ class IdentidadPaleta {
   /// `MascotaAnimadaViva`.
   final Duration duracionAnimacionFirma;
 
+  /// Cuánto dura una transición puntual en esta identidad: una fila que se
+  /// hunde al completarse, un elemento que cambia de sitio.
+  ///
+  /// NO confundir con [duracionAnimacionFirma], que es el periodo de un bucle
+  /// en reposo (2,4-4 s). Esto es un gesto que empieza y acaba, y vive en el
+  /// orden de los 200-400 ms. Son dos conceptos distintos y separados a
+  /// propósito: ajustar el latido de un halo no debe cambiar cómo cae una fila.
+  ///
+  /// Quien no lo declare se queda en 280 ms y no cambia nada.
+  final Duration duracionTransicion;
+
+  /// La curva de esa transición. Es lo que hace que el movimiento se lea como
+  /// identidad y no sólo como velocidad: Dulce rebota al aterrizar, Neotokyo+
+  /// para en seco, Alba no aterriza del todo.
+  ///
+  /// Quien no lo declare se queda en `Curves.easeOutCubic`.
+  final Curve curvaTransicion;
+
   const IdentidadPaleta({
     required this.codigo,
     required this.nombre,
@@ -129,5 +149,7 @@ class IdentidadPaleta {
     required this.forma,
     required this.fondo,
     required this.duracionAnimacionFirma,
+    this.duracionTransicion = const Duration(milliseconds: 280),
+    this.curvaTransicion = Curves.easeOutCubic,
   });
 }
