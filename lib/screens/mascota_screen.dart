@@ -7,6 +7,7 @@ import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/mascota_assets.dart';
+import '../theme/mascota_refresh.dart';
 import '../widgets/anillo_identidad.dart';
 import '../widgets/animacion_puntos.dart';
 import '../widgets/burbuja_contexto.dart';
@@ -246,6 +247,10 @@ class _MascotaScreenState extends State<MascotaScreen> {
     setState(() => _fase = fase);
     try {
       await ApiServiceCore.elegirFaseMascota(widget.usuarioId, fase);
+      // La mini vive fuera de esta pantalla y, al ser una pestaña y no una
+      // pantalla empujada, no se entera de que hemos vuelto. Esta es la señal
+      // que ya usa el dashboard al completar un hábito.
+      solicitarRefrescoMascota();
     } catch (e) {
       if (!mounted) return;
       setState(() => _fase = anterior);
