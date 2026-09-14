@@ -472,6 +472,18 @@ class ApiServiceCore {
     verificar(response);
   }
 
+  /// Qué fase de la mascota quiere ver el usuario. Sólo cambia la imagen: el
+  /// servidor valida que esté desbloqueada y responde 400 si no lo está.
+  static Future<void> elegirFaseMascota(int usuarioId, String fase) async {
+    final headers = await getHeaders();
+    final response = await enviar(() => cliente.put(
+          Uri.parse('$baseUrl/mascota/$usuarioId/fase'),
+          headers: headers,
+          body: jsonEncode({'fase': fase}),
+        ));
+    verificar(response);
+  }
+
   static const String _googleServerClientId =
       '1086143132391-vprrrjr7s3u12q544flm2tclllj61ami.apps.googleusercontent.com';
 

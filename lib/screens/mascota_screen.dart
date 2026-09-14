@@ -51,6 +51,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
   int _xpEnNivelActual = 0;
   int _xpParaSiguienteNivel = 20;
   String _fase = 'HUEVO'; // código, no texto: se traduce al pintar
+  /// La que le toca por nivel. `_fase` puede ser otra si el usuario la eligió:
+  /// ésta es la que decide qué se puede elegir y cuál sale con candado.
+  String _faseReal = 'HUEVO';
   String _estado = 'triste';
 
   /// Comida disponible. El id del producto sale del propio inventario: el
@@ -86,6 +89,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
         _xpEnNivelActual = data['xpEnNivelActual'] ?? 0;
         _xpParaSiguienteNivel = data['xpParaSiguienteNivel'] ?? 20;
         _fase = data['fase'] ?? 'HUEVO';
+        _faseReal = data['faseReal'] ?? data['fase'] ?? 'HUEVO';
         _estado = data['estado'] ?? 'triste';
         _loading = false;
       });
@@ -226,6 +230,89 @@ class _MascotaScreenState extends State<MascotaScreen> {
     }
   }
 
+  /// Orden de evolución. Espeja el de MascotaService: el cliente no conoce
+  /// los umbrales de nivel, sólo el orden, y compara contra la fase real que
+  /// manda el servidor.
+  static const _fases = ['HUEVO', 'CRIA', 'ADULTO'];
+
+  bool _desbloqueada(String fase) =>
+      _fases.indexOf(fase) <= _fases.indexOf(_faseReal);
+
+  Future<void> _elegirFase(String fase) async {
+    if (fase == _fase || !_desbloqueada(fase)) return;
+    final anterior = _fase;
+    // Optimista, como el nombre: la imagen cambia con el dedo y se revierte
+    // si el servidor dice que no.
+    setState(() => _fase = fase);
+    try {
+      await ApiServiceCore.elegirFaseMascota(widget.usuarioId, fase);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _fase = anterior);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(MensajesError.de(context, e))),
+      );
+    }
+  }
+
+  /// Las tres fases en fila. Sin texto a propósito: son tres dibujos de Nori
+  /// y se toca el que se quiere ver. Las no desbloqueadas van en gris oscuro
+  /// con candado — enseñar que existen es parte del incentivo.
+  Widget _selectorFases(BuildContext context) {
+    final t = tokens(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _fases.map((fase) {
+        final desbloqueada = _desbloqueada(fase);
+        final elegida = fase == _fase;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: GestureDetector(
+            onTap: desbloqueada ? () => _elegirFase(fase) : null,
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: elegida ? t.primary : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Opacity(
+                    opacity: desbloqueada ? 1.0 : 0.35,
+                    child: ColorFiltered(
+                      colorFilter: desbloqueada
+                          ? const ColorFilter.mode(
+                              Colors.transparent, BlendMode.multiply)
+                          : const ColorFilter.matrix(<double>[
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0.2126, 0.7152, 0.0722, 0, 0,
+                              0,      0,      0,      1, 0,
+                            ]),
+                      child: Image.asset(
+                        assetMascota(fase: fase, estado: _estado),
+                        package: 'norday_flutter_core',
+                        width: 48,
+                        height: 48,
+                      ),
+                    ),
+                  ),
+                  if (!desbloqueada)
+                    Icon(LucideIcons.lock, size: 18, color: t.textMuted),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   /// Nori manda en la pantalla: ocupa casi tres cuartos del ancho. Los topes
   /// suben con el factor, pero el de arriba se queda algo por debajo de la
   /// proporción exacta (serían 372): en tablet el ancho crece mucho más que el
@@ -342,6 +429,8 @@ class _MascotaScreenState extends State<MascotaScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        _selectorFases(context),
                         const SizedBox(height: 20),
                         // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
                         // de competir con ella por la atención.
