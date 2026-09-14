@@ -22,6 +22,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     forma: FormaIdentidad.glass,
     fondo: FondoIdentidadTipo.cielo,
     duracionAnimacionFirma: Duration(milliseconds: 3200),
+    duracionTransicion: Duration(milliseconds: 280),
+    curvaTransicion: Curves.easeOutCubic,
   ),
 
   'TEMA_NEOTOKYO_PLUS': IdentidadPaleta(
@@ -54,6 +56,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     forma: FormaIdentidad.chamfer,
     fondo: FondoIdentidadTipo.ciudad,
     duracionAnimacionFirma: Duration(milliseconds: 2400),
+    duracionTransicion: Duration(milliseconds: 200),
+    curvaTransicion: Curves.easeOutExpo,
   ),
 
   'TEMA_ALBA': IdentidadPaleta(
@@ -97,6 +101,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     forma: FormaIdentidad.hairline,
     fondo: FondoIdentidadTipo.luz,
     duracionAnimacionFirma: Duration(milliseconds: 4000),
+    duracionTransicion: Duration(milliseconds: 360),
+    curvaTransicion: Curves.easeInOutSine,
   ),
 
   'TEMA_DULCE': IdentidadPaleta(
@@ -148,6 +154,8 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     forma: FormaIdentidad.pill,
     fondo: FondoIdentidadTipo.acumulacion,
     duracionAnimacionFirma: Duration(milliseconds: 2600),
+    duracionTransicion: Duration(milliseconds: 320),
+    curvaTransicion: Curves.easeOutBack,
   ),
 };
 
