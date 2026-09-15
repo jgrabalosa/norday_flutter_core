@@ -412,10 +412,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get tiendaPreviewQueCrack => 'nice one!';
 
   @override
-  String get logrosTitulo => 'My achievements';
-
-  @override
-  String get logrosSeccion => 'Achievements';
+  String get logrosTitulo => 'Achievements';
 
   @override
   String logrosPorcentaje(int n) {

@@ -163,12 +163,6 @@ class _LogrosScreenState extends State<LogrosScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(l.logrosSeccion,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(color: t.text)),
-                        const SizedBox(height: 8),
                         ..._catalogo.map((logro) => _logroCard(l, logro, t)),
                       ],
                     ),
