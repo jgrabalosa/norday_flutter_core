@@ -958,7 +958,7 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @obCuerpo1.
   ///
   /// In es, this message translates to:
-  /// **'Cada hábito que completes te da puntos. Úsalos para desbloquear avatares, temas y más en la tienda.'**
+  /// **'Cada hábito que completes te da puntos. Úsalos para desbloquear temas y más en la tienda.'**
   String get obCuerpo1;
 
   /// No description provided for @obTitulo2.
@@ -973,23 +973,17 @@ abstract class NordayCoreLocalizations {
   /// **'Tienes una mascota que sube de nivel cada vez que completas un hábito. Cuídala y mira cómo evoluciona.'**
   String get obCuerpo2;
 
-  /// No description provided for @obTitulo3.
-  ///
-  /// In es, this message translates to:
-  /// **'Elige tu primer avatar, ¡es gratis! 👇'**
-  String get obTitulo3;
-
-  /// No description provided for @obCuerpo3.
-  ///
-  /// In es, this message translates to:
-  /// **'Podrás cambiarlo cuando quieras desde la Colección.'**
-  String get obCuerpo3;
-
   /// No description provided for @obSiguiente.
   ///
   /// In es, this message translates to:
   /// **'Siguiente'**
   String get obSiguiente;
+
+  /// No description provided for @obEmpezar.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar'**
+  String get obEmpezar;
 
   /// No description provided for @valTitulo.
   ///

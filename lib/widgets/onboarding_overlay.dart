@@ -3,12 +3,14 @@ import '../l10n/norday_core_localizations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/mascota_assets.dart';
-import 'selector_avatar_gratis.dart';
 
-/// Mini-onboarding de 3 pasos tras un alta nueva. Mismo patrón visual que
+/// Mini-onboarding de 2 pasos tras un alta nueva. Mismo patrón visual que
 /// CelebracionService (showGeneralDialog + transición), pero no se puede
-/// cerrar tocando fuera ni con el botón atrás — solo avanza tocando
-/// "Siguiente", o eligiendo un avatar en el último paso.
+/// cerrar tocando fuera ni con el botón atrás — se avanza con "Siguiente" y
+/// se cierra con "Empezar" en el último paso.
+///
+/// Tuvo un tercer paso con el selector de avatar gratis, retirado al sacar
+/// los avatares de la app. `SelectorAvatarGratis` sigue en el paquete.
 class OnboardingOverlay {
   static Future<void> mostrar(BuildContext context, {required int usuarioId}) {
     return showGeneralDialog(
@@ -37,16 +39,12 @@ class _OnboardingContent extends StatefulWidget {
 }
 
 class _OnboardingContentState extends State<_OnboardingContent> {
-  static const _totalPasos = 3;
+  static const _totalPasos = 2;
   int _paso = 0;
 
   void _siguiente() => setState(() => _paso++);
 
-  Future<void> _alElegirAvatar(String codigo) async {
-    // Breve pausa de confirmación visual antes de cerrar el overlay.
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) Navigator.of(context).pop();
-  }
+  void _cerrar() => Navigator.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
@@ -120,10 +118,8 @@ class _OnboardingContentState extends State<_OnboardingContent> {
     switch (_paso) {
       case 0:
         return _paso1(l, t);
-      case 1:
-        return _paso2(l, t);
       default:
-        return _paso3(l, t);
+        return _paso2(l, t);
     }
   }
 
@@ -177,29 +173,7 @@ class _OnboardingContentState extends State<_OnboardingContent> {
           style: TextStyle(color: t.textMuted),
         ),
         const SizedBox(height: 24),
-        _botonSiguiente(l),
-      ],
-    );
-  }
-
-  Widget _paso3(NordayCoreLocalizations l, TokensContextuales t) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(l.obTitulo3,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(color: t.text)),
-        const SizedBox(height: 8),
-        Text(
-          l.obCuerpo3,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: t.textMuted),
-        ),
-        const SizedBox(height: 16),
-        SelectorAvatarGratis(usuarioId: widget.usuarioId, onElegido: _alElegirAvatar),
+        _botonEmpezar(l),
       ],
     );
   }
@@ -210,6 +184,18 @@ class _OnboardingContentState extends State<_OnboardingContent> {
       child: ElevatedButton(
         onPressed: _siguiente,
         child: Text(l.obSiguiente),
+      ),
+    );
+  }
+
+  /// Cierra el overlay. Es la única salida: el diálogo va con `canPop: false`
+  /// y no tiene botón atrás.
+  Widget _botonEmpezar(NordayCoreLocalizations l) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _cerrar,
+        child: Text(l.obEmpezar),
       ),
     );
   }
