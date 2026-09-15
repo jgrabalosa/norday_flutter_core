@@ -191,8 +191,7 @@
   "tiendaPreviewNavPerfil": "Perfil",
   "tiendaPreviewHabito2": "Meditar 5 min",
   "tiendaPreviewQueCrack": "¡qué crack!",
-  "logrosTitulo": "Mis logros",
-  "logrosSeccion": "Logros",
+  "logrosTitulo": "Logros",
   "logrosPorcentaje": "{n}%",
   "@logrosPorcentaje": {
     "placeholders": {

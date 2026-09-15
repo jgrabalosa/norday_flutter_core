@@ -862,14 +862,8 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @logrosTitulo.
   ///
   /// In es, this message translates to:
-  /// **'Mis logros'**
-  String get logrosTitulo;
-
-  /// No description provided for @logrosSeccion.
-  ///
-  /// In es, this message translates to:
   /// **'Logros'**
-  String get logrosSeccion;
+  String get logrosTitulo;
 
   /// No description provided for @logrosPorcentaje.
   ///
