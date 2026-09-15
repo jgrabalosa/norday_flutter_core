@@ -110,11 +110,13 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     nombre: 'Dulce',
     tokens: TokensContextuales(
       primary: Color(0xFFFF6FA5),
-      // El éxito deja de ser el rosa de `primary`: es el hábito hecho y tiene
-      // color propio. El rosa como relleno daba 2.60 / 2.33 / 2.14 sobre
-      // surface / bg / surface2 y no llegaba a los 3.0 de WCAG 1.4.11.
-      // Salvia con deriva a menta: 4.12 / 3.69 / 3.38.
-      success: Color(0xFF57876F),
+      // El éxito sigue teniendo color propio, pero vuelve a la familia rosa
+      // de la identidad: la salvia rompía con Detalle de hábito, que pinta
+      // los días cumplidos con `primary`. El rosa de `primary` (#FF6FA5) no
+      // vale como relleno —2.60 / 2.33 / 2.14 sobre surface / bg / surface2,
+      // por debajo de los 3.0 de WCAG 1.4.11—, así que éste es el mismo tono
+      // asentado: HSL 338, igual que `primary`. Da 3.92 / 3.52 / 3.22.
+      success: Color(0xFFE53F80),
       streak: Color(0xFFE86A58),
       points: Color(0xFFE86A58),
       bg: Color(0xFFFAF0F4),
@@ -134,12 +136,12 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // 4.61 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF4A2E3D),
       // Sobre fondo claro ningún relleno de esta identidad vale como texto:
-      // ni el coral de `streak` ni la salvia de `success` llegan a 4.5, así
+      // ni el coral de `streak` ni el rosa de `success` llegan a 4.5, así
       // que hacen falta las variantes oscurecidas. Verificadas con WebAIM
       // sobre los tres fondos de la identidad (surface / bg / surface2).
       streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
       pointsText: Color(0xFFBB2E1A), // 5.97 / 5.35 / 4.90
-      successText: Color(0xFF2F6B5C), // 6.22 / 5.58 / 5.10
+      successText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
       // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
       // y no separaba la nota del fondo. Sobre este amarillo, `text` da
       // 10.95, `successText` 5.67 y `textMuted` 5.04.
