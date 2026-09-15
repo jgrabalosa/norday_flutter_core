@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
@@ -15,6 +16,13 @@ import '../theme/identidades_paleta.dart';
 /// desnuda o en un post-it escrito a mano.
 ///
 /// No anima nada — es texto que cambia cuando cambian los datos, no un gesto.
+/// Cuál de las dos pegatinas lleva la nota de Profundidad. PROVISIONAL: está
+/// para verlas en el móvil y elegir. Cuando se decida, se borra la constante
+/// y se deja sólo la forma elegida.
+///
+/// `true` → cohete. `false` → constelación de tres puntos.
+const bool kPegatinaCohete = true;
+
 class BurbujaContexto extends StatelessWidget {
   final String texto;
 
@@ -39,11 +47,16 @@ class BurbujaContexto extends StatelessWidget {
 
   static const _relleno = EdgeInsets.symmetric(horizontal: 16, vertical: 10);
 
-  /// Profundidad — tarjeta de cristal: degradado entre las dos superficies y
-  /// un filo claro arriba, que es lo que hace que parezca un panel con canto
-  /// y no un rectángulo de color.
+  /// Profundidad — nota de cristal con una pegatina en la esquina. El
+  /// degradado entre las dos superficies y el filo claro de arriba son lo que
+  /// hace que parezca un panel con canto y no un rectángulo de color; la
+  /// inclinación y la pegatina son lo que la convierten en algo puesto ahí
+  /// por alguien, como el post-it de Dulce.
+  ///
+  /// Se inclina al revés que Dulce (positivo, no negativo) a propósito: las
+  /// dos identidades comparten el gesto pero no la mano.
   Widget _cristal(IdentidadPaleta id, TokensContextuales t) {
-    return Container(
+    final tarjeta = Container(
       padding: _relleno,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(id.radioHero),
@@ -71,6 +84,49 @@ class BurbujaContexto extends StatelessWidget {
           color: color ?? t.textMuted,
         ),
       ),
+    );
+
+    return Transform.rotate(
+      angle: 0.018, // ~1°, menos que Dulce: el cristal pesa más que el papel
+      child: Stack(
+        // La pegatina sobresale del borde de la tarjeta, así que el Stack no
+        // puede recortar a sus hijos.
+        clipBehavior: Clip.none,
+        children: [
+          tarjeta,
+          Positioned(
+            top: -9,
+            right: -7,
+            child: _pegatina(t),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// La pegatina de la esquina de Profundidad. Dos formas mientras se decide
+  /// cuál se queda — ver [kPegatinaCohete].
+  Widget _pegatina(TokensContextuales t) {
+    if (kPegatinaCohete) {
+      return Transform.rotate(
+        // El cohete de Lucide apunta arriba-izquierda; se endereza un poco
+        // para que salga hacia la esquina y no hacia el texto.
+        angle: 0.5,
+        child: Icon(
+          LucideIcons.rocket,
+          size: 20,
+          color: t.streak,
+        ),
+      );
+    }
+
+    // Constelación: tres puntos y dos trazos, el mismo lenguaje que el fondo
+    // de la identidad. Se dibuja a mano en vez de usar un icono porque no hay
+    // ninguno que sea esto.
+    return SizedBox(
+      width: 22,
+      height: 22,
+      child: CustomPaint(painter: _ConstelacionPegatina(color: t.streak)),
     );
   }
 
@@ -200,4 +256,36 @@ class _ChaflanPainter extends CustomPainter {
   @override
   bool shouldRepaint(_ChaflanPainter old) =>
       old.relleno != relleno || old.borde != borde || old.chaflan != chaflan;
+}
+
+/// Tres estrellas unidas por dos trazos finos. Es la pegatina alternativa al
+/// cohete en la nota de Profundidad; el dibujo es deliberadamente mínimo,
+/// porque a 22 px cualquier detalle se pierde.
+class _ConstelacionPegatina extends CustomPainter {
+  final Color color;
+
+  _ConstelacionPegatina({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final a = Offset(size.width * 0.18, size.height * 0.72);
+    final b = Offset(size.width * 0.52, size.height * 0.24);
+    final c = Offset(size.width * 0.86, size.height * 0.60);
+
+    final trazo = Paint()
+      ..color = color.withValues(alpha: 0.55)
+      ..strokeWidth = 1.1
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(a, b, trazo);
+    canvas.drawLine(b, c, trazo);
+
+    final punto = Paint()..color = color;
+    canvas.drawCircle(a, 1.7, punto);
+    canvas.drawCircle(b, 2.3, punto);
+    canvas.drawCircle(c, 1.7, punto);
+  }
+
+  @override
+  bool shouldRepaint(_ConstelacionPegatina old) => old.color != color;
 }
