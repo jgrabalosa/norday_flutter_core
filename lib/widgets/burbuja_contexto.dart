@@ -16,12 +16,33 @@ import '../theme/identidades_paleta.dart';
 /// desnuda o en un post-it escrito a mano.
 ///
 /// No anima nada — es texto que cambia cuando cambian los datos, no un gesto.
-/// Cuál de las dos pegatinas lleva la nota de Profundidad. PROVISIONAL: está
-/// para verlas en el móvil y elegir. Cuando se decida, se borra la constante
-/// y se deja sólo la forma elegida.
-///
-/// `true` → cohete. `false` → constelación de tres puntos.
-const bool kPegatinaCohete = true;
+/// Las cuatro formas que se están probando para la nota de Profundidad.
+/// PROVISIONAL: esto es un banco de pruebas. Cuando se elija una, se borra el
+/// enum, se borran las otras tres y queda sólo la elegida escrita a pelo.
+enum EstiloNota {
+  /// Pegatina de cohete, arriba a la IZQUIERDA y apenas sobresaliendo. Es la
+  /// idea original, mejor colocada: la de la derecha caía justo donde el ojo
+  /// sale de la frase.
+  cohete,
+
+  /// Lo mismo pero con la constelación de tres puntos, que pertenece al
+  /// vocabulario de la identidad —el fondo son estrellas— mientras que un
+  /// cohete introduce un actor donde antes sólo había firmamento.
+  constelacion,
+
+  /// Sin pegatina: el cohete se mete DENTRO, a la izquierda del texto. Deja de
+  /// ser algo pegado y pasa a ser un icono que acompaña la frase. Es la
+  /// variante más segura y la menos llamativa.
+  iconoDentro,
+
+  /// Ni tarjeta ni pegatina: la frase sobre el cielo, con un filo vertical
+  /// ámbar a la izquierda. El mismo gesto que la itálica desnuda de Alba, pero
+  /// con el vocabulario de Profundidad. El fondo se ve entero detrás.
+  filoDesnudo,
+}
+
+/// Cuál se está probando. Cambiar aquí y volver a compilar.
+const EstiloNota kEstiloNota = EstiloNota.cohete;
 
 class BurbujaContexto extends StatelessWidget {
   final String texto;
@@ -56,6 +77,39 @@ class BurbujaContexto extends StatelessWidget {
   /// Se inclina al revés que Dulce (positivo, no negativo) a propósito: las
   /// dos identidades comparten el gesto pero no la mano.
   Widget _cristal(IdentidadPaleta id, TokensContextuales t) {
+    // El filo desnudo no es una tarjeta, así que sale antes de construirla.
+    if (kEstiloNota == EstiloNota.filoDesnudo) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(12, 2, 0, 2),
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(color: t.streak.withValues(alpha: 0.75), width: 2),
+          ),
+        ),
+        child: Text(
+          texto,
+          textAlign: TextAlign.start,
+          style: GoogleFonts.getFont(
+            id.fontBody,
+            fontSize: 14,
+            height: 1.3,
+            color: color ?? t.textMuted,
+          ),
+        ),
+      );
+    }
+
+    final textoNota = Text(
+      texto,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.getFont(
+        id.fontBody,
+        fontSize: 14,
+        height: 1.3,
+        color: color ?? t.textMuted,
+      ),
+    );
+
     final tarjeta = Container(
       padding: _relleno,
       decoration: BoxDecoration(
@@ -74,29 +128,38 @@ class BurbujaContexto extends StatelessWidget {
           ),
         ],
       ),
-      child: Text(
-        texto,
-        textAlign: TextAlign.center,
-        style: GoogleFonts.getFont(
-          id.fontBody,
-          fontSize: 14,
-          height: 1.3,
-          color: color ?? t.textMuted,
-        ),
-      ),
+      child: kEstiloNota == EstiloNota.iconoDentro
+          // Dentro, a la izquierda del texto. `mainAxisSize.min` para que la
+          // tarjeta siga midiendo lo que mide la frase y no se estire.
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(LucideIcons.rocket, size: 16, color: t.streak),
+                const SizedBox(width: 9),
+                Flexible(child: textoNota),
+              ],
+            )
+          : textoNota,
     );
 
+    if (kEstiloNota == EstiloNota.iconoDentro) {
+      return tarjeta;
+    }
+
+    // Cohete y constelación: pegatina arriba a la IZQUIERDA, apenas
+    // sobresaliendo, y la tarjeta un poco más torcida que antes para que el
+    // conjunto se lea como algo puesto a mano y no como un panel al que se le
+    // ha caído algo encima.
     return Transform.rotate(
-      angle: 0.018, // ~1°, menos que Dulce: el cristal pesa más que el papel
+      angle: 0.028,
       child: Stack(
-        // La pegatina sobresale del borde de la tarjeta, así que el Stack no
-        // puede recortar a sus hijos.
+        // La pegatina sobresale del borde, así que el Stack no puede recortar.
         clipBehavior: Clip.none,
         children: [
           tarjeta,
           Positioned(
-            top: -9,
-            right: -7,
+            top: -6,
+            left: -4,
             child: _pegatina(t),
           ),
         ],
@@ -107,7 +170,7 @@ class BurbujaContexto extends StatelessWidget {
   /// La pegatina de la esquina de Profundidad. Dos formas mientras se decide
   /// cuál se queda — ver [kPegatinaCohete].
   Widget _pegatina(TokensContextuales t) {
-    if (kPegatinaCohete) {
+    if (kEstiloNota == EstiloNota.cohete) {
       return Transform.rotate(
         // El cohete de Lucide apunta arriba-izquierda; se endereza un poco
         // para que salga hacia la esquina y no hacia el texto.
