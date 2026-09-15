@@ -16,7 +16,6 @@ import '../theme/identidades_paleta.dart';
 /// desnuda o en un post-it escrito a mano.
 ///
 /// No anima nada — es texto que cambia cuando cambian los datos, no un gesto.
-
 class BurbujaContexto extends StatelessWidget {
   final String texto;
 
