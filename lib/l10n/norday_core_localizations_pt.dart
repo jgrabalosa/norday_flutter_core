@@ -474,7 +474,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get obCuerpo1 =>
-      'Cada hábito que você concluir dá pontos. Use-os para desbloquear avatares, temas e mais na loja.';
+      'Cada hábito que você concluir dá pontos. Use-os para desbloquear temas e mais na loja.';
 
   @override
   String get obTitulo2 => 'Seu companheiro cresce com você 🐣';
@@ -484,13 +484,10 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Você tem um mascote que sobe de nível sempre que você conclui um hábito. Cuide dele e veja como evolui.';
 
   @override
-  String get obTitulo3 => 'Escolha seu primeiro avatar, é grátis! 👇';
-
-  @override
-  String get obCuerpo3 => 'Você pode trocar quando quiser pela Coleção.';
-
-  @override
   String get obSiguiente => 'Avançar';
+
+  @override
+  String get obEmpezar => 'Começar';
 
   @override
   String get valTitulo => 'Avaliação';
