@@ -16,13 +16,6 @@ import '../theme/identidades_paleta.dart';
 /// desnuda o en un post-it escrito a mano.
 ///
 /// No anima nada — es texto que cambia cuando cambian los datos, no un gesto.
-/// Cuál de las dos pegatinas lleva la nota de Profundidad. PROVISIONAL: está
-/// para verlas en el móvil y elegir. Cuando se decida, se borra la constante
-/// y se deja sólo la forma elegida.
-///
-/// `true` → cohete. `false` → constelación de tres puntos.
-const bool kPegatinaCohete = true;
-
 class BurbujaContexto extends StatelessWidget {
   final String texto;
 
@@ -87,16 +80,17 @@ class BurbujaContexto extends StatelessWidget {
     );
 
     return Transform.rotate(
-      angle: 0.018, // ~1°, menos que Dulce: el cristal pesa más que el papel
+      // Más que Dulce, no menos: el post-it lo tuerce la mano y a esto lo
+      // tuerce el peso de haberlo dejado ahí.
+      angle: 0.028,
       child: Stack(
-        // La pegatina sobresale del borde de la tarjeta, así que el Stack no
-        // puede recortar a sus hijos.
+        // La pegatina sobresale del borde, así que el Stack no puede recortar.
         clipBehavior: Clip.none,
         children: [
           tarjeta,
           Positioned(
-            top: -9,
-            right: -7,
+            top: -6,
+            left: -4,
             child: _pegatina(t),
           ),
         ],
@@ -104,29 +98,18 @@ class BurbujaContexto extends StatelessWidget {
     );
   }
 
-  /// La pegatina de la esquina de Profundidad. Dos formas mientras se decide
-  /// cuál se queda — ver [kPegatinaCohete].
+  /// La pegatina de Profundidad: un cohete que asoma por la esquina de arriba
+  /// a la izquierda, lo justo para que la nota parezca puesta a mano.
   Widget _pegatina(TokensContextuales t) {
-    if (kPegatinaCohete) {
-      return Transform.rotate(
-        // El cohete de Lucide apunta arriba-izquierda; se endereza un poco
-        // para que salga hacia la esquina y no hacia el texto.
-        angle: 0.5,
-        child: Icon(
-          LucideIcons.rocket,
-          size: 20,
-          color: t.streak,
-        ),
-      );
-    }
-
-    // Constelación: tres puntos y dos trazos, el mismo lenguaje que el fondo
-    // de la identidad. Se dibuja a mano en vez de usar un icono porque no hay
-    // ninguno que sea esto.
-    return SizedBox(
-      width: 22,
-      height: 22,
-      child: CustomPaint(painter: _ConstelacionPegatina(color: t.streak)),
+    return Transform.rotate(
+      // El cohete de Lucide apunta arriba-izquierda; se endereza un poco
+      // para que salga hacia la esquina y no hacia el texto.
+      angle: 0.5,
+      child: Icon(
+        LucideIcons.rocket,
+        size: 20,
+        color: t.streak,
+      ),
     );
   }
 
@@ -256,36 +239,4 @@ class _ChaflanPainter extends CustomPainter {
   @override
   bool shouldRepaint(_ChaflanPainter old) =>
       old.relleno != relleno || old.borde != borde || old.chaflan != chaflan;
-}
-
-/// Tres estrellas unidas por dos trazos finos. Es la pegatina alternativa al
-/// cohete en la nota de Profundidad; el dibujo es deliberadamente mínimo,
-/// porque a 22 px cualquier detalle se pierde.
-class _ConstelacionPegatina extends CustomPainter {
-  final Color color;
-
-  _ConstelacionPegatina({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final a = Offset(size.width * 0.18, size.height * 0.72);
-    final b = Offset(size.width * 0.52, size.height * 0.24);
-    final c = Offset(size.width * 0.86, size.height * 0.60);
-
-    final trazo = Paint()
-      ..color = color.withValues(alpha: 0.55)
-      ..strokeWidth = 1.1
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawLine(a, b, trazo);
-    canvas.drawLine(b, c, trazo);
-
-    final punto = Paint()..color = color;
-    canvas.drawCircle(a, 1.7, punto);
-    canvas.drawCircle(b, 2.3, punto);
-    canvas.drawCircle(c, 1.7, punto);
-  }
-
-  @override
-  bool shouldRepaint(_ConstelacionPegatina old) => old.color != color;
 }
