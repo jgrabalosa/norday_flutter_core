@@ -964,7 +964,7 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @obCuerpo2.
   ///
   /// In es, this message translates to:
-  /// **'Tienes una mascota que sube de nivel cada vez que completas un hábito. Cuídala y mira cómo evoluciona.'**
+  /// **'Se llama Nori, y sube de nivel cada vez que completas un hábito. Cuídala y mira cómo evoluciona.'**
   String get obCuerpo2;
 
   /// No description provided for @obSiguiente.
@@ -1300,7 +1300,7 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @identidadSubtitulo.
   ///
   /// In es, this message translates to:
-  /// **'Así se verá tu app. Desliza para ver las cuatro.'**
+  /// **'Así se verá tu app. Desliza para ver las tres; las demás se compran luego en la tienda.'**
   String get identidadSubtitulo;
 
   /// No description provided for @identidadElegir.
