@@ -475,7 +475,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get obCuerpo2 =>
-      'You have a pet that levels up every time you complete a habit. Take care of it and watch it evolve.';
+      'Her name is Nori, and she levels up every time you complete a habit. Take care of her and watch her evolve.';
 
   @override
   String get obSiguiente => 'Next';
@@ -656,7 +656,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get identidadSubtitulo =>
-      'This is how your app will look. Swipe to see all four.';
+      'This is how your app will look. Swipe to see all three; the rest are available in the shop.';
 
   @override
   String get identidadElegir => 'Choose this one';
