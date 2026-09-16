@@ -15,6 +15,7 @@ export 'services/celebracion_service.dart';
 export 'services/sonido_service.dart';
 export 'services/idioma_service.dart';
 export 'services/zona_service.dart';
+export 'services/recorrido_service.dart';
 
 // ── Textos ───────────────────────────────────────────────
 export 'l10n/norday_core_localizations.dart';
