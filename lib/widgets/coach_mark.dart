@@ -66,15 +66,15 @@ class CoachMark extends StatelessWidget {
         foco != null && foco!.center.dy < pantalla.height / 2;
 
     return Material(
-      color: Colors.transparent,
+      // `transparency`, no un color transparente: son cosas distintas. El
+      // render de Material hace `absorbHitTest: type != transparency`, así que
+      // con el tipo por defecto se queda TODOS los toques de su superficie,
+      // agujero incluido, y ningún paso de acción puede completarse nunca.
+      // Con este tipo el `color` sobra y no se admite.
+      type: MaterialType.transparency,
       child: Stack(
         children: [
-          IgnorePointer(
-            child: CustomPaint(
-              size: pantalla,
-              painter: _VeloConAgujero(foco: foco, radio: radio),
-            ),
-          ),
+          IgnorePointer(child: _Velo(foco: foco, radio: radio)),
           ..._barreras(pantalla),
           Positioned(
             left: 16,
@@ -169,11 +169,59 @@ class CoachMark extends StatelessWidget {
   }
 }
 
-class _VeloConAgujero extends CustomPainter {
+/// El velo y su pulso.
+///
+/// Va aparte para que [CoachMark] siga sin estado: lo único que se anima es
+/// esto, y así el resto del widget se reconstruye cuando quiera sin arrastrar
+/// un AnimationController.
+class _Velo extends StatefulWidget {
   final Rect? foco;
   final double radio;
 
-  const _VeloConAgujero({required this.foco, required this.radio});
+  const _Velo({required this.foco, required this.radio});
+
+  @override
+  State<_Velo> createState() => _VeloState();
+}
+
+class _VeloState extends State<_Velo> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulso = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulso.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulso,
+      builder: (context, _) => CustomPaint(
+        size: MediaQuery.sizeOf(context),
+        painter: _VeloConAgujero(
+          foco: widget.foco,
+          radio: widget.radio,
+          pulso: _pulso.value,
+        ),
+      ),
+    );
+  }
+}
+
+class _VeloConAgujero extends CustomPainter {
+  final Rect? foco;
+  final double radio;
+  final double pulso;
+
+  const _VeloConAgujero({
+    required this.foco,
+    required this.radio,
+    required this.pulso,
+  });
 
   static const double _opacidad = 0.72;
 
@@ -188,13 +236,25 @@ class _VeloConAgujero extends CustomPainter {
       return;
     }
 
-    final agujero = Path()
-      ..addRRect(RRect.fromRectAndRadius(f, Radius.circular(radio)));
+    final hueco = RRect.fromRectAndRadius(f, Radius.circular(radio));
     canvas.drawPath(
-        Path.combine(PathOperation.difference, velo, agujero), pintura);
+      Path.combine(PathOperation.difference, velo, Path()..addRRect(hueco)),
+      pintura,
+    );
+
+    // Un anillo que crece y se desvanece alrededor del hueco. Lo señalado
+    // suele estar en un borde de la pantalla —la barra de abajo, un botón
+    // flotante— y sin esto cuesta encontrarlo.
+    canvas.drawRRect(
+      hueco.inflate(4 + 8 * pulso),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = Colors.white.withValues(alpha: 0.45 * (1 - pulso)),
+    );
   }
 
   @override
   bool shouldRepaint(_VeloConAgujero viejo) =>
-      viejo.foco != foco || viejo.radio != radio;
+      viejo.foco != foco || viejo.radio != radio || viejo.pulso != pulso;
 }
