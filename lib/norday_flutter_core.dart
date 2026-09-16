@@ -45,6 +45,7 @@ export 'widgets/burbuja_flotante.dart';
 export 'widgets/campo_identidad.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
+export 'widgets/coach_mark.dart';
 export 'widgets/fondo_identidad.dart';
 export 'widgets/halo_identidad.dart';
 export 'widgets/logo_google.dart';
