@@ -34,11 +34,17 @@ class MascotaScreen extends StatefulWidget {
   /// reiniciar. Abierta como ruta siempre está activa.
   final bool activa;
 
+  /// Ancla del botón de alimentar, para el recorrido guiado de la app que la
+  /// use. Entra por parámetro porque el core no conoce el recorrido ni puede
+  /// importar nada de la app; null es lo normal y no cambia nada.
+  final GlobalKey? anclaAlimentar;
+
   const MascotaScreen({
     super.key,
     required this.usuarioId,
     this.embebida = false,
     this.activa = true,
+    this.anclaAlimentar,
   });
 
   @override
@@ -464,6 +470,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             OutlinedButton.icon(
+                              key: widget.anclaAlimentar,
                               // Sin comida el botón sigue a la vista, apagado:
                               // es la pista de que hay algo que comprar en la
                               // tienda.
