@@ -10,10 +10,14 @@ import '../theme/app_theme.dart';
 /// No conoce el dominio: quien lo invoca decide qué hacer con el resultado.
 /// Exportable a otras apps del ecosistema.
 class ValoracionSheet {
+  /// [ancla] señala la tarjeta del diálogo para el recorrido guiado de la app
+  /// que la use. Entra por parámetro porque el core no conoce ese recorrido;
+  /// null es lo normal y no cambia nada.
   static Future<Map<String, dynamic>?> mostrar(
     BuildContext context, {
     int? valoracionInicial,
     String? notaInicial,
+    GlobalKey? ancla,
   }) {
     return showGeneralDialog<Map<String, dynamic>>(
       context: context,
@@ -24,6 +28,7 @@ class ValoracionSheet {
       pageBuilder: (context, _, _) => _ValoracionDialogContent(
         valoracionInicial: valoracionInicial,
         notaInicial: notaInicial,
+        ancla: ancla,
       ),
       transitionBuilder: (context, anim, _, child) {
         final curva = CurvedAnimation(parent: anim, curve: Curves.easeOutBack);
@@ -39,8 +44,13 @@ class ValoracionSheet {
 class _ValoracionDialogContent extends StatefulWidget {
   final int? valoracionInicial;
   final String? notaInicial;
+  final GlobalKey? ancla;
 
-  const _ValoracionDialogContent({this.valoracionInicial, this.notaInicial});
+  const _ValoracionDialogContent({
+    this.valoracionInicial,
+    this.notaInicial,
+    this.ancla,
+  });
 
   @override
   State<_ValoracionDialogContent> createState() =>
@@ -96,6 +106,8 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
           padding: EdgeInsets.only(
               left: 24, right: 24, bottom: teclado > 0 ? teclado : 0),
           child: Container(
+            // Ancla del recorrido guiado: el hueco recorta la tarjeta entera.
+            key: widget.ancla,
             decoration: BoxDecoration(
               color: t.surface,
               borderRadius: BorderRadius.circular(AppRadius.xl),
