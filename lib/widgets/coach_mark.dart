@@ -81,7 +81,8 @@ class CoachMark extends StatelessWidget {
       type: MaterialType.transparency,
       child: Stack(
         children: [
-          IgnorePointer(child: _Velo(foco: foco, radio: radio)),
+          IgnorePointer(
+              child: _Velo(foco: foco, radio: radio, colorAro: t.points)),
           ..._barreras(pantalla),
           _tarjetaColocada(context, t, pantalla),
         ],
@@ -148,9 +149,19 @@ class CoachMark extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(left: izquierda),
-      child: CustomPaint(
-        size: const Size(ancho, 9),
-        painter: _Pico(color: t.surface, haciaArriba: haciaArriba),
+      // Se monta dos píxeles sobre la tarjeta para tapar el trozo de borde
+      // que quedaría cruzándole la base. Es un desplazamiento pintado, no de
+      // colocación: en el Column sigue ocupando su alto.
+      child: Transform.translate(
+        offset: Offset(0, haciaArriba ? 2 : -2),
+        child: CustomPaint(
+          size: const Size(ancho, 9),
+          painter: _Pico(
+            color: t.surface,
+            borde: t.points,
+            haciaArriba: haciaArriba,
+          ),
+        ),
       ),
     );
   }
@@ -200,7 +211,13 @@ class CoachMark extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
+        // El filo lleva el terciario de la identidad. La sombra de color va
+        // sin desplazamiento y muy abierta: no es una sombra, es la luz que
+        // la tarjeta derrama sobre el velo. La negra sigue debajo dándole
+        // peso, como en OnboardingOverlay.
+        border: Border.all(color: t.points, width: 2),
         boxShadow: [
+          BoxShadow(color: t.points.withValues(alpha: 0.35), blurRadius: 28),
           BoxShadow(
               color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 24,
@@ -293,9 +310,14 @@ class CoachMark extends StatelessWidget {
 /// un AnimationController.
 class _Velo extends StatefulWidget {
   final Rect? foco;
+  final Color colorAro;
   final double radio;
 
-  const _Velo({required this.foco, required this.radio});
+  const _Velo({
+    required this.foco,
+    required this.radio,
+    required this.colorAro,
+  });
 
   @override
   State<_Velo> createState() => _VeloState();
@@ -320,6 +342,7 @@ class _VeloState extends State<_Velo> with SingleTickerProviderStateMixin {
       builder: (context, _) => CustomPaint(
         size: MediaQuery.sizeOf(context),
         painter: _VeloConAgujero(
+          colorAro: widget.colorAro,
           foco: widget.foco,
           radio: widget.radio,
           pulso: _pulso.value,
@@ -333,8 +356,10 @@ class _VeloConAgujero extends CustomPainter {
   final Rect? foco;
   final double radio;
   final double pulso;
+  final Color colorAro;
 
   const _VeloConAgujero({
+    required this.colorAro,
     required this.foco,
     required this.radio,
     required this.pulso,
@@ -367,41 +392,64 @@ class _VeloConAgujero extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
-        ..color = Colors.white.withValues(alpha: 0.45 * (1 - pulso)),
+        ..color = colorAro.withValues(alpha: 0.55 * (1 - pulso)),
     );
   }
 
   @override
   bool shouldRepaint(_VeloConAgujero viejo) =>
-      viejo.foco != foco || viejo.radio != radio || viejo.pulso != pulso;
+      viejo.foco != foco ||
+      viejo.radio != radio ||
+      viejo.pulso != pulso ||
+      viejo.colorAro != colorAro;
 }
 
-/// El pico de la tarjeta. Del mismo color que ella, para que se lea como un
-/// saliente suyo y no como una figura aparte.
+/// El pico de la tarjeta. Relleno de su mismo color, para que se lea como un
+/// saliente suyo, y con el filo del borde en sus dos laderas. La base no lleva
+/// filo: ahí no hay pico, hay tarjeta.
 class _Pico extends CustomPainter {
   final Color color;
+  final Color borde;
   final bool haciaArriba;
 
-  const _Pico({required this.color, required this.haciaArriba});
+  const _Pico({
+    required this.color,
+    required this.borde,
+    required this.haciaArriba,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final punta = Path();
+    final laderas = Path();
     if (haciaArriba) {
-      punta
+      laderas
         ..moveTo(0, size.height)
         ..lineTo(size.width / 2, 0)
         ..lineTo(size.width, size.height);
     } else {
-      punta
+      laderas
         ..moveTo(0, 0)
         ..lineTo(size.width / 2, size.height)
         ..lineTo(size.width, 0);
     }
-    canvas.drawPath(punta..close(), Paint()..color = color);
+
+    canvas.drawPath(
+      Path.from(laderas)..close(),
+      Paint()..color = color,
+    );
+    canvas.drawPath(
+      laderas,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeJoin = StrokeJoin.round
+        ..color = borde,
+    );
   }
 
   @override
   bool shouldRepaint(_Pico viejo) =>
-      viejo.color != color || viejo.haciaArriba != haciaArriba;
+      viejo.color != color ||
+      viejo.borde != borde ||
+      viejo.haciaArriba != haciaArriba;
 }
