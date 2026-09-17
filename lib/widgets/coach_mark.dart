@@ -71,8 +71,6 @@ class CoachMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens(context);
     final pantalla = MediaQuery.sizeOf(context);
-    final focoEnLaMitadDeArriba =
-        foco != null && foco!.center.dy < pantalla.height / 2;
 
     return Material(
       // `transparency`, no un color transparente: son cosas distintas. El
@@ -85,14 +83,74 @@ class CoachMark extends StatelessWidget {
         children: [
           IgnorePointer(child: _Velo(foco: foco, radio: radio)),
           ..._barreras(pantalla),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: focoEnLaMitadDeArriba ? null : 0,
-            bottom: focoEnLaMitadDeArriba ? 0 : null,
-            child: SafeArea(child: _tarjeta(context, t)),
-          ),
+          _tarjetaColocada(context, t, pantalla),
         ],
+      ),
+    );
+  }
+
+  /// La tarjeta, pegada al hueco: encima o debajo según dónde quepa más, con
+  /// un pico que lo señala.
+  ///
+  /// Estuvo en la mitad contraria al foco, que era más fácil de calcular y
+  /// resultó ser el problema: se leía en una punta de la pantalla y había que
+  /// actuar en la otra. Las herramientas de recorridos coinciden en poner el
+  /// texto junto al elemento que describe, y ningún anillo por brillante que
+  /// sea salva esa distancia.
+  ///
+  /// Se coloca por el borde que da al hueco —`top` si va debajo, `bottom` si
+  /// va encima—, así que crece alejándose de él y no hace falta medir su alto
+  /// para saber dónde ponerla.
+  ///
+  /// Sin hueco no hay a qué pegarse: se centra, como un aviso cualquiera.
+  Widget _tarjetaColocada(
+      BuildContext context, TokensContextuales t, Size pantalla) {
+    final f = foco;
+    if (f == null) {
+      return Positioned.fill(
+        child: Center(child: SafeArea(child: _tarjeta(context, t, null))),
+      );
+    }
+
+    const separacion = 12.0;
+    final debajo = (pantalla.height - f.bottom) > f.top;
+    // Lo que queda entre el hueco y el borde de la pantalla, menos el pico y
+    // un respiro para no pegarse al filo.
+    final hueco = debajo ? pantalla.height - f.bottom : f.top;
+    final alto = hueco - separacion - 32;
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: debajo ? f.bottom + separacion : null,
+      bottom: debajo ? null : pantalla.height - f.top + separacion,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: debajo
+            ? [_pico(t, pantalla, f, true), _tarjeta(context, t, alto)]
+            : [_tarjeta(context, t, alto), _pico(t, pantalla, f, false)],
+      ),
+    );
+  }
+
+  /// El pico, alineado con el centro de lo señalado y sin salirse de la
+  /// tarjeta ni de la pantalla.
+  Widget _pico(TokensContextuales t, Size pantalla, Rect f, bool haciaArriba) {
+    const ancho = 20.0;
+    const margen = 16.0;
+    const respiro = 12.0;
+    final minimo = margen + respiro;
+    final maximo = pantalla.width - margen - respiro - ancho;
+    final izquierda = maximo <= minimo
+        ? minimo
+        : (f.center.dx - ancho / 2).clamp(minimo, maximo);
+
+    return Padding(
+      padding: EdgeInsets.only(left: izquierda),
+      child: CustomPaint(
+        size: const Size(ancho, 9),
+        painter: _Pico(color: t.surface, haciaArriba: haciaArriba),
       ),
     );
   }
@@ -129,12 +187,16 @@ class CoachMark extends StatelessWidget {
     ];
   }
 
-  Widget _tarjeta(BuildContext context, TokensContextuales t) {
+  /// [altoMaximo] es el sitio que queda entre el hueco y el borde. Null cuando
+  /// la tarjeta va centrada y no hay tal límite.
+  Widget _tarjeta(
+      BuildContext context, TokensContextuales t, double? altoMaximo) {
     return Container(
-      // Misma caja que la tarjeta de OnboardingOverlay: para el usuario esto
-      // es una sola secuencia, y dos cajas distintas la parten en dos.
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      padding: const EdgeInsets.all(28),
+      // Mismo lenguaje que la tarjeta de OnboardingOverlay —superficie,
+      // esquinas, sombra, puntitos, botón— pero no su tamaño: aquí comparte
+      // pantalla con el hueco y tiene que caber al lado.
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -145,42 +207,61 @@ class CoachMark extends StatelessWidget {
               offset: const Offset(0, 8)),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (total > 1) ...[
-            _puntos(t),
-            const SizedBox(height: 20),
-          ],
-          Text(titulo,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(color: t.text)),
-          const SizedBox(height: 12),
-          Text(cuerpo,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: t.textMuted)),
-          if (textoBoton != null) ...[
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onBoton,
-                child: Text(textoBoton!),
+      child: _conAlto(
+        altoMaximo,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (total > 1) ...[
+              _puntos(t),
+              const SizedBox(height: 16),
+            ],
+            Text(titulo,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(color: t.text)),
+            const SizedBox(height: 12),
+            Text(cuerpo,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: t.textMuted)),
+            if (textoBoton != null) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: onBoton,
+                  child: Text(textoBoton!),
+                ),
               ),
-            ),
+            ],
+            if (textoSaltar != null) ...[
+              SizedBox(height: textoBoton == null ? 16 : 4),
+              TextButton(
+                onPressed: onSaltar,
+                child:
+                    Text(textoSaltar!, style: TextStyle(color: t.textMuted)),
+              ),
+            ],
           ],
-          if (textoSaltar != null) ...[
-            SizedBox(height: textoBoton == null ? 16 : 4),
-            TextButton(
-              onPressed: onSaltar,
-              child: Text(textoSaltar!, style: TextStyle(color: t.textMuted)),
-            ),
-          ],
-        ],
+        ),
       ),
+    );
+  }
+
+  /// Limita el alto de la tarjeta a lo que queda libre y deja hacer scroll si
+  /// no cabe, en vez de desbordar. Pasa con textos largos, pantallas cortas o
+  /// el tipo de letra del sistema en grande.
+  Widget _conAlto(double? altoMaximo, Widget contenido) {
+    if (altoMaximo == null) return contenido;
+    // El alto que llega es el hueco disponible; aquí dentro ya se ha gastado
+    // el padding de la tarjeta.
+    final disponible = altoMaximo - 44;
+    if (disponible < 80) return contenido;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: disponible),
+      child: SingleChildScrollView(child: contenido),
     );
   }
 
@@ -293,4 +374,34 @@ class _VeloConAgujero extends CustomPainter {
   @override
   bool shouldRepaint(_VeloConAgujero viejo) =>
       viejo.foco != foco || viejo.radio != radio || viejo.pulso != pulso;
+}
+
+/// El pico de la tarjeta. Del mismo color que ella, para que se lea como un
+/// saliente suyo y no como una figura aparte.
+class _Pico extends CustomPainter {
+  final Color color;
+  final bool haciaArriba;
+
+  const _Pico({required this.color, required this.haciaArriba});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final punta = Path();
+    if (haciaArriba) {
+      punta
+        ..moveTo(0, size.height)
+        ..lineTo(size.width / 2, 0)
+        ..lineTo(size.width, size.height);
+    } else {
+      punta
+        ..moveTo(0, 0)
+        ..lineTo(size.width / 2, size.height)
+        ..lineTo(size.width, 0);
+    }
+    canvas.drawPath(punta..close(), Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_Pico viejo) =>
+      viejo.color != color || viejo.haciaArriba != haciaArriba;
 }
