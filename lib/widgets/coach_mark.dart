@@ -46,6 +46,11 @@ class CoachMark extends StatelessWidget {
 
   final double radio;
 
+  /// Posición del paso dentro del recorrido y cuántos hay, para los puntitos
+  /// de progreso. Con [total] menor o igual a 1 no se pintan.
+  final int paso;
+  final int total;
+
   const CoachMark({
     super.key,
     required this.foco,
@@ -56,6 +61,8 @@ class CoachMark extends StatelessWidget {
     this.textoSaltar,
     this.onSaltar,
     this.radio = AppRadius.md,
+    this.paso = 0,
+    this.total = 0,
   });
 
   @override
@@ -77,8 +84,8 @@ class CoachMark extends StatelessWidget {
           IgnorePointer(child: _Velo(foco: foco, radio: radio)),
           ..._barreras(pantalla),
           Positioned(
-            left: 16,
-            right: 16,
+            left: 0,
+            right: 0,
             top: focoEnLaMitadDeArriba ? null : 0,
             bottom: focoEnLaMitadDeArriba ? 0 : null,
             child: SafeArea(child: _tarjeta(context, t)),
@@ -122,48 +129,75 @@ class CoachMark extends StatelessWidget {
 
   Widget _tarjeta(BuildContext context, TokensContextuales t) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      padding: const EdgeInsets.all(20),
+      // Misma caja que la tarjeta de OnboardingOverlay: para el usuario esto
+      // es una sola secuencia, y dos cajas distintas la parten en dos.
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: t.primary, width: 2),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 24,
+              offset: const Offset(0, 8)),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (total > 1) ...[
+            _puntos(t),
+            const SizedBox(height: 20),
+          ],
           Text(titulo,
+              textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
-                  .titleMedium
+                  .headlineMedium
                   ?.copyWith(color: t.text)),
-          const SizedBox(height: 6),
-          Text(cuerpo, style: TextStyle(color: t.textMuted, height: 1.35)),
-          if (textoBoton != null || textoSaltar != null) ...[
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                if (textoSaltar != null)
-                  TextButton(
-                    onPressed: onSaltar,
-                    child: Text(textoSaltar!,
-                        style: TextStyle(color: t.textMuted)),
-                  ),
-                const Spacer(),
-                if (textoBoton != null)
-                  FilledButton(
-                    onPressed: onBoton,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: t.primary,
-                      foregroundColor: t.bg,
-                    ),
-                    child: Text(textoBoton!),
-                  ),
-              ],
+          const SizedBox(height: 12),
+          Text(cuerpo,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: t.textMuted)),
+          if (textoBoton != null) ...[
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onBoton,
+                child: Text(textoBoton!),
+              ),
+            ),
+          ],
+          if (textoSaltar != null) ...[
+            SizedBox(height: textoBoton == null ? 16 : 4),
+            TextButton(
+              onPressed: onSaltar,
+              child: Text(textoSaltar!, style: TextStyle(color: t.textMuted)),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  /// Los puntitos de progreso, calcados de los de OnboardingOverlay.
+  Widget _puntos(TokensContextuales t) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        total,
+        (i) => AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 8,
+          height: 8,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: i == paso ? t.primary : t.inactivo,
+          ),
+        ),
       ),
     );
   }
