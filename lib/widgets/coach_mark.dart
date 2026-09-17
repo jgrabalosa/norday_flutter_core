@@ -29,8 +29,10 @@ Rect? rectDeAncla(GlobalKey ancla,
 /// propósito: así nunca tapa lo señalado y no salta de sitio de forma
 /// impredecible entre pasos.
 ///
-/// El borde en `t.primary` es deliberado: la tarjeta tiene que leerse como
-/// una anotación sobre la app, no como una parte más de ella.
+/// La caja es la misma que la de OnboardingOverlay a propósito: para el
+/// usuario, la bienvenida y el recorrido son una sola secuencia, y dos cajas
+/// distintas la parten en dos. Lo que la separa de la app no es su forma sino
+/// el velo que tiene debajo.
 class CoachMark extends StatelessWidget {
   /// Qué se recorta. Null vela la pantalla entera, sin agujero.
   final Rect? foco;
