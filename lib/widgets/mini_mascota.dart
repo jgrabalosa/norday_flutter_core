@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service_core.dart';
 import '../screens/mascota_screen.dart';
+import '../theme/app_theme.dart';
 import '../theme/mascota_refresh.dart';
 import 'burbuja_flotante.dart';
 import 'halo_identidad.dart';
@@ -147,6 +148,9 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
+      // Mientras se arrastra, se ve por dónde puede moverse. Antes el usuario
+      // lo descubría a base de soltarla en sitios donde no se quedaba.
+      colorZona: tokens(context).primary,
       child: AnimatedScale(
         scale: _rebotando ? 1.2 : 1.0,
         duration: const Duration(milliseconds: 200),
