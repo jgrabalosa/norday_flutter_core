@@ -125,9 +125,14 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       text: Color(0xFF4A2E3D),
       // El magenta de diseño (#B85E9F) no llegaba a AA como texto normal —4.08
       // sobre surface, 3.66 sobre bg (WebAIM), donde hace falta 4.5—, así que
-      // se oscureció conservando el tono: éste pasa los tres fondos
-      // (5.52 / 4.95 / 4.53).
-      textMuted: Color(0xFFA04A83),
+      // se oscureció conservando el tono. La primera corrección (#A04A83,
+      // 5.52 / 4.95 / 4.53) pasaba la métrica pero seguía leyéndose lavada en
+      // las etiquetas de formulario, así que se bajó otro escalón de
+      // luminosidad manteniendo tono (HSL 320) y saturación: 7.81 / 7.01 /
+      // 6.41 sobre surface / bg / surface2. Sigue lejos de `text`
+      // (12.00 / 10.77 / 9.85), que es lo que mantiene la jerarquía entre
+      // texto principal y secundario.
+      textMuted: Color(0xFF7E3A67),
       // `textMuted` al 0.48 sobre `bg`, resuelto a opaco. 2.00 de contraste.
       inactivo: Color(0xFFCFA0BE),
       // `textMuted` al 0.80 sobre `surface`, que es el fondo de sus filas,
