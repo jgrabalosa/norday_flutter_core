@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'app_theme.dart';
+import 'mascota_assets.dart';
 
 /// Info visual de un avatar: la imagen real (Noto Emoji, Apache 2.0 — ver
 /// assets/avatares/LICENCIA.txt). El PNG es transparente, asi que el color de
@@ -45,30 +47,49 @@ void aplicarAvatarEquipado(String? codigo) {
 /// Círculo de avatar reutilizable: el avatar equipado, o si no hay ninguno,
 /// un círculo con la inicial del nombre.
 class AvatarUsuario extends StatelessWidget {
+  /// OBSOLETO: ya no se pinta la inicial. Se mantiene para no romper a quien
+  /// lo pasa; quitar cuando se limpien los llamantes.
   final String nombre;
   final double radius;
   const AvatarUsuario({super.key, required this.nombre, this.radius = 18});
 
   @override
   Widget build(BuildContext context) {
+    final t = tokens(context);
     return ValueListenableBuilder<String?>(
       valueListenable: avatarEquipadoNotifier,
       builder: (context, codigo, _) {
         final info = codigo != null ? catalogoAvatares[codigo] : null;
-        if (info != null) {
-          return CircleAvatar(
-            radius: radius,
-            backgroundColor: fondoAvatar,
-            // El PNG cuadrado no llena el círculo: se deja aire alrededor.
-            child: Image.asset(info.asset,
+        // Sin avatar equipado se pinta Nori, no la inicial del nombre: aquel
+        // círculo no pasaba por la identidad —un CircleAvatar sin
+        // backgroundColor usa los colores de serie de Material— y al lado de
+        // los avatares ilustrados se veía como un error.
+        //
+        // Nori va FIJA, en fase cría: pintar la mascota real del usuario
+        // exigiría fase y estado, que este widget no tiene. Aquí es
+        // decoración, no estado.
+        final asset =
+            info?.asset ?? assetMascota(fase: 'cria', estado: 'feliz');
+        // El contorno va en los dos casos, con avatar y sin él: si sólo lo
+        // llevara el de Nori, el estado "sin avatar" destacaría más que los
+        // avatares de verdad.
+        return Container(
+          width: radius * 2,
+          height: radius * 2,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: fondoAvatar,
+            border: Border.all(
+              color: t.primary.withValues(alpha: 0.35),
+              width: 1.5,
+            ),
+          ),
+          // El PNG cuadrado no llena el círculo: se deja aire alrededor.
+          child: Center(
+            child: Image.asset(asset,
                 package: 'norday_flutter_core',
                 width: radius * 1.5, height: radius * 1.5),
-          );
-        }
-        final inicial = nombre.isNotEmpty ? nombre[0].toUpperCase() : '?';
-        return CircleAvatar(
-          radius: radius,
-          child: Text(inicial, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
         );
       },
     );
