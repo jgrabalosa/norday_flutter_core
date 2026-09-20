@@ -98,6 +98,7 @@
   "loginLabelContrasena": "Password",
   "loginOlvidasteContrasena": "Forgot your password?",
   "loginError": "Something went wrong. Check your details and try again.",
+  "loginCancelado": "Sign-in wasn't completed. Please try again.",
   "recTitulo": "Reset password",
   "recIntro": "Enter your account email and we'll send you a code to reset your password.",
   "recCodigoEnviado": "Check your inbox. If the email is registered, we've sent you a 6-digit code (it expires in 15 minutes).",

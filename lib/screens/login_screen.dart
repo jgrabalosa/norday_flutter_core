@@ -186,8 +186,14 @@ Future<void> _registro() async {
     setState(() { _loading = true; _error = null; });
     try {
       final esNuevo = await ApiServiceCore.loginConGoogle();
-      // Canceló el selector de cuenta: se queda en el login, sin mensaje.
-      if (esNuevo == null) return;
+      // El flujo no llegó a completarse. Puede ser que el usuario cancelara
+      // el selector, o que Google lo abortara por un fallo de configuración
+      // que llega indistinguible de una cancelación. En ambos casos se
+      // avisa: quedarse en silencio deja al usuario ante una pantalla muerta.
+      if (esNuevo == null) {
+        if (mounted) setState(() { _error = l.loginCancelado; });
+        return;
+      }
       final usuarioLocal = await ApiServiceCore.getUsuarioLocal();
       int? usuarioId;
       bool? posee;

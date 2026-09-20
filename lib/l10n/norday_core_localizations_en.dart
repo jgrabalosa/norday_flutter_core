@@ -321,6 +321,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
       'Something went wrong. Check your details and try again.';
 
   @override
+  String get loginCancelado => 'Sign-in wasn\'t completed. Please try again.';
+
+  @override
   String get recTitulo => 'Reset password';
 
   @override
