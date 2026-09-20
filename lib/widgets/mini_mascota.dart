@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service_core.dart';
+import '../theme/app_theme.dart';
 import '../theme/mascota_refresh.dart';
 import 'burbuja_flotante.dart';
 import 'halo_identidad.dart';
@@ -137,6 +138,9 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
+      // Mientras se arrastra, se ve por dónde puede moverse. Antes el usuario
+      // lo descubría a base de soltarla en sitios donde no se quedaba.
+      colorZona: tokens(context).primary,
       // Sin círculo, sin sombra y sin superficie: lo único que hay detrás de
       // Nori es la luz de la identidad equipada, floja. La caja sigue
       // midiendo `tamano` porque es la que le hemos declarado a la burbuja.

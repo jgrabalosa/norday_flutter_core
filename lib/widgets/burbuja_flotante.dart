@@ -71,6 +71,13 @@ class BurbujaFlotante extends StatefulWidget {
   /// de contradecirse.
   final HitTestBehavior behavior;
 
+  /// Color de la línea que marca, mientras se arrastra, el área por la que
+  /// esta burbuja puede moverse. `null` —lo normal— no pinta nada.
+  ///
+  /// Entra como color y no como booleano a propósito: este widget no conoce
+  /// temas ni identidades, y quien lo monta sí.
+  final Color? colorZona;
+
   const BurbujaFlotante({
     super.key,
     required this.child,
@@ -85,6 +92,7 @@ class BurbujaFlotante extends StatefulWidget {
     this.pasoMax = const Duration(seconds: 3),
     this.pasoDistanciaFraccion = 0.12,
     this.behavior = HitTestBehavior.deferToChild,
+    this.colorZona,
   });
 
   @override
@@ -210,63 +218,97 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
     final left = _dx.clamp(0.0, 1.0) * recorridoX + margen;
     final top = _dy.clamp(0.0, 1.0) * (maxY - minY) + minY;
 
-    return Positioned(
-      left: left,
-      top: top,
-      // El paseo se corta al APOYAR el dedo, no al empezar a arrastrar: el
-      // arrastre no gana el gesto hasta que hay movimiento, y hasta entonces
-      // una animación de paso en vuelo seguía deslizando la burbuja por debajo
-      // del dedo. Ésa era la causa de que costase cogerla, no el área táctil.
-      //
-      // `stop()` sin más deja `_dx`/`_dy` en el último fotograma pintado,
-      // porque el listener del controlador los escribe en cada tick: la
-      // burbuja se queda exactamente donde se ve.
-      child: Listener(
-        onPointerDown: (_) {
-          _snapController.stop();
-          _dedoEncima = true;
-        },
-        onPointerUp: (_) => _dedoEncima = false,
-        onPointerCancel: (_) => _dedoEncima = false,
-        child: RawGestureDetector(
-          behavior: widget.behavior,
-          gestures: {
-            TapGestureRecognizer:
-                GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-              TapGestureRecognizer.new,
-              (r) => r.onTap = () {
-                HapticFeedback.lightImpact();
-                widget.onTap?.call();
-              },
+    // El área válida va de la esquina donde puede estar la burbuja más
+    // arriba y más a la izquierda, hasta donde llega su borde opuesto en el
+    // extremo contrario: por eso se le suma `size` al ancho y al alto.
+    // `IgnorePointer` es obligatorio — esto se pinta sobre el contenido de la
+    // pantalla y no debe comerse ni un toque.
+    final marco = widget.colorZona == null
+        ? null
+        : Positioned(
+            left: margen,
+            top: minY,
+            width: (maxX + widget.size) - margen,
+            height: (maxY + widget.size) - minY,
+            child: IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: _arrastrando ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: widget.colorZona!, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
             ),
-            _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
-              _ArrastreLibre.new,
-              (r) {
-                r.onStart = (_) => setState(() => _arrastrando = true);
-                r.onUpdate = (details) {
-                  setState(() {
-                    final nuevoLeft =
-                        (left + details.delta.dx).clamp(margen, maxX);
-                    final nuevoTop = (top + details.delta.dy).clamp(minY, maxY);
-                    _dx = (nuevoLeft - margen) / recorridoX;
-                    _dy = (nuevoTop - minY) / (maxY - minY);
-                  });
-                };
-                r.onEnd = (_) {
-                  setState(() => _arrastrando = false);
-                  // Se queda donde se suelte (sin imán a los lados). Si tiene
-                  // vagabundeo, retoma sus paseos solos desde ahí.
-                  _guardarPosicion();
-                };
+          );
+
+    return Positioned.fill(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ?marco,
+          Positioned(
+            left: left,
+            top: top,
+            // El paseo se corta al APOYAR el dedo, no al empezar a arrastrar: el
+            // arrastre no gana el gesto hasta que hay movimiento, y hasta entonces
+            // una animación de paso en vuelo seguía deslizando la burbuja por debajo
+            // del dedo. Ésa era la causa de que costase cogerla, no el área táctil.
+            //
+            // `stop()` sin más deja `_dx`/`_dy` en el último fotograma pintado,
+            // porque el listener del controlador los escribe en cada tick: la
+            // burbuja se queda exactamente donde se ve.
+            child: Listener(
+              onPointerDown: (_) {
+                _snapController.stop();
+                _dedoEncima = true;
               },
+              onPointerUp: (_) => _dedoEncima = false,
+              onPointerCancel: (_) => _dedoEncima = false,
+              child: RawGestureDetector(
+                behavior: widget.behavior,
+                gestures: {
+                  TapGestureRecognizer:
+                      GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+                    TapGestureRecognizer.new,
+                    (r) => r.onTap = () {
+                      HapticFeedback.lightImpact();
+                      widget.onTap?.call();
+                    },
+                  ),
+                  _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
+                    _ArrastreLibre.new,
+                    (r) {
+                      r.onStart = (_) => setState(() => _arrastrando = true);
+                      r.onUpdate = (details) {
+                        setState(() {
+                          final nuevoLeft =
+                              (left + details.delta.dx).clamp(margen, maxX);
+                          final nuevoTop = (top + details.delta.dy).clamp(minY, maxY);
+                          _dx = (nuevoLeft - margen) / recorridoX;
+                          _dy = (nuevoTop - minY) / (maxY - minY);
+                        });
+                      };
+                      r.onEnd = (_) {
+                        setState(() => _arrastrando = false);
+                        // Se queda donde se suelte (sin imán a los lados). Si tiene
+                        // vagabundeo, retoma sus paseos solos desde ahí.
+                        _guardarPosicion();
+                      };
+                    },
+                  ),
+                },
+                child: AnimatedScale(
+                  scale: _arrastrando ? 1.08 : 1.0,
+                  duration: const Duration(milliseconds: 150),
+                  child: widget.child,
+                ),
+              ),
             ),
-          },
-          child: AnimatedScale(
-            scale: _arrastrando ? 1.08 : 1.0,
-            duration: const Duration(milliseconds: 150),
-            child: widget.child,
           ),
-        ),
+        ],
       ),
     );
   }
