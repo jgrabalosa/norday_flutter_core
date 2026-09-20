@@ -12,6 +12,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// en vez de mover la burbuja. Con el mismo umbral gana el hijo, que se
 /// resuelve antes que el ancestro.
 class _ArrastreLibre extends PanGestureRecognizer {
+  /// Reclama el puntero al apoyarse el dedo, sin esperar a que haya
+  /// movimiento, igual que hace `EagerGestureRecognizer` de Flutter.
+  ///
+  /// Sólo vale cuando nadie más compite por el gesto DENTRO de la burbuja: si
+  /// hubiera un `onTap`, este reconocedor se lo comería siempre. Por eso lo
+  /// decide quien construye el mapa de gestos, no esta clase.
+  ///
+  /// Es lo que le quita el pulso al pager que contenga la burbuja: cuando el
+  /// `PageView` mira el gesto, ya está perdido. Bajar el umbral no bastaba
+  /// porque seguía siendo una carrera, y una de cada cinco veces la ganaba él.
+  final bool inmediato;
+
+  _ArrastreLibre({required this.inmediato});
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    super.addAllowedPointer(event);
+    if (inmediato) resolve(GestureDisposition.accepted);
+  }
+
   @override
   bool hasSufficientGlobalDistanceToAccept(
       PointerDeviceKind pointerDeviceKind, double? deviceTouchSlop) {
@@ -244,6 +264,9 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
             ),
           );
 
+    // Con `onTap` no se puede reclamar el gesto al apoyar el dedo: el toque
+    // nunca llegaría a ocurrir. Sin él, no hay nada que perder.
+    final conTap = widget.onTap != null;
     return Positioned.fill(
       child: Stack(
         clipBehavior: Clip.none,
@@ -270,16 +293,17 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
               child: RawGestureDetector(
                 behavior: widget.behavior,
                 gestures: {
-                  TapGestureRecognizer:
-                      GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                    TapGestureRecognizer.new,
-                    (r) => r.onTap = () {
-                      HapticFeedback.lightImpact();
-                      widget.onTap?.call();
-                    },
-                  ),
+                  if (conTap)
+                    TapGestureRecognizer:
+                        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+                      TapGestureRecognizer.new,
+                      (r) => r.onTap = () {
+                        HapticFeedback.lightImpact();
+                        widget.onTap?.call();
+                      },
+                    ),
                   _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
-                    _ArrastreLibre.new,
+                    () => _ArrastreLibre(inmediato: !conTap),
                     (r) {
                       r.onStart = (_) => setState(() => _arrastrando = true);
                       r.onUpdate = (details) {
