@@ -322,6 +322,10 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
       'No se pudo completar. Revisa tus datos e inténtalo de nuevo.';
 
   @override
+  String get loginCancelado =>
+      'No se completó el inicio de sesión. Inténtalo de nuevo.';
+
+  @override
   String get recTitulo => 'Recuperar contraseña';
 
   @override

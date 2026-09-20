@@ -98,6 +98,7 @@
   "loginLabelContrasena": "Senha",
   "loginOlvidasteContrasena": "Esqueceu sua senha?",
   "loginError": "Não foi possível concluir. Confira seus dados e tente de novo.",
+  "loginCancelado": "O início de sessão não foi concluído. Tenta de novo.",
   "recTitulo": "Recuperar senha",
   "recIntro": "Escreva o e-mail da sua conta e enviaremos um código para redefinir a senha.",
   "recCodigoEnviado": "Confira seu e-mail. Se o endereço estiver cadastrado, enviamos um código de 6 dígitos (expira em 15 minutos).",

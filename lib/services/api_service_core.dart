@@ -504,8 +504,9 @@ class ApiServiceCore {
 
   /// Devuelve true si la cuenta se acaba de crear en este login (para
   /// disparar el mini-onboarding) y false si ya existía. Devuelve `null` si
-  /// el usuario cancela el selector de cuenta: no es un error, y quien llama
-  /// no debe navegar ni mostrar mensaje.
+  /// el flujo no se completa: quien llama no debe navegar, pero sí avisar
+  /// —un fallo de configuración de Google llega con el mismo código que una
+  /// cancelación del usuario, así que el silencio esconde errores reales.
   static Future<bool?> loginConGoogle() async {
     await _asegurarGoogleIniciado();
 

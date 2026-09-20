@@ -146,6 +146,7 @@
   "loginLabelContrasena": "Contraseña",
   "loginOlvidasteContrasena": "¿Olvidaste tu contraseña?",
   "loginError": "No se pudo completar. Revisa tus datos e inténtalo de nuevo.",
+  "loginCancelado": "No se completó el inicio de sesión. Inténtalo de nuevo.",
   "recTitulo": "Recuperar contraseña",
   "recIntro": "Escribe el email de tu cuenta y te enviaremos un código para restablecer la contraseña.",
   "recCodigoEnviado": "Revisa tu correo. Si el email está registrado, te hemos enviado un código de 6 dígitos (caduca en 15 minutos).",

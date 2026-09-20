@@ -691,6 +691,12 @@ abstract class NordayCoreLocalizations {
   /// **'No se pudo completar. Revisa tus datos e inténtalo de nuevo.'**
   String get loginError;
 
+  /// No description provided for @loginCancelado.
+  ///
+  /// In es, this message translates to:
+  /// **'No se completó el inicio de sesión. Inténtalo de nuevo.'**
+  String get loginCancelado;
+
   /// No description provided for @recTitulo.
   ///
   /// In es, this message translates to:
