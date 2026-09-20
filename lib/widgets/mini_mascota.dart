@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service_core.dart';
-import '../screens/mascota_screen.dart';
 import '../theme/mascota_refresh.dart';
 import 'burbuja_flotante.dart';
 import 'halo_identidad.dart';
@@ -73,7 +72,6 @@ class _MiniMascotaState extends State<MiniMascota> {
   String? _fase;
   bool _oculta = false;
   bool _cargando = true;
-  bool _rebotando = false;
 
   @override
   void initState() {
@@ -113,17 +111,6 @@ class _MiniMascotaState extends State<MiniMascota> {
     });
   }
 
-  void _onTap() {
-    setState(() => _rebotando = true);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _rebotando = false);
-    });
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => MascotaScreen(usuarioId: widget.usuarioId)),
-    ).then((_) => _inicializar()); // al volver, refresca el estado (pudo alimentarla)
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_cargando || _oculta) return const SizedBox.shrink();
@@ -138,7 +125,10 @@ class _MiniMascotaState extends State<MiniMascota> {
       // La burbuja calcula sus límites con este tamaño: si no coincide con el
       // del contenido, la mascota se sale del área por abajo.
       size: tamano,
-      onTap: _onTap,
+      // Sin `onTap`: la mini mascota sólo se arrastra. Con las dos cosas, un
+      // toque con el mínimo deslizamiento lo ganaba el arrastre y la
+      // pulsación se perdía. A la pantalla de la mascota se llega por su
+      // pestaña.
       minTopFraction: 0.5,
       margenDerecho: widget.margenDerecho,
       vagabundeo: true,
@@ -147,32 +137,27 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _rebotando ? 1.2 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutBack,
-        // Sin círculo, sin sombra y sin superficie: lo único que hay detrás de
-        // Nori es la luz de la identidad equipada, floja. La caja sigue
-        // midiendo `tamano` porque es la que le hemos declarado a la burbuja.
-        child: SizedBox(
-          width: tamano,
-          height: tamano,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              HaloIdentidad(
-                tamano: tamano * _proporcionHalo,
-                intensidad: _intensidadHalo,
-              ),
-              // El toque lo gestiona la burbuja (que además arrastra), así que
-              // aquí va sin él: dos GestureDetector encajados se pelearían.
-              MascotaAnimadaViva(
-                fase: _fase,
-                estado: _estado,
-                tamano: tamano * _proporcionIlustracion,
-              ),
-            ],
-          ),
+      // Sin círculo, sin sombra y sin superficie: lo único que hay detrás de
+      // Nori es la luz de la identidad equipada, floja. La caja sigue
+      // midiendo `tamano` porque es la que le hemos declarado a la burbuja.
+      child: SizedBox(
+        width: tamano,
+        height: tamano,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            HaloIdentidad(
+              tamano: tamano * _proporcionHalo,
+              intensidad: _intensidadHalo,
+            ),
+            // El toque lo gestiona la burbuja (que además arrastra), así que
+            // aquí va sin él: dos GestureDetector encajados se pelearían.
+            MascotaAnimadaViva(
+              fase: _fase,
+              estado: _estado,
+              tamano: tamano * _proporcionIlustracion,
+            ),
+          ],
         ),
       ),
     );
