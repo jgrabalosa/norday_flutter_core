@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -125,11 +126,9 @@ class _CapaConstelacionPainter extends CustomPainter {
     }
 
     final nucleo = Paint()..color = tokens.text;
-    final destelloHorizontal = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.9
-      ..strokeCap = StrokeCap.round
-      ..color = tokens.streak.withValues(alpha: 0.55);
+    final cuerpo = Paint()..color = tokens.text.withValues(alpha: 0.95);
+    final borde = Paint()..color = tokens.streak.withValues(alpha: 0.55);
+    final diagonal = Paint()..color = tokens.streak.withValues(alpha: 0.35);
     final apagada = Paint()..color = tokens.text.withValues(alpha: 0.16);
 
     for (var i = 0; i < figura.puntos.length; i++) {
@@ -138,34 +137,78 @@ class _CapaConstelacionPainter extends CustomPainter {
         // El resplandor: un degradado radial que cae a cero, no un círculo
         // plano. El disco duro se recorta contra lo que hay debajo; el
         // degradado se funde con él.
-        final radioResplandor = Rect.fromCircle(center: centro, radius: 9.0);
+        final radioResplandor = Rect.fromCircle(center: centro, radius: 17.0);
         final resplandor = Paint()
           ..shader = RadialGradient(
             colors: [
-              tokens.streak.withValues(alpha: 0.30),
-              tokens.streak.withValues(alpha: 0.10),
+              tokens.streak.withValues(alpha: 0.34),
+              tokens.streak.withValues(alpha: 0.12),
               tokens.streak.withValues(alpha: 0.0),
             ],
-            stops: const [0.0, 0.45, 1.0],
+            stops: const [0.0, 0.35, 1.0],
           ).createShader(radioResplandor);
-        canvas.drawCircle(centro, 9.0, resplandor);
+        canvas.drawCircle(centro, 17.0, resplandor);
 
-        // El núcleo, casi blanco: una estrella real tiene el centro
-        // quemado y el color en el halo, no al revés.
-        canvas.drawCircle(centro, 2.2, nucleo);
+        // Dos puntas diagonales, cortas y tenues, detrás del destello: le
+        // dan brillo de estrella sin competir con las cuatro puntas grandes.
+        canvas.drawPath(_puntasDiagonales(centro, 5.0, 1.0), diagonal);
 
-        // El destello en cruz: lo que el ojo reconoce al instante como
-        // estrella, y es barato.
-        canvas.drawLine(Offset(centro.dx - 5.5, centro.dy),
-            Offset(centro.dx + 5.5, centro.dy), destelloHorizontal);
-        canvas.drawLine(Offset(centro.dx, centro.dy - 5.5),
-            Offset(centro.dx, centro.dy + 5.5), destelloHorizontal);
+        // El destello de cuatro puntas, con los lados curvados hacia dentro.
+        // Primero el borde ámbar, algo mayor, y encima el cuerpo casi blanco.
+        // Es lo que separa la constelación del cielo de fondo, cuyas
+        // estrellas más grandes miden 1.7.
+        canvas.drawPath(_destello(centro, 9.5), borde);
+        canvas.drawPath(_destello(centro, 7.0), cuerpo);
+
+        // El núcleo: una estrella real tiene el centro quemado y el color
+        // en el halo, no al revés.
+        canvas.drawCircle(centro, 2.0, nucleo);
       } else {
         canvas.drawCircle(centro, 1.6, apagada);
       }
     }
 
     canvas.restore();
+  }
+
+  /// Una astroide de radio [r] centrada en [c]: x = r·cos³t, y = r·sin³t.
+  /// Cuatro puntas con los lados curvados hacia dentro, que es la silueta
+  /// que el ojo lee como destello.
+  static Path _destello(Offset c, double r) {
+    const pasos = 64;
+    final path = Path();
+    for (var k = 0; k <= pasos; k++) {
+      final t = 2 * math.pi * k / pasos;
+      final cs = math.cos(t);
+      final sn = math.sin(t);
+      final x = c.dx + r * cs * cs * cs;
+      final y = c.dy + r * sn * sn * sn;
+      if (k == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    return path..close();
+  }
+
+  /// Cuatro triángulos finos a 45°, de [largo] desde el centro y [ancho] en
+  /// la base.
+  static Path _puntasDiagonales(Offset c, double largo, double ancho) {
+    final path = Path();
+    for (var k = 0; k < 4; k++) {
+      final a = math.pi / 4 + k * math.pi / 2;
+      final dx = math.cos(a);
+      final dy = math.sin(a);
+      final px = -dy * ancho / 2;
+      final py = dx * ancho / 2;
+      path
+        ..moveTo(c.dx + px, c.dy + py)
+        ..lineTo(c.dx + dx * largo, c.dy + dy * largo)
+        ..lineTo(c.dx - px, c.dy - py)
+        ..close();
+    }
+    return path;
   }
 
   // `TokensContextuales` no define `operator ==`, así que comparar el
