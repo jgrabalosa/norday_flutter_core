@@ -37,19 +37,23 @@ const Map<int, Constelacion> catalogoConstelaciones = {
   1: Constelacion(
     // La Polar y el compás del logo dicen lo mismo: lo que orienta. Es la
     // figura del que empieza, y es la que más gente va a ver el primer día.
-    nombre: 'Polar',
+    nombre: 'Estrella Polar',
     puntos: [Offset(0.50, 0.50)],
     segmentos: [],
   ),
   2: Constelacion(
-    nombre: 'Can Menor',
-    puntos: [Offset(0.28, 0.66), Offset(0.74, 0.34)],
+    // Merak y Dubhe, las dos del cazo de la Osa Mayor que señalan a la
+    // Polar. Termina en Dubhe, que es la que apunta.
+    nombre: 'Los Punteros',
+    puntos: [Offset(0.52, 0.86), Offset(0.48, 0.14)],
     segmentos: [(0, 1)],
   ),
   3: Constelacion(
-    nombre: 'Triángulo',
-    puntos: [Offset(0.24, 0.72), Offset(0.76, 0.66), Offset(0.50, 0.22)],
-    segmentos: [(0, 1), (1, 2), (2, 0)],
+    // Alnitak, Alnilam y Mintaka. Quien hace tres hábitos ve el cinturón;
+    // quien hace ocho, a Orión entero.
+    nombre: 'Cinturón de Orión',
+    puntos: [Offset(0.14, 0.77), Offset(0.51, 0.53), Offset(0.86, 0.23)],
+    segmentos: [(0, 1), (1, 2)],
   ),
   4: Constelacion(
     nombre: 'Cruz del Sur',
@@ -73,47 +77,52 @@ const Map<int, Constelacion> catalogoConstelaciones = {
     segmentos: [(0, 1), (1, 2), (2, 3), (3, 4)],
   ),
   6: Constelacion(
-    // La casa. Es la figura más floja del catálogo: la silueta clásica se
-    // dibuja con cinco vértices y aquí hay que estirarla a seis. Si en
-    // pantalla no se reconoce, el recambio natural para 6 es el pentágono
-    // de Auriga.
-    nombre: 'Cefeo',
+    // Vega y sus dos vecinas forman el triángulo; la tercera estrella y las
+    // tres de abajo, el paralelogramo.
+    // Sustituye a Cefeo, cuya sexta estrella salía como un palo suelto.
+    nombre: 'Lira',
     puntos: [
-      Offset(0.28, 0.78),
-      Offset(0.68, 0.78),
-      Offset(0.70, 0.48),
-      Offset(0.49, 0.22),
-      Offset(0.28, 0.48),
-      Offset(0.88, 0.62),
+      Offset(0.73, 0.23),
+      Offset(0.58, 0.14),
+      Offset(0.57, 0.35),
+      Offset(0.37, 0.43),
+      Offset(0.27, 0.86),
+      Offset(0.46, 0.79),
     ],
-    segmentos: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (2, 5)],
+    segmentos: [(0, 1), (0, 2), (1, 2), (2, 3), (3, 4), (4, 5), (5, 2)],
   ),
   7: Constelacion(
+    // Posiciones reales. Empieza por la punta del mango (Alkaid) y termina
+    // en Dubhe, que cierra el cazo contra Megrez.
     nombre: 'Osa Mayor',
     puntos: [
-      Offset(0.18, 0.62),
-      Offset(0.34, 0.74),
-      Offset(0.42, 0.54),
-      Offset(0.26, 0.42),
-      Offset(0.58, 0.46),
-      Offset(0.74, 0.38),
-      Offset(0.88, 0.26),
+      Offset(0.14, 0.67),
+      Offset(0.29, 0.54),
+      Offset(0.41, 0.53),
+      Offset(0.57, 0.51),
+      Offset(0.66, 0.59),
+      Offset(0.86, 0.48),
+      Offset(0.81, 0.33),
     ],
-    segmentos: [(0, 1), (1, 2), (2, 3), (3, 0), (2, 4), (4, 5), (5, 6)],
+    segmentos: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 3)],
   ),
   8: Constelacion(
+    // Meissa (la cabeza), Betelgeuse, Bellatrix, el cinturón y los pies.
+    // Posiciones reales salvo el cinturón, que se abre a 0.10 entre
+    // estrellas: con las reales quedaban a unos 12 px y los destellos se
+    // pisaban.
     nombre: 'Orión',
     puntos: [
-      Offset(0.30, 0.20),
-      Offset(0.70, 0.22),
-      Offset(0.40, 0.50),
-      Offset(0.50, 0.52),
-      Offset(0.60, 0.54),
-      Offset(0.34, 0.86),
-      Offset(0.72, 0.84),
-      Offset(0.50, 0.68),
+      Offset(0.50, 0.14),
+      Offset(0.31, 0.23),
+      Offset(0.59, 0.27),
+      Offset(0.39, 0.59),
+      Offset(0.49, 0.55),
+      Offset(0.59, 0.51),
+      Offset(0.38, 0.86),
+      Offset(0.69, 0.81),
     ],
-    segmentos: [(0, 2), (1, 4), (2, 3), (3, 4), (2, 5), (4, 6), (3, 7)],
+    segmentos: [(0, 1), (0, 2), (1, 3), (2, 5), (3, 4), (4, 5), (3, 6), (5, 7)],
   ),
 };
 
