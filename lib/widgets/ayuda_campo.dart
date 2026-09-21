@@ -27,10 +27,19 @@ class AyudaCampo extends StatefulWidget {
   /// meta». El icono solo no dice de qué es la ayuda.
   final String etiquetaSemantica;
 
+  /// En vez de un botón aparte, un exponente: el interrogante, más pequeño,
+  /// pegado a la palabra y subido, como el `²` de una potencia.
+  ///
+  /// La zona de toque baja de 48 a 28, por debajo del mínimo recomendado.
+  /// Es el precio de que ocupe el sitio de un signo y no el de un botón; la
+  /// nota que abre es la misma.
+  final bool superindice;
+
   const AyudaCampo({
     super.key,
     required this.texto,
     required this.etiquetaSemantica,
+    this.superindice = false,
   });
 
   @override
@@ -137,10 +146,10 @@ class _AyudaCampoState extends State<AyudaCampo>
         ),
         Positioned(
           left: izquierda,
-          // La caja del icono mide 48 y el dibujo 18: se parte de su centro
-          // para que la nota nazca pegada al interrogante y no 15 px más
-          // abajo.
-          top: icono.center.dy + 14,
+          // `_icono` es el rectángulo del dibujo, no el de la caja de toque:
+          // la nota nace justo debajo del interrogante que se ve, en los dos
+          // modos.
+          top: icono.bottom + 4,
           width: ancho,
           child: GestureDetector(
             onTap: _cerrar,
@@ -169,18 +178,26 @@ class _AyudaCampoState extends State<AyudaCampo>
         label: widget.etiquetaSemantica,
         excludeSemantics: true,
         child: InkResponse(
-          key: _claveIcono,
           onTap: _alternar,
-          radius: 20,
-          // La zona de toque es de 48, el mínimo de accesibilidad; el dibujo
-          // se queda en 18 para no pesar más que la etiqueta del campo.
+          radius: widget.superindice ? 14 : 20,
+          // Normal: zona de toque de 48, el mínimo de accesibilidad, y el
+          // dibujo en 18 para no pesar más que la etiqueta del campo.
+          // Superíndice: 28 y 14, con el dibujo arriba a la izquierda de su
+          // caja, que es lo que lo pega a la palabra y lo sube.
           child: SizedBox(
-            width: 48,
-            height: 48,
-            child: Icon(
-              LucideIcons.circleQuestionMark,
-              size: 18,
-              color: t.textMuted,
+            width: widget.superindice ? 28 : 48,
+            height: widget.superindice ? 28 : 48,
+            child: Align(
+              alignment:
+                  widget.superindice ? Alignment.topLeft : Alignment.center,
+              child: Icon(
+                LucideIcons.circleQuestionMark,
+                // La clave va en el dibujo y no en la caja: la nota nace del
+                // interrogante que se ve, esté donde esté dentro de ella.
+                key: _claveIcono,
+                size: widget.superindice ? 14 : 18,
+                color: t.textMuted,
+              ),
             ),
           ),
         ),
