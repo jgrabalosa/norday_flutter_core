@@ -346,10 +346,7 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                 },
                 // Con holgura, lo que agarra es esta caja; el contenido va
                 // centrado dentro y no se entera de nada.
-                // PRUEBA — Container en vez de SizedBox sólo para pintar la
-                // caja que agarra. Volver a SizedBox antes de mergear.
-                child: Container(
-                  color: const Color(0x33FF0000),
+                child: SizedBox(
                   width: widget.size + widget.holguraTactil * 2,
                   height: widget.size + widget.holguraTactil * 2,
                   child: Center(

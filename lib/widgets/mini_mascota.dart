@@ -32,9 +32,8 @@ class MiniMascota extends StatefulWidget {
     super.key,
     required this.usuarioId,
     required this.areaSize,
-    // 132 y no los 72 de antes: la caja de agarre se extiende a la derecha
-    // del dibujo (`holguraTactil`), y con 72 podría llegar a la columna de
-    // aros de la lista de Hoy y comerse su toque. Quim eligió esta zona.
+    // 132 y no los 72 de antes: es la zona por la que Quim quiere que se
+    // mueva Nori, elegida al probar el agarre en el móvil.
     this.margenDerecho = 132,
   });
 
@@ -141,10 +140,11 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
-      // PRUEBA — 8 por lado, caja de 152. Con 60 se cogía siempre pero
-      // tapaba la tarjeta de debajo; con 30 y con 18 se cogía y se
-      // entraba, pero sobraba margen. Valor a confirmar.
-      holguraTactil: 8,
+      // Sin holgura, a propósito: con el agarre inmediato de la burbuja, la
+      // caja de 136 ya basta. Se probó con 60, 30, 18 y 8 por lado y en
+      // todos sobraba. Cada píxel de más es un píxel de la tarjeta de
+      // debajo que deja de responder al toque.
+      holguraTactil: 0,
       // Mientras se arrastra, se ve por dónde puede moverse. Antes el usuario
       // lo descubría a base de soltarla en sitios donde no se quedaba.
       colorZona: tokens(context).primary,
