@@ -159,6 +159,10 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
   @override
   void initState() {
     super.initState();
+    // PRUEBA — diagnóstico de la arena de gestos. Imprime en consola, para
+    // cada toque, qué reconocedores entran y cuál gana. Sólo imprime en
+    // debug. QUITAR antes de mergear.
+    debugPrintGestureArenaDiagnostics = true;
     _snapController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -346,7 +350,10 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                 },
                 // Con holgura, lo que agarra es esta caja; el contenido va
                 // centrado dentro y no se entera de nada.
-                child: SizedBox(
+                // PRUEBA — Container en vez de SizedBox sólo para pintar la
+                // caja que agarra. Volver a SizedBox antes de mergear.
+                child: Container(
+                  color: const Color(0x33FF0000),
                   width: widget.size + widget.holguraTactil * 2,
                   height: widget.size + widget.holguraTactil * 2,
                   child: Center(
