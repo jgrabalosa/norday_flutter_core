@@ -216,20 +216,11 @@ class _CapaConstelacionPainter extends CustomPainter {
     final figura = constelacionPara(progreso.total);
     if (figura == null) return;
 
-    // La caja destino conserva la proporción de la figura: sin esto la Cruz
-    // del Sur se estira a lo ancho en una pantalla de móvil y deja de ser
-    // una cruz.
-    final destino = Rect.fromLTWH(
-      size.width * 0.14,
-      size.height * 0.30,
-      size.width * 0.72,
-      size.height * 0.44,
-    );
-    final lado = destino.width < destino.height ? destino.width : destino.height;
-    final origenX = destino.center.dx - lado / 2;
-    final origenY = destino.center.dy - lado / 2;
-    Offset situar(Offset p) =>
-        Offset(origenX + p.dx * lado, origenY + p.dy * lado);
+    final cuadro = cuadroConstelacion(size);
+    Offset situar(Offset p) => Offset(
+          cuadro.left + p.dx * cuadro.width,
+          cuadro.top + p.dy * cuadro.height,
+        );
 
     final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
 
@@ -494,4 +485,21 @@ class _CapaConstelacionPainter extends CustomPainter {
     }
     return true;
   }
+}
+
+/// El cuadrado donde se dibuja la figura, dentro de una capa de [size].
+///
+/// Conserva la proporción de la figura: sin esto la Cruz del Sur se estira a
+/// lo ancho en una pantalla de móvil y deja de ser una cruz. Es público
+/// dentro del core porque la ceremonia del cierre del día coloca sus textos
+/// por encima y por debajo de este mismo cuadrado.
+Rect cuadroConstelacion(Size size) {
+  final destino = Rect.fromLTWH(
+    size.width * 0.14,
+    size.height * 0.30,
+    size.width * 0.72,
+    size.height * 0.44,
+  );
+  final lado = destino.width < destino.height ? destino.width : destino.height;
+  return Rect.fromCenter(center: destino.center, width: lado, height: lado);
 }
