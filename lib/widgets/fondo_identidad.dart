@@ -57,7 +57,12 @@ class FondoIdentidad extends StatelessWidget {
 /// Cada implementación pone su propio `IgnorePointer`: esta capa nunca debe
 /// robar los toques de lo que hay debajo.
 class CapaProgresoIdentidad extends StatelessWidget {
-  const CapaProgresoIdentidad({super.key});
+  /// Si la capa está encima de la pantalla Hoy. El estado de día cerrado de
+  /// Profundidad sólo se pinta ahí: la capa también va encima de otras
+  /// pestañas, y la pestaña la conoce la app, no el core.
+  final bool enHoy;
+
+  const CapaProgresoIdentidad({super.key, this.enHoy = false});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +71,7 @@ class CapaProgresoIdentidad extends StatelessWidget {
       builder: (context, id, _) {
         switch (id.fondo) {
           case FondoIdentidadTipo.cielo:
-            return CapaConstelacion(tokens: id.tokens);
+            return CapaConstelacion(tokens: id.tokens, enHoy: enHoy);
           case FondoIdentidadTipo.ciudad:
           case FondoIdentidadTipo.luz:
           case FondoIdentidadTipo.acumulacion:

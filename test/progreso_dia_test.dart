@@ -36,4 +36,12 @@ void main() {
 
     expect(avisos, 1);
   });
+
+  test('marcarDiaCerrado avisa y limpiarProgresoDia lo apaga', () {
+    marcarDiaCerrado(true);
+    expect(diaCerradoNotifier.value, isTrue);
+
+    limpiarProgresoDia();
+    expect(diaCerradoNotifier.value, isFalse);
+  });
 }
