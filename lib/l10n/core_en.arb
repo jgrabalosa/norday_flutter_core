@@ -207,6 +207,14 @@
   "reintentar": "Retry",
   "tiendaAyudaEtiqueta": "Help about the shop",
   "tiendaAyuda": "Spend your points here: food for Nori and themes.",
+  "constelacionPolar": "North Star",
+  "constelacionPunteros": "The Pointers",
+  "constelacionCinturon": "Orion's Belt",
+  "constelacionCruzSur": "Southern Cross",
+  "constelacionCasiopea": "Cassiopeia",
+  "constelacionLira": "Lyra",
+  "constelacionOsaMayor": "Big Dipper",
+  "constelacionOrion": "Orion",
   "colAyudaEtiqueta": "Help about the collection",
   "colAyuda": "What you already own: equip a theme or use what you've bought."
 }

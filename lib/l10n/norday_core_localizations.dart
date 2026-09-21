@@ -1345,6 +1345,54 @@ abstract class NordayCoreLocalizations {
   /// **'Gasta aquí tus puntos: comida para Nori y temas.'**
   String get tiendaAyuda;
 
+  /// No description provided for @constelacionPolar.
+  ///
+  /// In es, this message translates to:
+  /// **'Estrella Polar'**
+  String get constelacionPolar;
+
+  /// No description provided for @constelacionPunteros.
+  ///
+  /// In es, this message translates to:
+  /// **'Los Punteros'**
+  String get constelacionPunteros;
+
+  /// No description provided for @constelacionCinturon.
+  ///
+  /// In es, this message translates to:
+  /// **'Cinturón de Orión'**
+  String get constelacionCinturon;
+
+  /// No description provided for @constelacionCruzSur.
+  ///
+  /// In es, this message translates to:
+  /// **'Cruz del Sur'**
+  String get constelacionCruzSur;
+
+  /// No description provided for @constelacionCasiopea.
+  ///
+  /// In es, this message translates to:
+  /// **'Casiopea'**
+  String get constelacionCasiopea;
+
+  /// No description provided for @constelacionLira.
+  ///
+  /// In es, this message translates to:
+  /// **'Lira'**
+  String get constelacionLira;
+
+  /// No description provided for @constelacionOsaMayor.
+  ///
+  /// In es, this message translates to:
+  /// **'Osa Mayor'**
+  String get constelacionOsaMayor;
+
+  /// No description provided for @constelacionOrion.
+  ///
+  /// In es, this message translates to:
+  /// **'Orión'**
+  String get constelacionOrion;
+
   /// No description provided for @colAyudaEtiqueta.
   ///
   /// In es, this message translates to:
