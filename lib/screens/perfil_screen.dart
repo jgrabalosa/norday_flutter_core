@@ -286,15 +286,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 14),
             CampoIdentidad(
-              controlador: _usernameController,
-              etiqueta: l.perfilLabelUsuario,
-              prefijo: const Icon(LucideIcons.atSign, size: 18),
-              validador: (v) => (v == null || v.trim().isEmpty)
-                  ? l.perfilUsuarioVacio
-                  : null,
-            ),
-            const SizedBox(height: 14),
-            CampoIdentidad(
               controlador: _emailController,
               etiqueta: l.perfilLabelEmail,
               habilitado: !_esGoogle,
