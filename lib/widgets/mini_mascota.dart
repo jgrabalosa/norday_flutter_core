@@ -32,7 +32,10 @@ class MiniMascota extends StatefulWidget {
     super.key,
     required this.usuarioId,
     required this.areaSize,
-    this.margenDerecho = 72,
+    // PRUEBA — sube con la holgura táctil para que la caja ensanchada no tape
+  // la columna de aros de la lista de Hoy. Con 72 y holgura 60, Nori podría
+  // pegarse a los aros y comerse su toque. Revisar al ajustar la holgura.
+  this.margenDerecho = 132,
   });
 
   @override
@@ -138,6 +141,10 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
+      // PRUEBA — valor deliberadamente grande (zona de 256 en vez de 136)
+      // para comprobar si el problema es de tamaño y no de prioridad. NO es
+      // el valor definitivo: se ajusta a la baja tras probarlo en el móvil.
+      holguraTactil: 60,
       // Mientras se arrastra, se ve por dónde puede moverse. Antes el usuario
       // lo descubría a base de soltarla en sitios donde no se quedaba.
       colorZona: tokens(context).primary,

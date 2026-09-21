@@ -91,6 +91,22 @@ class BurbujaFlotante extends StatefulWidget {
   /// de contradecirse.
   final HitTestBehavior behavior;
 
+  /// Píxeles que la caja sensible al dedo se extiende por cada lado, más allá
+  /// del contenido.
+  ///
+  /// El dibujo no crece ni se mueve: queda centrado dentro de una caja de
+  /// `size + holguraTactil * 2`. Tampoco cambia el área por la que la burbuja
+  /// puede pasearse, ni el marco que la dibuja.
+  ///
+  /// Existe porque fuera de la caja no hay pelea de gestos que ganar: quien
+  /// falla por diez píxeles no está compitiendo con la burbuja, está tocando
+  /// lo que haya debajo. Ensanchar es la única respuesta a eso.
+  ///
+  /// Cuesta lo que ocupa: la caja es opaca al hit test, así que cada píxel de
+  /// holgura es un píxel donde lo de debajo deja de responder. Quien la sube
+  /// debe mirar qué controles tiene cerca.
+  final double holguraTactil;
+
   /// Color de la línea que marca, mientras se arrastra, el área por la que
   /// esta burbuja puede moverse. `null` —lo normal— no pinta nada.
   ///
@@ -112,6 +128,7 @@ class BurbujaFlotante extends StatefulWidget {
     this.pasoMax = const Duration(seconds: 3),
     this.pasoDistanciaFraccion = 0.12,
     this.behavior = HitTestBehavior.deferToChild,
+    this.holguraTactil = 0.0,
     this.colorZona,
   });
 
@@ -273,8 +290,11 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
         children: [
           ?marco,
           Positioned(
-            left: left,
-            top: top,
+            // La holgura se descuenta de la posición porque la caja de gestos
+            // crece por los cuatro lados y el contenido va centrado en ella:
+            // sin esto, el dibujo se desplazaría hacia abajo y a la derecha.
+            left: left - widget.holguraTactil,
+            top: top - widget.holguraTactil,
             // El paseo se corta al APOYAR el dedo, no al empezar a arrastrar: el
             // arrastre no gana el gesto hasta que hay movimiento, y hasta entonces
             // una animación de paso en vuelo seguía deslizando la burbuja por debajo
@@ -324,10 +344,18 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                     },
                   ),
                 },
-                child: AnimatedScale(
-                  scale: _arrastrando ? 1.08 : 1.0,
-                  duration: const Duration(milliseconds: 150),
-                  child: widget.child,
+                // Con holgura, lo que agarra es esta caja; el contenido va
+                // centrado dentro y no se entera de nada.
+                child: SizedBox(
+                  width: widget.size + widget.holguraTactil * 2,
+                  height: widget.size + widget.holguraTactil * 2,
+                  child: Center(
+                    child: AnimatedScale(
+                      scale: _arrastrando ? 1.08 : 1.0,
+                      duration: const Duration(milliseconds: 150),
+                      child: widget.child,
+                    ),
+                  ),
                 ),
               ),
             ),
