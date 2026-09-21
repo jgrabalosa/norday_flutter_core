@@ -672,4 +672,17 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get reintentar => 'Retry';
+
+  @override
+  String get tiendaAyudaEtiqueta => 'Help about the shop';
+
+  @override
+  String get tiendaAyuda => 'Spend your points here: food for Nori and themes.';
+
+  @override
+  String get colAyudaEtiqueta => 'Help about the collection';
+
+  @override
+  String get colAyuda =>
+      'What you already own: equip a theme or use what you\'ve bought.';
 }

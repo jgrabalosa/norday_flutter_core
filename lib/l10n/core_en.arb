@@ -204,5 +204,9 @@
   "identidadElegir": "Choose this one",
   "identidadErrorGenerico": "Your choice could not be saved.",
   "identidadErrorCatalogo": "The identities could not be loaded.",
-  "reintentar": "Retry"
+  "reintentar": "Retry",
+  "tiendaAyudaEtiqueta": "Help about the shop",
+  "tiendaAyuda": "Spend your points here: food for Nori and themes.",
+  "colAyudaEtiqueta": "Help about the collection",
+  "colAyuda": "What you already own: equip a theme or use what you've bought."
 }

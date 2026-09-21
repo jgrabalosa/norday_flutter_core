@@ -678,4 +678,18 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get reintentar => 'Tentar novamente';
+
+  @override
+  String get tiendaAyudaEtiqueta => 'Ajuda sobre a loja';
+
+  @override
+  String get tiendaAyuda =>
+      'Gasta aqui os teus pontos: comida para a Nori e temas.';
+
+  @override
+  String get colAyudaEtiqueta => 'Ajuda sobre a coleção';
+
+  @override
+  String get colAyuda =>
+      'O que já tens: equipa um tema ou usa o que compraste.';
 }

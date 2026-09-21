@@ -10,6 +10,7 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
+import '../widgets/ayuda_campo.dart';
 import '../widgets/fondo_identidad.dart';
 import '../widgets/preview_identidad_tienda.dart';
 import '../widgets/superficie_identidad.dart';
@@ -135,7 +136,17 @@ class _TiendaScreenState extends State<TiendaScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l.tiendaTitulo),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.tiendaTitulo),
+            AyudaCampo(
+              texto: l.tiendaAyuda,
+              etiquetaSemantica: l.tiendaAyudaEtiqueta,
+              superindice: true,
+            ),
+          ],
+        ),
         // Transparente para que la nebulosa verde —centrada contra el borde
         // superior— se vea a través de la barra en vez de quedar tapada.
         backgroundColor: Colors.transparent,

@@ -1332,6 +1332,30 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Reintentar'**
   String get reintentar;
+
+  /// No description provided for @tiendaAyudaEtiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuda sobre la tienda'**
+  String get tiendaAyudaEtiqueta;
+
+  /// No description provided for @tiendaAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasta aquí tus puntos: comida para Nori y temas.'**
+  String get tiendaAyuda;
+
+  /// No description provided for @colAyudaEtiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuda sobre la colección'**
+  String get colAyudaEtiqueta;
+
+  /// No description provided for @colAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo que ya tienes: equipa un tema o usa lo que has comprado.'**
+  String get colAyuda;
 }
 
 class _NordayCoreLocalizationsDelegate
