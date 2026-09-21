@@ -141,10 +141,10 @@ class _MiniMascotaState extends State<MiniMascota> {
       // esto, el aire de alrededor se movía con ella pero no respondía, y
       // agarrarla exigía acertarle al dibujo.
       behavior: HitTestBehavior.opaque,
-      // PRUEBA — 18 por lado, caja de 172. Con 60 se cogía siempre pero
-      // tapaba la tarjeta de debajo; con 30 se cogía y se entraba, pero
-      // sobraba margen. Valor a confirmar.
-      holguraTactil: 18,
+      // PRUEBA — 8 por lado, caja de 152. Con 60 se cogía siempre pero
+      // tapaba la tarjeta de debajo; con 30 y con 18 se cogía y se
+      // entraba, pero sobraba margen. Valor a confirmar.
+      holguraTactil: 8,
       // Mientras se arrastra, se ve por dónde puede moverse. Antes el usuario
       // lo descubría a base de soltarla en sitios donde no se quedaba.
       colorZona: tokens(context).primary,
