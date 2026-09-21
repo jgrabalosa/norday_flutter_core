@@ -14,21 +14,119 @@ import 'constelaciones.dart';
 /// mezcla aditiva (ver [_CapaConstelacionPainter]) y lleva [IgnorePointer]
 /// dentro, imprescindible para que la capa no se coma los toques de lo que hay
 /// debajo.
-class CapaConstelacion extends StatelessWidget {
+///
+/// Tiene estado por las animaciones: al marcar un hábito, su estrella entra
+/// como fugaz; al desmarcarlo, se desvanece. Sólo se anima un cambio de
+/// `hechos` dentro del MISMO día y la MISMA figura. Al montarse, al cambiar de
+/// día o al cambiar el número de hábitos, las estrellas aparecen quietas en
+/// su sitio: la capa se vuelve a montar cada vez que se pasa por Mascota, y
+/// si volaran también entonces dejarían de ser un premio.
+class CapaConstelacion extends StatefulWidget {
   /// Los colores de la identidad, que los da el despachador.
   final TokensContextuales tokens;
 
   const CapaConstelacion({super.key, required this.tokens});
 
   @override
+  State<CapaConstelacion> createState() => _CapaConstelacionState();
+}
+
+class _CapaConstelacionState extends State<CapaConstelacion>
+    with TickerProviderStateMixin {
+  static const _duracionVuelo = Duration(milliseconds: 900);
+  static const _duracionApagado = Duration(milliseconds: 400);
+
+  late ProgresoDia _progreso;
+
+  /// «Reducir movimiento»: las estrellas aparecen y desaparecen sin animar.
+  bool _sinMovimiento = false;
+
+  /// Estrellas en vuelo, por índice. Un controlador terminado se queda aquí
+  /// hasta que se sustituye o se cancela: a 1.0 la estrella ya está posada y
+  /// se pinta igual que una encendida.
+  final Map<int, AnimationController> _vuelos = {};
+
+  /// Estrellas apagándose, por índice. Igual que [_vuelos]: a 1.0 ya no se
+  /// pinta nada.
+  final Map<int, AnimationController> _apagados = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _progreso = progresoDiaNotifier.value;
+    progresoDiaNotifier.addListener(_alCambiarProgreso);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sinMovimiento = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  }
+
+  @override
+  void dispose() {
+    progresoDiaNotifier.removeListener(_alCambiarProgreso);
+    _cancelarTodo();
+    super.dispose();
+  }
+
+  void _cancelarTodo() {
+    for (final c in _vuelos.values) {
+      c.dispose();
+    }
+    for (final c in _apagados.values) {
+      c.dispose();
+    }
+    _vuelos.clear();
+    _apagados.clear();
+  }
+
+  void _alCambiarProgreso() {
+    final anterior = _progreso;
+    final nuevo = progresoDiaNotifier.value;
+    final mismaFigura = anterior.fecha != null &&
+        anterior.fecha == nuevo.fecha &&
+        anterior.total == nuevo.total;
+
+    setState(() {
+      _progreso = nuevo;
+      if (!mismaFigura || _sinMovimiento) {
+        _cancelarTodo();
+        return;
+      }
+      // Suben: las nuevas entran volando.
+      for (var i = anterior.hechos; i < nuevo.hechos; i++) {
+        _apagados.remove(i)?.dispose();
+        _lanzar(_vuelos, i, _duracionVuelo);
+      }
+      // Bajan: las que sobran se desvanecen donde están.
+      for (var i = nuevo.hechos; i < anterior.hechos; i++) {
+        _vuelos.remove(i)?.dispose();
+        _lanzar(_apagados, i, _duracionApagado);
+      }
+    });
+  }
+
+  void _lanzar(
+      Map<int, AnimationController> mapa, int indice, Duration duracion) {
+    mapa.remove(indice)?.dispose();
+    final controlador = AnimationController(vsync: this, duration: duracion)
+      ..addListener(() => setState(() {}));
+    mapa[indice] = controlador;
+    controlador.forward();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ProgresoDia>(
-      valueListenable: progresoDiaNotifier,
-      builder: (context, progreso, child) => IgnorePointer(
-        child: CustomPaint(
-          painter: _CapaConstelacionPainter(tokens, progreso),
-          size: Size.infinite,
+    return IgnorePointer(
+      child: CustomPaint(
+        painter: _CapaConstelacionPainter(
+          widget.tokens,
+          _progreso,
+          vuelos: {for (final e in _vuelos.entries) e.key: e.value.value},
+          apagados: {for (final e in _apagados.entries) e.key: e.value.value},
         ),
+        size: Size.infinite,
       ),
     );
   }
@@ -43,7 +141,18 @@ class _CapaConstelacionPainter extends CustomPainter {
   /// constelación del día.
   final ProgresoDia progreso;
 
-  const _CapaConstelacionPainter(this.tokens, this.progreso);
+  /// Avance de 0 a 1 de las estrellas que están entrando, por índice.
+  final Map<int, double> vuelos;
+
+  /// Avance de 0 a 1 de las estrellas que se están apagando, por índice.
+  final Map<int, double> apagados;
+
+  const _CapaConstelacionPainter(
+    this.tokens,
+    this.progreso, {
+    required this.vuelos,
+    required this.apagados,
+  });
 
   /// La constelación ocupa la banda central de la pantalla, no la parte
   /// alta: la cabecera de Hoy ("Hoy" y la fecha) es el único texto que NO va
@@ -71,6 +180,19 @@ class _CapaConstelacionPainter extends CustomPainter {
 
     final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
 
+    // Cuánta luz tiene cada estrella ahora mismo, de 0 a 1. Una estrella en
+    // vuelo todavía no ha llegado: cuenta como apagada hasta posarse, así que
+    // sus trazos aparecen al llegar. Una que se está apagando conserva la luz
+    // que le queda, y sus trazos se desvanecen con ella.
+    double luz(int i) {
+      if (i < encendidas) {
+        final vuelo = vuelos[i];
+        return vuelo == null || vuelo >= 1.0 ? 1.0 : 0.0;
+      }
+      final apagado = apagados[i];
+      return apagado == null ? 0.0 : 1.0 - Curves.easeOut.transform(apagado);
+    }
+
     // Toda la constelación va dentro de una capa aditiva: la capa va
     // DELANTE del contenido, así que no hay superficie que atenúe la luz
     // como pasaba detrás. La luz se suma a lo que hay debajo en vez de
@@ -78,20 +200,23 @@ class _CapaConstelacionPainter extends CustomPainter {
     // nunca lo borra — y es además lo que hace la luz de verdad.
     canvas.saveLayer(Offset.zero & size, Paint()..blendMode = BlendMode.plus);
 
-    final trazo = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..color = tokens.streak.withValues(alpha: 0.38);
-
     for (final (a, b) in figura.segmentos) {
       final pa = situar(figura.puntos[a]);
       final pb = situar(figura.puntos[b]);
-      final aEncendida = a < encendidas;
-      final bEncendida = b < encendidas;
+      final luzA = luz(a);
+      final luzB = luz(b);
 
-      if (aEncendida && bEncendida) {
-        canvas.drawLine(pa, pb, trazo);
-      } else if (aEncendida || bEncendida) {
+      if (luzA > 0 && luzB > 0) {
+        canvas.drawLine(
+          pa,
+          pb,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2
+            ..color =
+                tokens.streak.withValues(alpha: 0.38 * math.min(luzA, luzB)),
+        );
+      } else if (luzA > 0 || luzB > 0) {
         // Un trazo con un solo extremo encendido no desaparece: sale de la
         // estrella que ya está y se apaga antes de llegar a la que falta.
         //
@@ -103,8 +228,9 @@ class _CapaConstelacionPainter extends CustomPainter {
         //
         // El punto apagado ya se dibuja tenue más abajo, así que el cabo no
         // apunta al vacío: va hacia una estrella que se ve.
-        final desde = aEncendida ? pa : pb;
-        final hacia = aEncendida ? pb : pa;
+        final desde = luzA > 0 ? pa : pb;
+        final hacia = luzA > 0 ? pb : pa;
+        final luzCabo = math.max(luzA, luzB);
         canvas.drawLine(
           desde,
           hacia,
@@ -116,7 +242,7 @@ class _CapaConstelacionPainter extends CustomPainter {
               desde,
               hacia,
               [
-                tokens.streak.withValues(alpha: 0.22),
+                tokens.streak.withValues(alpha: 0.22 * luzCabo),
                 tokens.streak.withValues(alpha: 0.0),
               ],
               [0.0, 0.55],
@@ -125,50 +251,121 @@ class _CapaConstelacionPainter extends CustomPainter {
       }
     }
 
-    final nucleo = Paint()..color = tokens.text;
-    final cuerpo = Paint()..color = tokens.text.withValues(alpha: 0.95);
-    final borde = Paint()..color = tokens.streak.withValues(alpha: 0.55);
-    final diagonal = Paint()..color = tokens.streak.withValues(alpha: 0.35);
     final apagada = Paint()..color = tokens.text.withValues(alpha: 0.16);
 
     for (var i = 0; i < figura.puntos.length; i++) {
       final centro = situar(figura.puntos[i]);
-      if (i < encendidas) {
-        // El resplandor: un degradado radial que cae a cero, no un círculo
-        // plano. El disco duro se recorta contra lo que hay debajo; el
-        // degradado se funde con él.
-        final radioResplandor = Rect.fromCircle(center: centro, radius: 17.0);
-        final resplandor = Paint()
-          ..shader = RadialGradient(
-            colors: [
-              tokens.streak.withValues(alpha: 0.34),
-              tokens.streak.withValues(alpha: 0.12),
-              tokens.streak.withValues(alpha: 0.0),
-            ],
-            stops: const [0.0, 0.35, 1.0],
-          ).createShader(radioResplandor);
-        canvas.drawCircle(centro, 17.0, resplandor);
-
-        // Dos puntas diagonales, cortas y tenues, detrás del destello: le
-        // dan brillo de estrella sin competir con las cuatro puntas grandes.
-        canvas.drawPath(_puntasDiagonales(centro, 5.0, 1.0), diagonal);
-
-        // El destello de cuatro puntas, con los lados curvados hacia dentro.
-        // Primero el borde ámbar, algo mayor, y encima el cuerpo casi blanco.
-        // Es lo que separa la constelación del cielo de fondo, cuyas
-        // estrellas más grandes miden 1.7.
-        canvas.drawPath(_destello(centro, 9.5), borde);
-        canvas.drawPath(_destello(centro, 7.0), cuerpo);
-
-        // El núcleo: una estrella real tiene el centro quemado y el color
-        // en el halo, no al revés.
-        canvas.drawCircle(centro, 2.0, nucleo);
+      final vuelo = i < encendidas ? vuelos[i] : null;
+      if (i < encendidas && (vuelo == null || vuelo >= 1.0)) {
+        _pintarEstrella(canvas, centro, 1.0, 1.0);
       } else {
+        // El punto apagado. Durante un vuelo marca el sitio adonde va la
+        // estrella; durante un apagado, el sitio donde se queda.
         canvas.drawCircle(centro, 1.6, apagada);
+        if (vuelo != null) {
+          _pintarVuelo(canvas, size, centro, vuelo);
+        } else {
+          final luzQueQueda = luz(i);
+          if (luzQueQueda > 0) {
+            _pintarEstrella(canvas, centro, 1.0, luzQueQueda);
+          }
+        }
       }
     }
 
     canvas.restore();
+  }
+
+  /// Una estrella encendida en [centro], a [escala] de su tamaño y con
+  /// [opacidad] de su luz.
+  void _pintarEstrella(
+      Canvas canvas, Offset centro, double escala, double opacidad) {
+    // El resplandor: un degradado radial que cae a cero, no un círculo
+    // plano. El disco duro se recorta contra lo que hay debajo; el
+    // degradado se funde con él.
+    final radioHalo = 17.0 * escala;
+    final resplandor = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          tokens.streak.withValues(alpha: 0.34 * opacidad),
+          tokens.streak.withValues(alpha: 0.12 * opacidad),
+          tokens.streak.withValues(alpha: 0.0),
+        ],
+        stops: const [0.0, 0.35, 1.0],
+      ).createShader(Rect.fromCircle(center: centro, radius: radioHalo));
+    canvas.drawCircle(centro, radioHalo, resplandor);
+
+    // Dos puntas diagonales, cortas y tenues, detrás del destello: le dan
+    // brillo de estrella sin competir con las cuatro puntas grandes.
+    canvas.drawPath(
+      _puntasDiagonales(centro, 5.0 * escala, 1.0 * escala),
+      Paint()..color = tokens.streak.withValues(alpha: 0.35 * opacidad),
+    );
+
+    // El destello de cuatro puntas, con los lados curvados hacia dentro.
+    // Primero el borde ámbar, algo mayor, y encima el cuerpo casi blanco.
+    // Es lo que separa la constelación del cielo de fondo, cuyas estrellas
+    // más grandes miden 1.7.
+    canvas.drawPath(
+      _destello(centro, 9.5 * escala),
+      Paint()..color = tokens.streak.withValues(alpha: 0.55 * opacidad),
+    );
+    canvas.drawPath(
+      _destello(centro, 7.0 * escala),
+      Paint()..color = tokens.text.withValues(alpha: 0.95 * opacidad),
+    );
+
+    // El núcleo: una estrella real tiene el centro quemado y el color en el
+    // halo, no al revés.
+    canvas.drawCircle(
+      centro,
+      2.0 * escala,
+      Paint()..color = tokens.text.withValues(alpha: opacidad),
+    );
+  }
+
+  /// Una estrella que entra como fugaz, con avance [t] de 0 a 1.
+  ///
+  /// Sale de fuera de la pantalla por la izquierda, más arriba que su sitio,
+  /// y baja en un arco que se abomba un poco hacia arriba: una fugaz de
+  /// verdad cae, y a su misma altura parecería un disparo. Frena al llegar
+  /// (`easeOutCubic`), crece del 80 % a su tamaño y la estela se recoge.
+  void _pintarVuelo(Canvas canvas, Size size, Offset llegada, double t) {
+    final salida = Offset(-30, llegada.dy - size.height * 0.34);
+    final recta = llegada - salida;
+    final largo = recta.distance;
+    if (largo == 0) return;
+    var normal = Offset(recta.dy, -recta.dx) / largo;
+    if (normal.dy > 0) normal = -normal;
+    final control = (salida + llegada) / 2 + normal * (largo * 0.18);
+
+    Offset punto(double s) {
+      final u = 1 - s;
+      return salida * (u * u) + control * (2 * u * s) + llegada * (s * s);
+    }
+
+    final avance = Curves.easeOutCubic.transform(t);
+
+    // La estela: un trazo ámbar que se afila y se apaga hacia atrás, y se
+    // encoge hasta desaparecer cuando la estrella se posa.
+    final estela = 0.22 * (1 - t);
+    const tramos = 24;
+    for (var k = 0; k < tramos; k++) {
+      final s0 = math.max(0.0, avance - estela * k / tramos);
+      final s1 = math.max(0.0, avance - estela * (k + 1) / tramos);
+      final resto = 1 - k / tramos;
+      canvas.drawLine(
+        punto(s0),
+        punto(s1),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 0.3 + 2.1 * resto
+          ..color = tokens.streak.withValues(alpha: 0.8 * resto),
+      );
+    }
+
+    _pintarEstrella(canvas, punto(avance), 0.8 + 0.2 * avance, 1.0);
   }
 
   /// Una astroide de radio [r] centrada en [c]: x = r·cos³t, y = r·sin³t.
@@ -214,10 +411,21 @@ class _CapaConstelacionPainter extends CustomPainter {
   // `TokensContextuales` no define `operator ==`, así que comparar el
   // objeto entero compara referencias, no valores: funciona hoy sólo porque
   // las cuatro paletas son `const` y Dart las canoniza. `ProgresoDia` sí
-  // define `operator ==`, así que ese campo se compara por valor.
+  // define `operator ==`, así que ese campo se compara por valor, y los
+  // mapas de animación entrada a entrada.
   @override
   bool shouldRepaint(covariant _CapaConstelacionPainter oldDelegate) =>
       oldDelegate.tokens.primary != tokens.primary ||
       oldDelegate.tokens.streak != tokens.streak ||
-      oldDelegate.progreso != progreso;
+      oldDelegate.progreso != progreso ||
+      !_mismosAvances(oldDelegate.vuelos, vuelos) ||
+      !_mismosAvances(oldDelegate.apagados, apagados);
+
+  static bool _mismosAvances(Map<int, double> a, Map<int, double> b) {
+    if (a.length != b.length) return false;
+    for (final e in a.entries) {
+      if (b[e.key] != e.value) return false;
+    }
+    return true;
+  }
 }
