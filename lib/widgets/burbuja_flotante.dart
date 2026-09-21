@@ -12,6 +12,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// en vez de mover la burbuja. Con el mismo umbral gana el hijo, que se
 /// resuelve antes que el ancestro.
 class _ArrastreLibre extends PanGestureRecognizer {
+  /// Reclama el puntero al apoyarse el dedo, sin esperar a que haya
+  /// movimiento, igual que hace `EagerGestureRecognizer` de Flutter.
+  ///
+  /// Sólo vale cuando nadie más compite por el gesto DENTRO de la burbuja: si
+  /// hubiera un `onTap`, este reconocedor se lo comería siempre. Por eso lo
+  /// decide quien construye el mapa de gestos, no esta clase.
+  ///
+  /// Es lo que le quita el pulso al pager que contenga la burbuja: cuando el
+  /// `PageView` mira el gesto, ya está perdido. Bajar el umbral no bastaba
+  /// porque seguía siendo una carrera, y una de cada cinco veces la ganaba él.
+  final bool inmediato;
+
+  _ArrastreLibre({required this.inmediato});
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    super.addAllowedPointer(event);
+    if (inmediato) resolve(GestureDisposition.accepted);
+  }
+
   @override
   bool hasSufficientGlobalDistanceToAccept(
       PointerDeviceKind pointerDeviceKind, double? deviceTouchSlop) {
@@ -71,6 +91,22 @@ class BurbujaFlotante extends StatefulWidget {
   /// de contradecirse.
   final HitTestBehavior behavior;
 
+  /// Píxeles que la caja sensible al dedo se extiende por cada lado, más allá
+  /// del contenido.
+  ///
+  /// El dibujo no crece ni se mueve: queda centrado dentro de una caja de
+  /// `size + holguraTactil * 2`. Tampoco cambia el área por la que la burbuja
+  /// puede pasearse, ni el marco que la dibuja.
+  ///
+  /// Existe porque fuera de la caja no hay pelea de gestos que ganar: quien
+  /// falla por diez píxeles no está compitiendo con la burbuja, está tocando
+  /// lo que haya debajo. Ensanchar es la única respuesta a eso.
+  ///
+  /// Cuesta lo que ocupa: la caja es opaca al hit test, así que cada píxel de
+  /// holgura es un píxel donde lo de debajo deja de responder. Quien la sube
+  /// debe mirar qué controles tiene cerca.
+  final double holguraTactil;
+
   /// Color de la línea que marca, mientras se arrastra, el área por la que
   /// esta burbuja puede moverse. `null` —lo normal— no pinta nada.
   ///
@@ -92,6 +128,7 @@ class BurbujaFlotante extends StatefulWidget {
     this.pasoMax = const Duration(seconds: 3),
     this.pasoDistanciaFraccion = 0.12,
     this.behavior = HitTestBehavior.deferToChild,
+    this.holguraTactil = 0.0,
     this.colorZona,
   });
 
@@ -244,14 +281,20 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
             ),
           );
 
+    // Con `onTap` no se puede reclamar el gesto al apoyar el dedo: el toque
+    // nunca llegaría a ocurrir. Sin él, no hay nada que perder.
+    final conTap = widget.onTap != null;
     return Positioned.fill(
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           ?marco,
           Positioned(
-            left: left,
-            top: top,
+            // La holgura se descuenta de la posición porque la caja de gestos
+            // crece por los cuatro lados y el contenido va centrado en ella:
+            // sin esto, el dibujo se desplazaría hacia abajo y a la derecha.
+            left: left - widget.holguraTactil,
+            top: top - widget.holguraTactil,
             // El paseo se corta al APOYAR el dedo, no al empezar a arrastrar: el
             // arrastre no gana el gesto hasta que hay movimiento, y hasta entonces
             // una animación de paso en vuelo seguía deslizando la burbuja por debajo
@@ -270,16 +313,17 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
               child: RawGestureDetector(
                 behavior: widget.behavior,
                 gestures: {
-                  TapGestureRecognizer:
-                      GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                    TapGestureRecognizer.new,
-                    (r) => r.onTap = () {
-                      HapticFeedback.lightImpact();
-                      widget.onTap?.call();
-                    },
-                  ),
+                  if (conTap)
+                    TapGestureRecognizer:
+                        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+                      TapGestureRecognizer.new,
+                      (r) => r.onTap = () {
+                        HapticFeedback.lightImpact();
+                        widget.onTap?.call();
+                      },
+                    ),
                   _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
-                    _ArrastreLibre.new,
+                    () => _ArrastreLibre(inmediato: !conTap),
                     (r) {
                       r.onStart = (_) => setState(() => _arrastrando = true);
                       r.onUpdate = (details) {
@@ -300,10 +344,18 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                     },
                   ),
                 },
-                child: AnimatedScale(
-                  scale: _arrastrando ? 1.08 : 1.0,
-                  duration: const Duration(milliseconds: 150),
-                  child: widget.child,
+                // Con holgura, lo que agarra es esta caja; el contenido va
+                // centrado dentro y no se entera de nada.
+                child: SizedBox(
+                  width: widget.size + widget.holguraTactil * 2,
+                  height: widget.size + widget.holguraTactil * 2,
+                  child: Center(
+                    child: AnimatedScale(
+                      scale: _arrastrando ? 1.08 : 1.0,
+                      duration: const Duration(milliseconds: 150),
+                      child: widget.child,
+                    ),
+                  ),
                 ),
               ),
             ),
