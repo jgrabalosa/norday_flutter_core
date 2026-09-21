@@ -144,7 +144,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // ── Registro ───────────────────────────────────────────
   final _nombreController = TextEditingController();
-  final _usernameController = TextEditingController();
+
+  /// El nombre de usuario ya no se pide: se genera igual que hace el backend
+  /// con Google (parte local del email + cuatro cifras). La parte local se
+  /// recorta a 40 caracteres y las cifras llevan ceros delante, para cumplir
+  /// siempre los 3-50 caracteres que exige el backend.
+  static String _usernameAutomatico(String email) {
+    final local = email.trim().split('@').first;
+    final base = local.length > 40 ? local.substring(0, 40) : local;
+    final cifras = (DateTime.now().millisecondsSinceEpoch % 10000)
+        .toString()
+        .padLeft(4, '0');
+    return '${base}_$cifras';
+  }
 
 Future<void> _registro() async {
     final l = NordayCoreLocalizations.of(context)!;
@@ -152,7 +164,7 @@ Future<void> _registro() async {
     try {
       await ApiServiceCore.registro(
         _nombreController.text,
-        _usernameController.text,
+        _usernameAutomatico(_emailController.text),
         _emailController.text,
         _contrasenaController.text,
       );
@@ -222,7 +234,6 @@ Future<void> _registro() async {
     _emailController.dispose();
     _contrasenaController.dispose();
     _nombreController.dispose();
-    _usernameController.dispose();
     super.dispose();
   }
 
@@ -327,11 +338,6 @@ Future<void> _registro() async {
             controlador: _nombreController,
             etiqueta: l.perfilLabelNombre,
             capitalizacion: TextCapitalization.words,
-          ),
-          const SizedBox(height: 14),
-          CampoIdentidad(
-            controlador: _usernameController,
-            etiqueta: l.perfilLabelUsuario,
           ),
           const SizedBox(height: 14),
         ],
