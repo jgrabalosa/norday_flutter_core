@@ -159,10 +159,6 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
   @override
   void initState() {
     super.initState();
-    // PRUEBA — diagnóstico de la arena de gestos. Imprime en consola, para
-    // cada toque, qué reconocedores entran y cuál gana. Sólo imprime en
-    // debug. QUITAR antes de mergear.
-    debugPrintGestureArenaDiagnostics = true;
     _snapController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
