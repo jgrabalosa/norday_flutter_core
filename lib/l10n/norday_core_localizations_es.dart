@@ -689,6 +689,30 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get tiendaAyuda => 'Gasta aquí tus puntos: comida para Nori y temas.';
 
   @override
+  String get constelacionPolar => 'Estrella Polar';
+
+  @override
+  String get constelacionPunteros => 'Los Punteros';
+
+  @override
+  String get constelacionCinturon => 'Cinturón de Orión';
+
+  @override
+  String get constelacionCruzSur => 'Cruz del Sur';
+
+  @override
+  String get constelacionCasiopea => 'Casiopea';
+
+  @override
+  String get constelacionLira => 'Lira';
+
+  @override
+  String get constelacionOsaMayor => 'Osa Mayor';
+
+  @override
+  String get constelacionOrion => 'Orión';
+
+  @override
   String get colAyudaEtiqueta => 'Ayuda sobre la colección';
 
   @override

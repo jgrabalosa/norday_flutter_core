@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import '../l10n/norday_core_localizations.dart';
+
 /// Una constelación del catálogo: sus puntos en coordenadas normalizadas
 /// 0..1 y qué puntos une cada trazo.
 ///
@@ -8,9 +10,6 @@ import 'dart:ui';
 /// y en la Osa Mayor, que son polilíneas, pero destroza la Cruz del Sur y
 /// Orión: un cinturón no se une a un pie por el mismo trazo que a un hombro.
 class Constelacion {
-  /// El nombre, para poder contarlo: "hoy estás dibujando Casiopea".
-  final String nombre;
-
   /// Los puntos EN ORDEN DE ENCENDIDO. El hábito número N enciende
   /// `puntos[N-1]`.
   final List<Offset> puntos;
@@ -20,7 +19,6 @@ class Constelacion {
   final List<(int, int)> segmentos;
 
   const Constelacion({
-    required this.nombre,
     required this.puntos,
     required this.segmentos,
   });
@@ -37,26 +35,22 @@ const Map<int, Constelacion> catalogoConstelaciones = {
   1: Constelacion(
     // La Polar y el compás del logo dicen lo mismo: lo que orienta. Es la
     // figura del que empieza, y es la que más gente va a ver el primer día.
-    nombre: 'Estrella Polar',
     puntos: [Offset(0.50, 0.50)],
     segmentos: [],
   ),
   2: Constelacion(
     // Merak y Dubhe, las dos del cazo de la Osa Mayor que señalan a la
     // Polar. Termina en Dubhe, que es la que apunta.
-    nombre: 'Los Punteros',
     puntos: [Offset(0.52, 0.86), Offset(0.48, 0.14)],
     segmentos: [(0, 1)],
   ),
   3: Constelacion(
     // Alnitak, Alnilam y Mintaka. Quien hace tres hábitos ve el cinturón;
     // quien hace ocho, a Orión entero.
-    nombre: 'Cinturón de Orión',
     puntos: [Offset(0.14, 0.77), Offset(0.51, 0.53), Offset(0.86, 0.23)],
     segmentos: [(0, 1), (1, 2)],
   ),
   4: Constelacion(
-    nombre: 'Cruz del Sur',
     puntos: [
       Offset(0.50, 0.14),
       Offset(0.54, 0.88),
@@ -66,7 +60,6 @@ const Map<int, Constelacion> catalogoConstelaciones = {
     segmentos: [(0, 1), (2, 3)],
   ),
   5: Constelacion(
-    nombre: 'Casiopea',
     puntos: [
       Offset(0.14, 0.40),
       Offset(0.32, 0.66),
@@ -80,7 +73,6 @@ const Map<int, Constelacion> catalogoConstelaciones = {
     // Vega y sus dos vecinas forman el triángulo; la tercera estrella y las
     // tres de abajo, el paralelogramo.
     // Sustituye a Cefeo, cuya sexta estrella salía como un palo suelto.
-    nombre: 'Lira',
     puntos: [
       Offset(0.73, 0.23),
       Offset(0.58, 0.14),
@@ -94,7 +86,6 @@ const Map<int, Constelacion> catalogoConstelaciones = {
   7: Constelacion(
     // Posiciones reales. Empieza por la punta del mango (Alkaid) y termina
     // en Dubhe, que cierra el cazo contra Megrez.
-    nombre: 'Osa Mayor',
     puntos: [
       Offset(0.14, 0.67),
       Offset(0.29, 0.54),
@@ -111,7 +102,6 @@ const Map<int, Constelacion> catalogoConstelaciones = {
     // Posiciones reales salvo el cinturón, que se abre a 0.10 entre
     // estrellas: con las reales quedaban a unos 12 px y los destellos se
     // pisaban.
-    nombre: 'Orión',
     puntos: [
       Offset(0.50, 0.14),
       Offset(0.31, 0.23),
@@ -131,3 +121,20 @@ Constelacion? constelacionPara(int totalHabitos) {
   if (totalHabitos <= 0) return null;
   return catalogoConstelaciones[totalHabitos.clamp(1, 8)];
 }
+
+/// El nombre de la figura que toca para [totalHabitos], en el idioma activo.
+///
+/// Va aparte del catálogo porque el catálogo es `const` y las traducciones
+/// dependen del idioma, que cambia sin reiniciar la app. Mismo tope que
+/// [constelacionPara]: de 8 en adelante, Orión.
+String nombreConstelacion(NordayCoreLocalizations l, int totalHabitos) =>
+    switch (totalHabitos.clamp(1, 8)) {
+      1 => l.constelacionPolar,
+      2 => l.constelacionPunteros,
+      3 => l.constelacionCinturon,
+      4 => l.constelacionCruzSur,
+      5 => l.constelacionCasiopea,
+      6 => l.constelacionLira,
+      7 => l.constelacionOsaMayor,
+      _ => l.constelacionOrion,
+    };
