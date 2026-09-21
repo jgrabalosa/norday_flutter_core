@@ -133,11 +133,13 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // (12.00 / 10.77 / 9.85), que es lo que mantiene la jerarquía entre
       // texto principal y secundario.
       textMuted: Color(0xFF7E3A67),
-      // `textMuted` al 0.48 sobre `bg`, resuelto a opaco. 2.00 de contraste.
-      inactivo: Color(0xFFCFA0BE),
-      // `textMuted` al 0.80 sobre `surface`, que es el fondo de sus filas,
-      // resuelto a opaco. 3.35 / 3.73 / 3.06 sobre bg / surface / surface2.
-      aroVacio: Color(0xFFB36E9C),
+      // `textMuted` al 0.42 sobre `bg`, resuelto a opaco. 2.00 de contraste.
+      // Recalculado al oscurecer `textMuted`: se conserva el contraste, no la
+      // alfa, para que el estado apagado pese lo mismo que en las otras tres.
+      inactivo: Color(0xFFC6A4B9),
+      // `textMuted` al 0.70 sobre `surface`, que es el fondo de sus filas,
+      // resuelto a opaco. 3.38 / 3.76 / 3.09 sobre bg / surface / surface2.
+      aroVacio: Color(0xFFA57595),
       // 4.61 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF4A2E3D),
       // Sobre fondo claro ningún relleno de esta identidad vale como texto:

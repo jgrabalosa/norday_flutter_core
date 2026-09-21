@@ -147,7 +147,7 @@ class TokensContextuales {
   /// Cada paleta declara el suyo, medido sobre el fondo real de su fila y
   /// verificado contra los tres fondos de la identidad. La alfa de `textMuted`
   /// que hace falta NO es la misma en las cuatro: 0.70 en Profundidad, 0.62 en
-  /// Neotokyo+, 0.78 en Alba y 0.80 en Dulce.
+  /// Neotokyo+, 0.78 en Alba y 0.70 en Dulce.
   ///
   /// Quien no lo declare se queda en `surface2`, que es como estaba.
   final Color aroVacio;
