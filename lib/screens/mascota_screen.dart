@@ -39,12 +39,22 @@ class MascotaScreen extends StatefulWidget {
   /// importar nada de la app; null es lo normal y no cambia nada.
   final GlobalKey? anclaAlimentar;
 
+  /// La ayuda del ánimo de la mascota, junto a su burbuja, y la de la XP.
+  /// Entran ya construidas —normalmente un `AyudaCampo`— porque lo que
+  /// explican depende de la app: el ánimo y la XP salen de lo que la app
+  /// cuenta como cumplir, y el core no puede nombrarlo. Null es lo normal:
+  /// sin ayuda no se pinta nada.
+  final Widget? ayudaAnimo;
+  final Widget? ayudaXp;
+
   const MascotaScreen({
     super.key,
     required this.usuarioId,
     this.embebida = false,
     this.activa = true,
     this.anclaAlimentar,
+    this.ayudaAnimo,
+    this.ayudaXp,
   });
 
   @override
@@ -431,13 +441,21 @@ class _MascotaScreenState extends State<MascotaScreen> {
                         ),
                         const SizedBox(height: 10),
                         Center(
-                          child: BurbujaContexto(
-                            texto: MensajesMascota.contexto(
-                              l,
-                              codigoFase: _fase,
-                              codigoEstado: _estado,
-                              nivel: _nivel,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: BurbujaContexto(
+                                  texto: MensajesMascota.contexto(
+                                    l,
+                                    codigoFase: _fase,
+                                    codigoEstado: _estado,
+                                    nivel: _nivel,
+                                  ),
+                                ),
+                              ),
+                              ?widget.ayudaAnimo,
+                            ],
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -453,13 +471,19 @@ class _MascotaScreenState extends State<MascotaScreen> {
                                     .textTheme
                                     .titleMedium
                                     ?.copyWith(color: t.text)),
-                            Text(
-                                l.mascotaXp(
-                                    _xpEnNivelActual, _xpParaSiguienteNivel),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(color: t.textMuted)),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                    l.mascotaXp(_xpEnNivelActual,
+                                        _xpParaSiguienteNivel),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: t.textMuted)),
+                                ?widget.ayudaXp,
+                              ],
+                            ),
                           ],
                         ),
                         // El progreso ya no va aquí: es el aro que rodea a la

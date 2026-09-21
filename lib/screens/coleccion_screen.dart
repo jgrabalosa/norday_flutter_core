@@ -11,6 +11,7 @@ import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import 'tienda_screen.dart';
+import '../widgets/ayuda_campo.dart';
 import '../widgets/fondo_identidad.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/selector_avatar_gratis.dart';
@@ -208,7 +209,17 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l.navColeccion),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.navColeccion),
+            AyudaCampo(
+              texto: l.colAyuda,
+              etiquetaSemantica: l.colAyudaEtiqueta,
+              superindice: true,
+            ),
+          ],
+        ),
         // Transparente para que la nebulosa verde —centrada contra el borde
         // superior— se vea a través de la barra en vez de quedar tapada.
         backgroundColor: Colors.transparent,

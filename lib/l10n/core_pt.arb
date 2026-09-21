@@ -204,5 +204,9 @@
   "identidadElegir": "Escolher esta",
   "identidadErrorGenerico": "Não foi possível guardar a tua escolha.",
   "identidadErrorCatalogo": "Não foi possível carregar as identidades.",
-  "reintentar": "Tentar novamente"
+  "reintentar": "Tentar novamente",
+  "tiendaAyudaEtiqueta": "Ajuda sobre a loja",
+  "tiendaAyuda": "Gasta aqui os teus pontos: comida para a Nori e temas.",
+  "colAyudaEtiqueta": "Ajuda sobre a coleção",
+  "colAyuda": "O que já tens: equipa um tema ou usa o que compraste."
 }
