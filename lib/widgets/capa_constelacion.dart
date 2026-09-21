@@ -25,7 +25,15 @@ class CapaConstelacion extends StatefulWidget {
   /// Los colores de la identidad, que los da el despachador.
   final TokensContextuales tokens;
 
-  const CapaConstelacion({super.key, required this.tokens});
+  /// Si la capa está encima de Hoy. Con el día cerrado ([diaCerradoNotifier])
+  /// y en Hoy, lo de debajo se oscurece un poco y la figura brilla más.
+  final bool enHoy;
+
+  const CapaConstelacion({
+    super.key,
+    required this.tokens,
+    this.enHoy = false,
+  });
 
   @override
   State<CapaConstelacion> createState() => _CapaConstelacionState();
@@ -35,6 +43,7 @@ class _CapaConstelacionState extends State<CapaConstelacion>
     with TickerProviderStateMixin {
   static const _duracionVuelo = Duration(milliseconds: 900);
   static const _duracionApagado = Duration(milliseconds: 400);
+  static const _duracionRealce = Duration(milliseconds: 600);
 
   late ProgresoDia _progreso;
 
@@ -50,11 +59,41 @@ class _CapaConstelacionState extends State<CapaConstelacion>
   /// pinta nada.
   final Map<int, AnimationController> _apagados = {};
 
+  /// El realce del día cerrado, de 0 a 1: el velo de debajo y el brillo de
+  /// más. Al montarse arranca ya en su sitio, sin fundido, igual que las
+  /// estrellas: la capa se vuelve a montar al pasar por Mascota.
+  late final AnimationController _realce;
+
+  bool get _realzado => widget.enHoy && diaCerradoNotifier.value;
+
   @override
   void initState() {
     super.initState();
     _progreso = progresoDiaNotifier.value;
     progresoDiaNotifier.addListener(_alCambiarProgreso);
+    _realce = AnimationController(
+      vsync: this,
+      duration: _duracionRealce,
+      value: _realzado ? 1.0 : 0.0,
+    );
+    diaCerradoNotifier.addListener(_actualizarRealce);
+  }
+
+  @override
+  void didUpdateWidget(covariant CapaConstelacion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.enHoy != widget.enHoy) _actualizarRealce();
+  }
+
+  /// Lleva el realce adonde toca: con fundido, o de golpe con «reducir
+  /// movimiento».
+  void _actualizarRealce() {
+    final objetivo = _realzado ? 1.0 : 0.0;
+    if (_sinMovimiento) {
+      _realce.value = objetivo;
+    } else {
+      _realce.animateTo(objetivo);
+    }
   }
 
   @override
@@ -66,7 +105,9 @@ class _CapaConstelacionState extends State<CapaConstelacion>
   @override
   void dispose() {
     progresoDiaNotifier.removeListener(_alCambiarProgreso);
+    diaCerradoNotifier.removeListener(_actualizarRealce);
     _cancelarTodo();
+    _realce.dispose();
     super.dispose();
   }
 
@@ -118,15 +159,23 @@ class _CapaConstelacionState extends State<CapaConstelacion>
 
   @override
   Widget build(BuildContext context) {
+    // El realce se repinta con su propio AnimatedBuilder, sin setState:
+    // puede cambiar desde didUpdateWidget.
     return IgnorePointer(
-      child: CustomPaint(
-        painter: _CapaConstelacionPainter(
-          widget.tokens,
-          _progreso,
-          vuelos: {for (final e in _vuelos.entries) e.key: e.value.value},
-          apagados: {for (final e in _apagados.entries) e.key: e.value.value},
+      child: AnimatedBuilder(
+        animation: _realce,
+        builder: (context, _) => CustomPaint(
+          painter: _CapaConstelacionPainter(
+            widget.tokens,
+            _progreso,
+            vuelos: {for (final e in _vuelos.entries) e.key: e.value.value},
+            apagados: {
+              for (final e in _apagados.entries) e.key: e.value.value
+            },
+            realce: _realce.value,
+          ),
+          size: Size.infinite,
         ),
-        size: Size.infinite,
       ),
     );
   }
@@ -147,11 +196,15 @@ class _CapaConstelacionPainter extends CustomPainter {
   /// Avance de 0 a 1 de las estrellas que se están apagando, por índice.
   final Map<int, double> apagados;
 
+  /// El realce del día cerrado, de 0 a 1.
+  final double realce;
+
   const _CapaConstelacionPainter(
     this.tokens,
     this.progreso, {
     required this.vuelos,
     required this.apagados,
+    required this.realce,
   });
 
   /// La constelación ocupa la banda central de la pantalla, no la parte
@@ -193,6 +246,16 @@ class _CapaConstelacionPainter extends CustomPainter {
       return apagado == null ? 0.0 : 1.0 - Curves.easeOut.transform(apagado);
     }
 
+    // El día cerrado, en Hoy: un velo que apaga un poco lo de debajo para
+    // que la figura terminada destaque. Va fuera de la capa aditiva porque
+    // tiene que oscurecer, y la mezcla aditiva sólo sabe sumar luz.
+    if (realce > 0) {
+      canvas.drawRect(
+        Offset.zero & size,
+        Paint()..color = Colors.black.withValues(alpha: 0.25 * realce),
+      );
+    }
+
     // Toda la constelación va dentro de una capa aditiva: la capa va
     // DELANTE del contenido, así que no hay superficie que atenúe la luz
     // como pasaba detrás. La luz se suma a lo que hay debajo en vez de
@@ -213,8 +276,8 @@ class _CapaConstelacionPainter extends CustomPainter {
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.2
-            ..color =
-                tokens.streak.withValues(alpha: 0.38 * math.min(luzA, luzB)),
+            ..color = tokens.streak.withValues(
+                alpha: (0.38 + 0.22 * realce) * math.min(luzA, luzB)),
         );
       } else if (luzA > 0 || luzB > 0) {
         // Un trazo con un solo extremo encendido no desaparece: sale de la
@@ -283,12 +346,14 @@ class _CapaConstelacionPainter extends CustomPainter {
     // El resplandor: un degradado radial que cae a cero, no un círculo
     // plano. El disco duro se recorta contra lo que hay debajo; el
     // degradado se funde con él.
-    final radioHalo = 17.0 * escala;
+    // Con el día cerrado el halo crece un 30 % y gana intensidad.
+    final radioHalo = 17.0 * escala * (1 + 0.3 * realce);
+    final intensidad = opacidad * (1 + 0.5 * realce);
     final resplandor = Paint()
       ..shader = RadialGradient(
         colors: [
-          tokens.streak.withValues(alpha: 0.34 * opacidad),
-          tokens.streak.withValues(alpha: 0.12 * opacidad),
+          tokens.streak.withValues(alpha: 0.34 * intensidad),
+          tokens.streak.withValues(alpha: 0.12 * intensidad),
           tokens.streak.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.35, 1.0],
@@ -418,6 +483,7 @@ class _CapaConstelacionPainter extends CustomPainter {
       oldDelegate.tokens.primary != tokens.primary ||
       oldDelegate.tokens.streak != tokens.streak ||
       oldDelegate.progreso != progreso ||
+      oldDelegate.realce != realce ||
       !_mismosAvances(oldDelegate.vuelos, vuelos) ||
       !_mismosAvances(oldDelegate.apagados, apagados);
 
