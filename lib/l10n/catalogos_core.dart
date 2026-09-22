@@ -12,8 +12,8 @@ import 'norday_core_localizations.dart';
 /// vacía.
 ///
 /// Motor: aquí solo viven los códigos genéricos del ecosistema (productos de
-/// la tienda, niveles, categorías de logro y los cuatro logros que no saben
-/// de dominio). Los logros propios de cada app se enchufan con
+/// la tienda, niveles, categorías de logro y los logros que no saben de
+/// dominio). Los logros propios de cada app se enchufan con
 /// [registrarLogrosDeDominio]: el paquete no puede conocerlos, pero es él
 /// quien pinta la pantalla de logros y las celebraciones.
 class CatalogosCore {
@@ -70,8 +70,9 @@ class CatalogosCore {
     return mapa[codigo] ?? nombreBackend;
   }
 
-  /// Los cuatro logros que no saben de dominio: se ganan por existir, entrar
-  /// con Google o valorar la app, no por nada que la app en concreto haga.
+  /// Los logros que no saben de dominio: se ganan por existir, entrar con
+  /// Google, valorar la app, conseguir una identidad o ver crecer a la
+  /// mascota, no por nada que la app en concreto haga.
   static Map<String, String> _logros(BuildContext context) {
     final l = NordayCoreLocalizations.of(context)!;
     return {
@@ -79,6 +80,11 @@ class CatalogosCore {
       'PRIMEROS_PASOS': l.logroPrimerosPasos,
       'LOGIN_GOOGLE': l.logroLoginGoogle,
       'INTERACCION_RESENA': l.logroInteraccionResena,
+      'IDENTIDAD_PROFUNDIDAD': l.logroIdentidadProfundidad,
+      'IDENTIDAD_NEOTOKYO_PLUS': l.logroIdentidadNeotokyoPlus,
+      'IDENTIDAD_DULCE': l.logroIdentidadDulce,
+      'MASCOTA_CRIA': l.logroMascotaCria,
+      'MASCOTA_ADULTO': l.logroMascotaAdulto,
     };
   }
 
@@ -89,6 +95,11 @@ class CatalogosCore {
       'PRIMEROS_PASOS': l.logroDescPrimerosPasos,
       'LOGIN_GOOGLE': l.logroDescLoginGoogle,
       'INTERACCION_RESENA': l.logroDescInteraccionResena,
+      'IDENTIDAD_PROFUNDIDAD': l.logroDescIdentidadProfundidad,
+      'IDENTIDAD_NEOTOKYO_PLUS': l.logroDescIdentidadNeotokyoPlus,
+      'IDENTIDAD_DULCE': l.logroDescIdentidadDulce,
+      'MASCOTA_CRIA': l.logroDescMascotaCria,
+      'MASCOTA_ADULTO': l.logroDescMascotaAdulto,
     };
   }
 
@@ -96,13 +107,6 @@ class CatalogosCore {
     final l = NordayCoreLocalizations.of(context)!;
     return {
       'ESCUDO_RACHA': l.prodEscudoRacha,
-      'TEMA_BASICO_CLARO': l.prodTemaBasicoClaro,
-      'TEMA_BASICO_OSCURO': l.prodTemaBasicoOscuro,
-      'TEMA_CALIDEZ': l.prodTemaCalidez,
-      'TEMA_NEOTOKYO': l.prodTemaNeotokyo,
-      'TEMA_OCEANO': l.prodTemaOceano,
-      'TEMA_BOSQUE': l.prodTemaBosque,
-      'TEMA_COBRE': l.prodTemaCobre,
       'AVATAR_ZORRO': l.prodAvatarZorro,
       'AVATAR_GATO': l.prodAvatarGato,
       'AVATAR_BUHO': l.prodAvatarBuho,
@@ -121,13 +125,9 @@ class CatalogosCore {
     final l = NordayCoreLocalizations.of(context)!;
     return {
       'ESCUDO_RACHA': l.prodDescEscudoRacha,
-      'TEMA_BASICO_CLARO': l.prodDescTemaBasicoClaro,
-      'TEMA_BASICO_OSCURO': l.prodDescTemaBasicoOscuro,
-      'TEMA_CALIDEZ': l.prodDescTemaCalidez,
-      'TEMA_NEOTOKYO': l.prodDescTemaNeotokyo,
-      'TEMA_OCEANO': l.prodDescTemaOceano,
-      'TEMA_BOSQUE': l.prodDescTemaBosque,
-      'TEMA_COBRE': l.prodDescTemaCobre,
+      'TEMA_PROFUNDIDAD': l.prodDescTemaProfundidad,
+      'TEMA_NEOTOKYO_PLUS': l.prodDescTemaNeotokyoPlus,
+      'TEMA_DULCE': l.prodDescTemaDulce,
       'AVATAR_ZORRO': l.prodDescAvatarZorro,
       'AVATAR_GATO': l.prodDescAvatarGato,
       'AVATAR_BUHO': l.prodDescAvatarBuho,
@@ -150,6 +150,8 @@ class CatalogosCore {
       'Volumen': l.logroCatVolumen,
       'Variedad': l.logroCatVariedad,
       'Exploración': l.logroCatExploracion,
+      'Identidad': l.logroCatIdentidad,
+      'Mascota': l.logroCatMascota,
     };
   }
 

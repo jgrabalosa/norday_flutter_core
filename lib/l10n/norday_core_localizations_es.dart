@@ -55,6 +55,21 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get logroInteraccionResena => 'Tu opinión cuenta';
 
   @override
+  String get logroIdentidadProfundidad => 'Bajo las estrellas';
+
+  @override
+  String get logroIdentidadNeotokyoPlus => 'Luces de neón';
+
+  @override
+  String get logroIdentidadDulce => 'Con cariño';
+
+  @override
+  String get logroMascotaCria => 'Ha salido del cascarón';
+
+  @override
+  String get logroMascotaAdulto => 'Nori ha crecido';
+
+  @override
   String get prodEscudoRacha => 'Escudo de racha';
 
   @override
@@ -530,6 +545,23 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
       'Interactúa con la valoración de la app en Google Play';
 
   @override
+  String get logroDescIdentidadProfundidad =>
+      'Consigue la identidad Profundidad';
+
+  @override
+  String get logroDescIdentidadNeotokyoPlus =>
+      'Consigue la identidad Neotokyo+';
+
+  @override
+  String get logroDescIdentidadDulce => 'Consigue la identidad Dulce';
+
+  @override
+  String get logroDescMascotaCria => 'Tu mascota evoluciona de huevo a cría';
+
+  @override
+  String get logroDescMascotaAdulto => 'Tu mascota evoluciona de cría a adulto';
+
+  @override
   String get prodDescEscudoRacha =>
       'Protege tu racha durante 1 día si olvidas completar tu hábito';
 
@@ -558,6 +590,18 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   @override
   String get prodDescTemaCobre =>
       'Un tema premium elegante en azul noche y cobre';
+
+  @override
+  String get prodDescTemaProfundidad =>
+      'Un viaje espacial entre constelaciones, estrellas fugaces y cohetes';
+
+  @override
+  String get prodDescTemaNeotokyoPlus =>
+      'Neón sobre negro, ángulos cortados y letra técnica';
+
+  @override
+  String get prodDescTemaDulce =>
+      'Rosa suave, formas de píldora y un guiño manuscrito';
 
   @override
   String get prodDescAvatarZorro => 'Avatar ilustrado de zorro';
@@ -591,6 +635,12 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
 
   @override
   String get logroCatExploracion => 'Exploración';
+
+  @override
+  String get logroCatIdentidad => 'Identidad';
+
+  @override
+  String get logroCatMascota => 'Mascota';
 
   @override
   String get nivelFacil => 'Fácil';
