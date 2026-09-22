@@ -6,7 +6,10 @@ dependencia Git.
 
 Consumidores hoy:
 
-- `habitos_app_mobile` (Norday Hábitos) — la primera.
+- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`).
+- `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
+  `a873d8f`, del 12-ago-2026, anterior a `v0.1.0`. No recibe nada de lo que
+  se ha hecho aquí desde entonces.
 
 ## Qué vive aquí y qué vive en cada app
 
@@ -18,21 +21,36 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `services/` — `ApiServiceCore` (sesión, usuario, preferencias, gamificación,
   tienda, mascota, notificaciones), `ApiException`/`TipoErrorApi`,
   `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
-  `IdiomaService`, `ZonaService`.
+  `IdiomaService`, `ZonaService` y `RecorridoService` (si el recorrido guiado
+  ya se hizo; sólo un sí o un no).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
-  `catalogoAvatares`, `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`,
-  `tonoError`.
+  `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`, `tonoError`,
+  `progreso_dia.dart` (cuántos hay y cuántos hechos en el día, sin decir
+  cuáles: de ahí dibuja el fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — los 22 genéricos (anillo, puntos, burbuja, check, mascota viva,
-  mini-mascota, onboarding, selector de avatar, selector de preferencias,
-  skeleton, splash, hoja de valoración, los cinco de la escena de mascota
-  —halo, terrario, anillo de XP, burbuja de contexto y celebración de nivel—,
-  los tres de las pantallas de entrada —Nori de marca, wordmark de identidad y
-  logo de Google— y los dos que visten cualquier pantalla:
-  `SuperficieIdentidad` y `CampoIdentidad`).
-- `screens/` — login, recuperación, tienda, mascota, logros, colección, perfil.
-- `l10n/` — `NordayCoreLocalizations` y `CatalogosCore`.
-- `assets/` — animations, sounds, mascota, avatares.
+- `widgets/` — 33 ficheros:
+  - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
+    terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
+    día), `BurbujaContexto` y `CelebracionNivel`;
+  - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
+  - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
+  - fondos y cierre del día (8): `FondoIdentidad` y `CapaProgresoIdentidad`
+    (las únicas puertas), los cuatro dibujos —cielo estelar, ciudad,
+    burbujas y amanecer (de Alba)—, el catálogo de constelaciones, su capa y
+    el cierre del día;
+  - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
+    (el foco del recorrido guiado);
+  - genéricos (9): anillo de progreso, `+X` flotante, check, skeleton,
+    splash, hoja de valoración, selector de idioma y zona, onboarding de dos
+    pasos y `BurbujaFlotante` (arrastre que gana al pager);
+  - tienda (1): la vista previa de una identidad;
+  - retirado (1): `SelectorAvatarGratis`.
+- `screens/` — login, recuperación, elección de identidad (onboarding),
+  tienda, mascota, logros, colección, perfil.
+- `l10n/` — `NordayCoreLocalizations`, `CatalogosCore`, `MensajesError`
+  (errores de red al idioma activo) y `MensajesMascota` (fase, estado y
+  frase de la mascota).
+- `assets/` — animations, sounds, mascota y avatares (retirados).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
 `Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de
@@ -40,21 +58,53 @@ hábito, `Catalogos` (categorías y logros de hábito), y `assets/branding/`.
 
 **Ningún widget ni servicio de aquí puede conocer conceptos de dominio** como
 "hábito". Si hace falta que el motor pinte algo que sí lo es, se enchufa desde
-la app (ver los tres puntos de extensión de abajo), nunca al revés: el paquete
+la app (ver los puntos de extensión de abajo), nunca al revés: el paquete
 no puede importar de la app.
 
-## Los tres puntos de extensión
+**Excepciones conocidas**, que se saltan la regla y están pendientes de
+limpiar:
+
+- `ApiServiceCore.appId` vale `'habitos'` por defecto. Norday Conocimiento
+  tiene que cambiarlo a `'conocimiento'` al arrancar.
+- `constelacionPara` y `nombreConstelacion` reciben `totalHabitos`.
+- La vista previa de la tienda (`preview_identidad_tienda.dart`) pinta
+  tarjetas de hábito y la pestaña «Hábitos», con textos del core
+  (`tiendaPreviewHabito2`, `tiendaPreviewNavHabitos`…).
+
+## Los puntos de extensión
 
 1. **`LoginScreen.destinoTrasLogin`** y **`PerfilScreen.destinoTrasLogin`** —
    `Widget Function(BuildContext, bool mostrarOnboarding)`. El paquete no sabe
    cuál es la pantalla principal de cada app.
 2. **`CatalogosCore.registrarLogrosDeDominio`** — la app le pasa sus logros
-   (nombres y descripciones) al arrancar. Aquí solo viven los cuatro que no
-   saben de dominio: `BIENVENIDO`, `PRIMEROS_PASOS`, `LOGIN_GOOGLE`,
-   `INTERACCION_RESENA`.
+   (nombres y descripciones) al arrancar. Aquí sólo viven los que no saben
+   de dominio: `BIENVENIDO`, `PRIMEROS_PASOS`, `LOGIN_GOOGLE` e
+   `INTERACCION_RESENA` (retirado el 24-ago-2026). **Faltan** los cinco
+   logros vivos del motor (`IDENTIDAD_PROFUNDIDAD`,
+   `IDENTIDAD_NEOTOKYO_PLUS`, `IDENTIDAD_DULCE`, `MASCOTA_CRIA`,
+   `MASCOTA_ADULTO`) y las descripciones de los tres temas: hoy salen en
+   español en cualquier idioma. Al arreglarlo, borrar esta frase.
 3. **`nordayNavigatorKey`** (`navegacion.dart`) — cada app se lo pasa a su
    `MaterialApp` en vez de declarar el suyo. Lo usa `CelebracionService`, que
    puede dispararse desde cualquier sitio.
+4. **`MascotaScreen.ayudaAnimo`** y **`MascotaScreen.ayudaXp`** — `Widget?`.
+   El core deja el hueco de la ayuda y la app pone el texto, porque explicar
+   por qué Nori está como está o de dónde sale la XP es hablar del dominio.
+5. **`EleccionIdentidadScreen.alElegir`** — qué hace la app cuando el usuario
+   ha elegido su identidad gratis en el onboarding.
+6. **El progreso del día**: la app publica cuántos hay y cuántos hechos con
+   `publicarProgresoDia` (y `limpiarProgresoDia`), y monta
+   `CapaProgresoIdentidad` donde quiera la constelación. El core no sabe qué
+   se cuenta.
+7. **El cierre del día**: la app monta `CapaCierreDelDia` y llama a
+   `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
+   cuando se completa lo último del día. La app decide cuándo y cuántas veces
+   (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
+   sólo hace algo en Profundidad; en las demás identidades termina en el acto.
+8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
+   splash pinta a Nori (`NoriMarca`).
+9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
+   backend filtra los catálogos. Ver las excepciones de arriba.
 
 ## Assets: siempre con `package:`
 
@@ -83,17 +133,36 @@ Los catálogos llegan del backend con `codigo` y se traducen con
 viene a `null`— se muestra el nombre que manda el backend. Nunca un código
 crudo.
 
-## Equipamiento (tema y avatar)
+## Equipamiento
 
 La fuente de verdad es el backend, no el dispositivo: se lee con
 `getInventarioProductos()` y se casa el `codigo` del producto contra
-`catalogoIdentidades`/`catalogoAvatares`. Ningún `productoId` está cableado en
-el cliente.
+`catalogoIdentidades`. Ningún `productoId` está cableado en el cliente.
 
 Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
-tiene las cuatro identidades —Profundidad, Neotokyo+, Alba, Dulce—, y cada una
-lleva además tipografía, radios, forma de superficie y ritmo de animación
-(`IdentidadPaleta`, en `theme/identidad_paleta.dart`). Hay tres notifiers y
+tiene cuatro identidades, y cada una lleva además tipografía, radios, forma de
+superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
+`theme/identidad_paleta.dart`):
+
+| Identidad | Código | Títulos | Cuerpo | Forma | Fondo |
+|---|---|---|---|---|---|
+| Profundidad | `TEMA_PROFUNDIDAD` | Space Grotesk | Manrope | `glass` | cielo estelar, con constelación |
+| Neotokyo+ | `TEMA_NEOTOKYO_PLUS` | Chakra Petch | IBM Plex Sans | `chamfer` | ciudad |
+| Dulce | `TEMA_DULCE` | Quicksand | Nunito (acento: Caveat) | `pill` | burbujas |
+| Alba | `TEMA_ALBA` | Fraunces | Work Sans | `hairline` | amanecer |
+
+**Salen tres.** Alba está retirada desde el 6-sep-2026: sigue en el catálogo
+del cliente, pero el backend tiene `TEMA_ALBA` con `activo = false` y ninguna
+pantalla la ofrece, porque todas parten de lo que manda el backend (la
+elección del onboarding descarta los productos inactivos). Quitarla del
+catálogo y `FormaIdentidad.hairline` está pendiente para después de la salida.
+
+**Avatares retirados** desde el 15-sep-2026. `catalogoAvatares`,
+`SelectorAvatarGratis`, `assets/avatares/` y sus textos siguen aquí como
+esqueleto, pero Norday Habits no los usa y el backend los tiene inactivos.
+El avatar del usuario es Nori.
+
+Hay tres notifiers y
 `aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
 identidad completa), `fuentesEquipadasNotifier` (sólo las dos familias, que es
 lo que `AppTheme.deTema` necesita sin poder importar el catálogo) y
@@ -131,13 +200,22 @@ de verdad y se desincronizaba al equipar desde otro dispositivo.
 
 ## Identidad de marca
 
-- Tipografía: Manrope (única familia, distintos pesos).
-- Paleta: Azul Noche `#0A1628`, Azul Acero `#23395D`, Verde Esmeralda
+- **Nombre**: la app es **Norday Habits**, en todos los idiomas. **Norday** es
+  la marca del ecosistema.
+- **Símbolo**: la brújula con la N. Hoy es el icono de Norday Habits en Play y
+  su splash. Es un asset de cada app, no de este paquete.
+- **Nori** es la mascota y una funcionalidad central, y también aparece como
+  presencia de marca en el login y en el splash por defecto (`NoriMarca`).
+  **Si la cara de Norday es la brújula o Nori está por decidir**, después de
+  la prueba cerrada con testers. Hasta entonces, no dar ninguna de las dos
+  como decidida.
+- **Tipografía**: la guía original fijaba Manrope como única familia. Hoy el
+  tema por defecto (sin identidad equipada) usa Space Grotesk para titulares
+  y Manrope para el cuerpo, y cada identidad trae las suyas (tabla de arriba).
+- **Paleta**: Azul Noche `#0A1628`, Azul Acero `#23395D`, Verde Esmeralda
   `#27C76F` (nunca como texto pequeño sobre fondo claro — usar Verde Oscuro
   `#1EA85B` en ese caso), Gris Muy Claro `#EEF2F6`.
-- Iconos: Lucide Icons.
-- La mascota es una funcionalidad, no la identidad de marca (eso es el
-  logo/brújula).
+- **Iconos**: Lucide Icons.
 
 ## Estilo de trabajo con el usuario
 
@@ -186,9 +264,10 @@ Errores que ya se cometieron una vez. No se vuelven a cometer.
 - **`git ls-remote origin <patrón>` no muestra la línea `^{}`** del tag: el
   patrón no casa con ella. Listar con `--tags` para verla.
 - **Un cambio aquí no llega solo a las apps**: hay que hacer push y luego
-  `flutter pub upgrade norday_flutter_core` en cada una, porque la dependencia
-  va por `ref: main` y pub cachea el commit resuelto. Una app fijada a un
-  commit viejo del core seguirá con el comportamiento viejo aunque aquí esté
+  `flutter pub upgrade norday_flutter_core` en cada una, porque pub cachea
+  el commit resuelto. La dependencia va por tag: se mergea y se tagea aquí
+  primero, y luego la app apunta al tag nuevo. Una app fijada a un commit
+  viejo del core seguirá con el comportamiento viejo aunque aquí esté
   arreglado.
 
 ### Método de trabajo (vale para los cuatro repos)
