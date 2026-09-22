@@ -55,6 +55,21 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get logroInteraccionResena => 'A tua opinião conta';
 
   @override
+  String get logroIdentidadProfundidad => 'Sob as estrelas';
+
+  @override
+  String get logroIdentidadNeotokyoPlus => 'Luzes de néon';
+
+  @override
+  String get logroIdentidadDulce => 'Com carinho';
+
+  @override
+  String get logroMascotaCria => 'Saiu da casca';
+
+  @override
+  String get logroMascotaAdulto => 'A Nori cresceu';
+
+  @override
   String get prodEscudoRacha => 'Escudo de sequência';
 
   @override
@@ -528,6 +543,21 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Interaja com a avaliação do app no Google Play';
 
   @override
+  String get logroDescIdentidadProfundidad => 'Obtém a identidade Profundidad';
+
+  @override
+  String get logroDescIdentidadNeotokyoPlus => 'Obtém a identidade Neotokyo+';
+
+  @override
+  String get logroDescIdentidadDulce => 'Obtém a identidade Dulce';
+
+  @override
+  String get logroDescMascotaCria => 'A tua mascote passa de ovo a cria';
+
+  @override
+  String get logroDescMascotaAdulto => 'A tua mascote passa de cria a adulto';
+
+  @override
   String get prodDescEscudoRacha =>
       'Protege sua sequência por 1 dia se você esquecer de concluir seu hábito';
 
@@ -555,6 +585,18 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   @override
   String get prodDescTemaCobre =>
       'Um tema premium elegante em azul noturno e cobre';
+
+  @override
+  String get prodDescTemaProfundidad =>
+      'Uma viagem espacial entre constelações, estrelas cadentes e foguetões';
+
+  @override
+  String get prodDescTemaNeotokyoPlus =>
+      'Néon sobre preto, ângulos cortados e letra técnica';
+
+  @override
+  String get prodDescTemaDulce =>
+      'Rosa suave, formas de pílula e um toque manuscrito';
 
   @override
   String get prodDescAvatarZorro => 'Avatar ilustrado de raposa';
@@ -588,6 +630,12 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get logroCatExploracion => 'Exploração';
+
+  @override
+  String get logroCatIdentidad => 'Identidade';
+
+  @override
+  String get logroCatMascota => 'Mascote';
 
   @override
   String get nivelFacil => 'Fácil';

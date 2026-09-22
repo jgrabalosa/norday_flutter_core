@@ -78,12 +78,10 @@ limpiar:
    cuál es la pantalla principal de cada app.
 2. **`CatalogosCore.registrarLogrosDeDominio`** — la app le pasa sus logros
    (nombres y descripciones) al arrancar. Aquí sólo viven los que no saben
-   de dominio: `BIENVENIDO`, `PRIMEROS_PASOS`, `LOGIN_GOOGLE` e
-   `INTERACCION_RESENA` (retirado el 24-ago-2026). **Faltan** los cinco
-   logros vivos del motor (`IDENTIDAD_PROFUNDIDAD`,
-   `IDENTIDAD_NEOTOKYO_PLUS`, `IDENTIDAD_DULCE`, `MASCOTA_CRIA`,
-   `MASCOTA_ADULTO`) y las descripciones de los tres temas: hoy salen en
-   español en cualquier idioma. Al arreglarlo, borrar esta frase.
+   de dominio: `BIENVENIDO`, `PRIMEROS_PASOS`, `LOGIN_GOOGLE`, los tres de
+   identidad (`IDENTIDAD_PROFUNDIDAD`, `IDENTIDAD_NEOTOKYO_PLUS`,
+   `IDENTIDAD_DULCE`), los dos de la mascota (`MASCOTA_CRIA`,
+   `MASCOTA_ADULTO`) e `INTERACCION_RESENA` (retirado el 24-ago-2026).
 3. **`nordayNavigatorKey`** (`navegacion.dart`) — cada app se lo pasa a su
    `MaterialApp` en vez de declarar el suyo. Lo usa `CelebracionService`, que
    puede dispararse desde cualquier sitio.

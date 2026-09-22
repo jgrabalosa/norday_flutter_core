@@ -193,6 +193,36 @@ abstract class NordayCoreLocalizations {
   /// **'Tu opinión cuenta'**
   String get logroInteraccionResena;
 
+  /// No description provided for @logroIdentidadProfundidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Bajo las estrellas'**
+  String get logroIdentidadProfundidad;
+
+  /// No description provided for @logroIdentidadNeotokyoPlus.
+  ///
+  /// In es, this message translates to:
+  /// **'Luces de neón'**
+  String get logroIdentidadNeotokyoPlus;
+
+  /// No description provided for @logroIdentidadDulce.
+  ///
+  /// In es, this message translates to:
+  /// **'Con cariño'**
+  String get logroIdentidadDulce;
+
+  /// No description provided for @logroMascotaCria.
+  ///
+  /// In es, this message translates to:
+  /// **'Ha salido del cascarón'**
+  String get logroMascotaCria;
+
+  /// No description provided for @logroMascotaAdulto.
+  ///
+  /// In es, this message translates to:
+  /// **'Nori ha crecido'**
+  String get logroMascotaAdulto;
+
   /// No description provided for @prodEscudoRacha.
   ///
   /// In es, this message translates to:
@@ -1057,6 +1087,36 @@ abstract class NordayCoreLocalizations {
   /// **'Interactúa con la valoración de la app en Google Play'**
   String get logroDescInteraccionResena;
 
+  /// No description provided for @logroDescIdentidadProfundidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Consigue la identidad Profundidad'**
+  String get logroDescIdentidadProfundidad;
+
+  /// No description provided for @logroDescIdentidadNeotokyoPlus.
+  ///
+  /// In es, this message translates to:
+  /// **'Consigue la identidad Neotokyo+'**
+  String get logroDescIdentidadNeotokyoPlus;
+
+  /// No description provided for @logroDescIdentidadDulce.
+  ///
+  /// In es, this message translates to:
+  /// **'Consigue la identidad Dulce'**
+  String get logroDescIdentidadDulce;
+
+  /// No description provided for @logroDescMascotaCria.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu mascota evoluciona de huevo a cría'**
+  String get logroDescMascotaCria;
+
+  /// No description provided for @logroDescMascotaAdulto.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu mascota evoluciona de cría a adulto'**
+  String get logroDescMascotaAdulto;
+
   /// No description provided for @prodDescEscudoRacha.
   ///
   /// In es, this message translates to:
@@ -1104,6 +1164,24 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Un tema premium elegante en azul noche y cobre'**
   String get prodDescTemaCobre;
+
+  /// No description provided for @prodDescTemaProfundidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Un viaje espacial entre constelaciones, estrellas fugaces y cohetes'**
+  String get prodDescTemaProfundidad;
+
+  /// No description provided for @prodDescTemaNeotokyoPlus.
+  ///
+  /// In es, this message translates to:
+  /// **'Neón sobre negro, ángulos cortados y letra técnica'**
+  String get prodDescTemaNeotokyoPlus;
+
+  /// No description provided for @prodDescTemaDulce.
+  ///
+  /// In es, this message translates to:
+  /// **'Rosa suave, formas de píldora y un guiño manuscrito'**
+  String get prodDescTemaDulce;
 
   /// No description provided for @prodDescAvatarZorro.
   ///
@@ -1170,6 +1248,18 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Exploración'**
   String get logroCatExploracion;
+
+  /// No description provided for @logroCatIdentidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Identidad'**
+  String get logroCatIdentidad;
+
+  /// No description provided for @logroCatMascota.
+  ///
+  /// In es, this message translates to:
+  /// **'Mascota'**
+  String get logroCatMascota;
 
   /// No description provided for @nivelFacil.
   ///
