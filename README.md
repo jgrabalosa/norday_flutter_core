@@ -13,8 +13,12 @@ dependencies:
   norday_flutter_core:
     git:
       url: https://github.com/jgrabalosa/norday_flutter_core.git
-      ref: main
+      ref: vX.Y.Z
 ```
+
+Siempre por tag, nunca por `main`: cada build de la app tiene que llevar
+un core fijo y conocido. `vX.Y.Z` es el tag que toque; los que hay salen
+con `git tag`.
 
 ```dart
 import 'package:norday_flutter_core/norday_flutter_core.dart';

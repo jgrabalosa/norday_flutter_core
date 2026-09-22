@@ -11,7 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 /// gamificación, tienda y mascota.
 ///
 /// Las apps del ecosistema ponen encima su propio servicio con los endpoints
-/// que sí son suyos (en Norday Hábitos, `ApiServiceHabitos`). Por eso la
+/// que sí son suyos (en Norday Habits, `ApiServiceHabitos`). Por eso la
 /// tubería de peticiones ([enviar], [verificar], [parsear]), [getHeaders],
 /// [getToken], [baseUrl] y [cliente] son públicos: son el punto de apoyo de
 /// esos servicios de dominio, que viven fuera del paquete.

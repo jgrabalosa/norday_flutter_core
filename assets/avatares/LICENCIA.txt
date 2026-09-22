@@ -1,4 +1,4 @@
-Avatares Norday Hábitos — origen y licencia
+Avatares Norday Habits — origen y licencia
 
 Fuente: Noto Emoji (Google) — https://github.com/googlefonts/noto-emoji
 Licencia de las imágenes: Apache License, version 2.0
