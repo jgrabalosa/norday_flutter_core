@@ -934,7 +934,7 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @obCuerpo2.
   ///
   /// In es, this message translates to:
-  /// **'Se llama Nori, y sube de nivel cada vez que completas un hábito. Cuídala y mira cómo evoluciona.'**
+  /// **'Se llama Nori, y gana experiencia con cada hábito que completas. Cuídala y mira cómo evoluciona.'**
   String get obCuerpo2;
 
   /// No description provided for @obSiguiente.
