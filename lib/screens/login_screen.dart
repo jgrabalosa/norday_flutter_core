@@ -32,7 +32,12 @@ class LoginScreen extends StatefulWidget {
   final Widget Function(BuildContext context, bool mostrarOnboarding)
       destinoTrasLogin;
 
-  const LoginScreen({super.key, required this.destinoTrasLogin});
+  /// Se abre porque la sesión caducó: enseña el aviso hasta el primer
+  /// intento de entrar.
+  final bool sesionCaducada;
+
+  const LoginScreen(
+      {super.key, required this.destinoTrasLogin, this.sesionCaducada = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -45,6 +50,18 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _obscurePassword = true;
   String? _error;
+  bool _avisoCaducidadPuesto = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Aquí y no en initState: el texto sale de las traducciones, que
+    // dependen del contexto.
+    if (widget.sesionCaducada && !_avisoCaducidadPuesto) {
+      _avisoCaducidadPuesto = true;
+      _error = NordayCoreLocalizations.of(context)!.errorSesionCaducada;
+    }
+  }
 
   /// Esta es la unica pantalla sin sesion todavia: aqui un 401 no significa
   /// "sesion caducada" sino que el email o la contrasena no son correctos.

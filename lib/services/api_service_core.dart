@@ -95,8 +95,16 @@ class ApiServiceCore {
   }
 
   /// Lanza si el código no es uno de los esperados.
+  ///
+  /// Un 401 en una petición que llevaba token significa que la sesión ya no
+  /// vale: además de lanzar, avisa a la app ([alCaducarSesion]). Un 401 sin
+  /// token es otra cosa —el login con la contraseña mal— y no avisa.
   static void verificar(http.Response r, {List<int> ok = const [200]}) {
     if (ok.contains(r.statusCode)) return;
+    final cabecera = r.request?.headers['Authorization'];
+    if (r.statusCode == 401 && cabecera != null) {
+      unawaited(_sesionCaducada(cabecera));
+    }
     final tipo = switch (r.statusCode) {
       401 || 403 => TipoErrorApi.noAutorizado,
       >= 500 => TipoErrorApi.servidor,
@@ -201,6 +209,55 @@ class ApiServiceCore {
     'proveedorAuth',
   ];
 
+  /// Lo registra la app: qué hacer cuando la sesión caduca con la app en
+  /// marcha (normalmente, llevar al login con el aviso). Cuando se llama, la
+  /// sesión local ya está borrada.
+  static void Function()? alCaducarSesion;
+
+  static bool _caducando = false;
+
+  /// Una sola vez aunque fallen varias peticiones a la vez, y sólo si el
+  /// token rechazado es el de la sesión actual: una respuesta atrasada de
+  /// antes de volver a entrar no puede echar al usuario.
+  ///
+  /// No cierra Google: el usuario no ha pedido salir, le ha caducado, y
+  /// volver a entrar es un toque con la misma cuenta.
+  static Future<void> _sesionCaducada(String cabecera) async {
+    if (_caducando) return;
+    _caducando = true;
+    try {
+      final token = await getToken();
+      if (token == null || cabecera != 'Bearer $token') return;
+      await _limpiarSesionLocal(cerrarGoogle: false);
+      alCaducarSesion?.call();
+    } finally {
+      _caducando = false;
+    }
+  }
+
+  /// Para el arranque: si el token guardado ya caducó, borra la sesión local
+  /// (sin cerrar Google) y devuelve true. Mira la fecha `exp` del propio
+  /// token, sin salir a la red, para no lanzar peticiones que el backend va a
+  /// rechazar mientras la app decide a dónde ir. Un token ilegible cuenta
+  /// como caducado. Sin token devuelve false: eso no es una sesión caducada.
+  static Future<bool> descartarSesionCaducada() async {
+    final token = await getToken();
+    if (token == null) return false;
+    bool caducado;
+    try {
+      final carga = token.split('.')[1];
+      final datos = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(carga))))
+          as Map<String, dynamic>;
+      final exp = datos['exp'] as int;
+      caducado = DateTime.now()
+          .isAfter(DateTime.fromMillisecondsSinceEpoch(exp * 1000));
+    } catch (_) {
+      caducado = true;
+    }
+    if (caducado) await _limpiarSesionLocal(cerrarGoogle: false);
+    return caducado;
+  }
+
   /// Borra la sesión local y, si era de Google, cierra también allí.
   ///
   /// Sin eso Google recuerda la cuenta elegida y el siguiente «Continuar con
@@ -211,7 +268,8 @@ class ApiServiceCore {
   ///
   /// Un fallo de Google no puede impedir salir: cuando se le llama, la sesión
   /// local ya está borrada.
-  static Future<void> _limpiarSesionLocal({bool revocarGoogle = false}) async {
+  static Future<void> _limpiarSesionLocal(
+      {bool revocarGoogle = false, bool cerrarGoogle = true}) async {
     final prefs = await SharedPreferences.getInstance();
     final eraGoogle = prefs.getString('proveedorAuth') == 'GOOGLE';
     for (final clave in _clavesSesion) {
@@ -220,7 +278,7 @@ class ApiServiceCore {
     // El token va cifrado, fuera de SharedPreferences.
     await _almacenSeguro.delete(key: _claveToken);
 
-    if (!eraGoogle) return;
+    if (!eraGoogle || !cerrarGoogle) return;
     try {
       await _asegurarGoogleIniciado();
       if (revocarGoogle) {
