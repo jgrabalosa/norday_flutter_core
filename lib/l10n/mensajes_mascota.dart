@@ -1,7 +1,7 @@
 import 'norday_core_localizations.dart';
 
 /// Los textos de la mascota que se componen a partir de lo que manda el
-/// backend, en un solo sitio: la fase, el estado y la frase de contexto.
+/// backend, en un solo sitio: la fase y la frase de contexto.
 ///
 /// Vive en el motor, así que no puede nombrar ningún concepto de dominio —ni
 /// "hábito", ni "registro", ni por qué la mascota está como está—. Sólo sabe
@@ -16,17 +16,6 @@ class MensajesMascota {
         'CRIA' => l.mascotaFaseCria,
         'ADULTO' => l.mascotaFaseAdulto,
         _ => codigo ?? '',
-      };
-
-  /// Los tres estados que manda el backend, explícitos. La caída sólo cubre
-  /// uno futuro que este cliente aún no conozca: mejor "Tranquila" que un
-  /// código crudo o una alarma que no toca.
-  static String estado(NordayCoreLocalizations l, String? codigo) =>
-      switch (codigo) {
-        'feliz' => l.mascotaEstadoFeliz,
-        'dormida' => l.mascotaEstadoAtencion,
-        'triste' => l.mascotaEstadoTriste,
-        _ => l.mascotaEstadoTranquila,
       };
 
   /// La frase corta que acompaña a la mascota: "Cría · Nivel 3 · a gusto

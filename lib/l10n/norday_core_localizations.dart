@@ -331,30 +331,6 @@ abstract class NordayCoreLocalizations {
   /// **'Adulto'**
   String get mascotaFaseAdulto;
 
-  /// No description provided for @mascotaEstadoFeliz.
-  ///
-  /// In es, this message translates to:
-  /// **'Feliz'**
-  String get mascotaEstadoFeliz;
-
-  /// No description provided for @mascotaEstadoAtencion.
-  ///
-  /// In es, this message translates to:
-  /// **'Necesita atención'**
-  String get mascotaEstadoAtencion;
-
-  /// No description provided for @mascotaEstadoTranquila.
-  ///
-  /// In es, this message translates to:
-  /// **'Tranquila'**
-  String get mascotaEstadoTranquila;
-
-  /// No description provided for @mascotaEstadoTriste.
-  ///
-  /// In es, this message translates to:
-  /// **'Triste'**
-  String get mascotaEstadoTriste;
-
   /// No description provided for @mascotaPonleNombre.
   ///
   /// In es, this message translates to:
