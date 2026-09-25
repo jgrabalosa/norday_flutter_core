@@ -457,14 +457,14 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get obCuerpo1 =>
-      'Cada hábito que você concluir dá pontos. Use-os para desbloquear temas e mais na loja.';
+      'Cada hábito que concluíres dá-te pontos. Usa-os para desbloquear temas e mais na loja.';
 
   @override
-  String get obTitulo2 => 'Seu companheiro cresce com você 🐣';
+  String get obTitulo2 => 'O teu companheiro cresce contigo 🐣';
 
   @override
   String get obCuerpo2 =>
-      'Ela se chama Nori e sobe de nível sempre que você conclui um hábito. Cuide dela e veja como evolui.';
+      'Chama-se Nori e ganha experiência com cada hábito que concluis. Cuida dela e vê como evolui.';
 
   @override
   String get obSiguiente => 'Avançar';

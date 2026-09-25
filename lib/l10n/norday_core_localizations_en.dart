@@ -460,7 +460,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get obCuerpo2 =>
-      'Her name is Nori, and she levels up every time you complete a habit. Take care of her and watch her evolve.';
+      'Her name is Nori, and she gains experience with every habit you complete. Take care of her and watch her evolve.';
 
   @override
   String get obSiguiente => 'Next';
