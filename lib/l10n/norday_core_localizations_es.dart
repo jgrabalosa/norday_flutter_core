@@ -124,18 +124,6 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get mascotaFaseAdulto => 'Adulto';
 
   @override
-  String get mascotaEstadoFeliz => 'Feliz';
-
-  @override
-  String get mascotaEstadoAtencion => 'Necesita atención';
-
-  @override
-  String get mascotaEstadoTranquila => 'Tranquila';
-
-  @override
-  String get mascotaEstadoTriste => 'Triste';
-
-  @override
   String get mascotaPonleNombre => 'Ponle nombre';
 
   @override
