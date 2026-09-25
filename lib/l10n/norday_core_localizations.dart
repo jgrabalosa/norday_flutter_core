@@ -229,48 +229,6 @@ abstract class NordayCoreLocalizations {
   /// **'Escudo de racha'**
   String get prodEscudoRacha;
 
-  /// No description provided for @prodTemaBasicoClaro.
-  ///
-  /// In es, this message translates to:
-  /// **'Básico Claro'**
-  String get prodTemaBasicoClaro;
-
-  /// No description provided for @prodTemaBasicoOscuro.
-  ///
-  /// In es, this message translates to:
-  /// **'Básico Oscuro'**
-  String get prodTemaBasicoOscuro;
-
-  /// No description provided for @prodTemaCalidez.
-  ///
-  /// In es, this message translates to:
-  /// **'Calidez'**
-  String get prodTemaCalidez;
-
-  /// No description provided for @prodTemaNeotokyo.
-  ///
-  /// In es, this message translates to:
-  /// **'Neo-Tokyo'**
-  String get prodTemaNeotokyo;
-
-  /// No description provided for @prodTemaOceano.
-  ///
-  /// In es, this message translates to:
-  /// **'Océano'**
-  String get prodTemaOceano;
-
-  /// No description provided for @prodTemaBosque.
-  ///
-  /// In es, this message translates to:
-  /// **'Bosque'**
-  String get prodTemaBosque;
-
-  /// No description provided for @prodTemaCobre.
-  ///
-  /// In es, this message translates to:
-  /// **'Cobre Nocturno'**
-  String get prodTemaCobre;
-
   /// No description provided for @prodAvatarZorro.
   ///
   /// In es, this message translates to:
@@ -1122,48 +1080,6 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Protege tu racha durante 1 día si olvidas completar tu hábito'**
   String get prodDescEscudoRacha;
-
-  /// No description provided for @prodDescTemaBasicoClaro.
-  ///
-  /// In es, this message translates to:
-  /// **'El tema claro de serie de Norday'**
-  String get prodDescTemaBasicoClaro;
-
-  /// No description provided for @prodDescTemaBasicoOscuro.
-  ///
-  /// In es, this message translates to:
-  /// **'El tema oscuro de serie de Norday'**
-  String get prodDescTemaBasicoOscuro;
-
-  /// No description provided for @prodDescTemaCalidez.
-  ///
-  /// In es, this message translates to:
-  /// **'Un tema premium con tonos cálidos y acogedores'**
-  String get prodDescTemaCalidez;
-
-  /// No description provided for @prodDescTemaNeotokyo.
-  ///
-  /// In es, this message translates to:
-  /// **'Un tema premium inspirado en la estética anime y neón'**
-  String get prodDescTemaNeotokyo;
-
-  /// No description provided for @prodDescTemaOceano.
-  ///
-  /// In es, this message translates to:
-  /// **'Un tema premium con tonos azules y frescos del mar'**
-  String get prodDescTemaOceano;
-
-  /// No description provided for @prodDescTemaBosque.
-  ///
-  /// In es, this message translates to:
-  /// **'Un tema premium con tonos verdes y naturales'**
-  String get prodDescTemaBosque;
-
-  /// No description provided for @prodDescTemaCobre.
-  ///
-  /// In es, this message translates to:
-  /// **'Un tema premium elegante en azul noche y cobre'**
-  String get prodDescTemaCobre;
 
   /// No description provided for @prodDescTemaProfundidad.
   ///
