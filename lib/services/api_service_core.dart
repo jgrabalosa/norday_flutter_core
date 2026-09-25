@@ -184,11 +184,53 @@ class ApiServiceCore {
   }
 
   static Future<void> logout() async {
+    await _limpiarSesionLocal();
+  }
+
+  /// Las claves de la sesión: exactamente las que escribe [saveUsuario].
+  ///
+  /// Cerrar sesión borra sólo estas. Lo demás que guarda la app en
+  /// `SharedPreferences` —el recorrido visto, el idioma, la zona, los avisos
+  /// ya enseñados— es del móvil y sobrevive. Antes se hacía `prefs.clear()` y
+  /// el recorrido volvía a salir al entrar de nuevo con la misma cuenta.
+  static const _clavesSesion = [
+    'usuarioId',
+    'nombre',
+    'username',
+    'email',
+    'proveedorAuth',
+  ];
+
+  /// Borra la sesión local y, si era de Google, cierra también allí.
+  ///
+  /// Sin eso Google recuerda la cuenta elegida y el siguiente «Continuar con
+  /// Google» entra en la misma sin enseñar el selector: quien eligió mal la
+  /// cuenta no tenía forma de cambiarla. Al cerrar sesión basta `signOut()`;
+  /// al eliminar la cuenta, `disconnect()` retira además el permiso que el
+  /// usuario dio a la app en su cuenta de Google.
+  ///
+  /// Un fallo de Google no puede impedir salir: cuando se le llama, la sesión
+  /// local ya está borrada.
+  static Future<void> _limpiarSesionLocal({bool revocarGoogle = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    // Sin esto el token sobreviviría al cierre de sesión: prefs.clear() ya
-    // no lo alcanza.
+    final eraGoogle = prefs.getString('proveedorAuth') == 'GOOGLE';
+    for (final clave in _clavesSesion) {
+      await prefs.remove(clave);
+    }
+    // El token va cifrado, fuera de SharedPreferences.
     await _almacenSeguro.delete(key: _claveToken);
+
+    if (!eraGoogle) return;
+    try {
+      await _asegurarGoogleIniciado();
+      if (revocarGoogle) {
+        await GoogleSignIn.instance.disconnect();
+      } else {
+        await GoogleSignIn.instance.signOut();
+      }
+    } catch (_) {
+      // Ver arriba: la sesión local ya no existe.
+    }
   }
 
   // ── Headers ────────────────────────────────────────────
@@ -299,11 +341,9 @@ class ApiServiceCore {
         ));
     verificar(response);
 
-    // Cuenta eliminada: limpiar toda la sesión local. Igual que en logout(),
-    // prefs.clear() no alcanza el token cifrado.
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    await _almacenSeguro.delete(key: _claveToken);
+    // Cuenta eliminada: se limpia la sesión local como en logout(), y en
+    // Google se revoca el permiso en vez de sólo cerrar sesión.
+    await _limpiarSesionLocal(revocarGoogle: true);
   }
 
   // ── Gamificación ───────────────────────────────────────
