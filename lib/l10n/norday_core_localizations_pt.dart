@@ -73,27 +73,6 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get prodEscudoRacha => 'Escudo de sequência';
 
   @override
-  String get prodTemaBasicoClaro => 'Básico Claro';
-
-  @override
-  String get prodTemaBasicoOscuro => 'Básico Escuro';
-
-  @override
-  String get prodTemaCalidez => 'Calidez';
-
-  @override
-  String get prodTemaNeotokyo => 'Neo-Tokyo';
-
-  @override
-  String get prodTemaOceano => 'Oceano';
-
-  @override
-  String get prodTemaBosque => 'Floresta';
-
-  @override
-  String get prodTemaCobre => 'Cobre Noturno';
-
-  @override
   String get prodAvatarZorro => 'Raposa';
 
   @override
@@ -560,31 +539,6 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   @override
   String get prodDescEscudoRacha =>
       'Protege sua sequência por 1 dia se você esquecer de concluir seu hábito';
-
-  @override
-  String get prodDescTemaBasicoClaro => 'O tema claro padrão do Norday';
-
-  @override
-  String get prodDescTemaBasicoOscuro => 'O tema escuro padrão do Norday';
-
-  @override
-  String get prodDescTemaCalidez =>
-      'Um tema premium com tons quentes e aconchegantes';
-
-  @override
-  String get prodDescTemaNeotokyo =>
-      'Um tema premium inspirado na estética anime e neon';
-
-  @override
-  String get prodDescTemaOceano =>
-      'Um tema premium com tons azuis e frescos do mar';
-
-  @override
-  String get prodDescTemaBosque => 'Um tema premium com tons verdes e naturais';
-
-  @override
-  String get prodDescTemaCobre =>
-      'Um tema premium elegante em azul noturno e cobre';
 
   @override
   String get prodDescTemaProfundidad =>
