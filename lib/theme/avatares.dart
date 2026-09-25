@@ -44,14 +44,11 @@ void aplicarAvatarEquipado(String? codigo) {
       (codigo != null && catalogoAvatares.containsKey(codigo)) ? codigo : null;
 }
 
-/// Círculo de avatar reutilizable: el avatar equipado, o si no hay ninguno,
-/// un círculo con la inicial del nombre.
+/// Círculo de avatar reutilizable: el avatar equipado, o Nori si no hay
+/// ninguno.
 class AvatarUsuario extends StatelessWidget {
-  /// OBSOLETO: ya no se pinta la inicial. Se mantiene para no romper a quien
-  /// lo pasa; quitar cuando se limpien los llamantes.
-  final String nombre;
   final double radius;
-  const AvatarUsuario({super.key, required this.nombre, this.radius = 18});
+  const AvatarUsuario({super.key, this.radius = 18});
 
   @override
   Widget build(BuildContext context) {

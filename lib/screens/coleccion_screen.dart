@@ -319,7 +319,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              AvatarUsuario(nombre: _nombre, radius: 26),
+              const AvatarUsuario(radius: 26),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(_nombre,
