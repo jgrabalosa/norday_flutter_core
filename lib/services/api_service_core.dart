@@ -638,6 +638,19 @@ class ApiServiceCore {
     return data['esNuevo'] ?? false;
   }
 
+  /// Origen de la instalación (install referrer de Google Play). El backend
+  /// se queda con el primero de cada usuario; repetirlo no cambia nada.
+  /// Responde 204. Un texto vacío es válido: significa "sin campaña".
+  static Future<void> registrarOrigen(int usuarioId, String referrer) async {
+    final headers = await getHeaders();
+    final response = await enviar(() => cliente.put(
+          Uri.parse('$baseUrl/usuarios/$usuarioId/origen'),
+          headers: headers,
+          body: jsonEncode({'referrer': referrer}),
+        ));
+    verificar(response, ok: const [204]);
+  }
+
 // ── Notificaciones ─────────────────────────────────────
   static Future<void> actualizarFcmToken(int usuarioId, String fcmToken) async {
     final headers = await getHeaders();

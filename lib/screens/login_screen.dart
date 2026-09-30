@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
@@ -12,6 +14,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import '../services/analytics_service.dart';
 import '../services/idioma_service.dart';
 import '../services/zona_service.dart';
+import '../services/origen_instalacion_service.dart';
 import '../theme/equipamiento.dart';
 import '../widgets/campo_identidad.dart';
 import '../widgets/fondo_identidad.dart';
@@ -148,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.login(usuario.usuarioId);
       await _registrarNotificaciones(usuario.usuarioId);
+      unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
       _irADestino(usuario.usuarioId, false, posee);
@@ -195,6 +199,7 @@ Future<void> _registro() async {
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.registro(usuario.usuarioId);
       await _registrarNotificaciones(usuario.usuarioId);
+      unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
       _irADestino(usuario.usuarioId, true, posee);
@@ -229,6 +234,7 @@ Future<void> _registro() async {
       if (usuarioLocal != null && usuarioLocal['usuarioId'] != null) {
         usuarioId = usuarioLocal['usuarioId'] as int;
         await _registrarNotificaciones(usuarioId);
+        unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuarioId));
         await _sincronizarPreferencias(usuarioId);
         posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuarioId);
       }

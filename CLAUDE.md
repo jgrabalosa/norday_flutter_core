@@ -21,7 +21,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `services/` — `ApiServiceCore` (sesión, usuario, preferencias, gamificación,
   tienda, mascota, notificaciones), `ApiException`/`TipoErrorApi`,
   `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
-  `IdiomaService`, `ZonaService` y `RecorridoService` (si el recorrido guiado
+  `IdiomaService`, `ZonaService`, `OrigenInstalacionService` (install referrer
+  de Play, enviado una vez por dispositivo tras el primer login) y
+  `RecorridoService` (si el recorrido guiado
   ya se hizo; sólo un sí o un no).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`, `tonoError`,
