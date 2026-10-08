@@ -94,6 +94,19 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get preferenciasSubtitulo => 'Language and time zone';
 
   @override
+  String get sonido => 'Sound';
+
+  @override
+  String get sonidoAyuda => 'Turn the app\'s music and effects on or off.';
+
+  @override
+  String get sonidoOnboardingTitulo => 'Would you like sound?';
+
+  @override
+  String get sonidoOnboardingCuerpo =>
+      'You can turn the music and effects on or off whenever you like.';
+
+  @override
   String get cambiarZona => 'Change time zone';
 
   @override

@@ -33,25 +33,48 @@ class CatalogosCore {
     _logrosDescDeDominio = descripciones;
   }
 
-  static String producto(BuildContext context, String? codigo, String nombreBackend) =>
-      traducir(_productos(context), codigo, nombreBackend);
+  static String producto(
+    BuildContext context,
+    String? codigo,
+    String nombreBackend,
+  ) => traducir(_productos(context), codigo, nombreBackend);
 
   static String productoDescripcion(
-          BuildContext context, String? codigo, String descripcionBackend) =>
-      traducir(_productosDescripcion(context), codigo, descripcionBackend);
+    BuildContext context,
+    String? codigo,
+    String descripcionBackend,
+  ) => traducir(_productosDescripcion(context), codigo, descripcionBackend);
 
   /// Busca primero en los logros del motor y luego en los que haya registrado
   /// la app. Si el código no está en ninguno de los dos, cae al nombre del
   /// backend.
-  static String logro(BuildContext context, String? codigo, String nombreBackend) =>
-      traducir(_logros(context), codigo,
-          traducir(_logrosDeDominio?.call(context) ?? const {}, codigo, nombreBackend));
+  static String logro(
+    BuildContext context,
+    String? codigo,
+    String nombreBackend,
+  ) => traducir(
+    _logros(context),
+    codigo,
+    traducir(
+      _logrosDeDominio?.call(context) ?? const {},
+      codigo,
+      nombreBackend,
+    ),
+  );
 
   static String logroDescripcion(
-          BuildContext context, String? codigo, String descripcionBackend) =>
-      traducir(_logrosDescripcion(context), codigo,
-          traducir(_logrosDescDeDominio?.call(context) ?? const {}, codigo,
-              descripcionBackend));
+    BuildContext context,
+    String? codigo,
+    String descripcionBackend,
+  ) => traducir(
+    _logrosDescripcion(context),
+    codigo,
+    traducir(
+      _logrosDescDeDominio?.call(context) ?? const {},
+      codigo,
+      descripcionBackend,
+    ),
+  );
 
   /// Categoría y nivel del logro no viajan por código: el backend manda el
   /// literal en español ('Constancia', 'Facil'). Se traducen por ese valor,
@@ -65,7 +88,10 @@ class CatalogosCore {
   /// La caída de siempre, expuesta para que los catálogos de dominio de cada
   /// app la reutilicen en vez de repetirla.
   static String traducir(
-      Map<String, String> mapa, String? codigo, String nombreBackend) {
+    Map<String, String> mapa,
+    String? codigo,
+    String nombreBackend,
+  ) {
     if (codigo == null) return nombreBackend;
     return mapa[codigo] ?? nombreBackend;
   }

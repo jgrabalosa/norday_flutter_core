@@ -25,11 +25,7 @@ class NoriMarca extends StatelessWidget {
   /// que identifica a cada identidad.
   final double intensidadHalo;
 
-  const NoriMarca({
-    super.key,
-    required this.tamano,
-    this.intensidadHalo = 1.0,
-  });
+  const NoriMarca({super.key, required this.tamano, this.intensidadHalo = 1.0});
 
   /// Misma proporción que la escena de `MascotaScreen`: deja sitio al halo sin
   /// separar a Nori de lo que venga debajo.

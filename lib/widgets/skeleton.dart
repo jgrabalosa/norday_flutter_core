@@ -28,9 +28,10 @@ class _SkeletonPulsoState extends State<SkeletonPulso>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-    _opacidad = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _opacidad = Tween<double>(
+      begin: 0.4,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override

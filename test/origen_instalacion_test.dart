@@ -10,12 +10,12 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     enviados = [];
-    OrigenInstalacionService.leerReferrer =
-        () async => 'utm_source=reddit&utm_medium=social';
+    OrigenInstalacionService.leerReferrer = () async =>
+        'utm_source=reddit&utm_medium=social';
     OrigenInstalacionService.enviarAlBackend =
         (int usuarioId, String referrer) async {
-      enviados.add('$usuarioId|$referrer');
-    };
+          enviados.add('$usuarioId|$referrer');
+        };
   });
 
   test('envía el referrer una sola vez', () async {
@@ -30,20 +30,22 @@ void main() {
     expect(enviados.length, 1);
   });
 
-  test('si el envío falla no lanza, no marca y reintenta en el siguiente login',
-      () async {
-    OrigenInstalacionService.enviarAlBackend = (int u, String r) async {
-      throw Exception('sin red');
-    };
-    await OrigenInstalacionService.enviarSiHaceFalta(7);
+  test(
+    'si el envío falla no lanza, no marca y reintenta en el siguiente login',
+    () async {
+      OrigenInstalacionService.enviarAlBackend = (int u, String r) async {
+        throw Exception('sin red');
+      };
+      await OrigenInstalacionService.enviarSiHaceFalta(7);
 
-    OrigenInstalacionService.enviarAlBackend =
-        (int usuarioId, String referrer) async {
-      enviados.add('$usuarioId|$referrer');
-    };
-    await OrigenInstalacionService.enviarSiHaceFalta(7);
-    expect(enviados.length, 1);
-  });
+      OrigenInstalacionService.enviarAlBackend =
+          (int usuarioId, String referrer) async {
+            enviados.add('$usuarioId|$referrer');
+          };
+      await OrigenInstalacionService.enviarSiHaceFalta(7);
+      expect(enviados.length, 1);
+    },
+  );
 
   test('si no hay referrer legible no envía ni marca', () async {
     OrigenInstalacionService.leerReferrer = () async => null;

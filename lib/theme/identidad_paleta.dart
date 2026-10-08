@@ -11,9 +11,6 @@ enum FormaIdentidad {
   /// Neotokyo+ — esquina cortada real vía clip-path.
   chamfer,
 
-  /// Alba — sin superficie propia, borde fino o nada.
-  hairline,
-
   /// Dulce — radio casi total, sombra de color "glow".
   pill,
 }
@@ -32,9 +29,6 @@ enum FondoIdentidadTipo {
   /// Neotokyo+ — una ciudad cuyas ventanas se encienden. Sin pintar todavía.
   ciudad,
 
-  /// Alba — la luz que sube. Sin pintar todavía.
-  luz,
-
   /// Dulce — algo que se acumula. Sin pintar todavía.
   acumulacion,
 }
@@ -42,8 +36,8 @@ enum FondoIdentidadTipo {
 /// A qué distancia está el mundo en esta pantalla.
 ///
 /// No es un número a propósito. El 0.55 con el que Profundidad atenúa su cielo
-/// sólo significa algo para un campo de estrellas: Neotokyo+ apagará su ciudad
-/// y Alba bajará su luz. Aquí se dice el nivel; la traducción es de cada
+/// sólo significa algo para un campo de estrellas: Neotokyo+ apagará su ciudad.
+/// Aquí se dice el nivel; la traducción es de cada
 /// identidad.
 enum NivelFondo {
   /// Nivel 1 — las tres pestañas del shell. El mundo entero.
@@ -131,7 +125,7 @@ class IdentidadPaleta {
 
   /// La curva de esa transición. Es lo que hace que el movimiento se lea como
   /// identidad y no sólo como velocidad: Dulce rebota al aterrizar, Neotokyo+
-  /// para en seco, Alba no aterriza del todo.
+  /// para en seco.
   ///
   /// Quien no lo declare se queda en `Curves.easeOutCubic`.
   final Curve curvaTransicion;

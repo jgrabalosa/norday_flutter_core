@@ -33,7 +33,6 @@ class BurbujaContexto extends StatelessWidget {
     return switch (id.forma) {
       FormaIdentidad.glass => _cristal(id, t),
       FormaIdentidad.chamfer => _panelCortado(id, t),
-      FormaIdentidad.hairline => _soloTexto(id, t),
       FormaIdentidad.pill => _postIt(id, t),
     };
   }
@@ -88,11 +87,7 @@ class BurbujaContexto extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           tarjeta,
-          Positioned(
-            top: -6,
-            left: -4,
-            child: _pegatina(t),
-          ),
+          Positioned(top: -6, left: -4, child: _pegatina(t)),
         ],
       ),
     );
@@ -105,11 +100,7 @@ class BurbujaContexto extends StatelessWidget {
       // El cohete de Lucide apunta arriba-izquierda; se endereza un poco
       // para que salga hacia la esquina y no hacia el texto.
       angle: 0.5,
-      child: Icon(
-        LucideIcons.rocket,
-        size: 20,
-        color: t.streak,
-      ),
+      child: Icon(LucideIcons.rocket, size: 20, color: t.streak),
     );
   }
 
@@ -136,25 +127,6 @@ class BurbujaContexto extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: color ?? t.textMuted,
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Alba — sin burbuja. La identidad no encajona el contenido secundario en
-  /// ningún otro sitio, y esto es contenido secundario: una itálica y aire.
-  Widget _soloTexto(IdentidadPaleta id, TokensContextuales t) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      child: Text(
-        texto,
-        textAlign: TextAlign.center,
-        style: GoogleFonts.getFont(
-          id.fontDisplay,
-          fontSize: 15,
-          height: 1.4,
-          fontStyle: FontStyle.italic,
-          color: color ?? t.textMuted,
         ),
       ),
     );

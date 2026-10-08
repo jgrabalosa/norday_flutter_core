@@ -44,7 +44,9 @@ class MiniMascota extends StatefulWidget {
 class _MiniMascotaState extends State<MiniMascota> {
   /// Tamaño habitual de la burbuja. En cualquier móvil normal manda este
   /// valor: el tope de abajo solo entra en juego en pantallas diminutas.
-  static const double _tamanoNominal = 136;
+  /// La caja táctil es deliberadamente algo mayor que la ilustración, pero
+  /// no tanto como para comerse los hábitos que quedan debajo.
+  static const double _tamanoNominal = 120;
 
   /// La burbuja no puede pasar del 40% del alto de pantalla. Es una
   /// salvaguarda, no un tamaño: si se llega a aplicar es que la pantalla es
@@ -52,15 +54,14 @@ class _MiniMascotaState extends State<MiniMascota> {
   static const double _fraccionMaximaAlto = 0.4;
 
   /// La ilustración deja aire alrededor dentro de la caja de la burbuja
-  /// (109 sobre 136). Ese aire ya no es la zona de agarre —ahora agarra la
+  /// (108 sobre 120). Ese aire ya no es la zona de agarre —ahora agarra la
   /// caja entera, ver el `behavior` de abajo—, sino el sitio por donde se
   /// derrama el halo y el respiro que evita que Nori toque el borde al
   /// rebotar.
   ///
-  /// Subió de 0.75 a 0.80 al crecer la caja: mantiene los ~13px de aire por
-  /// lado que tenía a 105 y deja que todo el crecimiento se lo lleve la
-  /// ilustración, que es de lo que iba el cambio.
-  static const double _proporcionIlustracion = 0.80;
+  /// La ilustración conserva prácticamente el tamaño visual anterior, pero
+  /// la caja que bloquea los toques de la lista se reduce.
+  static const double _proporcionIlustracion = 0.90;
 
   /// El halo aquí es un apunte, no el foco que es en la pantalla de mascota:
   /// esto flota sobre el contenido de cualquier pantalla de la app.
@@ -118,8 +119,7 @@ class _MiniMascotaState extends State<MiniMascota> {
   Widget build(BuildContext context) {
     if (_cargando || _oculta) return const SizedBox.shrink();
 
-    final topeAlto =
-        MediaQuery.of(context).size.height * _fraccionMaximaAlto;
+    final topeAlto = MediaQuery.of(context).size.height * _fraccionMaximaAlto;
     final tamano = min(_tamanoNominal, topeAlto);
 
     return BurbujaFlotante(

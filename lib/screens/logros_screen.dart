@@ -50,9 +50,13 @@ class _LogrosScreenState extends State<LogrosScreen> {
     try {
       final saldo = await ApiServiceCore.getSaldoPuntos(widget.usuarioId);
       final catalogo = await ApiServiceCore.getCatalogoLogros();
-      final conseguidos = await ApiServiceCore.getLogrosUsuario(widget.usuarioId);
+      final conseguidos = await ApiServiceCore.getLogrosUsuario(
+        widget.usuarioId,
+      );
 
-      final ids = conseguidos.map<int>((ul) => ul['logro']['logroId'] as int).toSet();
+      final ids = conseguidos
+          .map<int>((ul) => ul['logro']['logroId'] as int)
+          .toSet();
 
       if (!mounted) return;
       setState(() {
@@ -63,10 +67,12 @@ class _LogrosScreenState extends State<LogrosScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _loading = false; });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(MensajesError.de(context, e))),
-      );
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(MensajesError.de(context, e))));
     }
   }
 
@@ -113,18 +119,22 @@ class _LogrosScreenState extends State<LogrosScreen> {
                           relleno: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Icon(LucideIcons.coins, color: t.points, size: 40),
+                              Icon(
+                                LucideIcons.coins,
+                                color: t.points,
+                                size: 40,
+                              ),
                               const SizedBox(height: 8),
-                              Text('$_saldo',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall
-                                      ?.copyWith(color: t.text)),
-                              Text(l.puntos,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(color: t.textMuted)),
+                              Text(
+                                '$_saldo',
+                                style: Theme.of(context).textTheme.displaySmall
+                                    ?.copyWith(color: t.text),
+                              ),
+                              Text(
+                                l.puntos,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: t.textMuted),
+                              ),
                             ],
                           ),
                         ),
@@ -135,18 +145,21 @@ class _LogrosScreenState extends State<LogrosScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(l.detLogrosDe(conseguidos, total),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(color: t.text)),
-                                  Text(l.logrosPorcentaje((pct * 100).round()),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: t.textMuted)),
+                                  Text(
+                                    l.detLogrosDe(conseguidos, total),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(color: t.text),
+                                  ),
+                                  Text(
+                                    l.logrosPorcentaje((pct * 100).round()),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: t.textMuted),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -177,15 +190,19 @@ class _LogrosScreenState extends State<LogrosScreen> {
   /// que por la opacidad: ahora el conseguido lleva además la insignia
   /// encendida y el filo del color de puntos, que es lo que lo convierte en
   /// algo que se ha ganado y no en una fila más de la lista.
-  Widget _logroCard(NordayCoreLocalizations l, dynamic logro, TokensContextuales t) {
+  Widget _logroCard(
+    NordayCoreLocalizations l,
+    dynamic logro,
+    TokensContextuales t,
+  ) {
     final id = identidad(context);
     final conseguido = _idsConseguidos.contains(logro['logroId']);
-    final icono = iconosCategoria[logro['categoria']] ?? iconoCategoriaDesconocida;
+    final icono =
+        iconosCategoria[logro['categoria']] ?? iconoCategoriaDesconocida;
 
     return Opacity(
       opacity: conseguido ? 1.0 : 0.55,
       child: SuperficieIdentidad(
-        esFila: true,
         margen: const EdgeInsets.only(bottom: 8),
         relleno: const EdgeInsets.all(14),
         filo: conseguido
@@ -206,31 +223,41 @@ class _LogrosScreenState extends State<LogrosScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                            CatalogosCore.logro(
-                                context, logro['codigo'], logro['nombre']),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(color: t.text)),
+                          CatalogosCore.logro(
+                            context,
+                            logro['codigo'],
+                            logro['nombre'],
+                          ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(color: t.text),
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text(l.logrosPuntos(logro['puntos'] as int),
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: conseguido ? t.pointsText : t.textMuted)),
+                      Text(
+                        l.logrosPuntos(logro['puntos'] as int),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: conseguido ? t.pointsText : t.textMuted,
+                            ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                      l.logrosSubtitulo(
-                        CatalogosCore.logroDescripcion(
-                            context, logro['codigo'], logro['descripcion']),
-                        CatalogosCore.logroCategoria(context, logro['categoria']),
-                        CatalogosCore.logroNivel(context, logro['nivel']),
+                    l.logrosSubtitulo(
+                      CatalogosCore.logroDescripcion(
+                        context,
+                        logro['codigo'],
+                        logro['descripcion'],
                       ),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: t.textMuted)),
+                      CatalogosCore.logroCategoria(context, logro['categoria']),
+                      CatalogosCore.logroNivel(context, logro['nivel']),
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: t.textMuted),
+                  ),
                 ],
               ),
             ),
@@ -255,10 +282,16 @@ class _LogrosScreenState extends State<LogrosScreen> {
           id,
           radio: id.radioSecundario,
           lado: BorderSide(
-              color: color.withValues(alpha: conseguido ? 0.55 : 0.25)),
+            color: color.withValues(alpha: conseguido ? 0.55 : 0.25),
+          ),
         ),
         shadows: conseguido
-            ? [BoxShadow(color: t.points.withValues(alpha: 0.28), blurRadius: 14)]
+            ? [
+                BoxShadow(
+                  color: t.points.withValues(alpha: 0.28),
+                  blurRadius: 14,
+                ),
+              ]
             : const [],
       ),
       child: Icon(

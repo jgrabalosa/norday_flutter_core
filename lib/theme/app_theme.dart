@@ -78,7 +78,15 @@ class AppRadius {
 
 /// Colores que cambian según el tema equipado — úsalos con tokens(context)
 class TokensContextuales {
-  final Color primary, success, streak, points, bg, surface, surface2, text, textMuted;
+  final Color primary,
+      success,
+      streak,
+      points,
+      bg,
+      surface,
+      surface2,
+      text,
+      textMuted;
 
   /// El verde cuando se pinta como TEXTO. Como relleno o icono basta con
   /// `success` (WCAG pide 3:1 ahí, no 4.5:1); es al escribir con él cuando
@@ -122,9 +130,9 @@ class TokensContextuales {
   /// Profundidad da 1.13 y desaparece.
   ///
   /// Cada paleta declara el suyo en vez de calcularse con una fórmula común,
-  /// porque la misma fórmula NO pesa igual en las cuatro: para llegar al mismo
-  /// contraste sobre su propio `bg`, Profundidad necesita `textMuted` al 0.29
-  /// y Alba al 0.48. Los cuatro valores están medidos a ~2.0 de contraste
+  /// porque la misma fórmula NO pesa igual en las tres: para llegar al mismo
+  /// contraste sobre su propio `bg`, cada identidad necesita un valor distinto.
+  /// Los tres valores están medidos a ~2.0 de contraste
   /// sobre el `bg` de su paleta, que es lo que hace que el estado apagado pese
   /// igual en todas.
   ///
@@ -141,13 +149,12 @@ class TokensContextuales {
   /// A diferencia de [inactivo], esto SÍ se rige por WCAG 1.4.11 y se mide a
   /// 3.0 como mínimo: no es la mitad vacía de una figura, es el contorno del
   /// control, y es lo único que dice que ahí hay algo pulsable. Antes lo
-  /// pintaba `surface2` sobre el fondo de la fila y daba 1.11 en Alba, 1.04
-  /// en Neotokyo+ y 1.22 en Dulce: no se veía en ninguna de las tres.
+  /// pintaba `surface2` sobre el fondo de la fila y no se veía bien en las
+  /// identidades actuales.
   ///
   /// Cada paleta declara el suyo, medido sobre el fondo real de su fila y
-  /// verificado contra los tres fondos de la identidad. La alfa de `textMuted`
-  /// que hace falta NO es la misma en las cuatro: 0.70 en Profundidad, 0.62 en
-  /// Neotokyo+, 0.78 en Alba y 0.70 en Dulce.
+  /// verificado contra los fondos de cada identidad. La alfa de `textMuted`
+  /// que hace falta NO es la misma en todas.
   ///
   /// Quien no lo declare se queda en `surface2`, que es como estaba.
   final Color aroVacio;
@@ -157,12 +164,11 @@ class TokensContextuales {
   ///
   /// Se rige por AA de texto normal, 4.5, porque eso es lo que es: el texto de
   /// los botones es `labelLarge`, 14px, y no llega al umbral de texto grande
-  /// ni siendo negrita. Antes era `Colors.white` para las cuatro y ninguna
-  /// pasaba: 2.21 en Profundidad, 3.50 en Neotokyo+, 3.33 en Alba y 2.60 en
-  /// Dulce.
+  /// ni siendo negrita. Antes era `Colors.white` y ninguna
+  /// pasaba en ninguna identidad.
   ///
-  /// Los valores son los que la landing ya declaraba como `--tinta`, salvo el
-  /// de Alba: el suyo daba 4.39 y se ha hundido un punto hasta pasar.
+  /// Los valores son los que la landing ya declaraba como `--tinta`, ajustados
+  /// donde era necesario para superar el contraste mínimo.
   ///
   /// Quien no lo declare se queda en blanco, que es como estaba.
   final Color tinta;
@@ -178,9 +184,15 @@ class TokensContextuales {
   final Color fondoNota;
 
   const TokensContextuales({
-    required this.primary, required this.success, required this.streak,
-    required this.points, required this.bg, required this.surface,
-    required this.surface2, required this.text, required this.textMuted,
+    required this.primary,
+    required this.success,
+    required this.streak,
+    required this.points,
+    required this.bg,
+    required this.surface,
+    required this.surface2,
+    required this.text,
+    required this.textMuted,
     Color? successText,
     Color? streakText,
     Color? pointsText,
@@ -189,14 +201,14 @@ class TokensContextuales {
     Color? aroVacio,
     Color? tinta,
     Color? fondoNota,
-  })  : successText = successText ?? success,
-        streakText = streakText ?? streak,
-        pointsText = pointsText ?? points,
-        surfaceAlta = surfaceAlta ?? surface,
-        inactivo = inactivo ?? surface2,
-        aroVacio = aroVacio ?? surface2,
-        tinta = tinta ?? Colors.white,
-        fondoNota = fondoNota ?? surface2;
+  }) : successText = successText ?? success,
+       streakText = streakText ?? streak,
+       pointsText = pointsText ?? points,
+       surfaceAlta = surfaceAlta ?? surface,
+       inactivo = inactivo ?? surface2,
+       aroVacio = aroVacio ?? surface2,
+       tinta = tinta ?? Colors.white,
+       fondoNota = fondoNota ?? surface2;
 }
 
 /// Los colores de la identidad "Profundidad", la de serie.
@@ -250,8 +262,10 @@ class FuentesIdentidad {
 ///
 /// Vive aquí por lo mismo que [tokensProfundidad] —ver la nota de arriba—:
 /// este fichero es la capa de abajo y no puede importar el catálogo.
-const FuentesIdentidad fuentesProfundidad =
-    FuentesIdentidad(display: 'Space Grotesk', body: 'Manrope');
+const FuentesIdentidad fuentesProfundidad = FuentesIdentidad(
+  display: 'Space Grotesk',
+  body: 'Manrope',
+);
 
 /// La tipografía de la identidad equipada.
 ///
@@ -329,18 +343,24 @@ class AppTheme {
         // color primario — y esta sombra negra global la contradecia en todo
         // Card de Material que no pasa por ahi (Logros, Login, SkeletonCard).
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: t.primary,
           foregroundColor: t.tinta,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: BorderSide(color: t.primary, width: 2),
@@ -356,7 +376,7 @@ class AppTheme {
   /// La escala tipográfica de la identidad equipada.
   ///
   /// La escala se declara aquí entera —tamaño y peso— y es la misma para las
-  /// cuatro identidades: lo único que cambia con la identidad es la familia.
+  /// identidades: lo único que cambia con la identidad es la familia.
   /// Una identidad no puede tocar tamaños ni pesos porque no tiene dónde
   /// declararlos, y ese es justo el motivo de que no se le añada el campo.
   /// Los roles de titular, cifra y etiqueta corta (`display*`, `headline*`,
@@ -373,65 +393,92 @@ class AppTheme {
   /// posterior cambiaba el número pero seguía pintando con el fichero regular.
   ///
   /// Y aquí entra la familia, nada más. Las mayúsculas y el tracking de
-  /// Neotokyo+ o la itálica de Alba las aplica cada pantalla donde tienen
-  /// sentido —el titular, un chip, una cifra—: metidas en el tema global,
+  /// Neotokyo+ las aplica cada pantalla donde tienen sentido —el titular, un
+  /// chip, una cifra—: metidas en el tema global,
   /// Neotokyo+ pondría en mayúsculas hasta el cuerpo de un artículo.
   static TextTheme _tipografia(FuentesIdentidad fuentes) {
     final base = ThemeData.dark().textTheme;
     final escala = base.copyWith(
       // ── Titulares — familia display ──────────────────────────────────────
       // La cifra. Hoy, el saldo de puntos de Tienda y Logros.
-      displaySmall: base.displaySmall
-          ?.copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+      displaySmall: base.displaySmall?.copyWith(
+        fontSize: 28,
+        fontWeight: FontWeight.w800,
+      ),
       // Título de pantalla.
-      headlineMedium: base.headlineMedium
-          ?.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+      ),
       // Título de sección, y también el título del AppBar: `deTema` lo apunta
       // explícitamente en `appBarTheme`, porque el de Material es `titleLarge`
       // y aquí `titleLarge` vale otra cosa.
-      headlineSmall: base.headlineSmall
-          ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
       // Cabecera de grupo y título de estado vacío.
-      titleLarge: base.titleLarge
-          ?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
       // Nombre de ítem: un hábito, un producto, un logro. Va en la display a
       // propósito — es lo que se nombra, no lo que se lee.
-      titleMedium: base.titleMedium
-          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      ),
       // Antetítulo: la etiqueta que encabeza un grupo. El tracking es suyo,
       // no de quien lo usa.
       titleSmall: base.titleSmall?.copyWith(
-          fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1),
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1,
+      ),
       // Título grande. Hoy sólo la pantalla de elección de identidad, que
       // titula por encima de un título de pantalla normal. Ocupa el hueco que
       // este comentario reservaba: el 22 estaba escrito a mano allí, fuera de
       // la escala y sin familia de titulares.
-      headlineLarge: base.headlineLarge
-          ?.copyWith(fontSize: 22, fontWeight: FontWeight.w700),
+      headlineLarge: base.headlineLarge?.copyWith(
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+      ),
       // `displayLarge` y `displayMedium` siguen sin uso y sin tamaño
       // declarado, para que quepa algo mayor el día que haga falta.
 
       // ── Cuerpo — familia body ────────────────────────────────────────────
       // Texto largo, y título de `ListTile`, que hereda de aquí.
-      bodyLarge:
-          base.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.w400),
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
       // Texto corriente.
-      bodyMedium:
-          base.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
       // Metadato y subtítulo.
-      bodySmall:
-          base.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ),
       // Botones.
-      labelLarge:
-          base.labelLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       // Chips y contadores.
-      labelMedium:
-          base.labelMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+      labelMedium: base.labelMedium?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       // Micro-etiqueta: el pie de una cifra, la leyenda de un heatmap. Es el
       // suelo de la escala y no hay nada por debajo: si algo pide menos de 11,
       // el problema es el sitio, no el tamaño.
-      labelSmall:
-          base.labelSmall?.copyWith(fontSize: 11, fontWeight: FontWeight.w600),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+      ),
     );
 
     // Dos pasadas sobre la misma escala: cada una devuelve los quince roles en

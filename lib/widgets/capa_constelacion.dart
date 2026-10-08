@@ -29,11 +29,7 @@ class CapaConstelacion extends StatefulWidget {
   /// y en Hoy, lo de debajo se oscurece un poco y la figura brilla más.
   final bool enHoy;
 
-  const CapaConstelacion({
-    super.key,
-    required this.tokens,
-    this.enHoy = false,
-  });
+  const CapaConstelacion({super.key, required this.tokens, this.enHoy = false});
 
   @override
   State<CapaConstelacion> createState() => _CapaConstelacionState();
@@ -125,7 +121,8 @@ class _CapaConstelacionState extends State<CapaConstelacion>
   void _alCambiarProgreso() {
     final anterior = _progreso;
     final nuevo = progresoDiaNotifier.value;
-    final mismaFigura = anterior.fecha != null &&
+    final mismaFigura =
+        anterior.fecha != null &&
         anterior.fecha == nuevo.fecha &&
         anterior.total == nuevo.total;
 
@@ -149,7 +146,10 @@ class _CapaConstelacionState extends State<CapaConstelacion>
   }
 
   void _lanzar(
-      Map<int, AnimationController> mapa, int indice, Duration duracion) {
+    Map<int, AnimationController> mapa,
+    int indice,
+    Duration duracion,
+  ) {
     mapa.remove(indice)?.dispose();
     final controlador = AnimationController(vsync: this, duration: duracion)
       ..addListener(() => setState(() {}));
@@ -169,9 +169,7 @@ class _CapaConstelacionState extends State<CapaConstelacion>
             widget.tokens,
             _progreso,
             vuelos: {for (final e in _vuelos.entries) e.key: e.value.value},
-            apagados: {
-              for (final e in _apagados.entries) e.key: e.value.value
-            },
+            apagados: {for (final e in _apagados.entries) e.key: e.value.value},
             realce: _realce.value,
           ),
           size: Size.infinite,
@@ -218,9 +216,9 @@ class _CapaConstelacionPainter extends CustomPainter {
 
     final cuadro = cuadroConstelacion(size);
     Offset situar(Offset p) => Offset(
-          cuadro.left + p.dx * cuadro.width,
-          cuadro.top + p.dy * cuadro.height,
-        );
+      cuadro.left + p.dx * cuadro.width,
+      cuadro.top + p.dy * cuadro.height,
+    );
 
     final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
 
@@ -268,7 +266,8 @@ class _CapaConstelacionPainter extends CustomPainter {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.2
             ..color = tokens.streak.withValues(
-                alpha: (0.38 + 0.22 * realce) * math.min(luzA, luzB)),
+              alpha: (0.38 + 0.22 * realce) * math.min(luzA, luzB),
+            ),
         );
       } else if (luzA > 0 || luzB > 0) {
         // Un trazo con un solo extremo encendido no desaparece: sale de la
@@ -333,7 +332,11 @@ class _CapaConstelacionPainter extends CustomPainter {
   /// Una estrella encendida en [centro], a [escala] de su tamaño y con
   /// [opacidad] de su luz.
   void _pintarEstrella(
-      Canvas canvas, Offset centro, double escala, double opacidad) {
+    Canvas canvas,
+    Offset centro,
+    double escala,
+    double opacidad,
+  ) {
     // El resplandor: un degradado radial que cae a cero, no un círculo
     // plano. El disco duro se recorta contra lo que hay debajo; el
     // degradado se funde con él.

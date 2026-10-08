@@ -29,14 +29,21 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
       setState(() => _error = l.recEscribeEmail);
       return;
     }
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
-      await ApiServiceCore.solicitarCodigoRecuperacion(_emailController.text.trim());
+      await ApiServiceCore.solicitarCodigoRecuperacion(
+        _emailController.text.trim(),
+      );
       if (mounted) setState(() => _codigoEnviado = true);
     } catch (e) {
       if (mounted) {
-        setState(() =>
-            _error = MensajesError.de(context, e, generico: l.recErrorEnviar));
+        setState(
+          () =>
+              _error = MensajesError.de(context, e, generico: l.recErrorEnviar),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -50,7 +57,10 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
       setState(() => _error = l.recRellenaCampos);
       return;
     }
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       await ApiServiceCore.restablecerContrasena(
         _emailController.text.trim(),
@@ -58,15 +68,16 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
         _contrasenaController.text,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.recRestablecida)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.recRestablecida)));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        setState(() =>
-            _error = MensajesError.de(context, e, generico: l.recError));
+        setState(
+          () => _error = MensajesError.de(context, e, generico: l.recError),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -86,9 +97,7 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
     final l = NordayCoreLocalizations.of(context)!;
     final t = tokens(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.recTitulo),
-      ),
+      appBar: AppBar(title: Text(l.recTitulo)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -141,11 +150,11 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                     helperText: l.perfilMinimo6,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword
-                          ? LucideIcons.eye
-                          : LucideIcons.eyeOff),
-                      onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword),
+                      icon: Icon(
+                        _obscurePassword ? LucideIcons.eye : LucideIcons.eyeOff,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                 ),
@@ -162,8 +171,10 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                     color: tonoError(context).fondo,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(_error!,
-                      style: TextStyle(color: tonoError(context).texto)),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(color: tonoError(context).texto),
+                  ),
                 ),
 
               // Botón principal
@@ -177,7 +188,8 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                     backgroundColor: t.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: _loading
                       ? CircularProgressIndicator(color: t.tinta)
@@ -185,8 +197,7 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                           _codigoEnviado
                               ? l.recBotonRestablecer
                               : l.recBotonEnviar,
-                          style: TextStyle(
-                              color: t.tinta, fontSize: 16),
+                          style: TextStyle(color: t.tinta, fontSize: 16),
                         ),
                 ),
               ),

@@ -34,7 +34,9 @@ class _ArrastreLibre extends PanGestureRecognizer {
 
   @override
   bool hasSufficientGlobalDistanceToAccept(
-      PointerDeviceKind pointerDeviceKind, double? deviceTouchSlop) {
+    PointerDeviceKind pointerDeviceKind,
+    double? deviceTouchSlop,
+  ) {
     return globalDistanceMoved.abs() >
         computeHitSlop(pointerDeviceKind, gestureSettings);
   }
@@ -65,7 +67,8 @@ class BurbujaFlotante extends StatefulWidget {
   final Size areaSize; // tamaño real del área contenedora (el Stack padre)
   final double size;
   final VoidCallback? onTap;
-  final double minTopFraction; // 0.0 = puede vivir en toda el área, 0.5 = solo mitad inferior
+  final double
+  minTopFraction; // 0.0 = puede vivir en toda el área, 0.5 = solo mitad inferior
 
   /// Franja del borde derecho donde la burbuja no puede entrar, en píxeles
   /// lógicos. 0 = puede llegar hasta el margen normal.
@@ -78,7 +81,8 @@ class BurbujaFlotante extends StatefulWidget {
   final bool vagabundeo;
   final Duration pasoMin;
   final Duration pasoMax;
-  final double pasoDistanciaFraccion; // tamaño de cada paso, en fracción del área (0-1)
+  final double
+  pasoDistanciaFraccion; // tamaño de cada paso, en fracción del área (0-1)
 
   /// Qué parte de la burbuja responde al toque y al arrastre.
   ///
@@ -159,17 +163,18 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
   @override
   void initState() {
     super.initState();
-    _snapController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    )..addListener(() {
-        if (_dxAnim != null && _dyAnim != null) {
-          setState(() {
-            _dx = _dxAnim!.value;
-            _dy = _dyAnim!.value;
-          });
-        }
-      });
+    _snapController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 250),
+        )..addListener(() {
+          if (_dxAnim != null && _dyAnim != null) {
+            setState(() {
+              _dx = _dxAnim!.value;
+              _dy = _dyAnim!.value;
+            });
+          }
+        });
 
     _cargarPosicion();
   }
@@ -216,7 +221,8 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
   // el siguiente. Se detiene solo mientras el usuario arrastra la burbuja.
   void _programarProximoPaso() {
     if (!mounted || !_vivo) return;
-    final espera = widget.pasoMin +
+    final espera =
+        widget.pasoMin +
         Duration(
           milliseconds: _random.nextInt(
             (widget.pasoMax - widget.pasoMin).inMilliseconds.clamp(1, 1 << 30),
@@ -231,8 +237,14 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
 
   void _darPaso() {
     final paso = widget.pasoDistanciaFraccion;
-    final nuevoDx = (_dx + (_random.nextDouble() * 2 - 1) * paso).clamp(0.0, 1.0);
-    final nuevoDy = (_dy + (_random.nextDouble() * 2 - 1) * paso).clamp(0.0, 1.0);
+    final nuevoDx = (_dx + (_random.nextDouble() * 2 - 1) * paso).clamp(
+      0.0,
+      1.0,
+    );
+    final nuevoDy = (_dy + (_random.nextDouble() * 2 - 1) * paso).clamp(
+      0.0,
+      1.0,
+    );
     _animarHasta(nuevoDx, nuevoDy, duracion: const Duration(milliseconds: 700));
     _guardarPosicion();
   }
@@ -315,34 +327,41 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                 gestures: {
                   if (conTap)
                     TapGestureRecognizer:
-                        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                      TapGestureRecognizer.new,
-                      (r) => r.onTap = () {
-                        HapticFeedback.lightImpact();
-                        widget.onTap?.call();
-                      },
-                    ),
-                  _ArrastreLibre: GestureRecognizerFactoryWithHandlers<_ArrastreLibre>(
-                    () => _ArrastreLibre(inmediato: !conTap),
-                    (r) {
-                      r.onStart = (_) => setState(() => _arrastrando = true);
-                      r.onUpdate = (details) {
-                        setState(() {
-                          final nuevoLeft =
-                              (left + details.delta.dx).clamp(margen, maxX);
-                          final nuevoTop = (top + details.delta.dy).clamp(minY, maxY);
-                          _dx = (nuevoLeft - margen) / recorridoX;
-                          _dy = (nuevoTop - minY) / (maxY - minY);
-                        });
-                      };
-                      r.onEnd = (_) {
-                        setState(() => _arrastrando = false);
-                        // Se queda donde se suelte (sin imán a los lados). Si tiene
-                        // vagabundeo, retoma sus paseos solos desde ahí.
-                        _guardarPosicion();
-                      };
-                    },
-                  ),
+                        GestureRecognizerFactoryWithHandlers<
+                          TapGestureRecognizer
+                        >(
+                          TapGestureRecognizer.new,
+                          (r) => r.onTap = () {
+                            HapticFeedback.lightImpact();
+                            widget.onTap?.call();
+                          },
+                        ),
+                  _ArrastreLibre:
+                      GestureRecognizerFactoryWithHandlers<
+                        _ArrastreLibre
+                      >(() => _ArrastreLibre(inmediato: !conTap), (r) {
+                        r.onStart = (_) => setState(() => _arrastrando = true);
+                        r.onUpdate = (details) {
+                          setState(() {
+                            final nuevoLeft = (left + details.delta.dx).clamp(
+                              margen,
+                              maxX,
+                            );
+                            final nuevoTop = (top + details.delta.dy).clamp(
+                              minY,
+                              maxY,
+                            );
+                            _dx = (nuevoLeft - margen) / recorridoX;
+                            _dy = (nuevoTop - minY) / (maxY - minY);
+                          });
+                        };
+                        r.onEnd = (_) {
+                          setState(() => _arrastrando = false);
+                          // Se queda donde se suelte (sin imán a los lados). Si tiene
+                          // vagabundeo, retoma sus paseos solos desde ahí.
+                          _guardarPosicion();
+                        };
+                      }),
                 },
                 // Con holgura, lo que agarra es esta caja; el contenido va
                 // centrado dentro y no se entera de nada.

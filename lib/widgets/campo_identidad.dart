@@ -87,100 +87,78 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
     return switch (id.forma) {
       // Profundidad — caja de cristal que se enciende en verde al enfocar.
       FormaIdentidad.glass => AnimatedContainer(
-          duration: _duracionFoco,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(id.radioSecundario),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [t.surface2, t.surface],
-            ),
-            border: Border.all(
-              color:
-                  enfocado ? t.primary : Colors.white.withValues(alpha: 0.08),
-              width: enfocado ? 1.4 : 1,
-            ),
-            boxShadow: enfocado
-                ? [
-                    BoxShadow(
-                      color: t.primary.withValues(alpha: 0.30),
-                      blurRadius: 16,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
+        duration: _duracionFoco,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(id.radioSecundario),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [t.surface2, t.surface],
           ),
-          child: _entrada(t, etiquetaDentro: widget.etiqueta),
+          border: Border.all(
+            color: enfocado ? t.primary : Colors.white.withValues(alpha: 0.08),
+            width: enfocado ? 1.4 : 1,
+          ),
+          boxShadow: enfocado
+              ? [
+                  BoxShadow(
+                    color: t.primary.withValues(alpha: 0.30),
+                    blurRadius: 16,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
+        child: _entrada(t, etiquetaDentro: widget.etiqueta),
+      ),
 
       // Neotokyo+ — sin caja: etiqueta en mayúsculas arriba y una línea abajo
       // que se enciende en magenta. Las mayúsculas y el tracking se aplican
       // aquí, no en el tema, y sobre la familia de titulares.
       FormaIdentidad.chamfer => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.etiqueta.toUpperCase(),
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontSize: 11,
-                    letterSpacing: 1.4,
-                    color: enfocado ? t.primary : t.textMuted,
-                  ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.etiqueta.toUpperCase(),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontSize: 11,
+              letterSpacing: 1.4,
+              color: enfocado ? t.primary : t.textMuted,
             ),
-            _entrada(t),
-            AnimatedContainer(
-              duration: _duracionFoco,
-              height: enfocado ? 2 : 1,
-              color: enfocado ? t.primary : t.textMuted.withValues(alpha: 0.5),
-            ),
-          ],
-        ),
-
-      // Alba — la misma idea, pero en voz baja: la línea no engorda, sólo
-      // cambia de color.
-      FormaIdentidad.hairline => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.etiqueta,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(fontSize: 12, color: t.textMuted),
-            ),
-            _entrada(t),
-            AnimatedContainer(
-              duration: _duracionFoco,
-              height: 1,
-              color: enfocado ? t.primary : t.text.withValues(alpha: 0.22),
-            ),
-          ],
-        ),
+          ),
+          _entrada(t),
+          AnimatedContainer(
+            duration: _duracionFoco,
+            height: enfocado ? 2 : 1,
+            color: enfocado ? t.primary : t.textMuted.withValues(alpha: 0.5),
+          ),
+        ],
+      ),
 
       // Dulce — campo redondeado, rosa, con su glow al enfocar.
       FormaIdentidad.pill => AnimatedContainer(
-          duration: _duracionFoco,
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          decoration: BoxDecoration(
-            color: t.surface2,
-            borderRadius: BorderRadius.circular(id.radioHero),
-            border: Border.all(
-              color: enfocado ? t.primary : Colors.transparent,
-              width: 1.6,
-            ),
-            boxShadow: enfocado
-                ? [
-                    BoxShadow(
-                      color: t.primary.withValues(alpha: 0.25),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : null,
+        duration: _duracionFoco,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        decoration: BoxDecoration(
+          color: t.surface2,
+          borderRadius: BorderRadius.circular(id.radioHero),
+          border: Border.all(
+            color: enfocado ? t.primary : Colors.transparent,
+            width: 1.6,
           ),
-          child: _entrada(t, etiquetaDentro: widget.etiqueta),
+          boxShadow: enfocado
+              ? [
+                  BoxShadow(
+                    color: t.primary.withValues(alpha: 0.25),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
         ),
+        child: _entrada(t, etiquetaDentro: widget.etiqueta),
+      ),
     };
   }
 
@@ -199,8 +177,8 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
       validator: widget.validador,
       cursorColor: t.primary,
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: widget.habilitado ? t.text : t.textMuted,
-          ),
+        color: widget.habilitado ? t.text : t.textMuted,
+      ),
       decoration: InputDecoration(
         labelText: etiquetaDentro,
         labelStyle: TextStyle(color: t.textMuted),
@@ -218,8 +196,10 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
         prefixIcon: widget.prefijo,
         prefixIconColor: t.textMuted,
         suffixIcon: widget.sufijo,
-        suffixIconConstraints:
-            const BoxConstraints(minWidth: 40, minHeight: 40),
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: 40,
+          minHeight: 40,
+        ),
       ),
     );
   }

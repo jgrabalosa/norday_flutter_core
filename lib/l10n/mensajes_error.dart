@@ -32,7 +32,11 @@ class MensajesError {
   /// Comprobar `mounted` es responsabilidad de quien llama: esto no es un
   /// State y no puede saberlo. Todas las pantallas que lo usan lo hacen
   /// desde un `if (mounted)`.
-  static void enSnackBar(BuildContext context, Object error, {String? generico}) {
+  static void enSnackBar(
+    BuildContext context,
+    Object error, {
+    String? generico,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(de(context, error, generico: generico))),
     );

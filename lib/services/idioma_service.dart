@@ -27,8 +27,9 @@ class IdiomaService {
   static const _clavePendiente = 'idiomaPendienteDeSync';
 
   /// Escuchado por MaterialApp: cambiarlo repinta la app sin reiniciarla.
-  static final ValueNotifier<Locale> localeNotifier =
-      ValueNotifier(const Locale(porDefecto));
+  static final ValueNotifier<Locale> localeNotifier = ValueNotifier(
+    const Locale(porDefecto),
+  );
 
   static List<Locale> get localesSoportados =>
       soportados.map((c) => Locale(c)).toList();

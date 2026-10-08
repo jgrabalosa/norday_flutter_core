@@ -22,14 +22,18 @@ class ApiServiceCore {
   /// los dos catálogos para que el backend filtre lo que es exclusivo de otra
   /// app; lo compartido lo ven todas.
   ///
-  /// Cada app lo fija antes de `runApp` si no es la de hábitos:
-  /// `ApiServiceCore.appId = 'conocimiento';`
-  static String appId = 'habitos';
+  /// Cada app lo fija antes de `runApp`:
+  /// `ApiServiceCore.appId = 'habitos';`
+  ///
+  /// El motor no asume ninguna app concreta. Si una app no necesita filtrar
+  /// el catálogo, deja este valor vacío y no se envía la cabecera.
+  static String appId = '';
 
   /// Cabecera de identificación de app. Solo la llevan los catálogos: el
   /// inventario y los logros de un usuario ya vienen acotados por quién es,
   /// no por desde dónde mira.
-  static Map<String, String> get _headersCatalogo => {'X-Norday-App': appId};
+  static Map<String, String> get _headersCatalogo =>
+      appId.isEmpty ? const {} : {'X-Norday-App': appId};
 
   /// Cliente HTTP compartido: reutiliza la conexión TCP+TLS (keep-alive).
   /// Público para que los servicios de dominio de cada app usen la misma
@@ -57,9 +61,7 @@ class ApiServiceCore {
   /// antes no se puede leer: getToken devuelve null y el usuario vuelve a
   /// iniciar sesión una vez.
   static const _almacenSeguro = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      resetOnError: true,
-    ),
+    aOptions: AndroidOptions(resetOnError: true),
   );
 
   static const _claveToken = 'token';
@@ -122,7 +124,10 @@ class ApiServiceCore {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(TipoErrorApi.respuestaInesperada, cuerpo: e.toString());
+      throw ApiException(
+        TipoErrorApi.respuestaInesperada,
+        cuerpo: e.toString(),
+      );
     }
   }
 
@@ -152,28 +157,35 @@ class ApiServiceCore {
   // ── Preferencias: idioma y zona horaria ────────────────
   static Future<Map<String, dynamic>> getPreferencias(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/usuarios/$usuarioId/preferencias'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/preferencias'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   /// Cada campo es opcional: se manda solo el que se quiere cambiar.
-  static Future<void> actualizarPreferencias(int usuarioId,
-      {String? idioma, String? zonaHoraria}) async {
+  static Future<void> actualizarPreferencias(
+    int usuarioId, {
+    String? idioma,
+    String? zonaHoraria,
+  }) async {
     final body = <String, String>{};
     if (idioma != null) body['idioma'] = idioma;
     if (zonaHoraria != null) body['zonaHoraria'] = zonaHoraria;
     if (body.isEmpty) return;
 
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/usuarios/$usuarioId/preferencias'),
-          headers: headers,
-          body: jsonEncode(body),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/preferencias'),
+        headers: headers,
+        body: jsonEncode(body),
+      ),
+    );
     verificar(response);
   }
 
@@ -246,11 +258,13 @@ class ApiServiceCore {
     bool caducado;
     try {
       final carga = token.split('.')[1];
-      final datos = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(carga))))
-          as Map<String, dynamic>;
+      final datos =
+          jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(carga))))
+              as Map<String, dynamic>;
       final exp = datos['exp'] as int;
-      caducado = DateTime.now()
-          .isAfter(DateTime.fromMillisecondsSinceEpoch(exp * 1000));
+      caducado = DateTime.now().isAfter(
+        DateTime.fromMillisecondsSinceEpoch(exp * 1000),
+      );
     } catch (_) {
       caducado = true;
     }
@@ -268,8 +282,10 @@ class ApiServiceCore {
   ///
   /// Un fallo de Google no puede impedir salir: cuando se le llama, la sesión
   /// local ya está borrada.
-  static Future<void> _limpiarSesionLocal(
-      {bool revocarGoogle = false, bool cerrarGoogle = true}) async {
+  static Future<void> _limpiarSesionLocal({
+    bool revocarGoogle = false,
+    bool cerrarGoogle = true,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final eraGoogle = prefs.getString('proveedorAuth') == 'GOOGLE';
     for (final clave in _clavesSesion) {
@@ -314,8 +330,12 @@ class ApiServiceCore {
     return parsear(() => Usuario.fromJson(jsonDecode(response.body)));
   }
 
-  static Future<void> registro(String nombre, String username,
-                                String email, String contrasena) async {
+  static Future<void> registro(
+    String nombre,
+    String username,
+    String email,
+    String contrasena,
+  ) async {
     final response = await enviar(
       () => cliente.post(
         Uri.parse('$baseUrl/usuarios/registro'),
@@ -333,17 +353,23 @@ class ApiServiceCore {
   }
 
   static Future<void> actualizarUsuario(
-      int usuarioId, String nombre, String username, String email) async {
+    int usuarioId,
+    String nombre,
+    String username,
+    String email,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/usuarios/$usuarioId'),
-          headers: headers,
-          body: jsonEncode({
-            'nombre': nombre,
-            'username': username,
-            'email': email,
-          }),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/usuarios/$usuarioId'),
+        headers: headers,
+        body: jsonEncode({
+          'nombre': nombre,
+          'username': username,
+          'email': email,
+        }),
+      ),
+    );
     verificar(response);
 
     // Actualizar también los datos guardados en local
@@ -354,49 +380,63 @@ class ApiServiceCore {
   }
 
   static Future<void> cambiarContrasena(
-      int usuarioId, String contrasenaActual, String contrasenaNueva) async {
+    int usuarioId,
+    String contrasenaActual,
+    String contrasenaNueva,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/usuarios/$usuarioId/contrasena'),
-          headers: headers,
-          body: jsonEncode({
-            'contrasenaActual': contrasenaActual,
-            'contrasenaNueva': contrasenaNueva,
-          }),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/contrasena'),
+        headers: headers,
+        body: jsonEncode({
+          'contrasenaActual': contrasenaActual,
+          'contrasenaNueva': contrasenaNueva,
+        }),
+      ),
+    );
     verificar(response);
   }
 
-// ── Recuperación de contraseña ─────────────────────────
+  // ── Recuperación de contraseña ─────────────────────────
   static Future<void> solicitarCodigoRecuperacion(String email) async {
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/usuarios/recuperar'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email}),
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse('$baseUrl/usuarios/recuperar'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      ),
+    );
     verificar(response);
   }
 
   static Future<void> restablecerContrasena(
-      String email, String codigo, String contrasenaNueva) async {
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/usuarios/restablecer'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'email': email,
-            'codigo': codigo,
-            'contrasenaNueva': contrasenaNueva,
-          }),
-        ));
+    String email,
+    String codigo,
+    String contrasenaNueva,
+  ) async {
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse('$baseUrl/usuarios/restablecer'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'codigo': codigo,
+          'contrasenaNueva': contrasenaNueva,
+        }),
+      ),
+    );
     verificar(response);
   }
 
   static Future<void> eliminarUsuario(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.delete(
-          Uri.parse('$baseUrl/usuarios/$usuarioId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.delete(
+        Uri.parse('$baseUrl/usuarios/$usuarioId'),
+        headers: headers,
+      ),
+    );
     verificar(response);
 
     // Cuenta eliminada: se limpia la sesión local como en logout(), y en
@@ -407,30 +447,36 @@ class ApiServiceCore {
   // ── Gamificación ───────────────────────────────────────
   static Future<int> getSaldoPuntos(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/gamificacion/saldo/$usuarioId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/gamificacion/saldo/$usuarioId'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body)['saldo'] as int);
   }
 
   static Future<List<dynamic>> getCatalogoLogros() async {
     final headers = {...await getHeaders(), ..._headersCatalogo};
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/gamificacion/logros/catalogo'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/gamificacion/logros/catalogo'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as List<dynamic>);
   }
 
   static Future<List<dynamic>> getLogrosUsuario(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/gamificacion/logros/usuario/$usuarioId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/gamificacion/logros/usuario/$usuarioId'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as List<dynamic>);
   }
@@ -438,20 +484,24 @@ class ApiServiceCore {
   // ── Tienda ─────────────────────────────────────────────
   static Future<List<dynamic>> getCatalogoProductos() async {
     final headers = {...await getHeaders(), ..._headersCatalogo};
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/gamificacion/productos/catalogo'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/gamificacion/productos/catalogo'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as List<dynamic>);
   }
 
   static Future<List<dynamic>> getInventarioProductos(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/gamificacion/productos/usuario/$usuarioId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/gamificacion/productos/usuario/$usuarioId'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as List<dynamic>);
   }
@@ -476,64 +526,100 @@ class ApiServiceCore {
 
   /// Devuelve los códigos de logro desbloqueados por la compra — hoy sólo los
   /// `IDENTIDAD_*` de los temas.
-  static Future<List<String>> comprarProducto(int usuarioId, int productoId) async {
+  static Future<List<String>> comprarProducto(
+    int usuarioId,
+    int productoId,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/productos/comprar/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/productos/comprar/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return _logrosDelCuerpo(response.body);
   }
 
   static Future<void> otorgarProducto(int usuarioId, int productoId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/productos/otorgar/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/productos/otorgar/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
   }
 
   /// Identidad gratuita del onboarding. Endpoint distinto de otorgarProducto:
   /// el backend solo permite una por cuenta y solo de categoría Tema.
-  static Future<List<String>> elegirIdentidad(int usuarioId, int productoId) async {
+  static Future<List<String>> elegirIdentidad(
+    int usuarioId,
+    int productoId,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/identidad/elegir/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/identidad/elegir/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return _logrosDelCuerpo(response.body);
   }
 
   /// Devuelve los códigos de logro desbloqueados al equipar — hoy sólo los
   /// `IDENTIDAD_*` de los temas. Un avatar siempre devuelve lista vacía.
-  static Future<List<String>> equiparProducto(int usuarioId, int productoId) async {
+  static Future<List<String>> equiparProducto(
+    int usuarioId,
+    int productoId,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/productos/equipar/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/productos/equipar/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return _logrosDelCuerpo(response.body);
   }
 
   static Future<void> desequiparProducto(int usuarioId, int productoId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/productos/desequipar/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/productos/desequipar/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
   }
 
-  static Future<Map<String, dynamic>> usarProducto(int usuarioId, int productoId) async {
+  static Future<Map<String, dynamic>> usarProducto(
+    int usuarioId,
+    int productoId,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.post(
-          Uri.parse('$baseUrl/gamificacion/productos/usar/$usuarioId/$productoId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse(
+          '$baseUrl/gamificacion/productos/usar/$usuarioId/$productoId',
+        ),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() {
       final data = jsonDecode(response.body);
@@ -552,21 +638,28 @@ class ApiServiceCore {
   // ── Mascota ────────────────────────────────────────────
   static Future<Map<String, dynamic>> getMascota(int usuarioId) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.get(
-          Uri.parse('$baseUrl/mascota/$usuarioId'),
-          headers: headers,
-        ));
+    final response = await enviar(
+      () => cliente.get(
+        Uri.parse('$baseUrl/mascota/$usuarioId'),
+        headers: headers,
+      ),
+    );
     verificar(response);
     return parsear(() => jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  static Future<void> actualizarNombreMascota(int usuarioId, String nombre) async {
+  static Future<void> actualizarNombreMascota(
+    int usuarioId,
+    String nombre,
+  ) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/mascota/$usuarioId/nombre'),
-          headers: headers,
-          body: jsonEncode({'nombre': nombre}),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/mascota/$usuarioId/nombre'),
+        headers: headers,
+        body: jsonEncode({'nombre': nombre}),
+      ),
+    );
     verificar(response);
   }
 
@@ -574,11 +667,13 @@ class ApiServiceCore {
   /// servidor valida que esté desbloqueada y responde 400 si no lo está.
   static Future<void> elegirFaseMascota(int usuarioId, String fase) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/mascota/$usuarioId/fase'),
-          headers: headers,
-          body: jsonEncode({'fase': fase}),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/mascota/$usuarioId/fase'),
+        headers: headers,
+        body: jsonEncode({'fase': fase}),
+      ),
+    );
     verificar(response);
   }
 
@@ -595,9 +690,9 @@ class ApiServiceCore {
     return _inicioGoogle ??= GoogleSignIn.instance
         .initialize(serverClientId: _googleServerClientId)
         .catchError((Object e, StackTrace s) {
-      _inicioGoogle = null;
-      Error.throwWithStackTrace(e, s);
-    });
+          _inicioGoogle = null;
+          Error.throwWithStackTrace(e, s);
+        });
   }
 
   /// Devuelve true si la cuenta se acaba de crear en este login (para
@@ -632,7 +727,9 @@ class ApiServiceCore {
     );
     verificar(response);
 
-    final data = parsear(() => jsonDecode(response.body) as Map<String, dynamic>);
+    final data = parsear(
+      () => jsonDecode(response.body) as Map<String, dynamic>,
+    );
     await saveToken(data['token']);
     await saveUsuario(Usuario.fromJson(data));
     return data['esNuevo'] ?? false;
@@ -643,22 +740,26 @@ class ApiServiceCore {
   /// Responde 204. Un texto vacío es válido: significa "sin campaña".
   static Future<void> registrarOrigen(int usuarioId, String referrer) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/usuarios/$usuarioId/origen'),
-          headers: headers,
-          body: jsonEncode({'referrer': referrer}),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/origen'),
+        headers: headers,
+        body: jsonEncode({'referrer': referrer}),
+      ),
+    );
     verificar(response, ok: const [204]);
   }
 
-// ── Notificaciones ─────────────────────────────────────
+  // ── Notificaciones ─────────────────────────────────────
   static Future<void> actualizarFcmToken(int usuarioId, String fcmToken) async {
     final headers = await getHeaders();
-    final response = await enviar(() => cliente.put(
-          Uri.parse('$baseUrl/usuarios/$usuarioId/fcm-token'),
-          headers: headers,
-          body: jsonEncode({'fcmToken': fcmToken}),
-        ));
+    final response = await enviar(
+      () => cliente.put(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/fcm-token'),
+        headers: headers,
+        body: jsonEncode({'fcmToken': fcmToken}),
+      ),
+    );
     verificar(response);
   }
 }

@@ -54,15 +54,18 @@ class _PuntosFlotantesState extends State<_PuntosFlotantes>
     );
 
     // Sube desde el centro hacia arriba
-    _subida = Tween<double>(begin: 0, end: -120).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _subida = Tween<double>(
+      begin: 0,
+      end: -120,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     // Pop de entrada (crece con rebote) y se mantiene
     _escala = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.3, end: 1.2)
-            .chain(CurveTween(curve: Curves.easeOutBack)),
+        tween: Tween(
+          begin: 0.3,
+          end: 1.2,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 25,
       ),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 15),

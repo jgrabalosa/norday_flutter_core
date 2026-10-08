@@ -65,7 +65,9 @@ class _SelectorAvatarGratisState extends State<SelectorAvatarGratis> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(MensajesError.de(context, e, generico: l.selError))),
+          SnackBar(
+            content: Text(MensajesError.de(context, e, generico: l.selError)),
+          ),
         );
       }
     } finally {
@@ -109,25 +111,43 @@ class _SelectorAvatarGratisState extends State<SelectorAvatarGratis> {
                 children: [
                   if (info != null)
                     CircleAvatar(
-                        radius: 28,
-                        backgroundColor: fondoAvatar,
-                        child: Image.asset(info.asset, package: 'norday_flutter_core', width: 42, height: 42))
+                      radius: 28,
+                      backgroundColor: fondoAvatar,
+                      child: Image.asset(
+                        info.asset,
+                        package: 'norday_flutter_core',
+                        width: 42,
+                        height: 42,
+                      ),
+                    )
                   else
                     CircleAvatar(radius: 28, backgroundColor: t.inactivo),
                   const SizedBox(height: 8),
-                  Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.bold, color: t.text)),
+                  Text(
+                    CatalogosCore.producto(
+                      context,
+                      producto['codigo'],
+                      producto['nombre'],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: t.text,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   if (procesandoEste)
                     const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   else
-                    Text(l.selElegirGratis,
-                        style: TextStyle(color: t.primary, fontSize: 12)),
+                    Text(
+                      l.selElegirGratis,
+                      style: TextStyle(color: t.primary, fontSize: 12),
+                    ),
                 ],
               ),
             ),

@@ -83,9 +83,12 @@ class AvatarUsuario extends StatelessWidget {
           ),
           // El PNG cuadrado no llena el círculo: se deja aire alrededor.
           child: Center(
-            child: Image.asset(asset,
-                package: 'norday_flutter_core',
-                width: radius * 1.5, height: radius * 1.5),
+            child: Image.asset(
+              asset,
+              package: 'norday_flutter_core',
+              width: radius * 1.5,
+              height: radius * 1.5,
+            ),
           ),
         );
       },

@@ -35,11 +35,7 @@ class HaloIdentidad extends StatefulWidget {
   /// identidad.
   final double intensidad;
 
-  const HaloIdentidad({
-    super.key,
-    required this.tamano,
-    this.intensidad = 1.0,
-  });
+  const HaloIdentidad({super.key, required this.tamano, this.intensidad = 1.0});
 
   @override
   State<HaloIdentidad> createState() => _HaloIdentidadState();
@@ -90,14 +86,6 @@ const _PerfilHalo _haloChamfer = _PerfilHalo(
   destelloMax: 0.34,
 );
 
-/// Alba es discreta también aquí: se nota que hay luz, no de dónde viene.
-const _PerfilHalo _haloHairline = _PerfilHalo(
-  opacidadMin: 0.10,
-  opacidadMax: 0.15,
-  escalaMin: 0.96,
-  escalaMax: 1.04,
-);
-
 const _PerfilHalo _haloPill = _PerfilHalo(
   opacidadMin: 0.16,
   opacidadMax: 0.30,
@@ -106,11 +94,10 @@ const _PerfilHalo _haloPill = _PerfilHalo(
 );
 
 _PerfilHalo _perfilDe(FormaIdentidad forma) => switch (forma) {
-      FormaIdentidad.glass => _haloGlass,
-      FormaIdentidad.chamfer => _haloChamfer,
-      FormaIdentidad.hairline => _haloHairline,
-      FormaIdentidad.pill => _haloPill,
-    };
+  FormaIdentidad.glass => _haloGlass,
+  FormaIdentidad.chamfer => _haloChamfer,
+  FormaIdentidad.pill => _haloPill,
+};
 
 class _HaloIdentidadState extends State<HaloIdentidad>
     with SingleTickerProviderStateMixin {
@@ -129,7 +116,10 @@ class _HaloIdentidadState extends State<HaloIdentidad>
   @override
   void initState() {
     super.initState();
-    _latido = AnimationController(vsync: this, duration: const Duration(seconds: 3));
+    _latido = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
   }
 
   @override
@@ -192,7 +182,8 @@ class _HaloIdentidadState extends State<HaloIdentidad>
               // El destello va en el color de puntos, no en el primario: dos
               // tonos distintos es lo que separa un neón de un foco.
               colorDestello: t.points,
-              opacidad: (perfil.opacidadMin +
+              opacidad:
+                  (perfil.opacidadMin +
                       (perfil.opacidadMax - perfil.opacidadMin) * p) *
                   widget.intensidad,
               escala:
@@ -200,8 +191,8 @@ class _HaloIdentidadState extends State<HaloIdentidad>
               destello: perfil.destelloMax == 0
                   ? 0
                   : perfil.destelloMax *
-                      _parpadeo(_latido.value) *
-                      widget.intensidad,
+                        _parpadeo(_latido.value) *
+                        widget.intensidad,
             ),
           );
         },
@@ -239,7 +230,12 @@ class _HaloPainter extends CustomPainter {
   }
 
   void _capa(
-      Canvas canvas, Offset centro, double radio, Color color, double alfa) {
+    Canvas canvas,
+    Offset centro,
+    double radio,
+    Color color,
+    double alfa,
+  ) {
     if (alfa <= 0.004 || radio <= 0) return;
     final rect = Rect.fromCircle(center: centro, radius: radio);
     final pincel = Paint()

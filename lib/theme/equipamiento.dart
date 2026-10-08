@@ -8,7 +8,7 @@ import 'identidades_paleta.dart';
 /// usuario puede equipar desde otro móvil y al volver a este tiene que verlo.
 ///
 /// El puente entre el catálogo local (`catalogoIdentidades`, `catalogoAvatares`,
-/// que van por código: 'TEMA_ALBA', 'AVATAR_ZORRO') y el backend (que va
+/// que van por código: 'TEMA_PROFUNDIDAD', 'AVATAR_ZORRO') y el backend (que va
 /// por `productoId`) es el campo `codigo` del producto. Ningún identificador
 /// de la BD está cableado en el cliente.
 class Equipamiento {
@@ -26,9 +26,11 @@ class Equipamiento {
     // catálogo local cae el código. Así basta con que el inventario traiga
     // `codigo`, sin depender de que además mande la categoría.
     aplicarIdentidadEquipada(
-        equipados.where(catalogoIdentidades.containsKey).firstOrNull);
+      equipados.where(catalogoIdentidades.containsKey).firstOrNull,
+    );
     aplicarAvatarEquipado(
-        equipados.where(catalogoAvatares.containsKey).firstOrNull);
+      equipados.where(catalogoAvatares.containsKey).firstOrNull,
+    );
   }
 
   /// Igual que [cargarDeUsuario] pero sin propagar el fallo: al arrancar, no
@@ -49,9 +51,11 @@ class Equipamiento {
       final inventario = await ApiServiceCore.getInventarioProductos(usuarioId);
       final equipados = _codigosEquipados(inventario);
       aplicarIdentidadEquipada(
-          equipados.where(catalogoIdentidades.containsKey).firstOrNull);
+        equipados.where(catalogoIdentidades.containsKey).firstOrNull,
+      );
       aplicarAvatarEquipado(
-          equipados.where(catalogoAvatares.containsKey).firstOrNull);
+        equipados.where(catalogoAvatares.containsKey).firstOrNull,
+      );
       return _poseeIdentidad(inventario);
     } catch (_) {
       // El aspecto nunca debe romper el arranque.
@@ -63,7 +67,10 @@ class Equipamiento {
   ///
   /// Devuelve los logros que el backend haya otorgado por equiparlo.
   static Future<List<String>> equiparTema(
-      int usuarioId, int productoId, String? codigo) async {
+    int usuarioId,
+    int productoId,
+    String? codigo,
+  ) async {
     final logros = await ApiServiceCore.equiparProducto(usuarioId, productoId);
     aplicarIdentidadEquipada(codigo);
     return logros;
@@ -71,7 +78,10 @@ class Equipamiento {
 
   /// Equipa un avatar: lo dice el backend y, si acepta, se pinta.
   static Future<void> equiparAvatar(
-      int usuarioId, int productoId, String? codigo) async {
+    int usuarioId,
+    int productoId,
+    String? codigo,
+  ) async {
     // Un avatar nunca otorga logro: se descarta la lista a propósito.
     await ApiServiceCore.equiparProducto(usuarioId, productoId);
     aplicarAvatarEquipado(codigo);

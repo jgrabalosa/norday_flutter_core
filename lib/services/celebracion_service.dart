@@ -24,7 +24,7 @@ class CelebracionService {
     _mostrando = false;
   }
 
-static Future<void> _procesarCola() async {
+  static Future<void> _procesarCola() async {
     Map<String, String> nombres = {};
     Map<String, String> descripciones = {};
     try {
@@ -33,10 +33,10 @@ static Future<void> _procesarCola() async {
         nombres[l['codigo']] = l['nombre'];
         descripciones[l['codigo']] = l['descripcion'] ?? '';
       }
-    // Silencio a propósito: el nombre y la descripción del logro salen primero
-    // de las traducciones del motor y de la app (CatalogosCore.logro). Lo del
-    // servidor sólo se usa para un código sin traducir; sin catálogo, ese caso
-    // enseña el código en crudo, pero la celebración sale igual.
+      // Silencio a propósito: el nombre y la descripción del logro salen primero
+      // de las traducciones del motor y de la app (CatalogosCore.logro). Lo del
+      // servidor sólo se usa para un código sin traducir; sin catálogo, ese caso
+      // enseña el código en crudo, pero la celebración sale igual.
     } catch (_) {}
 
     while (_cola.isNotEmpty) {
@@ -54,7 +54,10 @@ static Future<void> _procesarCola() async {
         transitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
         transitionBuilder: (context, anim, anim2, child) {
-          final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutBack);
+          final curved = CurvedAnimation(
+            parent: anim,
+            curve: Curves.easeOutBack,
+          );
           return Stack(
             children: [
               // Diálogo del logro (debajo)
@@ -115,7 +118,7 @@ class _CelebracionDialog extends StatelessWidget {
           padding: const EdgeInsets.all(28),
           // La figura sale de la identidad, pero la superficie se pinta
           // siempre: un diálogo flota sobre la pantalla oscurecida y necesita
-          // fondo propio, también en Alba, que en una pantalla no lo pondría.
+          // fondo propio.
           decoration: ShapeDecoration(
             color: t.surface,
             shape: formaIdentidad(
@@ -124,7 +127,11 @@ class _CelebracionDialog extends StatelessWidget {
               lado: BorderSide(color: t.primary.withValues(alpha: 0.45)),
             ),
             shadows: const [
-              BoxShadow(color: Colors.black26, blurRadius: 24, offset: Offset(0, 8)),
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 24,
+                offset: Offset(0, 8),
+              ),
             ],
           ),
           child: Column(
@@ -137,29 +144,34 @@ class _CelebracionDialog extends StatelessWidget {
               // nombre del logro, que es la información de verdad, y debajo va
               // el porqué. `logroDescripcion` ya existía traducida y no se
               // usaba en ningún sitio.
-              Text(l.celLogroDesbloqueado,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(color: t.textMuted),
-                  textAlign: TextAlign.center),
+              Text(
+                l.celLogroDesbloqueado,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: t.textMuted),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 6),
-              Text(CatalogosCore.logro(context, codigo, nombreBackend),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(color: t.text),
-                  textAlign: TextAlign.center),
+              Text(
+                CatalogosCore.logro(context, codigo, nombreBackend),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(color: t.text),
+                textAlign: TextAlign.center,
+              ),
               if (descripcionBackend.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                    CatalogosCore.logroDescripcion(
-                        context, codigo, descripcionBackend),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: t.textMuted),
-                    textAlign: TextAlign.center),
+                  CatalogosCore.logroDescripcion(
+                    context,
+                    codigo,
+                    descripcionBackend,
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: t.textMuted),
+                  textAlign: TextAlign.center,
+                ),
               ],
               const SizedBox(height: 20),
               ElevatedButton(
@@ -167,8 +179,9 @@ class _CelebracionDialog extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: t.primary,
                   foregroundColor: t.tinta,
-                  shape: formaIdentidad(id, radio: id.radioSecundario)
-                      as OutlinedBorder,
+                  shape:
+                      formaIdentidad(id, radio: id.radioSecundario)
+                          as OutlinedBorder,
                 ),
                 child: Text(l.celGenial),
               ),

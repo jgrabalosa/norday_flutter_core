@@ -103,10 +103,10 @@ const _PerfilVida _perfilDormida = _PerfilVida(
 /// Un estado que este cliente aún no conozca cae al perfil sereno, mismo
 /// criterio que `assetMascota`: ante la duda, no darla por contenta.
 _PerfilVida _perfilDe(String? estado) => switch (estado) {
-      'feliz' => _perfilFeliz,
-      'dormida' => _perfilDormida,
-      _ => _perfilTriste,
-    };
+  'feliz' => _perfilFeliz,
+  'dormida' => _perfilDormida,
+  _ => _perfilTriste,
+};
 
 class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
     with TickerProviderStateMixin {
@@ -228,8 +228,12 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
           ),
         );
       },
-      child: Image.asset(imagen, package: 'norday_flutter_core',
-          width: widget.tamano, height: widget.tamano),
+      child: Image.asset(
+        imagen,
+        package: 'norday_flutter_core',
+        width: widget.tamano,
+        height: widget.tamano,
+      ),
     );
 
     if (!widget.permiteToque) return cuerpo;

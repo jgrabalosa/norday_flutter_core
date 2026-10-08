@@ -59,7 +59,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
     try {
       final saldo = await ApiServiceCore.getSaldoPuntos(widget.usuarioId);
       final catalogo = await ApiServiceCore.getCatalogoProductos();
-      final inventario = await ApiServiceCore.getInventarioProductos(widget.usuarioId);
+      final inventario = await ApiServiceCore.getInventarioProductos(
+        widget.usuarioId,
+      );
 
       final mapaInventario = <int, Map<String, dynamic>>{};
       for (final up in inventario) {
@@ -88,7 +90,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
     setState(() => _procesando = productoId);
     List<String> logros = const [];
     try {
-      logros = await ApiServiceCore.comprarProducto(widget.usuarioId, productoId);
+      logros = await ApiServiceCore.comprarProducto(
+        widget.usuarioId,
+        productoId,
+      );
       await _cargarDatos();
     } catch (e) {
       _mostrarError(e);
@@ -101,12 +106,20 @@ class _TiendaScreenState extends State<TiendaScreen> {
     if (mounted) await CelebracionService.mostrar(logros);
   }
 
-  Future<void> _equipar(int productoId, String? codigo, String categoria) async {
+  Future<void> _equipar(
+    int productoId,
+    String? codigo,
+    String categoria,
+  ) async {
     setState(() => _procesando = productoId);
     List<String> logros = const [];
     try {
       if (categoria == 'Tema') {
-        logros = await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
+        logros = await Equipamiento.equiparTema(
+          widget.usuarioId,
+          productoId,
+          codigo,
+        );
       } else if (categoria == 'Avatar') {
         await Equipamiento.equiparAvatar(widget.usuarioId, productoId, codigo);
       }
@@ -123,8 +136,11 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   void _mostrarError(Object e) {
     if (mounted) {
-      MensajesError.enSnackBar(context, e,
-          generico: NordayCoreLocalizations.of(context)!.tiendaError);
+      MensajesError.enSnackBar(
+        context,
+        e,
+        generico: NordayCoreLocalizations.of(context)!.tiendaError,
+      );
     }
   }
 
@@ -177,29 +193,36 @@ class _TiendaScreenState extends State<TiendaScreen> {
                           relleno: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Icon(LucideIcons.coins, color: t.points, size: 40),
+                              Icon(
+                                LucideIcons.coins,
+                                color: t.points,
+                                size: 40,
+                              ),
                               const SizedBox(height: 8),
-                              Text('$_saldo',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall
-                                      ?.copyWith(color: t.text)),
-                              Text(l.puntos,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(color: t.textMuted)),
+                              Text(
+                                '$_saldo',
+                                style: Theme.of(context).textTheme.displaySmall
+                                    ?.copyWith(color: t.text),
+                              ),
+                              Text(
+                                l.puntos,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: t.textMuted),
+                              ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(l.tiendaCatalogo,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(color: t.text)),
+                        Text(
+                          l.tiendaCatalogo,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineSmall?.copyWith(color: t.text),
+                        ),
                         const SizedBox(height: 8),
-                        ..._catalogo.map((producto) => _productoCard(l, producto, t)),
+                        ..._catalogo.map(
+                          (producto) => _productoCard(l, producto, t),
+                        ),
                       ],
                     ),
                   ),
@@ -209,7 +232,11 @@ class _TiendaScreenState extends State<TiendaScreen> {
     );
   }
 
-  Widget _productoCard(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
+  Widget _productoCard(
+    NordayCoreLocalizations l,
+    dynamic producto,
+    TokensContextuales t,
+  ) {
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
     final tipo = producto['tipo'] as String;
@@ -224,8 +251,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
     return SuperficieIdentidad(
       // Es un elemento de lista, no el protagonista de la pantalla: radio
-      // secundario, y en Alba línea fina debajo en vez de caja.
-      esFila: true,
+      // secundario.
       margen: const EdgeInsets.only(bottom: 8),
       relleno: const EdgeInsets.all(16),
       // Sólo los temas se pueden previsualizar: del resto no hay nada que
@@ -245,35 +271,47 @@ class _TiendaScreenState extends State<TiendaScreen> {
               _iconoProducto(categoria, codigo, icono),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(CatalogosCore.producto(context, producto['codigo'], producto['nombre']),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: t.text)),
+                child: Text(
+                  CatalogosCore.producto(
+                    context,
+                    producto['codigo'],
+                    producto['nombre'],
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: t.text),
+                ),
               ),
               if (equipado)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: t.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(l.tiendaEquipado,
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium
-                          ?.copyWith(color: t.primary)),
+                  child: Text(
+                    l.tiendaEquipado,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelMedium?.copyWith(color: t.primary),
+                  ),
                 ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
-              CatalogosCore.productoDescripcion(
-                  context, producto['codigo'], producto['descripcion']),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: t.textMuted)),
+            CatalogosCore.productoDescripcion(
+              context,
+              producto['codigo'],
+              producto['descripcion'],
+            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: t.textMuted),
+          ),
           if (identidad != null) ...[
             const SizedBox(height: 10),
             Row(
@@ -290,14 +328,26 @@ class _TiendaScreenState extends State<TiendaScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                  tipo == 'CONSUMIBLE' && cantidad > 0
-                      ? l.tiendaPrecioConCantidad(producto['precio'] as int, cantidad)
-                      : l.tiendaPrecio(producto['precio'] as int),
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(color: t.textMuted)),
-              _botonAccion(l, productoId, tipo, poseido, equipado, codigo, categoria, procesandoEste),
+                tipo == 'CONSUMIBLE' && cantidad > 0
+                    ? l.tiendaPrecioConCantidad(
+                        producto['precio'] as int,
+                        cantidad,
+                      )
+                    : l.tiendaPrecio(producto['precio'] as int),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: t.textMuted),
+              ),
+              _botonAccion(
+                l,
+                productoId,
+                tipo,
+                poseido,
+                equipado,
+                codigo,
+                categoria,
+                procesandoEste,
+              ),
             ],
           ),
         ],
@@ -320,7 +370,12 @@ class _TiendaScreenState extends State<TiendaScreen> {
       backgroundColor: fondoAvatar,
       // El PNG cuadrado no llena el círculo: se deja aire alrededor, igual
       // que en AvatarUsuario.
-      child: Image.asset(avatar.asset, package: 'norday_flutter_core', width: 24, height: 24),
+      child: Image.asset(
+        avatar.asset,
+        package: 'norday_flutter_core',
+        width: 24,
+        height: 24,
+      ),
     );
   }
 
@@ -328,7 +383,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
   /// en los mismos métodos de la tarjeta: la hoja no duplica nada del estado
   /// de compra, sólo evita el viaje de vuelta.
   void _abrirPrevisualizacion(
-      NordayCoreLocalizations l, dynamic producto, IdentidadPaleta identidad) {
+    NordayCoreLocalizations l,
+    dynamic producto,
+    IdentidadPaleta identidad,
+  ) {
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
     final categoria = producto['categoria'] as String;
@@ -350,8 +408,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
             controller: controlador,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
-              Text(CatalogosCore.producto(context, codigo, producto['nombre']),
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                CatalogosCore.producto(context, codigo, producto['nombre']),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: 16),
               MaquetaPreviewIdentidad(identidad: identidad),
               const SizedBox(height: 16),
@@ -376,7 +436,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
                             _comprar(productoId);
                           }
                         },
-                        child: Text(poseido ? l.tiendaEquipar : l.tiendaComprar),
+                        child: Text(
+                          poseido ? l.tiendaEquipar : l.tiendaComprar,
+                        ),
                       ),
                     ),
                   ],
@@ -389,8 +451,16 @@ class _TiendaScreenState extends State<TiendaScreen> {
     );
   }
 
-  Widget _botonAccion(NordayCoreLocalizations l, int productoId, String tipo, bool poseido, bool equipado,
-      String? codigo, String categoria, bool procesando) {
+  Widget _botonAccion(
+    NordayCoreLocalizations l,
+    int productoId,
+    String tipo,
+    bool poseido,
+    bool equipado,
+    String? codigo,
+    String categoria,
+    bool procesando,
+  ) {
     if (procesando) {
       return const SizedBox(
         width: 20,

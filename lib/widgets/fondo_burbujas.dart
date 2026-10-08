@@ -69,11 +69,7 @@ class FondoBurbujas extends StatelessWidget {
   /// Ver [NivelFondo].
   final NivelFondo nivel;
 
-  const FondoBurbujas({
-    super.key,
-    required this.tokens,
-    required this.nivel,
-  });
+  const FondoBurbujas({super.key, required this.tokens, required this.nivel});
 
   /// Las mismas burbujas, más tenues: así dice Dulce que esto está más lejos.
   /// El mismo 0.55 que Profundidad aplica a su cielo y Neotokyo+ a su ciudad.

@@ -10,7 +10,7 @@ import '../l10n/norday_core_localizations.dart';
 /// y en la Osa Mayor, que son polilíneas, pero destroza la Cruz del Sur y
 /// Orión: un cinturón no se une a un pie por el mismo trazo que a un hombro.
 class Constelacion {
-  /// Los puntos EN ORDEN DE ENCENDIDO. El hábito número N enciende
+  /// Los puntos EN ORDEN DE ENCENDIDO. El elemento número N enciende
   /// `puntos[N-1]`.
   final List<Offset> puntos;
 
@@ -18,10 +18,7 @@ class Constelacion {
   /// extremos están encendidos.
   final List<(int, int)> segmentos;
 
-  const Constelacion({
-    required this.puntos,
-    required this.segmentos,
-  });
+  const Constelacion({required this.puntos, required this.segmentos});
 }
 
 /// Catálogo indexado por número de hábitos del día, de 1 a 8.
@@ -116,19 +113,19 @@ const Map<int, Constelacion> catalogoConstelaciones = {
   ),
 };
 
-/// La figura que toca para [totalHabitos]. `null` con 0 hábitos.
-Constelacion? constelacionPara(int totalHabitos) {
-  if (totalHabitos <= 0) return null;
-  return catalogoConstelaciones[totalHabitos.clamp(1, 8)];
+/// La figura que toca para [total]. `null` con 0 elementos.
+Constelacion? constelacionPara(int total) {
+  if (total <= 0) return null;
+  return catalogoConstelaciones[total.clamp(1, 8)];
 }
 
-/// El nombre de la figura que toca para [totalHabitos], en el idioma activo.
+/// El nombre de la figura que toca para [total], en el idioma activo.
 ///
 /// Va aparte del catálogo porque el catálogo es `const` y las traducciones
 /// dependen del idioma, que cambia sin reiniciar la app. Mismo tope que
 /// [constelacionPara]: de 8 en adelante, Orión.
-String nombreConstelacion(NordayCoreLocalizations l, int totalHabitos) =>
-    switch (totalHabitos.clamp(1, 8)) {
+String nombreConstelacion(NordayCoreLocalizations l, int total) =>
+    switch (total.clamp(1, 8)) {
       1 => l.constelacionPolar,
       2 => l.constelacionPunteros,
       3 => l.constelacionCinturon,

@@ -53,8 +53,8 @@ class _CheckCircularState extends State<CheckCircular>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _relleno; // 0-1: el círculo se llena
-  late final Animation<double> _pop;     // escala con rebote
-  late final Animation<double> _trazo;   // 0-1: el check se dibuja
+  late final Animation<double> _pop; // escala con rebote
+  late final Animation<double> _trazo; // 0-1: el check se dibuja
 
   /// Misma lectura y mismo criterio que el resto del sistema: con "reducir
   /// movimiento" el check no se traza ni rebota, salta a hecho. El estado
@@ -80,16 +80,22 @@ class _CheckCircularState extends State<CheckCircular>
       parent: _controller,
       curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
     );
-    _pop = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.18), weight: 40),
-      TweenSequenceItem(
-          tween: Tween(begin: 1.18, end: 1.0)
-              .chain(CurveTween(curve: Curves.elasticOut)),
-          weight: 60),
-    ]).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.15, 0.75),
-    ));
+    _pop =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.18), weight: 40),
+          TweenSequenceItem(
+            tween: Tween(
+              begin: 1.18,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.elasticOut)),
+            weight: 60,
+          ),
+        ]).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.15, 0.75),
+          ),
+        );
     _trazo = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.35, 1.0, curve: Curves.easeOutCubic),
@@ -201,10 +207,13 @@ class _TrazoCheck {
   });
 }
 
-const _checkGlass =
-    _TrazoCheck(aro: 3.4, check: 0.09, glow: 5, sinTarjeta: true);
+const _checkGlass = _TrazoCheck(
+  aro: 3.4,
+  check: 0.09,
+  glow: 5,
+  sinTarjeta: true,
+);
 const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10);
-const _checkHairline = _TrazoCheck(aro: 1.2, check: 0.07);
 const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10, glow: 7);
 
 class _CheckPainter extends CustomPainter {
@@ -213,7 +222,7 @@ class _CheckPainter extends CustomPainter {
   final Color color;
 
   /// El aro del estado vacío, que viene del token `aroVacio` de la identidad.
-  /// Lo usan las cuatro: antes las tres con tarjeta pintaban `surface2` aquí y
+  /// Lo usan las identidades actuales: antes las que tenían tarjeta pintaban `surface2` aquí y
   /// no se veía. Ver `TokensContextuales.aroVacio`.
   final Color colorAro;
 
@@ -234,11 +243,10 @@ class _CheckPainter extends CustomPainter {
   });
 
   _TrazoCheck get _trazoDe => switch (forma) {
-        FormaIdentidad.glass => _checkGlass,
-        FormaIdentidad.chamfer => _checkChamfer,
-        FormaIdentidad.hairline => _checkHairline,
-        FormaIdentidad.pill => _checkPill,
-      };
+    FormaIdentidad.glass => _checkGlass,
+    FormaIdentidad.chamfer => _checkChamfer,
+    FormaIdentidad.pill => _checkPill,
+  };
 
   /// La figura del check en esta identidad, inscrita en un cuadrado de lado
   /// `radio * 2` centrado en [centro]. [escala] la encoge desde el centro, que
@@ -246,8 +254,7 @@ class _CheckPainter extends CustomPainter {
   Path _figura(Offset centro, double radio, double escala) {
     final r = radio * escala;
     if (forma != FormaIdentidad.chamfer) {
-      return Path()
-        ..addOval(Rect.fromCircle(center: centro, radius: r));
+      return Path()..addOval(Rect.fromCircle(center: centro, radius: r));
     }
     // Cuadrado con las cuatro esquinas cortadas, el mismo chaflán que la
     // identidad usa en tarjetas, chips y burbujas.
@@ -347,8 +354,9 @@ class _CheckPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = size.width * t.check
-          ..strokeCap =
-              forma == FormaIdentidad.chamfer ? StrokeCap.butt : StrokeCap.round
+          ..strokeCap = forma == FormaIdentidad.chamfer
+              ? StrokeCap.butt
+              : StrokeCap.round
           ..color = Colors.white,
       );
     }

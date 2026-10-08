@@ -33,14 +33,17 @@ class LoginScreen extends StatefulWidget {
   /// pantalla principal. [mostrarOnboarding] va a true cuando la cuenta se
   /// acaba de crear en este mismo login.
   final Widget Function(BuildContext context, bool mostrarOnboarding)
-      destinoTrasLogin;
+  destinoTrasLogin;
 
   /// Se abre porque la sesión caducó: enseña el aviso hasta el primer
   /// intento de entrar.
   final bool sesionCaducada;
 
-  const LoginScreen(
-      {super.key, required this.destinoTrasLogin, this.sesionCaducada = false});
+  const LoginScreen({
+    super.key,
+    required this.destinoTrasLogin,
+    this.sesionCaducada = false,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -75,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return MensajesError.de(context, e, generico: l.loginError);
   }
 
- Future<void> _registrarNotificaciones(int usuarioId) async {
+  Future<void> _registrarNotificaciones(int usuarioId) async {
     try {
       final status = await Permission.notification.request();
       if (!status.isGranted) return;
@@ -131,7 +134,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 alElegir: () => Navigator.pushReplacement(
                   ctx,
                   MaterialPageRoute(
-                      builder: (ctx2) => widget.destinoTrasLogin(ctx2, esNuevo)),
+                    builder: (ctx2) => widget.destinoTrasLogin(ctx2, esNuevo),
+                  ),
                 ),
               )
             : widget.destinoTrasLogin(ctx, esNuevo),
@@ -141,7 +145,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     final l = NordayCoreLocalizations.of(context)!;
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final usuario = await ApiServiceCore.login(
         _emailController.text,
@@ -153,13 +160,21 @@ class _LoginScreenState extends State<LoginScreen> {
       await _registrarNotificaciones(usuario.usuarioId);
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
-      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
+      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
+        usuario.usuarioId,
+      );
       _irADestino(usuario.usuarioId, false, posee);
     } catch (e) {
-      if (mounted) setState(() { _error = _textoError(e, l); });
+      if (mounted)
+        setState(() {
+          _error = _textoError(e, l);
+        });
     } finally {
       // pushReplacement ya ha desmontado esta pantalla en el caso bueno
-      if (mounted) setState(() { _loading = false; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+        });
     }
   }
 
@@ -179,9 +194,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return '${base}_$cifras';
   }
 
-Future<void> _registro() async {
+  Future<void> _registro() async {
     final l = NordayCoreLocalizations.of(context)!;
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       await ApiServiceCore.registro(
         _nombreController.text,
@@ -201,7 +219,9 @@ Future<void> _registro() async {
       await _registrarNotificaciones(usuario.usuarioId);
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
-      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuario.usuarioId);
+      final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
+        usuario.usuarioId,
+      );
       _irADestino(usuario.usuarioId, true, posee);
     } catch (e) {
       if (mounted) {
@@ -210,14 +230,20 @@ Future<void> _registro() async {
         });
       }
     } finally {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+        });
     }
   }
 
   // ── Login con Google ───────────────────────────────────
   Future<void> _loginConGoogle() async {
     final l = NordayCoreLocalizations.of(context)!;
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final esNuevo = await ApiServiceCore.loginConGoogle();
       // El flujo no llegó a completarse. Puede ser que el usuario cancelara
@@ -225,7 +251,10 @@ Future<void> _registro() async {
       // que llega indistinguible de una cancelación. En ambos casos se
       // avisa: quedarse en silencio deja al usuario ante una pantalla muerta.
       if (esNuevo == null) {
-        if (mounted) setState(() { _error = l.loginCancelado; });
+        if (mounted)
+          setState(() {
+            _error = l.loginCancelado;
+          });
         return;
       }
       final usuarioLocal = await ApiServiceCore.getUsuarioLocal();
@@ -248,7 +277,10 @@ Future<void> _registro() async {
         });
       }
     } finally {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+        });
     }
   }
 
@@ -297,8 +329,6 @@ Future<void> _registro() async {
                     children: [
                       _cabecera(t, l),
                       const SizedBox(height: 24),
-                      // Alba no encajona: ahí esto no pinta tarjeta ninguna, y el
-                      // formulario se apoya directamente en el fondo.
                       SuperficieIdentidad(
                         protagonista: true,
                         // El cielo es lo bonito de esta pantalla: la tarjeta
@@ -336,17 +366,19 @@ Future<void> _registro() async {
         Text(
           l.loginTagline,
           textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: t.textMuted),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: t.textMuted),
         ),
       ],
     );
   }
 
   Widget _formulario(
-      IdentidadPaleta id, TokensContextuales t, NordayCoreLocalizations l) {
+    IdentidadPaleta id,
+    TokensContextuales t,
+    NordayCoreLocalizations l,
+  ) {
     return Column(
       children: [
         _tabs(id, t, l),
@@ -382,8 +414,9 @@ Future<void> _registro() async {
               size: 18,
               color: t.textMuted,
             ),
-            onPressed: () =>
-                setState(() { _obscurePassword = !_obscurePassword; }),
+            onPressed: () => setState(() {
+              _obscurePassword = !_obscurePassword;
+            }),
           ),
         ),
 
@@ -403,14 +436,13 @@ Future<void> _registro() async {
                     },
               child: Text(
                 l.loginOlvidasteContrasena,
-                // Subrayado y color de texto en vez del primario: el verde de
-                // Profundidad o el salvia de Alba no llegan a 4.5:1 sobre sus
-                // propios fondos, y esto es texto que hay que leer.
+                // Subrayado y color de texto en vez del primario: el enlace
+                // debe leerse sobre el fondo de cualquier identidad.
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: t.text,
-                      decoration: TextDecoration.underline,
-                      decorationColor: t.textMuted,
-                    ),
+                  color: t.text,
+                  decoration: TextDecoration.underline,
+                  decorationColor: t.textMuted,
+                ),
               ),
             ),
           )
@@ -435,23 +467,47 @@ Future<void> _registro() async {
   /// —google_fonts trae un fichero por variante—, así que se vería un falso
   /// negrita. El indicador ya dice cuál es cuál.
   Widget _tabs(
-      IdentidadPaleta id, TokensContextuales t, NordayCoreLocalizations l) {
+    IdentidadPaleta id,
+    TokensContextuales t,
+    NordayCoreLocalizations l,
+  ) {
     return Row(
       children: [
         Expanded(
-          child: _tab(id, t, l.loginIniciarSesion, _isLogin,
-              () => setState(() { _isLogin = true; _error = null; })),
+          child: _tab(
+            id,
+            t,
+            l.loginIniciarSesion,
+            _isLogin,
+            () => setState(() {
+              _isLogin = true;
+              _error = null;
+            }),
+          ),
         ),
         Expanded(
-          child: _tab(id, t, l.loginRegistrarse, !_isLogin,
-              () => setState(() { _isLogin = false; _error = null; })),
+          child: _tab(
+            id,
+            t,
+            l.loginRegistrarse,
+            !_isLogin,
+            () => setState(() {
+              _isLogin = false;
+              _error = null;
+            }),
+          ),
         ),
       ],
     );
   }
 
-  Widget _tab(IdentidadPaleta id, TokensContextuales t, String etiqueta,
-      bool activo, VoidCallback alTocar) {
+  Widget _tab(
+    IdentidadPaleta id,
+    TokensContextuales t,
+    String etiqueta,
+    bool activo,
+    VoidCallback alTocar,
+  ) {
     final base = Theme.of(context).textTheme.titleSmall;
     final color = activo ? t.text : t.textMuted;
 
@@ -487,40 +543,40 @@ Future<void> _registro() async {
     return switch (id.forma) {
       // Profundidad — barra redondeada con algo de luz debajo.
       FormaIdentidad.glass => Container(
-          height: 3,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: activo
-                ? [
-                    BoxShadow(
-                      color: t.primary.withValues(alpha: 0.45),
-                      blurRadius: 8,
-                    ),
-                  ]
-                : null,
-          ),
+        height: 3,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(2),
+          boxShadow: activo
+              ? [
+                  BoxShadow(
+                    color: t.primary.withValues(alpha: 0.45),
+                    blurRadius: 8,
+                  ),
+                ]
+              : null,
         ),
+      ),
 
       // Neotokyo+ — filo recto, sin radio: el corte es su lenguaje.
       FormaIdentidad.chamfer => Container(height: 2, color: color),
 
-      // Alba — línea fina y nada más.
-      FormaIdentidad.hairline => Container(height: 1, color: color),
-
       // Dulce — píldora.
       FormaIdentidad.pill => Container(
-          height: 4,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-          ),
+        height: 4,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(4),
         ),
+      ),
     };
   }
 
   Widget _botonGoogle(
-      IdentidadPaleta id, TokensContextuales t, NordayCoreLocalizations l) {
+    IdentidadPaleta id,
+    TokensContextuales t,
+    NordayCoreLocalizations l,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -549,10 +605,9 @@ Future<void> _registro() async {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             l.loginO,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: t.textMuted),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: t.textMuted),
           ),
         ),
         linea,
@@ -566,10 +621,9 @@ Future<void> _registro() async {
     final tono = tonoError(context);
     final texto = Text(
       mensaje,
-      style: Theme.of(context)
-          .textTheme
-          .bodySmall
-          ?.copyWith(color: tono.texto, height: 1.35),
+      style: Theme.of(
+        context,
+      ).textTheme.bodySmall?.copyWith(color: tono.texto, height: 1.35),
     );
     final icono = Icon(LucideIcons.circleAlert, size: 18, color: tono.borde);
     final fila = Row(
@@ -584,54 +638,46 @@ Future<void> _registro() async {
 
     return switch (id.forma) {
       FormaIdentidad.glass => Container(
-          width: double.infinity,
-          padding: relleno,
-          decoration: BoxDecoration(
-            color: tono.fondo,
-            borderRadius: BorderRadius.circular(id.radioSecundario),
-            border: Border.all(color: tono.borde.withValues(alpha: 0.55)),
-          ),
-          child: fila,
+        width: double.infinity,
+        padding: relleno,
+        decoration: BoxDecoration(
+          color: tono.fondo,
+          borderRadius: BorderRadius.circular(id.radioSecundario),
+          border: Border.all(color: tono.borde.withValues(alpha: 0.55)),
         ),
+        child: fila,
+      ),
 
       FormaIdentidad.chamfer => Container(
-          width: double.infinity,
-          padding: relleno,
-          decoration: ShapeDecoration(
-            color: tono.fondo,
-            shape: BordeChaflan(
-              chaflan: id.chaflan,
-              side: BorderSide(color: tono.borde),
-            ),
+        width: double.infinity,
+        padding: relleno,
+        decoration: ShapeDecoration(
+          color: tono.fondo,
+          shape: BordeChaflan(
+            chaflan: id.chaflan,
+            side: BorderSide(color: tono.borde),
           ),
-          child: fila,
         ),
-
-      // Alba — ni caja ni relleno: una línea al margen y el texto. Un banner de
-      // color sería lo más ruidoso de toda la identidad.
-      FormaIdentidad.hairline => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
-          decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: tono.borde, width: 2)),
-          ),
-          child: fila,
-        ),
+        child: fila,
+      ),
 
       FormaIdentidad.pill => Container(
-          width: double.infinity,
-          padding: relleno,
-          decoration: BoxDecoration(
-            color: tono.fondo,
-            borderRadius: BorderRadius.circular(id.radioSecundario),
-          ),
-          child: fila,
+        width: double.infinity,
+        padding: relleno,
+        decoration: BoxDecoration(
+          color: tono.fondo,
+          borderRadius: BorderRadius.circular(id.radioSecundario),
         ),
+        child: fila,
+      ),
     };
   }
 
   Widget _botonPrincipal(
-      IdentidadPaleta id, TokensContextuales t, NordayCoreLocalizations l) {
+    IdentidadPaleta id,
+    TokensContextuales t,
+    NordayCoreLocalizations l,
+  ) {
     final esNeotokyo = id.forma == FormaIdentidad.chamfer;
     final etiqueta = _isLogin ? l.loginIniciarSesion : l.loginCrearCuenta;
 
@@ -650,15 +696,17 @@ Future<void> _registro() async {
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2.4, color: t.tinta),
+                  strokeWidth: 2.4,
+                  color: t.tinta,
+                ),
               )
             : Text(
                 esNeotokyo ? etiqueta.toUpperCase() : etiqueta,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontSize: 16,
-                      color: t.tinta,
-                      letterSpacing: esNeotokyo ? 1.2 : null,
-                    ),
+                  fontSize: 16,
+                  color: t.tinta,
+                  letterSpacing: esNeotokyo ? 1.2 : null,
+                ),
               ),
       ),
     );
@@ -667,11 +715,10 @@ Future<void> _registro() async {
   /// La forma de los botones, del mismo lenguaje que la tarjeta: sería raro
   /// un panel achaflanado con los botones redondeados.
   OutlinedBorder _formaBoton(IdentidadPaleta id) => switch (id.forma) {
-        FormaIdentidad.glass =>
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(id.radioSecundario)),
-        FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan),
-        FormaIdentidad.hairline =>
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(id.radioSecundario)),
-        FormaIdentidad.pill => const StadiumBorder(),
-      };
+    FormaIdentidad.glass => RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(id.radioSecundario),
+    ),
+    FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan),
+    FormaIdentidad.pill => const StadiumBorder(),
+  };
 }

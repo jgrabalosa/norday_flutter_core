@@ -21,7 +21,13 @@ void main() {
     await ApiServiceCore.logout();
 
     final prefs = await SharedPreferences.getInstance();
-    for (final clave in ['usuarioId', 'nombre', 'username', 'email', 'proveedorAuth']) {
+    for (final clave in [
+      'usuarioId',
+      'nombre',
+      'username',
+      'email',
+      'proveedorAuth',
+    ]) {
       expect(prefs.containsKey(clave), isFalse, reason: clave);
     }
     // Lo que causaba el bug: el recorrido volvía a salir tras cerrar sesión.

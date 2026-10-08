@@ -38,10 +38,8 @@ class CelebracionNivel {
 
     late OverlayEntry entrada;
     entrada = OverlayEntry(
-      builder: (_) => _CelebracionNivelOverlay(
-        nivel: nivel,
-        alTerminar: entrada.remove,
-      ),
+      builder: (_) =>
+          _CelebracionNivelOverlay(nivel: nivel, alTerminar: entrada.remove),
     );
     overlay.insert(entrada);
   }
@@ -114,8 +112,10 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
   /// entre identidades es lo que rodea al texto, no cuándo aparece.
   static final _tweenEscala = TweenSequence<double>([
     TweenSequenceItem(
-      tween: Tween(begin: 0.4, end: 1.12)
-          .chain(CurveTween(curve: Curves.easeOutBack)),
+      tween: Tween(
+        begin: 0.4,
+        end: 1.12,
+      ).chain(CurveTween(curve: Curves.easeOutBack)),
       weight: 28,
     ),
     TweenSequenceItem(tween: Tween(begin: 1.12, end: 1.0), weight: 12),
@@ -163,7 +163,11 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
   }
 
   Widget _texto(
-      IdentidadPaleta id, TokensContextuales t, String texto, double v) {
+    IdentidadPaleta id,
+    TokensContextuales t,
+    String texto,
+    double v,
+  ) {
     final base = GoogleFonts.getFont(
       id.fontDisplay,
       fontSize: 40,
@@ -184,63 +188,36 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
       // Separación de canales: el mismo texto tres veces, dos de ellas
       // desplazadas y en color, temblando a distinto ritmo.
       FormaIdentidad.chamfer => Stack(
-          alignment: Alignment.center,
-          children: [
-            Transform.translate(
-              offset: Offset(_tembleque(v, 13) * 5, 0),
-              child: Text(texto.toUpperCase(),
-                  style: base.copyWith(
-                      color: t.primary.withValues(alpha: 0.85),
-                      letterSpacing: 2)),
-            ),
-            Transform.translate(
-              offset: Offset(_tembleque(v, 7) * -5, 0),
-              child: Text(texto.toUpperCase(),
-                  style: base.copyWith(
-                      color: t.points.withValues(alpha: 0.85),
-                      letterSpacing: 2)),
-            ),
-            Text(texto.toUpperCase(),
-                style: base.copyWith(letterSpacing: 2)),
-          ],
-        ),
-
-      // Alba — un brillo dorado que cruza la letra de lado a lado, en itálica
-      // como todo su display. Nada más: es toda la celebración.
-      FormaIdentidad.hairline => ShaderMask(
-          blendMode: BlendMode.srcATop,
-          shaderCallback: (rect) {
-            // El barrido va de fuera a fuera, así que el reflejo entra y sale
-            // en vez de aparecer y desaparecer dentro de la palabra.
-            final centro = -0.4 + v * 1.8;
-            return LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                t.points.withValues(alpha: 0),
-                t.points,
-                t.points.withValues(alpha: 0),
-              ],
-              stops: [
-                (centro - 0.22).clamp(0.0, 1.0),
-                centro.clamp(0.0, 1.0),
-                (centro + 0.22).clamp(0.0, 1.0),
-              ],
-            ).createShader(rect);
-          },
-          child: Text(
-            texto,
-            style: base.copyWith(
-              fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w600,
+        alignment: Alignment.center,
+        children: [
+          Transform.translate(
+            offset: Offset(_tembleque(v, 13) * 5, 0),
+            child: Text(
+              texto.toUpperCase(),
+              style: base.copyWith(
+                color: t.primary.withValues(alpha: 0.85),
+                letterSpacing: 2,
+              ),
             ),
           ),
-        ),
+          Transform.translate(
+            offset: Offset(_tembleque(v, 7) * -5, 0),
+            child: Text(
+              texto.toUpperCase(),
+              style: base.copyWith(
+                color: t.points.withValues(alpha: 0.85),
+                letterSpacing: 2,
+              ),
+            ),
+          ),
+          Text(texto.toUpperCase(), style: base.copyWith(letterSpacing: 2)),
+        ],
+      ),
 
       FormaIdentidad.pill => Text(
-          texto,
-          style: base.copyWith(color: t.primary),
-        ),
+        texto,
+        style: base.copyWith(color: t.primary),
+      ),
     };
   }
 
@@ -251,8 +228,8 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
       math.sin(v * 2 * math.pi * 2.7 + 0.6);
 }
 
-/// El gesto de fondo de la celebración, por identidad: fogonazo, glitch, nada
-/// (Alba celebra en la letra, no detrás de ella) o confeti de corazones.
+/// El gesto de fondo de la celebración, por identidad: fogonazo, glitch o
+/// confeti de corazones.
 ///
 /// Recibe el avance en vez de animarse solo porque acompaña a algo —el texto
 /// del nivel— y los dos tienen que ir al mismo compás. Para acompañar algo que
@@ -303,25 +280,22 @@ class _FondoCelebracionIdentidadState extends State<FondoCelebracionIdentidad> {
       // Profundidad — destello: un fogonazo verde que se apaga y un aro que
       // se abre desde el centro.
       FormaIdentidad.glass => CustomPaint(
-          painter: _DestelloPainter(color: t.success, avance: v),
-        ),
+        painter: _DestelloPainter(color: t.success, avance: v),
+      ),
       // Neotokyo+ — glitch: bandas horizontales desplazadas, como una señal
       // que se rompe. El desgarro va aquí; la separación de color, en el texto.
       FormaIdentidad.chamfer => CustomPaint(
-          painter: _GlitchPainter(color: t.primary, acento: t.points, avance: v),
-        ),
-      // Alba no pone nada detrás: su celebración es el brillo que cruza la
-      // letra, y añadirle fondo la sacaría de su propio registro.
-      FormaIdentidad.hairline => const SizedBox.shrink(),
+        painter: _GlitchPainter(color: t.primary, acento: t.points, avance: v),
+      ),
       // Dulce — confeti de corazones cayendo.
       FormaIdentidad.pill => CustomPaint(
-          painter: _ConfetiCorazonesPainter(
-            corazones: _corazones,
-            color: t.primary,
-            acento: t.streak,
-            avance: v,
-          ),
+        painter: _ConfetiCorazonesPainter(
+          corazones: _corazones,
+          color: t.primary,
+          acento: t.streak,
+          avance: v,
         ),
+      ),
     };
   }
 }
@@ -472,8 +446,9 @@ class _GlitchPainter extends CustomPainter {
       canvas.drawRect(
         rect,
         Paint()
-          ..color = (frecuencia > 20 ? acento : color)
-              .withValues(alpha: 0.22 * fuerza),
+          ..color = (frecuencia > 20 ? acento : color).withValues(
+            alpha: 0.22 * fuerza,
+          ),
       );
     }
   }
@@ -529,7 +504,8 @@ class _ConfetiCorazonesPainter extends CustomPainter {
       final t = ((avance - c.retraso) / (1 - c.retraso)).clamp(0.0, 1.0);
       if (t <= 0) continue;
 
-      final y = -c.lado + (size.height + c.lado * 2) * Curves.easeIn.transform(t);
+      final y =
+          -c.lado + (size.height + c.lado * 2) * Curves.easeIn.transform(t);
       final x = size.width * c.x + c.deriva * t;
       final alfa = (1 - t * t).clamp(0.0, 1.0);
 

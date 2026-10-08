@@ -271,6 +271,30 @@ abstract class NordayCoreLocalizations {
   /// **'Idioma y zona horaria'**
   String get preferenciasSubtitulo;
 
+  /// No description provided for @sonido.
+  ///
+  /// In es, this message translates to:
+  /// **'Sonido'**
+  String get sonido;
+
+  /// No description provided for @sonidoAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Activa o silencia la música y los efectos de la aplicación.'**
+  String get sonidoAyuda;
+
+  /// No description provided for @sonidoOnboardingTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres sonido?'**
+  String get sonidoOnboardingTitulo;
+
+  /// No description provided for @sonidoOnboardingCuerpo.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes activar o silenciar la música y los efectos cuando quieras.'**
+  String get sonidoOnboardingCuerpo;
+
   /// No description provided for @cambiarZona.
   ///
   /// In es, this message translates to:

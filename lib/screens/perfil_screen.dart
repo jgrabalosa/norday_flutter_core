@@ -19,7 +19,7 @@ class PerfilScreen extends StatefulWidget {
   /// Se reenvía al [LoginScreen] al que se vuelve tras eliminar la cuenta:
   /// el paquete no sabe cuál es la pantalla principal de esta app.
   final Widget Function(BuildContext context, bool mostrarOnboarding)
-      destinoTrasLogin;
+  destinoTrasLogin;
 
   const PerfilScreen({
     super.key,
@@ -77,16 +77,18 @@ class _PerfilScreenState extends State<PerfilScreen> {
         _emailController.text.trim(),
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.perfilActualizado)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.perfilActualizado)));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(MensajesError.de(context, e,
-                  generico: l.perfilErrorGuardar))),
+            content: Text(
+              MensajesError.de(context, e, generico: l.perfilErrorGuardar),
+            ),
+          ),
         );
       }
     } finally {
@@ -108,16 +110,18 @@ class _PerfilScreenState extends State<PerfilScreen> {
       if (mounted) {
         _contrasenaActualController.clear();
         _contrasenaNuevaController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.perfilPassActualizada)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.perfilPassActualizada)));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(MensajesError.de(context, e,
-                  generico: l.perfilErrorPass))),
+            content: Text(
+              MensajesError.de(context, e, generico: l.perfilErrorPass),
+            ),
+          ),
         );
       }
     } finally {
@@ -132,9 +136,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         // Un diálogo es lo protagonista del momento: cristal en Profundidad,
-        // panel cortado en Neotokyo+, píldora en Dulce, esquinas sobrias en
-        // Alba. Sin esto sale con las esquinas de Material y es la única
-        // superficie de la app que no habla el idioma de la identidad.
+        // panel cortado en Neotokyo+ o píldora en Dulce. Sin esto sale con las
+        // esquinas de Material y es la única superficie que no habla el idioma
+        // de la identidad.
         shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
         title: Text(l.perfilEliminarTitulo),
         content: Text(l.perfilEliminarCuerpo),
@@ -147,11 +151,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             // El tono de error de la identidad equipada, no un rojo fijo:
             // ver `tonoError`.
-            child: Text(l.comunContinuar,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(color: tonoError(context).texto)),
+            child: Text(
+              l.comunContinuar,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: tonoError(context).texto),
+            ),
           ),
         ],
       ),
@@ -190,8 +195,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (_) =>
-                  LoginScreen(destinoTrasLogin: widget.destinoTrasLogin)),
+            builder: (_) =>
+                LoginScreen(destinoTrasLogin: widget.destinoTrasLogin),
+          ),
           (route) => false,
         );
       }
@@ -200,8 +206,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
         setState(() => _eliminando = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(MensajesError.de(context, e,
-                  generico: l.perfilErrorEliminar))),
+            content: Text(
+              MensajesError.de(context, e, generico: l.perfilErrorEliminar),
+            ),
+          ),
         );
       }
     }
@@ -268,7 +276,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
   /// Los datos de la cuenta. El `Form` se queda aquí dentro, con su misma
   /// clave y sus mismos validadores: lo que cambia es el vestido.
   Widget _tarjetaDatos(
-      NordayCoreLocalizations l, TokensContextuales t, IdentidadPaleta id) {
+    NordayCoreLocalizations l,
+    TokensContextuales t,
+    IdentidadPaleta id,
+  ) {
     return SuperficieIdentidad(
       child: Form(
         key: _formKey,
@@ -280,9 +291,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
               etiqueta: l.perfilLabelNombre,
               capitalizacion: TextCapitalization.words,
               prefijo: const Icon(LucideIcons.userRound, size: 18),
-              validador: (v) => (v == null || v.trim().isEmpty)
-                  ? l.perfilNombreVacio
-                  : null,
+              validador: (v) =>
+                  (v == null || v.trim().isEmpty) ? l.perfilNombreVacio : null,
             ),
             const SizedBox(height: 14),
             CampoIdentidad(
@@ -315,7 +325,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: t.tinta),
+                        strokeWidth: 2,
+                        color: t.tinta,
+                      ),
                     )
                   : Text(l.perfilGuardarCambios),
             ),
@@ -326,7 +338,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 
   Widget _tarjetaContrasena(
-      NordayCoreLocalizations l, TokensContextuales t, IdentidadPaleta id) {
+    NordayCoreLocalizations l,
+    TokensContextuales t,
+    IdentidadPaleta id,
+  ) {
     return SuperficieIdentidad(
       child: Form(
         key: _formContrasenaKey,
@@ -335,9 +350,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
           children: [
             Text(
               l.perfilCambiarPass,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: t.text,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: t.text),
             ),
             const SizedBox(height: 16),
             CampoIdentidad(
@@ -356,9 +371,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
               prefijo: const Icon(LucideIcons.keyRound, size: 18),
               sufijo: IconButton(
                 icon: Icon(
-                    _verContrasenas ? LucideIcons.eyeOff : LucideIcons.eye,
-                    size: 18,
-                    color: t.textMuted),
+                  _verContrasenas ? LucideIcons.eyeOff : LucideIcons.eye,
+                  size: 18,
+                  color: t.textMuted,
+                ),
                 onPressed: () =>
                     setState(() => _verContrasenas = !_verContrasenas),
               ),
@@ -396,8 +412,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 
   /// Eliminar la cuenta. Va en el tono de error de la identidad equipada —
-  /// antes era `Colors.red` fijo, que en Alba grita y en Dulce se pelea con el
-  /// rosa. Ver `tonoError`.
+  /// antes era `Colors.red` fijo, que se peleaba con las identidades. Ver
+  /// `tonoError`.
   Widget _tarjetaZonaPeligro(NordayCoreLocalizations l, IdentidadPaleta id) {
     final tono = tonoError(context);
 
@@ -408,9 +424,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
         children: [
           Text(
             l.perfilZonaPeligro,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: tono.texto,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: tono.texto),
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(
@@ -426,7 +442,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: tono.borde),
+                      strokeWidth: 2,
+                      color: tono.borde,
+                    ),
                   )
                 : const Icon(LucideIcons.trash2, size: 18),
             label: Text(l.perfilEliminarCuenta),
@@ -439,9 +457,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
   /// La forma de los botones, del mismo lenguaje que la tarjeta que los lleva.
   /// Mismo criterio que en Login.
   OutlinedBorder _formaBoton(IdentidadPaleta id) => switch (id.forma) {
-        FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan),
-        FormaIdentidad.pill => const StadiumBorder(),
-        _ => RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(id.radioSecundario)),
-      };
+    FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan),
+    FormaIdentidad.pill => const StadiumBorder(),
+    _ => RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(id.radioSecundario),
+    ),
+  };
 }

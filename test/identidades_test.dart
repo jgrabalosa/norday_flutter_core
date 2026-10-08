@@ -18,8 +18,8 @@ void main() {
 
   tearDown(() => aplicarIdentidadEquipada(identidadInicial.codigo));
 
-  test('son cuatro y ninguna de las siete paletas antiguas sigue viva', () {
-    expect(catalogoIdentidades.length, 4);
+  test('son tres y ninguna de las siete paletas antiguas sigue viva', () {
+    expect(catalogoIdentidades.length, 3);
 
     const viejas = [
       'TEMA_BASICO_CLARO',
@@ -50,15 +50,19 @@ void main() {
         identidad.fontBody,
         if (identidad.fontAcento != null) identidad.fontAcento!,
       ]) {
-        expect(disponibles.contains(familia), isTrue,
-            reason: '${identidad.codigo} -> $familia');
+        expect(
+          disponibles.contains(familia),
+          isTrue,
+          reason: '${identidad.codigo} -> $familia',
+        );
       }
     }
   });
 
   test('el chaflan es el mismo token en toda identidad que corta esquina', () {
-    final conChaflan = catalogoIdentidades.values
-        .where((i) => i.forma == FormaIdentidad.chamfer);
+    final conChaflan = catalogoIdentidades.values.where(
+      (i) => i.forma == FormaIdentidad.chamfer,
+    );
 
     expect(conChaflan, isNotEmpty);
     for (final identidad in conChaflan) {
@@ -67,45 +71,47 @@ void main() {
   });
 
   test('aplicar una identidad mueve tambien el notifier de solo color', () {
-    aplicarIdentidadEquipada('TEMA_ALBA');
+    aplicarIdentidadEquipada('TEMA_DULCE');
 
-    final alba = catalogoIdentidades['TEMA_ALBA']!;
-    expect(identidadEquipadaNotifier.value.codigo, 'TEMA_ALBA');
-    expect(temaEquipadoNotifier.value, same(alba.tokens));
+    final dulce = catalogoIdentidades['TEMA_DULCE']!;
+    expect(identidadEquipadaNotifier.value.codigo, 'TEMA_DULCE');
+    expect(temaEquipadoNotifier.value, same(dulce.tokens));
   });
 
-  test('sin codigo, o con uno que este cliente no conoce, vale Profundidad', () {
-    aplicarIdentidadEquipada('TEMA_ALBA');
-    aplicarIdentidadEquipada(null);
-    expect(identidadEquipadaNotifier.value.codigo, 'TEMA_PROFUNDIDAD');
+  test(
+    'sin codigo, o con uno que este cliente no conoce, vale Profundidad',
+    () {
+      aplicarIdentidadEquipada(null);
+      expect(identidadEquipadaNotifier.value.codigo, 'TEMA_PROFUNDIDAD');
 
-    aplicarIdentidadEquipada('TEMA_QUE_LLEGARA_EN_LA_PROXIMA_VERSION');
-    expect(identidadEquipadaNotifier.value.codigo, 'TEMA_PROFUNDIDAD');
-    expect(temaEquipadoNotifier.value, same(tokensProfundidad));
-  });
+      aplicarIdentidadEquipada('TEMA_QUE_LLEGARA_EN_LA_PROXIMA_VERSION');
+      expect(identidadEquipadaNotifier.value.codigo, 'TEMA_PROFUNDIDAD');
+      expect(temaEquipadoNotifier.value, same(tokensProfundidad));
+    },
+  );
 
   /// La escala vive en `AppTheme`, no en la paleta, y esto es lo que impide
   /// que se le escape a una identidad. Profundidad es donde se mide; las otras
-  /// tres se la encuentran hecha y sólo aportan dos nombres de familia. El día
+  /// dos se la encuentran hecha y sólo aportan dos nombres de familia. El día
   /// que alguien meta un tamaño en una paleta, esto se cae.
-  test('la escala tipografica es identica en las cuatro identidades', () {
+  test('la escala tipografica es identica en las tres identidades', () {
     Map<String, TextStyle?> rolesDe(TextTheme tt) => {
-          'displayLarge': tt.displayLarge,
-          'displayMedium': tt.displayMedium,
-          'displaySmall': tt.displaySmall,
-          'headlineLarge': tt.headlineLarge,
-          'headlineMedium': tt.headlineMedium,
-          'headlineSmall': tt.headlineSmall,
-          'titleLarge': tt.titleLarge,
-          'titleMedium': tt.titleMedium,
-          'titleSmall': tt.titleSmall,
-          'bodyLarge': tt.bodyLarge,
-          'bodyMedium': tt.bodyMedium,
-          'bodySmall': tt.bodySmall,
-          'labelLarge': tt.labelLarge,
-          'labelMedium': tt.labelMedium,
-          'labelSmall': tt.labelSmall,
-        };
+      'displayLarge': tt.displayLarge,
+      'displayMedium': tt.displayMedium,
+      'displaySmall': tt.displaySmall,
+      'headlineLarge': tt.headlineLarge,
+      'headlineMedium': tt.headlineMedium,
+      'headlineSmall': tt.headlineSmall,
+      'titleLarge': tt.titleLarge,
+      'titleMedium': tt.titleMedium,
+      'titleSmall': tt.titleSmall,
+      'bodyLarge': tt.bodyLarge,
+      'bodyMedium': tt.bodyMedium,
+      'bodySmall': tt.bodySmall,
+      'labelLarge': tt.labelLarge,
+      'labelMedium': tt.labelMedium,
+      'labelSmall': tt.labelSmall,
+    };
 
     Map<String, TextStyle?>? referencia;
     String? codigoReferencia;
@@ -123,10 +129,16 @@ void main() {
       for (final rol in referencia.keys) {
         final motivo = '$rol — ${entrada.key} frente a $codigoReferencia';
         expect(roles[rol]?.fontSize, referencia[rol]?.fontSize, reason: motivo);
-        expect(roles[rol]?.fontWeight, referencia[rol]?.fontWeight,
-            reason: motivo);
-        expect(roles[rol]?.letterSpacing, referencia[rol]?.letterSpacing,
-            reason: motivo);
+        expect(
+          roles[rol]?.fontWeight,
+          referencia[rol]?.fontWeight,
+          reason: motivo,
+        );
+        expect(
+          roles[rol]?.letterSpacing,
+          referencia[rol]?.letterSpacing,
+          reason: motivo,
+        );
       }
     }
   });

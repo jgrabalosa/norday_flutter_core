@@ -10,4 +10,5 @@ import 'package:flutter/material.dart';
 /// ```dart
 /// MaterialApp(navigatorKey: nordayNavigatorKey, ...)
 /// ```
-final GlobalKey<NavigatorState> nordayNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> nordayNavigatorKey =
+    GlobalKey<NavigatorState>();

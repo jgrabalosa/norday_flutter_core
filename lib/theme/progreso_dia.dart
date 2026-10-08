@@ -26,11 +26,7 @@ class ProgresoDia {
   /// mientras no se ha cargado nada.
   final DateTime? fecha;
 
-  const ProgresoDia({
-    this.hechos = 0,
-    this.total = 0,
-    this.fecha,
-  });
+  const ProgresoDia({this.hechos = 0, this.total = 0, this.fecha});
 
   /// Estado de partida y de salida: nada cargado, nada que dibujar.
   static const ProgresoDia vacio = ProgresoDia();

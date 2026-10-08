@@ -7,47 +7,56 @@ import 'package:norday_flutter_core/screens/coleccion_screen.dart';
 /// categorias de backend distintas, y dos de ellas ('Protección' y
 /// 'Consumible') son lo mismo de cara al usuario.
 Map<String, List<dynamic>> catalogoReal() => {
-      'Protección': [
-        {'codigo': 'ESCUDO_RACHA'},
-      ],
-      'Tema': [
-        {'codigo': 'TEMA_BASICO_CLARO'},
-        {'codigo': 'TEMA_OCEANO'},
-      ],
-      'Avatar': [
-        {'codigo': 'AVATAR_ZORRO'},
-      ],
-      'Consumible': [
-        {'codigo': 'COMIDA_BASICA'},
-      ],
-    };
+  'Protección': [
+    {'codigo': 'ESCUDO_RACHA'},
+  ],
+  'Tema': [
+    {'codigo': 'TEMA_BASICO_CLARO'},
+    {'codigo': 'TEMA_OCEANO'},
+  ],
+  'Avatar': [
+    {'codigo': 'AVATAR_ZORRO'},
+  ],
+  'Consumible': [
+    {'codigo': 'COMIDA_BASICA'},
+  ],
+};
 
-List<String> codigos(List<dynamic> productos) =>
-    [for (final p in productos) p['codigo'] as String];
+List<String> codigos(List<dynamic> productos) => [
+  for (final p in productos) p['codigo'] as String,
+];
 
 void main() {
   test('Consumible no abre seccion propia: cae en la misma que Protección', () {
     final secciones = repartirEnSecciones(catalogoReal());
 
-    expect(secciones.length, 3,
-        reason: 'Avatares, Consumibles y Temas — nada de una cuarta seccion '
-            'con el literal crudo "Consumible"');
+    expect(
+      secciones.length,
+      3,
+      reason:
+          'Avatares, Consumibles y Temas — nada de una cuarta seccion '
+          'con el literal crudo "Consumible"',
+    );
 
-    final consumibles = secciones
-        .firstWhere((s) => s.$1.categoriasBackend.contains('Protección'));
+    final consumibles = secciones.firstWhere(
+      (s) => s.$1.categoriasBackend.contains('Protección'),
+    );
     expect(codigos(consumibles.$2), ['ESCUDO_RACHA', 'COMIDA_BASICA']);
   });
 
   test('el titulo de esa seccion esta traducido en los tres idiomas', () {
-    final consumibles = repartirEnSecciones(catalogoReal())
-        .firstWhere((s) => s.$1.categoriasBackend.contains('Consumible'))
-        .$1;
+    final consumibles = repartirEnSecciones(
+      catalogoReal(),
+    ).firstWhere((s) => s.$1.categoriasBackend.contains('Consumible')).$1;
 
-    final esperado = {'es': 'Consumibles', 'en': 'Consumables', 'pt': 'Consumíveis'};
+    final esperado = {
+      'es': 'Consumibles',
+      'en': 'Consumables',
+      'pt': 'Consumíveis',
+    };
     for (final idioma in esperado.keys) {
       final l = lookupNordayCoreLocalizations(Locale(idioma));
-      expect(consumibles.titulo(l), esperado[idioma],
-          reason: 'idioma $idioma');
+      expect(consumibles.titulo(l), esperado[idioma], reason: 'idioma $idioma');
     }
   });
 
@@ -61,7 +70,10 @@ void main() {
 
     expect(secciones.length, 4);
     final ultima = secciones.last.$1;
-    expect(ultima.titulo(lookupNordayCoreLocalizations(const Locale('en'))), 'Marco');
+    expect(
+      ultima.titulo(lookupNordayCoreLocalizations(const Locale('en'))),
+      'Marco',
+    );
   });
 
   test('una seccion sin productos no se pinta', () {

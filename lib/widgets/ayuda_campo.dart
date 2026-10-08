@@ -107,7 +107,8 @@ class _AyudaCampoState extends State<AyudaCampo>
 
   void _alternar() {
     HapticFeedback.selectionClick();
-    final abierta = _anim.status == AnimationStatus.forward ||
+    final abierta =
+        _anim.status == AnimationStatus.forward ||
         _anim.status == AnimationStatus.completed;
     if (abierta) {
       _cerrar();
@@ -129,7 +130,9 @@ class _AyudaCampoState extends State<AyudaCampo>
     // nota: -1 es su borde izquierdo y 1 el derecho. En vertical, su borde
     // de arriba, que es el que queda pegado al icono.
     final origen = Alignment(
-      ((icono.center.dx - izquierda) / ancho * 2 - 1).clamp(-1.0, 1.0).toDouble(),
+      ((icono.center.dx - izquierda) / ancho * 2 - 1)
+          .clamp(-1.0, 1.0)
+          .toDouble(),
       -1,
     );
 
@@ -188,8 +191,9 @@ class _AyudaCampoState extends State<AyudaCampo>
             width: widget.superindice ? 28 : 48,
             height: widget.superindice ? 28 : 48,
             child: Align(
-              alignment:
-                  widget.superindice ? Alignment.topLeft : Alignment.center,
+              alignment: widget.superindice
+                  ? Alignment.topLeft
+                  : Alignment.center,
               child: Icon(
                 LucideIcons.circleQuestionMark,
                 // La clave va en el dibujo y no en la caja: la nota nace del

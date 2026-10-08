@@ -54,11 +54,7 @@ class FondoEstelar extends StatelessWidget {
   /// Ver [NivelFondo].
   final NivelFondo nivel;
 
-  const FondoEstelar({
-    super.key,
-    required this.tokens,
-    required this.nivel,
-  });
+  const FondoEstelar({super.key, required this.tokens, required this.nivel});
 
   /// Cuánta luz llega. Es el mismo cielo en los dos casos —las mismas 44
   /// estrellas en las mismas posiciones, las mismas dos nebulosas—, sólo que
@@ -70,14 +66,11 @@ class FondoEstelar extends StatelessWidget {
   ///
   /// Aquí no hay suelo de contraste que respetar: esto va detrás del contenido
   /// y ninguna información depende de ello.
-  double get _atenuacion =>
-      nivel == NivelFondo.mundo ? 1.0 : 0.55;
+  double get _atenuacion => nivel == NivelFondo.mundo ? 1.0 : 0.55;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _FondoEstelarPainter(tokens, _atenuacion),
-    );
+    return CustomPaint(painter: _FondoEstelarPainter(tokens, _atenuacion));
   }
 }
 
@@ -123,8 +116,9 @@ class _FondoEstelarPainter extends CustomPainter {
 
     final pinturaEstrella = Paint();
     for (final estrella in _estrellas) {
-      pinturaEstrella.color =
-          tokens.text.withValues(alpha: estrella.opacidad * atenuacion);
+      pinturaEstrella.color = tokens.text.withValues(
+        alpha: estrella.opacidad * atenuacion,
+      );
       canvas.drawCircle(
         Offset(estrella.x * size.width, estrella.y * size.height),
         estrella.radio,

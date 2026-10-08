@@ -112,10 +112,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _loading = false; });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(MensajesError.de(context, e))),
-      );
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(MensajesError.de(context, e))));
     }
   }
 
@@ -124,7 +126,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
   /// porque un fallo de red ya lo canta la carga de la mascota.
   Future<void> _cargarInventario() async {
     try {
-      final inventario = await ApiServiceCore.getInventarioProductos(widget.usuarioId);
+      final inventario = await ApiServiceCore.getInventarioProductos(
+        widget.usuarioId,
+      );
       int? productoId;
       int cantidad = 0;
       for (final up in inventario) {
@@ -151,7 +155,10 @@ class _MascotaScreenState extends State<MascotaScreen> {
 
     setState(() => _alimentando = true);
     try {
-      final resultado = await ApiServiceCore.usarProducto(widget.usuarioId, productoId);
+      final resultado = await ApiServiceCore.usarProducto(
+        widget.usuarioId,
+        productoId,
+      );
       if (!mounted) return;
       // La XP la manda el backend: aquí no se cablea. Y se anima sólo si hay
       // XP de verdad — no todos los consumibles la dan, aunque hoy la comida
@@ -166,15 +173,24 @@ class _MascotaScreenState extends State<MascotaScreen> {
         // anterior; la caída sólo cubre que algún día deje de venir.
         final nivelNuevo = resultado['nivelNuevo'] as int? ?? 0;
         CelebracionNivel.mostrar(
-            context, nivelNuevo > 0 ? nivelNuevo : _nivel + 1);
+          context,
+          nivelNuevo > 0 ? nivelNuevo : _nivel + 1,
+        );
       }
       await _cargarDatos();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(MensajesError.de(context, e,
-              generico: NordayCoreLocalizations.of(context)!.mascotaErrorAlimentar)),
+          content: Text(
+            MensajesError.de(
+              context,
+              e,
+              generico: NordayCoreLocalizations.of(
+                context,
+              )!.mascotaErrorAlimentar,
+            ),
+          ),
         ),
       );
     } finally {
@@ -203,7 +219,10 @@ class _MascotaScreenState extends State<MascotaScreen> {
       nuevoNombre = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
-          shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
+          shape: formaIdentidad(
+            identidad(ctx),
+            radio: identidad(ctx).radioHero,
+          ),
           title: Text(l.mascotaPonleNombre),
           content: TextField(
             controller: controller,
@@ -238,8 +257,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
           setState(() => _nombre = anterior);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(MensajesError.de(context, e,
-                  generico: l.mascotaErrorNombre)),
+              content: Text(
+                MensajesError.de(context, e, generico: l.mascotaErrorNombre),
+              ),
             ),
           );
         }
@@ -270,9 +290,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _fase = anterior);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(MensajesError.de(context, e))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(MensajesError.de(context, e))));
     }
   }
 
@@ -308,12 +328,30 @@ class _MascotaScreenState extends State<MascotaScreen> {
                     child: ColorFiltered(
                       colorFilter: desbloqueada
                           ? const ColorFilter.mode(
-                              Colors.transparent, BlendMode.multiply)
+                              Colors.transparent,
+                              BlendMode.multiply,
+                            )
                           : const ColorFilter.matrix(<double>[
-                              0.2126, 0.7152, 0.0722, 0, 0,
-                              0.2126, 0.7152, 0.0722, 0, 0,
-                              0.2126, 0.7152, 0.0722, 0, 0,
-                              0,      0,      0,      1, 0,
+                              0.2126,
+                              0.7152,
+                              0.0722,
+                              0,
+                              0,
+                              0.2126,
+                              0.7152,
+                              0.0722,
+                              0,
+                              0,
+                              0.2126,
+                              0.7152,
+                              0.0722,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              1,
+                              0,
                             ]),
                       child: Image.asset(
                         assetMascota(fase: fase, estado: _estado),
@@ -389,151 +427,163 @@ class _MascotaScreenState extends State<MascotaScreen> {
   Widget build(BuildContext context) {
     final t = tokens(context);
     final l = NordayCoreLocalizations.of(context)!;
-    final pct = _xpParaSiguienteNivel > 0 ? _xpEnNivelActual / _xpParaSiguienteNivel : 0.0;
+    final pct = _xpParaSiguienteNivel > 0
+        ? _xpEnNivelActual / _xpParaSiguienteNivel
+        : 0.0;
 
     final contenido = _loading
-          ? _skeletonMascota(context)
-          : RefreshIndicator(
-              onRefresh: _cargarDatos,
-              // El scroll se conserva aunque el contenido quepa de sobra: es lo
-              // que da el gesto de tirar para refrescar. Lo que añade el
-              // LayoutBuilder es el `minHeight` del viewport, para que la
-              // Column pueda centrarse verticalmente en ese hueco en vez de
-              // apelotonarse arriba. Restamos el padding vertical (8 + 24)
-              // porque el mínimo se aplica al contenido ya despadeado: sin eso
-              // la pantalla scrollearía siempre 32px de más.
-              child: LayoutBuilder(
-                builder: (context, restricciones) => SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      // El clamp cubre el viewport más bajo que el propio
-                      // padding: un mínimo negativo revienta BoxConstraints.
-                      minHeight: (restricciones.maxHeight - 32).clamp(0.0, double.infinity),
+        ? _skeletonMascota(context)
+        : RefreshIndicator(
+            onRefresh: _cargarDatos,
+            // El scroll se conserva aunque el contenido quepa de sobra: es lo
+            // que da el gesto de tirar para refrescar. Lo que añade el
+            // LayoutBuilder es el `minHeight` del viewport, para que la
+            // Column pueda centrarse verticalmente en ese hueco en vez de
+            // apelotonarse arriba. Restamos el padding vertical (8 + 24)
+            // porque el mínimo se aplica al contenido ya despadeado: sin eso
+            // la pantalla scrollearía siempre 32px de más.
+            child: LayoutBuilder(
+              builder: (context, restricciones) => SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    // El clamp cubre el viewport más bajo que el propio
+                    // padding: un mínimo negativo revienta BoxConstraints.
+                    minHeight: (restricciones.maxHeight - 32).clamp(
+                      0.0,
+                      double.infinity,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // Como hacía el ListView: los hijos ocupan todo el ancho,
-                      // que es de lo que tiran la barra de XP y la fila de
-                      // nivel.
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(child: _escenario(context, pct)),
-                        const SizedBox(height: 8),
-                        Center(
-                          child: GestureDetector(
-                            onTap: _editarNombre,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(_nombreVisible(l),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displaySmall
-                                        ?.copyWith(color: t.text)),
-                                const SizedBox(width: 6),
-                                Icon(LucideIcons.pencil,
-                                    size: 16, color: t.textMuted),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Center(
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // Como hacía el ListView: los hijos ocupan todo el ancho,
+                    // que es de lo que tiran la barra de XP y la fila de
+                    // nivel.
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(child: _escenario(context, pct)),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _editarNombre,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Flexible(
-                                child: BurbujaContexto(
-                                  texto: MensajesMascota.contexto(
-                                    l,
-                                    codigoFase: _fase,
-                                    codigoEstado: _estado,
-                                    nivel: _nivel,
-                                  ),
-                                ),
+                              Text(
+                                _nombreVisible(l),
+                                style: Theme.of(context).textTheme.displaySmall
+                                    ?.copyWith(color: t.text),
                               ),
-                              ?widget.ayudaAnimo,
+                              const SizedBox(width: 6),
+                              Icon(
+                                LucideIcons.pencil,
+                                size: 16,
+                                color: t.textMuted,
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        _selectorFases(context),
-                        const SizedBox(height: 20),
-                        // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
-                        // de competir con ella por la atención.
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(l.mascotaNivel(_nivel),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: t.text)),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                    l.mascotaXp(_xpEnNivelActual,
-                                        _xpParaSiguienteNivel),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: t.textMuted)),
-                                ?widget.ayudaXp,
-                              ],
+                            Flexible(
+                              child: BurbujaContexto(
+                                texto: MensajesMascota.contexto(
+                                  l,
+                                  codigoFase: _fase,
+                                  codigoEstado: _estado,
+                                  nivel: _nivel,
+                                ),
+                              ),
                             ),
+                            ?widget.ayudaAnimo,
                           ],
                         ),
-                        // El progreso ya no va aquí: es el aro que rodea a la
-                        // mascota. Lo que queda es la lectura exacta, que el
-                        // aro no da.
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            OutlinedButton.icon(
-                              key: widget.anclaAlimentar,
-                              // Sin comida el botón sigue a la vista, apagado:
-                              // es la pista de que hay algo que comprar en la
-                              // tienda.
-                              onPressed: _comidaCantidad > 0 && !_alimentando
-                                  ? _alimentar
-                                  : null,
-                              icon: _alimentando
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  : const Icon(LucideIcons.apple, size: 18),
-                              label: Text(
-                                  '${l.mascotaAlimentar} ($_comidaCantidad)'),
+                      ),
+                      const SizedBox(height: 12),
+                      _selectorFases(context),
+                      const SizedBox(height: 20),
+                      // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
+                      // de competir con ella por la atención.
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l.mascotaNivel(_nivel),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(color: t.text),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.mascotaXp(
+                                  _xpEnNivelActual,
+                                  _xpParaSiguienteNivel,
+                                ),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: t.textMuted),
+                              ),
+                              ?widget.ayudaXp,
+                            ],
+                          ),
+                        ],
+                      ),
+                      // El progreso ya no va aquí: es el aro que rodea a la
+                      // mascota. Lo que queda es la lectura exacta, que el
+                      // aro no da.
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton.icon(
+                            key: widget.anclaAlimentar,
+                            // Sin comida el botón sigue a la vista, apagado:
+                            // es la pista de que hay algo que comprar en la
+                            // tienda.
+                            onPressed: _comidaCantidad > 0 && !_alimentando
+                                ? _alimentar
+                                : null,
+                            icon: _alimentando
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(LucideIcons.apple, size: 18),
+                            label: Text(
+                              '${l.mascotaAlimentar} ($_comidaCantidad)',
                             ),
-                            const SizedBox(width: 12),
-                            OutlinedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => TiendaScreen(
-                                        usuarioId: widget.usuarioId),
-                                  ),
-                                ).then((_) => _cargarDatos());
-                              },
-                              icon: const Icon(LucideIcons.store, size: 18),
-                              label: Text(l.tiendaTitulo),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      TiendaScreen(usuarioId: widget.usuarioId),
+                                ),
+                              ).then((_) => _cargarDatos());
+                            },
+                            icon: const Icon(LucideIcons.store, size: 18),
+                            label: Text(l.tiendaTitulo),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
+            ),
+          );
 
     if (widget.embebida) return contenido;
 
@@ -579,7 +629,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
         children: [
-          Center(child: SkeletonBox(width: lado, height: lado, radius: lado / 2)),
+          Center(
+            child: SkeletonBox(width: lado, height: lado, radius: lado / 2),
+          ),
           const SizedBox(height: 16),
           const Center(child: SkeletonBox(width: 160, height: 26)),
           const SizedBox(height: 10),

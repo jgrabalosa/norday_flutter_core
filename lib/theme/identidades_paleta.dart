@@ -5,7 +5,7 @@ import 'identidad_paleta.dart';
 /// Registro de identidades por código de producto — nada de hexadecimales en
 /// la BD. El backend manda `codigo` y aquí se resuelve todo lo visual.
 ///
-/// Cuatro, y muy distintas entre sí a propósito: no son cuatro repintados del
+/// Tres, y muy distintas entre sí a propósito: no son tres repintados del
 /// mismo diseño, cada una cambia letra, radio, forma y ritmo. Sustituyen por
 /// completo a las siete paletas antiguas, que sólo se diferenciaban en color.
 const Map<String, IdentidadPaleta> catalogoIdentidades = {
@@ -47,8 +47,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // 5.82 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF12000A),
     ),
-    fontDisplay: 'Chakra Petch', // SÓLO títulos/cifras/chips — mayúsculas+tracking
-    fontBody: 'IBM Plex Sans', // cuerpo de artículo/lista SIEMPRE aquí, nunca en Chakra Petch mayúscula
+    fontDisplay:
+        'Chakra Petch', // SÓLO títulos/cifras/chips — mayúsculas+tracking
+    fontBody:
+        'IBM Plex Sans', // cuerpo de artículo/lista SIEMPRE aquí, nunca en Chakra Petch mayúscula
     // Deliberadamente pequeño: rompe el lenguaje redondeado del resto.
     radioHero: 8,
     radioSecundario: 8,
@@ -58,51 +60,6 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     duracionAnimacionFirma: Duration(milliseconds: 2400),
     duracionTransicion: Duration(milliseconds: 200),
     curvaTransicion: Curves.easeOutExpo,
-  ),
-
-  'TEMA_ALBA': IdentidadPaleta(
-    codigo: 'TEMA_ALBA',
-    nombre: 'Alba',
-    tokens: TokensContextuales(
-      primary: Color(0xFF7A9471),
-      success: Color(0xFF7A9471),
-      streak: Color(0xFF8C4F35),
-      points: Color(0xFF8C4F35),
-      bg: Color(0xFFF4F1EB),
-      surface: Color(0xFFFCFAF6),
-      surface2: Color(0xFFEAE5DB),
-      text: Color(0xFF2C2824),
-      textMuted: Color(0xFF6B6259),
-      // `textMuted` al 0.48 sobre `bg`, resuelto a opaco. 2.00 de contraste.
-      // Sobre fondo claro el apagado va hacia abajo, no hacia arriba, y hace
-      // falta casi el doble de mezcla que en Profundidad para pesar lo mismo.
-      inactivo: Color(0xFFB2ACA5),
-      // `textMuted` al 0.78 sobre `bg`: sus filas no pintan relleno, sólo una
-      // línea debajo, así que el aro se apoya en el fondo de la pantalla.
-      // Resuelto a opaco. 3.40 / 3.68 / 3.05 sobre bg / surface / surface2.
-      aroVacio: Color(0xFF898179),
-      // 4.86 sobre el verde. La landing declara #2C2824 —su propio `text`—,
-      // que aquí sólo da 4.39: éste es ese mismo tono un punto más hondo, lo
-      // justo para pasar AA con margen. Si se toca la landing, este es el
-      // valor bueno.
-      tinta: Color(0xFF23201D),
-      // El terracota ya contrasta como texto sobre los tres fondos de Alba
-      // —6.13 sobre surface, 5.67 sobre bg, 5.09 sobre surface2 (WebAIM)—,
-      // así que la variante de texto es su propio valor: se declara para
-      // dejarlo dicho, no porque cambie nada.
-      streakText: Color(0xFF8C4F35),
-    ),
-    fontDisplay: 'Fraunces', // itálica — título/nombre/cifras destacadas
-    fontBody: 'Work Sans', // cuerpo SIEMPRE aquí, nunca itálica de corrido
-    radioHero: 14,
-    // Alba evita encajonar el contenido secundario (listas con hairline en vez
-    // de cards), así que este radio se usa poco: cuando se use, este valor.
-    radioSecundario: 14,
-    forma: FormaIdentidad.hairline,
-    fondo: FondoIdentidadTipo.luz,
-    duracionAnimacionFirma: Duration(milliseconds: 4000),
-    duracionTransicion: Duration(milliseconds: 360),
-    curvaTransicion: Curves.easeInOutSine,
   ),
 
   'TEMA_DULCE': IdentidadPaleta(

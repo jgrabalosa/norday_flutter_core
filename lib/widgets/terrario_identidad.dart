@@ -53,8 +53,6 @@ class _TerrarioPainter extends CustomPainter {
         _plataformaCristal(canvas, size);
       case FormaIdentidad.chamfer:
         _plataformaRejilla(canvas, size);
-      case FormaIdentidad.hairline:
-        _lineaDeHorizonte(canvas, size);
       case FormaIdentidad.pill:
         _almohadilla(canvas, size);
     }
@@ -62,8 +60,12 @@ class _TerrarioPainter extends CustomPainter {
 
   /// La sombra de contacto que llevan todas: sin ella la mascota se despega
   /// del suelo por muy bien dibujado que esté.
-  void _sombraContacto(Canvas canvas, Size size,
-      {required double alfa, required double anchoRelativo}) {
+  void _sombraContacto(
+    Canvas canvas,
+    Size size, {
+    required double alfa,
+    required double anchoRelativo,
+  }) {
     final oval = Rect.fromCenter(
       center: Offset(size.width / 2, size.height * 0.42),
       width: size.width * anchoRelativo,
@@ -175,53 +177,6 @@ class _TerrarioPainter extends CustomPainter {
     );
   }
 
-  /// Alba — ni plataforma ni caja: una línea de horizonte que se desvanece por
-  /// los extremos. Coherente con el resto de la identidad, que tampoco encaja
-  /// el contenido en tarjetas.
-  void _lineaDeHorizonte(Canvas canvas, Size size) {
-    _sombraContacto(canvas, size, alfa: 0.10, anchoRelativo: 0.42);
-
-    final y = size.height * 0.52;
-    final recorrido = Rect.fromLTWH(0, y - 1, size.width, 2);
-    canvas.drawLine(
-      Offset(size.width * 0.04, y),
-      Offset(size.width * 0.96, y),
-      Paint()
-        ..strokeWidth = 1
-        ..shader = LinearGradient(
-          colors: [
-            tokens.textMuted.withValues(alpha: 0),
-            tokens.textMuted.withValues(alpha: 0.42),
-            tokens.textMuted.withValues(alpha: 0),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ).createShader(recorrido),
-    );
-
-    // Tres briznas cortas, asimétricas: lo justo para que la línea sea un
-    // suelo y no un subrayado.
-    final brizna = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.1
-      ..strokeCap = StrokeCap.round
-      ..color = tokens.primary.withValues(alpha: 0.55);
-    for (final (x, alto, curva) in const [
-      (0.30, 0.30, -0.05),
-      (0.36, 0.46, 0.04),
-      (0.68, 0.36, 0.06),
-    ]) {
-      final base = Offset(size.width * x, y);
-      final punta = Offset(size.width * (x + curva), y - size.height * alto);
-      canvas.drawPath(
-        Path()
-          ..moveTo(base.dx, base.dy)
-          ..quadraticBezierTo(
-              base.dx, (base.dy + punta.dy) / 2, punta.dx, punta.dy),
-        brizna,
-      );
-    }
-  }
-
   /// Dulce — un cojín, no un suelo. Radio total y un par de corazones sueltos.
   void _almohadilla(Canvas canvas, Size size) {
     _sombraContacto(canvas, size, alfa: 0.14, anchoRelativo: 0.60);
@@ -241,10 +196,7 @@ class _TerrarioPainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            tokens.surface2,
-            tokens.surface2.withValues(alpha: 0.55),
-          ],
+          colors: [tokens.surface2, tokens.surface2.withValues(alpha: 0.55)],
         ).createShader(cojin.outerRect),
     );
     canvas.drawRRect(
@@ -256,10 +208,18 @@ class _TerrarioPainter extends CustomPainter {
     );
 
     final corazon = Paint()..color = tokens.primary.withValues(alpha: 0.55);
-    _corazon(canvas, Offset(size.width * 0.13, size.height * 0.34),
-        size.height * 0.22, corazon);
-    _corazon(canvas, Offset(size.width * 0.88, size.height * 0.48),
-        size.height * 0.16, corazon);
+    _corazon(
+      canvas,
+      Offset(size.width * 0.13, size.height * 0.34),
+      size.height * 0.22,
+      corazon,
+    );
+    _corazon(
+      canvas,
+      Offset(size.width * 0.88, size.height * 0.48),
+      size.height * 0.16,
+      corazon,
+    );
   }
 
   /// Un corazón de [lado] centrado en [centro]. Dos lóbulos y una punta: con
@@ -268,10 +228,22 @@ class _TerrarioPainter extends CustomPainter {
     final r = lado / 2;
     final path = Path()
       ..moveTo(centro.dx, centro.dy + r * 0.75)
-      ..cubicTo(centro.dx - r * 1.7, centro.dy - r * 0.35, centro.dx - r * 0.55,
-          centro.dy - r * 1.5, centro.dx, centro.dy - r * 0.45)
-      ..cubicTo(centro.dx + r * 0.55, centro.dy - r * 1.5, centro.dx + r * 1.7,
-          centro.dy - r * 0.35, centro.dx, centro.dy + r * 0.75)
+      ..cubicTo(
+        centro.dx - r * 1.7,
+        centro.dy - r * 0.35,
+        centro.dx - r * 0.55,
+        centro.dy - r * 1.5,
+        centro.dx,
+        centro.dy - r * 0.45,
+      )
+      ..cubicTo(
+        centro.dx + r * 0.55,
+        centro.dy - r * 1.5,
+        centro.dx + r * 1.7,
+        centro.dy - r * 0.35,
+        centro.dx,
+        centro.dy + r * 0.75,
+      )
       ..close();
     canvas.drawPath(path, pincel);
   }

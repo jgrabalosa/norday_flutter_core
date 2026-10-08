@@ -7,8 +7,8 @@ import 'identidades_paleta.dart';
 /// Con qué colores dice una identidad que algo ha ido mal.
 ///
 /// `TokensContextuales` no tiene tono de error, y un `Colors.red` fijo se sale
-/// de las cuatro paletas: en Alba grita, en Dulce se pelea con el rosa y en
-/// Neotokyo+ parece un elemento más del neón. Así que cada identidad pone el
+/// de las paletas: en Dulce se pelea con el rosa y en Neotokyo+ parece un
+/// elemento más del neón. Así que cada identidad pone el
 /// suyo, y donde ya tenía un color que funciona como alerta se reutiliza en vez
 /// de inventar uno.
 ///
@@ -29,8 +29,7 @@ class TonoError {
   /// La tinta que va ENCIMA de [borde] cuando éste hace de fondo sólido —
   /// el botón de un diálogo destructivo, por ejemplo. Tiene que llegar a
   /// 4.5:1 sobre [borde]. No se puede fijar a blanco ni a negro para todas:
-  /// las identidades de borde claro piden tinta oscura y Alba, que lo tiene
-  /// oscuro, la pide blanca.
+  /// las identidades de borde claro piden tinta oscura.
   final Color tinta;
 
   const TonoError({
@@ -52,34 +51,22 @@ TonoError tonoError(BuildContext context) {
     // cuatro identidades, y hace falta. Sobre el banner (coral al 12% encima de
     // `surface`) el texto llega a 5.6:1 y el filo a 4.6:1.
     FormaIdentidad.glass => TonoError(
-        texto: const Color(0xFFFF8A8A),
-        borde: const Color(0xFFFF6B6B),
-        fondo: const Color(0xFFFF6B6B).withValues(alpha: 0.12),
-        tinta: const Color(0xFF1A1A1A), // 6.27:1 sobre #FF6B6B
-      ),
+      texto: const Color(0xFFFF8A8A),
+      borde: const Color(0xFFFF6B6B),
+      fondo: const Color(0xFFFF6B6B).withValues(alpha: 0.12),
+      tinta: const Color(0xFF1A1A1A), // 6.27:1 sobre #FF6B6B
+    ),
 
     // Neotokyo+ — su propio `streak` (#FF4D2E). Es el único rojo de la paleta,
     // ya está a un tono de distancia del magenta primario, y sobre el violeta
     // casi negro se lee como una señal rota, que es exactamente el registro de
     // la identidad. 5.2:1 sobre el banner.
     FormaIdentidad.chamfer => TonoError(
-        texto: t.streak,
-        borde: t.streak,
-        fondo: t.streak.withValues(alpha: 0.12),
-        tinta: const Color(0xFF1A1A1A), // 5.27:1 sobre #FF4D2E
-      ),
-
-    // Alba — el terracota de `streakText` (#8C4F35), que ya está verificado
-    // como texto sobre los tres fondos claros de la identidad (5.1–6.1:1). Y
-    // sin relleno: Alba no encajona nada en ninguna otra pantalla, así que su
-    // error es una línea fina y el texto. Un banner de color sería lo más
-    // ruidoso de toda la identidad.
-    FormaIdentidad.hairline => TonoError(
-        texto: t.streakText,
-        borde: t.streakText,
-        fondo: Colors.transparent,
-        tinta: Colors.white, // 6.39:1 sobre #8C4F35 — Alba invierte el signo
-      ),
+      texto: t.streak,
+      borde: t.streak,
+      fondo: t.streak.withValues(alpha: 0.12),
+      tinta: const Color(0xFF1A1A1A), // 5.27:1 sobre #FF4D2E
+    ),
 
     // Dulce — rosa-rojo propio para el texto (5.4:1 sobre el blanco de la
     // tarjeta). Aquí no vale derivar: `streak` es el coral (#E86A58), que como
@@ -88,10 +75,10 @@ TonoError tonoError(BuildContext context) {
     // El rosa-rojo es más oscuro y menos saturado que el primario, para que no
     // parezca un elemento activo; el relleno sí lo pone el coral.
     FormaIdentidad.pill => TonoError(
-        texto: const Color(0xFFC2325A),
-        borde: t.streak,
-        fondo: t.streak.withValues(alpha: 0.14),
-        tinta: const Color(0xFF1A1A1A), // 5.50:1 sobre #E86A58
-      ),
+      texto: const Color(0xFFC2325A),
+      borde: t.streak,
+      fondo: t.streak.withValues(alpha: 0.14),
+      tinta: const Color(0xFF1A1A1A), // 5.50:1 sobre #E86A58
+    ),
   };
 }

@@ -18,7 +18,10 @@ String _token(DateTime caduca) {
 }
 
 http.Response _respuesta401({String? token}) {
-  final peticion = http.Request('GET', Uri.parse('https://api.norday.app/api/x'));
+  final peticion = http.Request(
+    'GET',
+    Uri.parse('https://api.norday.app/api/x'),
+  );
   if (token != null) peticion.headers['Authorization'] = 'Bearer $token';
   return http.Response('', 401, request: peticion);
 }
@@ -43,8 +46,10 @@ void main() {
     final aviso = Completer<void>();
     ApiServiceCore.alCaducarSesion = aviso.complete;
 
-    expect(() => ApiServiceCore.verificar(_respuesta401(token: tokenActual)),
-        throwsA(isA<ApiException>()));
+    expect(
+      () => ApiServiceCore.verificar(_respuesta401(token: tokenActual)),
+      throwsA(isA<ApiException>()),
+    );
     await aviso.future.timeout(const Duration(seconds: 2));
 
     expect(await ApiServiceCore.getToken(), isNull);
@@ -57,34 +62,45 @@ void main() {
     var avisos = 0;
     ApiServiceCore.alCaducarSesion = () => avisos++;
 
-    expect(() => ApiServiceCore.verificar(_respuesta401()),
-        throwsA(isA<ApiException>()));
+    expect(
+      () => ApiServiceCore.verificar(_respuesta401()),
+      throwsA(isA<ApiException>()),
+    );
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     expect(avisos, 0);
     expect(await ApiServiceCore.getToken(), tokenActual);
   });
 
-  test('un 401 de un token que ya no es el de la sesión no echa a nadie', () async {
-    var avisos = 0;
-    ApiServiceCore.alCaducarSesion = () => avisos++;
-    final viejo = _token(DateTime.now().subtract(const Duration(days: 1)));
+  test(
+    'un 401 de un token que ya no es el de la sesión no echa a nadie',
+    () async {
+      var avisos = 0;
+      ApiServiceCore.alCaducarSesion = () => avisos++;
+      final viejo = _token(DateTime.now().subtract(const Duration(days: 1)));
 
-    expect(() => ApiServiceCore.verificar(_respuesta401(token: viejo)),
-        throwsA(isA<ApiException>()));
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(
+        () => ApiServiceCore.verificar(_respuesta401(token: viejo)),
+        throwsA(isA<ApiException>()),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
-    expect(avisos, 0);
-    expect(await ApiServiceCore.getToken(), tokenActual);
-  });
+      expect(avisos, 0);
+      expect(await ApiServiceCore.getToken(), tokenActual);
+    },
+  );
 
-  test('al arrancar, un token caducado se descarta sin salir a la red', () async {
-    FlutterSecureStorage.setMockInitialValues(
-        {'token': _token(DateTime.now().subtract(const Duration(minutes: 1)))});
+  test(
+    'al arrancar, un token caducado se descarta sin salir a la red',
+    () async {
+      FlutterSecureStorage.setMockInitialValues({
+        'token': _token(DateTime.now().subtract(const Duration(minutes: 1))),
+      });
 
-    expect(await ApiServiceCore.descartarSesionCaducada(), isTrue);
-    expect(await ApiServiceCore.getToken(), isNull);
-  });
+      expect(await ApiServiceCore.descartarSesionCaducada(), isTrue);
+      expect(await ApiServiceCore.getToken(), isNull);
+    },
+  );
 
   test('al arrancar, un token vigente se queda', () async {
     expect(await ApiServiceCore.descartarSesionCaducada(), isFalse);

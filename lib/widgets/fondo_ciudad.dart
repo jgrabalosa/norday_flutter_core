@@ -107,11 +107,7 @@ class FondoCiudad extends StatelessWidget {
   /// Ver [NivelFondo].
   final NivelFondo nivel;
 
-  const FondoCiudad({
-    super.key,
-    required this.tokens,
-    required this.nivel,
-  });
+  const FondoCiudad({super.key, required this.tokens, required this.nivel});
 
   /// La ciudad más apagada, que es como Neotokyo+ dice "esto está más lejos".
   /// El mismo 0.55 que Profundidad aplica a su cielo, y por el mismo motivo:
@@ -210,8 +206,12 @@ class _FondoCiudadPainter extends CustomPainter {
           vy + _ventanaAlto <= suelo;
           vy += _pasoY
         ) {
-          final rectVentana =
-              Rect.fromLTWH(vx, vy, _ventanaAncho, _ventanaAlto);
+          final rectVentana = Rect.fromLTWH(
+            vx,
+            vy,
+            _ventanaAncho,
+            _ventanaAlto,
+          );
           final estaEncendida = _ruido(i, columna, fila) < fraccion;
           if (estaEncendida) {
             canvas.drawRect(rectVentana.inflate(3.0), halo);

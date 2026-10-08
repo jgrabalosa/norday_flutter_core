@@ -7,8 +7,10 @@ import '../theme/app_theme.dart';
 /// Que devuelva null no es un error: un elemento fuera de pantalla o aún sin
 /// medir no tiene rectángulo. Quien llame decide qué hacer —esperar al
 /// siguiente frame, o saltarse el paso—, pero nunca debe asumir que hay uno.
-Rect? rectDeAncla(GlobalKey ancla,
-    {EdgeInsets holgura = const EdgeInsets.all(8)}) {
+Rect? rectDeAncla(
+  GlobalKey ancla, {
+  EdgeInsets holgura = const EdgeInsets.all(8),
+}) {
   final render = ancla.currentContext?.findRenderObject();
   if (render is! RenderBox || !render.hasSize) return null;
   return holgura.inflateRect(render.localToGlobal(Offset.zero) & render.size);
@@ -82,7 +84,8 @@ class CoachMark extends StatelessWidget {
       child: Stack(
         children: [
           IgnorePointer(
-              child: _Velo(foco: foco, radio: radio, colorAro: t.points)),
+            child: _Velo(foco: foco, radio: radio, colorAro: t.points),
+          ),
           ..._barreras(pantalla),
           _tarjetaColocada(context, t, pantalla),
         ],
@@ -105,7 +108,10 @@ class CoachMark extends StatelessWidget {
   ///
   /// Sin hueco no hay a qué pegarse: se centra, como un aviso cualquiera.
   Widget _tarjetaColocada(
-      BuildContext context, TokensContextuales t, Size pantalla) {
+    BuildContext context,
+    TokensContextuales t,
+    Size pantalla,
+  ) {
     final f = foco;
     if (f == null) {
       return Positioned.fill(
@@ -184,24 +190,29 @@ class CoachMark extends StatelessWidget {
       Positioned(left: 0, right: 0, top: 0, height: arriba, child: absorber()),
       Positioned(left: 0, right: 0, top: abajo, bottom: 0, child: absorber()),
       Positioned(
-          left: 0,
-          top: arriba,
-          width: f.left.clamp(0.0, pantalla.width),
-          height: abajo - arriba,
-          child: absorber()),
+        left: 0,
+        top: arriba,
+        width: f.left.clamp(0.0, pantalla.width),
+        height: abajo - arriba,
+        child: absorber(),
+      ),
       Positioned(
-          left: f.right.clamp(0.0, pantalla.width),
-          right: 0,
-          top: arriba,
-          height: abajo - arriba,
-          child: absorber()),
+        left: f.right.clamp(0.0, pantalla.width),
+        right: 0,
+        top: arriba,
+        height: abajo - arriba,
+        child: absorber(),
+      ),
     ];
   }
 
   /// [altoMaximo] es el sitio que queda entre el hueco y el borde. Null cuando
   /// la tarjeta va centrada y no hay tal límite.
   Widget _tarjeta(
-      BuildContext context, TokensContextuales t, double? altoMaximo) {
+    BuildContext context,
+    TokensContextuales t,
+    double? altoMaximo,
+  ) {
     return Container(
       // Mismo lenguaje que la tarjeta de OnboardingOverlay —superficie,
       // esquinas, sombra, puntitos, botón— pero no su tamaño: aquí comparte
@@ -219,9 +230,10 @@ class CoachMark extends StatelessWidget {
         boxShadow: [
           BoxShadow(color: t.points.withValues(alpha: 0.35), blurRadius: 28),
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 24,
-              offset: const Offset(0, 8)),
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: _conAlto(
@@ -229,20 +241,20 @@ class CoachMark extends StatelessWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (total > 1) ...[
-              _puntos(t),
-              const SizedBox(height: 16),
-            ],
-            Text(titulo,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(color: t.text)),
+            if (total > 1) ...[_puntos(t), const SizedBox(height: 16)],
+            Text(
+              titulo,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: t.text),
+            ),
             const SizedBox(height: 12),
-            Text(cuerpo,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: t.textMuted)),
+            Text(
+              cuerpo,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: t.textMuted),
+            ),
             if (textoBoton != null) ...[
               const SizedBox(height: 24),
               SizedBox(
@@ -257,8 +269,7 @@ class CoachMark extends StatelessWidget {
               SizedBox(height: textoBoton == null ? 16 : 4),
               TextButton(
                 onPressed: onSaltar,
-                child:
-                    Text(textoSaltar!, style: TextStyle(color: t.textMuted)),
+                child: Text(textoSaltar!, style: TextStyle(color: t.textMuted)),
               ),
             ],
           ],
@@ -433,10 +444,7 @@ class _Pico extends CustomPainter {
         ..lineTo(size.width, 0);
     }
 
-    canvas.drawPath(
-      Path.from(laderas)..close(),
-      Paint()..color = color,
-    );
+    canvas.drawPath(Path.from(laderas)..close(), Paint()..color = color);
     canvas.drawPath(
       laderas,
       Paint()

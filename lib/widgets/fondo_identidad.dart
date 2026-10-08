@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import 'capa_constelacion.dart';
-import 'fondo_amanecer.dart';
 import 'fondo_burbujas.dart';
 import 'fondo_ciudad.dart';
 import 'fondo_estelar.dart';
@@ -24,8 +23,7 @@ class FondoIdentidad extends StatelessWidget {
   const FondoIdentidad({super.key}) : nivel = NivelFondo.mundo;
 
   /// El fondo del nivel 2. Ver [NivelFondo.habitacion].
-  const FondoIdentidad.habitacion({super.key})
-      : nivel = NivelFondo.habitacion;
+  const FondoIdentidad.habitacion({super.key}) : nivel = NivelFondo.habitacion;
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +37,6 @@ class FondoIdentidad extends StatelessWidget {
             return FondoCiudad(tokens: id.tokens, nivel: nivel);
           case FondoIdentidadTipo.acumulacion:
             return FondoBurbujas(tokens: id.tokens, nivel: nivel);
-          case FondoIdentidadTipo.luz:
-            return FondoAmanecer(tokens: id.tokens, nivel: nivel);
         }
       },
     );
@@ -73,7 +69,6 @@ class CapaProgresoIdentidad extends StatelessWidget {
           case FondoIdentidadTipo.cielo:
             return CapaConstelacion(tokens: id.tokens, enHoy: enHoy);
           case FondoIdentidadTipo.ciudad:
-          case FondoIdentidadTipo.luz:
           case FondoIdentidadTipo.acumulacion:
             return const SizedBox.shrink();
         }

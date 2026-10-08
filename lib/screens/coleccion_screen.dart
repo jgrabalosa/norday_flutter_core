@@ -23,18 +23,28 @@ class SeccionColeccion {
   /// usuario son lo mismo y van juntas.
   final List<String> categoriasBackend;
   final IconData icono;
+
   /// Clave de traduccion resuelta al pintar. Las categorias que llegan del
   /// backend y no conocemos caen a su propio texto crudo.
   final String Function(NordayCoreLocalizations)? _titulo;
   const SeccionColeccion(this.categoriasBackend, this.icono, [this._titulo]);
 
-  String titulo(NordayCoreLocalizations l) => _titulo?.call(l) ?? categoriasBackend.first;
+  String titulo(NordayCoreLocalizations l) =>
+      _titulo?.call(l) ?? categoriasBackend.first;
 }
 
 // Orden fijo de esta app — el motor (categoria en backend) sigue siendo generico.
 final seccionesConocidas = [
-  SeccionColeccion(['Avatar'], LucideIcons.userRound, (l) => l.colSeccionAvatares),
-  SeccionColeccion(['Protección', 'Consumible'], LucideIcons.shield, (l) => l.colSeccionConsumibles),
+  SeccionColeccion(
+    ['Avatar'],
+    LucideIcons.userRound,
+    (l) => l.colSeccionAvatares,
+  ),
+  SeccionColeccion(
+    ['Protección', 'Consumible'],
+    LucideIcons.shield,
+    (l) => l.colSeccionConsumibles,
+  ),
   SeccionColeccion(['Tema'], LucideIcons.palette, (l) => l.colSeccionTemas),
 ];
 
@@ -44,19 +54,26 @@ final seccionesConocidas = [
 ///
 /// Vive fuera del State para poder probarlo sin montar el widget.
 List<(SeccionColeccion, List<dynamic>)> repartirEnSecciones(
-    Map<String, List<dynamic>> agrupado) {
-  final conocidas = seccionesConocidas.expand((s) => s.categoriasBackend).toSet();
+  Map<String, List<dynamic>> agrupado,
+) {
+  final conocidas = seccionesConocidas
+      .expand((s) => s.categoriasBackend)
+      .toSet();
 
   // Los productos de una seccion son la union de sus categorias, en el orden
   // en que estan declaradas.
-  List<dynamic> productosDe(SeccionColeccion s) =>
-      [for (final c in s.categoriasBackend) ...?agrupado[c]];
+  List<dynamic> productosDe(SeccionColeccion s) => [
+    for (final c in s.categoriasBackend) ...?agrupado[c],
+  ];
 
   return [
     for (final seccion in seccionesConocidas)
       if (productosDe(seccion).isNotEmpty) (seccion, productosDe(seccion)),
     for (final categoria in agrupado.keys.where((c) => !conocidas.contains(c)))
-      (SeccionColeccion([categoria], LucideIcons.package), agrupado[categoria]!),
+      (
+        SeccionColeccion([categoria], LucideIcons.package),
+        agrupado[categoria]!,
+      ),
   ];
 }
 
@@ -104,7 +121,9 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   Future<void> _cargarDatos() async {
     try {
       final catalogo = await ApiServiceCore.getCatalogoProductos();
-      final inventario = await ApiServiceCore.getInventarioProductos(widget.usuarioId);
+      final inventario = await ApiServiceCore.getInventarioProductos(
+        widget.usuarioId,
+      );
 
       final mapaInventario = <int, Map<String, dynamic>>{};
       for (final up in inventario) {
@@ -131,12 +150,20 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   // categoria: para saber qué caché de equipado actualizar (Tema/Avatar) sin
   // pisar la de la otra — antes esto aplicaba siempre el tema, lo que
   // borraba el tema premium equipado al elegir un avatar.
-  Future<void> _equipar(int productoId, String? codigo, String categoria) async {
+  Future<void> _equipar(
+    int productoId,
+    String? codigo,
+    String categoria,
+  ) async {
     setState(() => _procesando = productoId);
     List<String> logros = const [];
     try {
       if (categoria == 'Tema') {
-        logros = await Equipamiento.equiparTema(widget.usuarioId, productoId, codigo);
+        logros = await Equipamiento.equiparTema(
+          widget.usuarioId,
+          productoId,
+          codigo,
+        );
       } else if (categoria == 'Avatar') {
         await Equipamiento.equiparAvatar(widget.usuarioId, productoId, codigo);
       }
@@ -165,15 +192,20 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   void _mostrarError(Object e) {
     if (mounted) {
-      MensajesError.enSnackBar(context, e,
-          generico: NordayCoreLocalizations.of(context)!.colError);
+      MensajesError.enSnackBar(
+        context,
+        e,
+        generico: NordayCoreLocalizations.of(context)!.colError,
+      );
     }
   }
 
   void _irATienda() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TiendaScreen(usuarioId: widget.usuarioId)),
+      MaterialPageRoute(
+        builder: (_) => TiendaScreen(usuarioId: widget.usuarioId),
+      ),
     );
   }
 
@@ -197,7 +229,8 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     return null;
   }
 
-  bool _poseido(dynamic producto) => _inventario.containsKey(producto['productoId']);
+  bool _poseido(dynamic producto) =>
+      _inventario.containsKey(producto['productoId']);
 
   @override
   Widget build(BuildContext context) {
@@ -290,15 +323,16 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   Widget _cardSeleccionActual(NordayCoreLocalizations l, TokensContextuales t) {
     final id = identidad(context);
     final codigoTema = _productoEquipado('Tema')?['codigo'] as String?;
-    final identidadTema =
-        codigoTema != null ? catalogoIdentidades[codigoTema] : null;
+    final identidadTema = codigoTema != null
+        ? catalogoIdentidades[codigoTema]
+        : null;
     // Sin tema equipado (o con uno que este cliente aun no conozca) lo que se
     // lleva puesto es el tema de serie: sus colores son los tokens activos.
     final colores = identidadTema != null
         ? [
             identidadTema.tokens.primary,
             identidadTema.tokens.success,
-            identidadTema.tokens.points
+            identidadTema.tokens.points,
           ]
         : [t.primary, t.success, t.points];
 
@@ -311,24 +345,26 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.colSeleccionActual,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: t.textMuted)),
+          Text(
+            l.colSeleccionActual,
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: t.textMuted),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
               const AvatarUsuario(radius: 26),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(_nombre,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(color: t.text)),
+                child: Text(
+                  _nombre,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineSmall?.copyWith(color: t.text),
+                ),
               ),
             ],
           ),
@@ -345,21 +381,31 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// El recorte no es un rectangulo redondeado sino la figura de la identidad
   /// equipada: en Neotokyo+ la tira tambien corta la esquina, como todo lo
   /// demas de la pantalla.
-  Widget _tiraPaleta(IdentidadPaleta id, List<Color> colores,
-      {required double alto, required double radio}) {
+  Widget _tiraPaleta(
+    IdentidadPaleta id,
+    List<Color> colores, {
+    required double alto,
+    required double radio,
+  }) {
     return ClipPath(
       clipper: ShapeBorderClipper(shape: formaIdentidad(id, radio: radio)),
       child: SizedBox(
         height: alto,
         child: Row(
-          children: [for (final c in colores) Expanded(child: ColoredBox(color: c))],
+          children: [
+            for (final c in colores) Expanded(child: ColoredBox(color: c)),
+          ],
         ),
       ),
     );
   }
 
-  Widget _seccionWidget(NordayCoreLocalizations l, SeccionColeccion seccion, List<dynamic> productos,
-      TokensContextuales t) {
+  Widget _seccionWidget(
+    NordayCoreLocalizations l,
+    SeccionColeccion seccion,
+    List<dynamic> productos,
+    TokensContextuales t,
+  ) {
     final algunoPoseido = productos.any(_poseido);
     final esAvatarSinElegir =
         seccion.categoriasBackend.contains('Avatar') && !algunoPoseido;
@@ -374,11 +420,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           if (esAvatarSinElegir) ...[
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(l.colEligeAvatar,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge
-                      ?.copyWith(color: t.primary)),
+              child: Text(
+                l.colEligeAvatar,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: t.primary),
+              ),
             ),
             SelectorAvatarGratis(
               usuarioId: widget.usuarioId,
@@ -395,8 +442,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   /// Icono + titulo + cuantos se tienen de cuantos hay, con la misma cuenta
   /// pintada como barra debajo.
-  Widget _cabeceraSeccion(NordayCoreLocalizations l, SeccionColeccion seccion,
-      List<dynamic> productos, TokensContextuales t) {
+  Widget _cabeceraSeccion(
+    NordayCoreLocalizations l,
+    SeccionColeccion seccion,
+    List<dynamic> productos,
+    TokensContextuales t,
+  ) {
     final poseidos = productos.where(_poseido).length;
     final total = productos.length;
 
@@ -408,17 +459,19 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
             Icon(seccion.icono, size: 18, color: t.successText),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(seccion.titulo(l),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: t.text)),
+              child: Text(
+                seccion.titulo(l),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: t.text),
+              ),
             ),
-            Text(l.colContador(poseidos, total),
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
-                    ?.copyWith(color: t.textMuted)),
+            Text(
+              l.colContador(poseidos, total),
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: t.textMuted),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -435,8 +488,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     );
   }
 
-  Widget _cuerpoSeccion(NordayCoreLocalizations l, SeccionColeccion seccion,
-      List<dynamic> productos, TokensContextuales t) {
+  Widget _cuerpoSeccion(
+    NordayCoreLocalizations l,
+    SeccionColeccion seccion,
+    List<dynamic> productos,
+    TokensContextuales t,
+  ) {
     if (seccion.categoriasBackend.contains('Avatar')) {
       return Wrap(
         spacing: 12,
@@ -456,16 +513,21 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     );
   }
 
-  Widget _ganchoTienda(NordayCoreLocalizations l, String titulo, TokensContextuales t) {
+  Widget _ganchoTienda(
+    NordayCoreLocalizations l,
+    String titulo,
+    TokensContextuales t,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: GestureDetector(
         onTap: _irATienda,
-        child: Text(l.colDescubre(titulo),
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge
-                ?.copyWith(color: t.primary)),
+        child: Text(
+          l.colDescubre(titulo),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: t.primary),
+        ),
       ),
     );
   }
@@ -483,7 +545,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     // Un avatar que este cliente aun no conozca no rompe la tira: cae al
     // icono generico, como el nombre cae al que manda el backend.
     final Widget imagen = info != null
-        ? Image.asset(info.asset, package: 'norday_flutter_core', width: 34, height: 34)
+        ? Image.asset(
+            info.asset,
+            package: 'norday_flutter_core',
+            width: 34,
+            height: 34,
+          )
         : Icon(LucideIcons.userRound, size: 24, color: t.textMuted);
 
     return Tooltip(
@@ -492,8 +559,8 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         onTap: procesandoEste
             ? null
             : poseido
-                ? (equipado ? null : () => _equipar(productoId, codigo, 'Avatar'))
-                : _irATienda,
+            ? (equipado ? null : () => _equipar(productoId, codigo, 'Avatar'))
+            : _irATienda,
         child: SizedBox(
           width: 52,
           height: 52,
@@ -513,7 +580,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                     ? imagen
                     : Opacity(
                         opacity: _opacidadBloqueado,
-                        child: ColorFiltered(colorFilter: _filtroGrises, child: imagen),
+                        child: ColorFiltered(
+                          colorFilter: _filtroGrises,
+                          child: imagen,
+                        ),
                       ),
               ),
               // El candado va fuera del filtro y la opacidad: es lo unico que
@@ -534,7 +604,11 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   // ── Temas ──
 
-  Widget _tarjetaTema(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
+  Widget _tarjetaTema(
+    NordayCoreLocalizations l,
+    dynamic producto,
+    TokensContextuales t,
+  ) {
     final id = identidad(context);
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
@@ -549,7 +623,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         ? [
             identidadTema.tokens.primary,
             identidadTema.tokens.success,
-            identidadTema.tokens.points
+            identidadTema.tokens.points,
           ]
         : [t.inactivo, t.inactivo, t.inactivo];
 
@@ -558,17 +632,23 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         children: [
           SizedBox(
             width: 56,
-            child: _tiraPaleta(id, colores, alto: 40, radio: id.radioSecundario),
+            child: _tiraPaleta(
+              id,
+              colores,
+              alto: 40,
+              radio: id.radioSecundario,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(CatalogosCore.producto(context, codigo, producto['nombre']),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: t.text)),
+            child: Text(
+              CatalogosCore.producto(context, codigo, producto['nombre']),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: t.text),
+            ),
           ),
           if (poseido) ...[
             const SizedBox(width: 8),
@@ -601,17 +681,22 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
         color: t.successText.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(l.tiendaEquipado,
-          style: Theme.of(context)
-              .textTheme
-              .labelMedium
-              ?.copyWith(color: t.successText)),
+      child: Text(
+        l.tiendaEquipado,
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: t.successText),
+      ),
     );
   }
 
   // ── Consumibles ──
 
-  Widget _tarjetaConsumible(NordayCoreLocalizations l, dynamic producto, TokensContextuales t) {
+  Widget _tarjetaConsumible(
+    NordayCoreLocalizations l,
+    dynamic producto,
+    TokensContextuales t,
+  ) {
     final id = identidad(context);
     final productoId = producto['productoId'] as int;
     final codigo = producto['codigo'] as String?;
@@ -636,38 +721,45 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
               // hueco del icono tambien corta.
               shape: formaIdentidad(id, radio: id.radioSecundario),
             ),
-            child: Icon(_iconoConsumible(codigo, categoria), size: 22, color: t.successText),
+            child: Icon(
+              _iconoConsumible(codigo, categoria),
+              size: 22,
+              color: t.successText,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(CatalogosCore.producto(context, codigo, producto['nombre']),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: t.text)),
+                Text(
+                  CatalogosCore.producto(context, codigo, producto['nombre']),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: t.text),
+                ),
                 if (automatico) ...[
                   const SizedBox(height: 2),
-                  Text(l.colSeActivaSolo,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: t.textMuted)),
+                  Text(
+                    l.colSeActivaSolo,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: t.textMuted),
+                  ),
                 ],
               ],
             ),
           ),
           if (poseido) ...[
             const SizedBox(width: 8),
-            Text(l.colCantidad(cantidad),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: t.text)),
+            Text(
+              l.colCantidad(cantidad),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: t.text),
+            ),
             if (!automatico) ...[
               const SizedBox(width: 10),
               if (procesandoEste)
@@ -693,10 +785,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   /// Por codigo cuando lo conocemos; si no, por categoria, para que un
   /// consumible nuevo del backend siga saliendo con un icono que dice algo.
-  IconData _iconoConsumible(String? codigo, String categoria) => switch (codigo) {
+  IconData _iconoConsumible(String? codigo, String categoria) =>
+      switch (codigo) {
         'ESCUDO_RACHA' => LucideIcons.shield,
         'COMIDA_BASICA' => LucideIcons.apple,
-        _ => categoria == 'Protección' ? LucideIcons.shield : LucideIcons.package,
+        _ =>
+          categoria == 'Protección' ? LucideIcons.shield : LucideIcons.package,
       };
 
   // ── Piezas comunes ──
@@ -708,7 +802,6 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// no tiene que saber si lo que lleva dentro se tiene o no.
   Widget _cajaTarjeta({required Widget child}) {
     return SuperficieIdentidad(
-      esFila: true,
       margen: const EdgeInsets.only(bottom: 8),
       relleno: const EdgeInsets.all(12),
       child: child,

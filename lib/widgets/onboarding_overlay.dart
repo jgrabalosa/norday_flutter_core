@@ -3,8 +3,9 @@ import '../l10n/norday_core_localizations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/mascota_assets.dart';
+import '../services/sonido_service.dart';
 
-/// Mini-onboarding de 2 pasos tras un alta nueva. Mismo patrón visual que
+/// Mini-onboarding de 3 pasos tras un alta nueva. Mismo patrón visual que
 /// CelebracionService (showGeneralDialog + transición), pero no se puede
 /// cerrar tocando fuera ni con el botón atrás — se avanza con "Siguiente" y
 /// se cierra con "Empezar" en el último paso.
@@ -18,7 +19,8 @@ class OnboardingOverlay {
       barrierDismissible: false,
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, anim1, anim2) => _OnboardingContent(usuarioId: usuarioId),
+      pageBuilder: (context, anim1, anim2) =>
+          _OnboardingContent(usuarioId: usuarioId),
       transitionBuilder: (context, anim, anim2, child) {
         final curva = CurvedAnimation(parent: anim, curve: Curves.easeOutBack);
         return FadeTransition(
@@ -39,8 +41,9 @@ class _OnboardingContent extends StatefulWidget {
 }
 
 class _OnboardingContentState extends State<_OnboardingContent> {
-  static const _totalPasos = 2;
+  static const _totalPasos = 3;
   int _paso = 0;
+  bool _sonidoActivado = SonidoService.activado;
 
   void _siguiente() => setState(() => _paso++);
 
@@ -69,9 +72,10 @@ class _OnboardingContentState extends State<_OnboardingContent> {
                   borderRadius: BorderRadius.circular(AppRadius.xl),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8)),
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
                   ],
                 ),
                 // SingleChildScrollView se ajusta al tamaño real del contenido
@@ -117,10 +121,51 @@ class _OnboardingContentState extends State<_OnboardingContent> {
   Widget _contenidoPaso(NordayCoreLocalizations l, TokensContextuales t) {
     switch (_paso) {
       case 0:
+        return _pasoSonido(l, t);
+      case 1:
         return _paso1(l, t);
       default:
         return _paso2(l, t);
     }
+  }
+
+  Widget _pasoSonido(NordayCoreLocalizations l, TokensContextuales t) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          _sonidoActivado ? LucideIcons.volume2 : LucideIcons.volumeX,
+          size: 56,
+          color: t.primary,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l.sonidoOnboardingTitulo,
+          textAlign: TextAlign.center,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(color: t.text),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          l.sonidoOnboardingCuerpo,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: t.textMuted),
+        ),
+        const SizedBox(height: 20),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l.sonido),
+          value: _sonidoActivado,
+          onChanged: (valor) async {
+            setState(() => _sonidoActivado = valor);
+            await SonidoService.establecerActivado(valor);
+          },
+        ),
+        const SizedBox(height: 12),
+        _botonSiguiente(l),
+      ],
+    );
   }
 
   Widget _paso1(NordayCoreLocalizations l, TokensContextuales t) {
@@ -129,12 +174,13 @@ class _OnboardingContentState extends State<_OnboardingContent> {
       children: [
         Icon(LucideIcons.coins, size: 56, color: t.points),
         const SizedBox(height: 16),
-        Text(l.obTitulo1,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(color: t.text)),
+        Text(
+          l.obTitulo1,
+          textAlign: TextAlign.center,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(color: t.text),
+        ),
         const SizedBox(height: 12),
         Text(
           l.obCuerpo1,
@@ -160,12 +206,13 @@ class _OnboardingContentState extends State<_OnboardingContent> {
           width: 96,
         ),
         const SizedBox(height: 16),
-        Text(l.obTitulo2,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(color: t.text)),
+        Text(
+          l.obTitulo2,
+          textAlign: TextAlign.center,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(color: t.text),
+        ),
         const SizedBox(height: 12),
         Text(
           l.obCuerpo2,
@@ -181,10 +228,7 @@ class _OnboardingContentState extends State<_OnboardingContent> {
   Widget _botonSiguiente(NordayCoreLocalizations l) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _siguiente,
-        child: Text(l.obSiguiente),
-      ),
+      child: ElevatedButton(onPressed: _siguiente, child: Text(l.obSiguiente)),
     );
   }
 
@@ -193,10 +237,7 @@ class _OnboardingContentState extends State<_OnboardingContent> {
   Widget _botonEmpezar(NordayCoreLocalizations l) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _cerrar,
-        child: Text(l.obEmpezar),
-      ),
+      child: ElevatedButton(onPressed: _cerrar, child: Text(l.obEmpezar)),
     );
   }
 }

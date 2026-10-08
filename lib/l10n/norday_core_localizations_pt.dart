@@ -94,6 +94,20 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get preferenciasSubtitulo => 'Idioma e fuso horário';
 
   @override
+  String get sonido => 'Som';
+
+  @override
+  String get sonidoAyuda =>
+      'Ative ou silencie a música e os efeitos da aplicação.';
+
+  @override
+  String get sonidoOnboardingTitulo => 'Quer som?';
+
+  @override
+  String get sonidoOnboardingCuerpo =>
+      'Pode ativar ou silenciar a música e os efeitos quando quiser.';
+
+  @override
   String get cambiarZona => 'Alterar fuso horário';
 
   @override
@@ -276,7 +290,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get perfilEliminarCuenta => 'Eliminar a minha conta';
 
   @override
-  String get loginTagline => 'Construa hábitos, transforme sua vida';
+  String get loginTagline => 'Cria hábitos, transforma a tua vida';
 
   @override
   String get loginIniciarSesion => 'Entrar';
@@ -294,58 +308,58 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get loginO => 'ou';
 
   @override
-  String get loginLabelContrasena => 'Senha';
+  String get loginLabelContrasena => 'Palavra-passe';
 
   @override
-  String get loginOlvidasteContrasena => 'Esqueceu sua senha?';
+  String get loginOlvidasteContrasena => 'Esqueceste-te da palavra-passe?';
 
   @override
   String get loginError =>
-      'Não foi possível concluir. Confira seus dados e tente de novo.';
+      'Não foi possível concluir. Confirma os teus dados e tenta de novo.';
 
   @override
   String get loginCancelado =>
       'O início de sessão não foi concluído. Tenta de novo.';
 
   @override
-  String get recTitulo => 'Recuperar senha';
+  String get recTitulo => 'Recuperar palavra-passe';
 
   @override
   String get recIntro =>
-      'Escreva o e-mail da sua conta e enviaremos um código para redefinir a senha.';
+      'Escreve o e-mail da tua conta e enviaremos um código para redefinires a palavra-passe.';
 
   @override
   String get recCodigoEnviado =>
-      'Confira seu e-mail. Se o endereço estiver cadastrado, enviamos um código de 6 dígitos (expira em 15 minutos).';
+      'Confirma o teu e-mail. Se o endereço estiver registado, enviamos um código de 6 dígitos (expira em 15 minutos).';
 
   @override
   String get recLabelCodigo => 'Código de 6 dígitos';
 
   @override
-  String get recEscribeEmail => 'Escreva seu e-mail';
+  String get recEscribeEmail => 'Escreve o teu e-mail';
 
   @override
-  String get recRellenaCampos => 'Preencha o código e a nova senha';
+  String get recRellenaCampos => 'Preenche o código e a nova palavra-passe';
 
   @override
   String get recBotonEnviar => 'Enviar código';
 
   @override
-  String get recBotonRestablecer => 'Redefinir senha';
+  String get recBotonRestablecer => 'Redefinir palavra-passe';
 
   @override
   String get recReenviar => 'Reenviar código';
 
   @override
-  String get recRestablecida => 'Senha redefinida ✅ Já pode entrar';
+  String get recRestablecida => 'Palavra-passe redefinida ✅ Já podes entrar';
 
   @override
   String get recErrorEnviar =>
-      'Não foi possível enviar o código. Tente de novo.';
+      'Não foi possível enviar o código. Tenta de novo.';
 
   @override
   String get recError =>
-      'Não foi possível redefinir a senha. Confira o código e tente de novo.';
+      'Não foi possível redefinir a palavra-passe. Confirma o código e tenta de novo.';
 
   @override
   String get navHoy => 'Hoje';
@@ -381,12 +395,12 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String tiendaPrecioConCantidad(int precio, int n) {
-    return '$precio pts · você tem $n';
+    return '$precio pts · tens $n';
   }
 
   @override
   String get tiendaError =>
-      'Não foi possível concluir a operação. Tente de novo.';
+      'Não foi possível concluir a operação. Tenta de novo.';
 
   @override
   String get tiendaPreviewNavHabitos => 'Hábitos';
@@ -423,7 +437,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get colSeccionTemas => 'Temas';
 
   @override
-  String get colEligeAvatar => 'Escolha seu primeiro avatar grátis 👇';
+  String get colEligeAvatar => 'Escolhe o teu primeiro avatar grátis 👇';
 
   @override
   String colDescubre(String seccion) {
@@ -431,7 +445,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   }
 
   @override
-  String get colSeleccionActual => 'Sua seleção atual';
+  String get colSeleccionActual => 'A tua seleção atual';
 
   @override
   String colContador(int poseidos, int total) {
@@ -450,7 +464,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get colUsar => 'Usar';
 
   @override
-  String get colError => 'Não foi possível concluir a operação. Tente de novo.';
+  String get colError => 'Não foi possível concluir a operação. Tenta de novo.';
 
   @override
   String get obTitulo1 => 'Bem-vindo ao Norday! 🎉';
@@ -479,35 +493,35 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get valEditar => 'Editar avaliação';
 
   @override
-  String get valComoTeSentiste => 'Como você se sentiu?';
+  String get valComoTeSentiste => 'Como te sentiste?';
 
   @override
-  String get valHintNota => 'Adicione uma nota (opcional)';
+  String get valHintNota => 'Adiciona uma nota (opcional)';
 
   @override
   String get celLogroDesbloqueado => 'Conquista desbloqueada!';
 
   @override
-  String get celGenial => 'Demais!';
+  String get celGenial => 'Fantástico!';
 
   @override
   String get selElegirGratis => 'Escolher grátis';
 
   @override
-  String get selError => 'Não foi possível escolher o avatar. Tente de novo.';
+  String get selError => 'Não foi possível escolher o avatar. Tenta de novo.';
 
   @override
-  String get logroDescPrimerosPasos => 'Conclua seu primeiro hábito';
+  String get logroDescPrimerosPasos => 'Conclui o teu primeiro hábito';
 
   @override
-  String get logroDescBienvenido => 'Personalize seu perfil de usuário';
+  String get logroDescBienvenido => 'Personaliza o teu perfil de utilizador';
 
   @override
-  String get logroDescLoginGoogle => 'Entre usando sua conta do Google';
+  String get logroDescLoginGoogle => 'Entra com a tua conta Google';
 
   @override
   String get logroDescInteraccionResena =>
-      'Interaja com a avaliação do app no Google Play';
+      'Interage com a avaliação da aplicação no Google Play';
 
   @override
   String get logroDescIdentidadProfundidad => 'Obtém a identidade Profundidad';
@@ -522,11 +536,11 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get logroDescMascotaCria => 'A tua mascote passa de ovo a cria';
 
   @override
-  String get logroDescMascotaAdulto => 'A tua mascote passa de cria a adulto';
+  String get logroDescMascotaAdulto => 'A tua mascote passa de cria a adulta';
 
   @override
   String get prodDescEscudoRacha =>
-      'Protege sua sequência por 1 dia se você esquecer de concluir seu hábito';
+      'Protege a tua sequência durante 1 dia se te esqueceres de concluir o teu hábito';
 
   @override
   String get prodDescTemaProfundidad =>
@@ -556,7 +570,8 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get prodDescAvatarTortuga => 'Avatar ilustrado de tartaruga';
 
   @override
-  String get prodDescComidaBasica => 'Alimente seu mascote e ganhe experiência';
+  String get prodDescComidaBasica =>
+      'Alimenta a tua mascote e ganha experiência';
 
   @override
   String get logroCatInicio => 'Início';
@@ -625,35 +640,35 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get errorSinConexion =>
-      'Sem conexão. Verifique sua rede e tente de novo.';
+      'Sem ligação. Verifica a tua rede e tenta de novo.';
 
   @override
-  String get errorTimeout => 'A conexão demorou demais. Tente de novo.';
+  String get errorTimeout => 'A ligação demorou demasiado. Tenta de novo.';
 
   @override
   String get errorServidor =>
-      'O servidor não está respondendo bem agora. Tente em alguns minutos.';
+      'O servidor não está a responder bem agora. Tenta dentro de alguns minutos.';
 
   @override
-  String get errorSesionCaducada => 'Sua sessão expirou. Entre novamente.';
+  String get errorSesionCaducada => 'A tua sessão expirou. Entra novamente.';
 
   @override
   String get errorRespuesta =>
-      'O servidor respondeu algo inesperado. Tente de novo.';
+      'O servidor respondeu de forma inesperada. Tenta de novo.';
 
   @override
   String get errorGenerico =>
-      'Não foi possível concluir a operação. Tente de novo.';
+      'Não foi possível concluir a operação. Tenta de novo.';
 
   @override
-  String get loginCredenciales => 'Email ou senha incorretos.';
+  String get loginCredenciales => 'E-mail ou palavra-passe incorretos.';
 
   @override
   String get identidadTitulo => 'Escolhe a tua identidade';
 
   @override
   String get identidadSubtitulo =>
-      'É assim que a tua app vai ficar. Desliza para ver as três; as restantes compram-se depois na loja.';
+      'É assim que a tua aplicação vai ficar. Desliza para veres as três; as restantes compram-se depois na loja.';
 
   @override
   String get identidadElegir => 'Escolher esta';

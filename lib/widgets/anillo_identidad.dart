@@ -43,7 +43,8 @@ class AnilloIdentidad extends StatelessWidget {
   Widget build(BuildContext context) {
     final id = identidad(context);
     final t = tokens(context);
-    final sinAnimaciones = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final sinAnimaciones =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return SizedBox(
       width: tamano,
@@ -53,8 +54,9 @@ class AnilloIdentidad extends StatelessWidget {
         // El arco crece hasta su valor al cargar y al avanzar. Con "reducir
         // movimiento" salta directo al valor final: la duración a cero deja el
         // widget exactamente igual de correcto, sólo que sin recorrido.
-        duration:
-            sinAnimaciones ? Duration.zero : const Duration(milliseconds: 700),
+        duration: sinAnimaciones
+            ? Duration.zero
+            : const Duration(milliseconds: 700),
         curve: Curves.easeOutCubic,
         builder: (context, progreso, _) => CustomPaint(
           painter: _AnilloIdentidadPainter(
@@ -110,16 +112,6 @@ const _trazoChamfer = _TrazoAnillo(
   alfaPista: 0.45,
 );
 
-/// Un hilo es un hilo a cualquier tamaño: el recorrido entre el mínimo y el
-/// máximo es medio píxel a propósito.
-const _trazoHairline = _TrazoAnillo(
-  fraccion: 0.0047,
-  grosorMin: 1.0,
-  grosorMax: 1.5,
-  remate: StrokeCap.butt,
-  alfaPista: 0.30,
-);
-
 const _trazoPill = _TrazoAnillo(
   fraccion: 0.0373, // 12px a 322
   grosorMin: 5,
@@ -146,11 +138,10 @@ class _AnilloIdentidadPainter extends CustomPainter {
   static const _inicio = -math.pi / 2;
 
   _TrazoAnillo get _trazo => switch (forma) {
-        FormaIdentidad.glass => _trazoGlass,
-        FormaIdentidad.chamfer => _trazoChamfer,
-        FormaIdentidad.hairline => _trazoHairline,
-        FormaIdentidad.pill => _trazoPill,
-      };
+    FormaIdentidad.glass => _trazoGlass,
+    FormaIdentidad.chamfer => _trazoChamfer,
+    FormaIdentidad.pill => _trazoPill,
+  };
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -182,7 +173,12 @@ class _AnilloIdentidadPainter extends CustomPainter {
             ..maskFilter = MaskFilter.blur(BlurStyle.normal, grosor * 0.86),
         );
         canvas.drawArc(
-            caja, _inicio, barrido, false, _arco(grosor, trazo.remate, color));
+          caja,
+          _inicio,
+          barrido,
+          false,
+          _arco(grosor, trazo.remate, color),
+        );
 
       case FormaIdentidad.chamfer:
         // Segmentado tipo HUD. El número de casillas sale del tamaño: 40 en el
@@ -193,8 +189,11 @@ class _AnilloIdentidadPainter extends CustomPainter {
         // Hueco en ángulo, no en píxeles: así el ritmo no cambia con el tamaño.
         final hueco = paso * 0.34;
         final encendidas = (progreso.clamp(0.0, 1.0) * casillas).floor();
-        final apagado = _arco(grosor, trazo.remate,
-            colorPista.withValues(alpha: trazo.alfaPista));
+        final apagado = _arco(
+          grosor,
+          trazo.remate,
+          colorPista.withValues(alpha: trazo.alfaPista),
+        );
         final encendido = _arco(grosor, trazo.remate, color);
         for (var i = 0; i < casillas; i++) {
           canvas.drawArc(
@@ -206,19 +205,16 @@ class _AnilloIdentidadPainter extends CustomPainter {
           );
         }
 
-      case FormaIdentidad.hairline:
-        // Un hilo. Alba no subraya nada más de lo imprescindible, y el aro no
-        // es la excepción: se ve si lo buscas.
-        _pista(canvas, centro, radio, grosor, trazo.alfaPista);
-        if (barrido <= 0) return;
-        canvas.drawArc(
-            caja, _inicio, barrido, false, _arco(grosor, trazo.remate, color));
-
       case FormaIdentidad.pill:
         _pista(canvas, centro, radio, grosor, trazo.alfaPista);
         if (barrido <= 0) return;
         canvas.drawArc(
-            caja, _inicio, barrido, false, _arco(grosor, trazo.remate, color));
+          caja,
+          _inicio,
+          barrido,
+          false,
+          _arco(grosor, trazo.remate, color),
+        );
         // Perdigón en la punta: remata el trazo grueso y da un punto donde
         // mirar mientras el aro crece.
         final punta = _inicio + barrido;
@@ -236,8 +232,13 @@ class _AnilloIdentidadPainter extends CustomPainter {
     ..strokeCap = remate
     ..color = c;
 
-  void _pista(Canvas canvas, Offset centro, double radio, double grosor,
-      double alfa) {
+  void _pista(
+    Canvas canvas,
+    Offset centro,
+    double radio,
+    double grosor,
+    double alfa,
+  ) {
     canvas.drawCircle(
       centro,
       radio,

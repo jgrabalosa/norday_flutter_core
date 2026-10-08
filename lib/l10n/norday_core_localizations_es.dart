@@ -94,6 +94,20 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get preferenciasSubtitulo => 'Idioma y zona horaria';
 
   @override
+  String get sonido => 'Sonido';
+
+  @override
+  String get sonidoAyuda =>
+      'Activa o silencia la música y los efectos de la aplicación.';
+
+  @override
+  String get sonidoOnboardingTitulo => '¿Quieres sonido?';
+
+  @override
+  String get sonidoOnboardingCuerpo =>
+      'Puedes activar o silenciar la música y los efectos cuando quieras.';
+
+  @override
   String get cambiarZona => 'Cambiar zona horaria';
 
   @override

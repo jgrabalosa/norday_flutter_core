@@ -165,8 +165,9 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     // desmontándose, no está permitido.
     final peticion = _Cierre.peticion.value;
     if (peticion != null) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _terminarCierre(peticion));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _terminarCierre(peticion),
+      );
     }
     _velo.dispose();
     _textos.dispose();
@@ -212,9 +213,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
       fontSize: 34,
       fontWeight: FontWeight.w700,
       color: t.streak,
-      shadows: [
-        Shadow(color: t.streak.withValues(alpha: 0.6), blurRadius: 18),
-      ],
+      shadows: [Shadow(color: t.streak.withValues(alpha: 0.6), blurRadius: 18)],
     );
     final estiloDespedida = GoogleFonts.getFont(
       id.fontBody,
@@ -302,7 +301,8 @@ class VeloBarraCierreDelDia extends StatelessWidget {
           onTap: () => _Cierre.alTocar?.call(),
           child: ColoredBox(
             color: Colors.black.withValues(
-                alpha: _CapaCierreDelDiaState._alfaVelo * _Cierre.velo.value),
+              alpha: _CapaCierreDelDiaState._alfaVelo * _Cierre.velo.value,
+            ),
           ),
         );
       },

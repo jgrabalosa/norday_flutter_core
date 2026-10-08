@@ -77,21 +77,17 @@ ShapeBorder formaIdentidad(
   IdentidadPaleta id, {
   required double radio,
   BorderSide lado = BorderSide.none,
-}) =>
-    switch (id.forma) {
-      FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan, side: lado),
-      _ => RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radio),
-          side: lado,
-        ),
-    };
+}) => switch (id.forma) {
+  FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan, side: lado),
+  _ => RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(radio),
+    side: lado,
+  ),
+};
 
 /// Una superficie —tarjeta, panel, fila de lista— en el lenguaje de la
 /// identidad equipada.
 ///
-/// Alba no tiene superficie propia: como panel no pinta nada en absoluto, y
-/// como fila de lista se marca con una línea fina debajo. Es la misma decisión
-/// que ya tomaron la burbuja de contexto y la tarjeta de hábito.
 class SuperficieIdentidad extends StatelessWidget {
   final Widget child;
 
@@ -104,10 +100,6 @@ class SuperficieIdentidad extends StatelessWidget {
   /// El elemento protagonista de la pantalla usa [IdentidadPaleta.radioHero];
   /// el contenido de una lista, [IdentidadPaleta.radioSecundario].
   final bool protagonista;
-
-  /// Qué hace Alba: una fila de lista lleva su línea fina debajo, un panel de
-  /// formulario no lleva nada. En las otras tres identidades no cambia nada.
-  final bool esFila;
 
   /// Filo propio, cuando esta superficie tiene que destacar sobre las de su
   /// alrededor. Sin él manda el de la identidad.
@@ -135,7 +127,6 @@ class SuperficieIdentidad extends StatelessWidget {
     this.margen = EdgeInsets.zero,
     this.relleno = const EdgeInsets.all(16),
     this.protagonista = false,
-    this.esFila = false,
     this.filo,
     this.opacidadSuperficie = 1.0,
   });
@@ -145,43 +136,23 @@ class SuperficieIdentidad extends StatelessWidget {
     final id = identidad(context);
     final t = tokens(context);
 
-    if (id.forma == FormaIdentidad.hairline) {
-      // Como panel, Alba no pinta nada — y tampoco reserva relleno: sangraría
-      // el contenido sin que se vea de qué. Como fila sí, que es lo que separa
-      // una fila de la siguiente.
-      final contenido = esFila ? Padding(padding: relleno, child: child) : child;
-      return Container(
-        margin: margen,
-        decoration: esFila
-            ? BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                      color: filo?.color ?? t.textMuted.withValues(alpha: 0.20)),
-                ),
-              )
-            : null,
-        child: onTap == null
-            ? contenido
-            : Material(
-                type: MaterialType.transparency,
-                child: InkWell(onTap: onTap, child: contenido),
-              ),
-      );
-    }
-
     final forma = formaIdentidad(
       id,
       radio: protagonista ? id.radioHero : id.radioSecundario,
-      lado: filo ??
+      lado:
+          filo ??
           switch (id.forma) {
             // El filo claro es lo que hace que el cristal tenga canto, y
             // ahora sólo lo lleva la protagonista: la secundaria de
             // Profundidad ya no tiene superficie que enmarcar.
-            FormaIdentidad.glass => protagonista
-                ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
-                : BorderSide.none,
-            FormaIdentidad.chamfer =>
-              BorderSide(color: t.primary.withValues(alpha: 0.55), width: 1.2),
+            FormaIdentidad.glass =>
+              protagonista
+                  ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
+                  : BorderSide.none,
+            FormaIdentidad.chamfer => BorderSide(
+              color: t.primary.withValues(alpha: 0.55),
+              width: 1.2,
+            ),
             _ => BorderSide.none,
           },
     );
@@ -210,8 +181,8 @@ class SuperficieIdentidad extends StatelessWidget {
         // el check insinuado. Las otras tres identidades, `surface` opaco.
         color: id.forma == FormaIdentidad.glass
             ? (protagonista
-                ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
-                : null)
+                  ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
+                  : null)
             : t.surface,
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
@@ -223,12 +194,12 @@ class SuperficieIdentidad extends StatelessWidget {
           // Dulce: la sombra es del color de la identidad, no negra. Es lo que
           // convierte una sombra en un resplandor.
           FormaIdentidad.pill => [
-              BoxShadow(
-                color: t.primary.withValues(alpha: protagonista ? 0.22 : 0.18),
-                blurRadius: protagonista ? 26 : 16,
-                offset: Offset(0, protagonista ? 12 : 6),
-              ),
-            ],
+            BoxShadow(
+              color: t.primary.withValues(alpha: protagonista ? 0.22 : 0.18),
+              blurRadius: protagonista ? 26 : 16,
+              offset: Offset(0, protagonista ? 12 : 6),
+            ),
+          ],
           // Neotokyo+ no proyecta sombra: su relieve es el corte y el borde.
           _ => const [],
         },

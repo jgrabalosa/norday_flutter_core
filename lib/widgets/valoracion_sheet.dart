@@ -104,7 +104,10 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
           duration: const Duration(milliseconds: 200),
           // Cuando sube el teclado, el diálogo se desplaza hacia arriba
           padding: EdgeInsets.only(
-              left: 24, right: 24, bottom: teclado > 0 ? teclado : 0),
+            left: 24,
+            right: 24,
+            bottom: teclado > 0 ? teclado : 0,
+          ),
           child: Container(
             // Ancla del recorrido guiado: el hueco recorta la tarjeta entera.
             key: widget.ancla,
@@ -127,10 +130,9 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
                 children: [
                   Text(
                     _esEdicion ? l.valEditar : l.valComoTeSentiste,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(color: t.text),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineSmall?.copyWith(color: t.text),
                   ),
                   const SizedBox(height: 12),
                   // FittedBox: si la fila de estrellas no cabe,

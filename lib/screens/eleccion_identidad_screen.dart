@@ -37,7 +37,8 @@ class EleccionIdentidadScreen extends StatefulWidget {
   });
 
   @override
-  State<EleccionIdentidadScreen> createState() => _EleccionIdentidadScreenState();
+  State<EleccionIdentidadScreen> createState() =>
+      _EleccionIdentidadScreenState();
 }
 
 class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
@@ -45,7 +46,6 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
   static const _codigosIdentidad = [
     'TEMA_PROFUNDIDAD',
     'TEMA_NEOTOKYO_PLUS',
-    'TEMA_ALBA',
     'TEMA_DULCE',
   ];
 
@@ -120,8 +120,10 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
 
     final productoId = _items[_paginaActual].productoId;
     try {
-      final logros =
-          await ApiServiceCore.elegirIdentidad(widget.usuarioId, productoId);
+      final logros = await ApiServiceCore.elegirIdentidad(
+        widget.usuarioId,
+        productoId,
+      );
       // El backend ya la equipó, pero los notifiers que pintan la app siguen
       // como estaban desde el login, cuando el usuario no tenía ninguna. Sin
       // esto se entra con el aspecto por defecto aunque se haya elegido otro.
@@ -149,13 +151,21 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
       if (!mounted) return;
       setState(() {
         _enviando = false;
-        _errorEleccion = MensajesError.de(context, e, generico: l.identidadErrorGenerico);
+        _errorEleccion = MensajesError.de(
+          context,
+          e,
+          generico: l.identidadErrorGenerico,
+        );
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _enviando = false;
-        _errorEleccion = MensajesError.de(context, e, generico: l.identidadErrorGenerico);
+        _errorEleccion = MensajesError.de(
+          context,
+          e,
+          generico: l.identidadErrorGenerico,
+        );
       });
     }
   }
@@ -163,7 +173,8 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
   @override
   Widget build(BuildContext context) {
     final l = NordayCoreLocalizations.of(context)!;
-    final huboFallo = _fallocatalogo != null || (!_cargandoCatalogo && _items.isEmpty);
+    final huboFallo =
+        _fallocatalogo != null || (!_cargandoCatalogo && _items.isEmpty);
 
     return PopScope(
       canPop: false,
@@ -175,8 +186,8 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
               child: _cargandoCatalogo
                   ? const Center(child: CircularProgressIndicator())
                   : huboFallo
-                      ? _vistaErrorCatalogo(l)
-                      : _vistaCarrusel(l),
+                  ? _vistaErrorCatalogo(l)
+                  : _vistaCarrusel(l),
             ),
           ],
         ),
@@ -222,7 +233,9 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
           Text(
             l.identidadSubtitulo,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -236,7 +249,10 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
                 return Semantics(
                   label: '${l.identidadTitulo}: ${id.nombre}',
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
                     child: Column(
                       children: [
                         Expanded(child: MaquetaPreviewIdentidad(identidad: id)),
@@ -265,14 +281,17 @@ class _EleccionIdentidadScreenState extends State<EleccionIdentidadScreen> {
                     shape: BoxShape.circle,
                     color: i == _paginaActual
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.25),
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 20),
           Semantics(
-            label: '${l.identidadElegir}: ${_items[_paginaActual].identidad.nombre}',
+            label:
+                '${l.identidadElegir}: ${_items[_paginaActual].identidad.nombre}',
             button: true,
             child: ExcludeSemantics(
               child: SizedBox(

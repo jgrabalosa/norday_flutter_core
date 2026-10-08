@@ -13,8 +13,11 @@ void main() {
 
     for (final entrada in catalogoAvatares.entries) {
       final datos = await rootBundle.load(entrada.value.asset);
-      expect(datos.lengthInBytes, greaterThan(0),
-          reason: '${entrada.key} -> ${entrada.value.asset}');
+      expect(
+        datos.lengthInBytes,
+        greaterThan(0),
+        reason: '${entrada.key} -> ${entrada.value.asset}',
+      );
     }
   });
 

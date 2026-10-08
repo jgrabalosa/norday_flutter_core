@@ -27,43 +27,52 @@ void main() {
   TextStyle estiloPintado(WidgetTester tester, String texto) =>
       (tester.renderObject(find.text(texto)) as RenderParagraph).text.style!;
 
-  testWidgets('cada identidad titula con una familia distinta de la del cuerpo',
-      (tester) async {
+  testWidgets(
+    'cada identidad titula con una familia distinta de la del cuerpo',
+    (tester) async {
+      for (final codigo in catalogoIdentidades.keys) {
+        aplicarIdentidadEquipada(codigo);
+        final tema = AppTheme.deTema(temaEquipadoNotifier.value);
+        expect(
+          tema.textTheme.headlineMedium!.fontFamily,
+          isNot(tema.textTheme.bodyMedium!.fontFamily),
+          reason: codigo,
+        );
+      }
+    },
+  );
+
+  testWidgets('un TextStyle crudo de titular se pinta con la letra del cuerpo', (
+    tester,
+  ) async {
     for (final codigo in catalogoIdentidades.keys) {
       aplicarIdentidadEquipada(codigo);
       final tema = AppTheme.deTema(temaEquipadoNotifier.value);
-      expect(
-        tema.textTheme.headlineMedium!.fontFamily,
-        isNot(tema.textTheme.bodyMedium!.fontFamily),
-        reason: codigo,
-      );
-    }
-  });
 
-  testWidgets('un TextStyle crudo de titular se pinta con la letra del cuerpo',
-      (tester) async {
-    for (final codigo in catalogoIdentidades.keys) {
-      aplicarIdentidadEquipada(codigo);
-      final tema = AppTheme.deTema(temaEquipadoNotifier.value);
-
-      await tester.pumpWidget(MaterialApp(
-        theme: tema,
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => Column(
-              children: [
-                // Lo que hoy hay escrito en onboarding_overlay: 20 y negrita,
-                // sin familia.
-                const Text('crudo',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                // Lo mismo pedido al tema: headlineMedium es 20 y w700.
-                Text('tema', style: Theme.of(context).textTheme.headlineMedium),
-              ],
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: tema,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => Column(
+                children: [
+                  // Lo que hoy hay escrito en onboarding_overlay: 20 y negrita,
+                  // sin familia.
+                  const Text(
+                    'crudo',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  // Lo mismo pedido al tema: headlineMedium es 20 y w700.
+                  Text(
+                    'tema',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ));
+      );
       // pumpAndSettle y no pump: MaterialApp interpola el tema con
       // AnimatedTheme, y TextStyle.lerp devuelve la familia de ORIGEN hasta
       // media transición. Con un solo fotograma leeríamos la letra de la
@@ -78,10 +87,16 @@ void main() {
       expect(delTema.fontSize, 20, reason: codigo);
 
       // Y sin embargo, distinta letra.
-      expect(crudo.fontFamily, tema.textTheme.bodyMedium!.fontFamily,
-          reason: codigo);
-      expect(delTema.fontFamily, tema.textTheme.headlineMedium!.fontFamily,
-          reason: codigo);
+      expect(
+        crudo.fontFamily,
+        tema.textTheme.bodyMedium!.fontFamily,
+        reason: codigo,
+      );
+      expect(
+        delTema.fontFamily,
+        tema.textTheme.headlineMedium!.fontFamily,
+        reason: codigo,
+      );
       expect(crudo.fontFamily, isNot(delTema.fontFamily), reason: codigo);
     }
   });

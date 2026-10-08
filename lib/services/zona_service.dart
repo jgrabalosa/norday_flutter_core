@@ -70,7 +70,10 @@ class ZonaService {
 
     if (usuarioId != null) {
       try {
-        await ApiServiceCore.actualizarPreferencias(usuarioId, zonaHoraria: zona);
+        await ApiServiceCore.actualizarPreferencias(
+          usuarioId,
+          zonaHoraria: zona,
+        );
         await prefs.remove(_clavePendiente);
       } catch (_) {
         // El cambio local se queda: la app ya funciona con la zona nueva.

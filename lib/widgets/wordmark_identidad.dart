@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
@@ -11,7 +10,7 @@ import '../theme/identidades_paleta.dart';
 /// `headlineMedium` y sólo se ajusta el tamaño.
 ///
 /// Lo que se añade es el tratamiento de firma de cada identidad —mayúsculas y
-/// tracking en Neotokyo+, itálica en Alba—, que **no** vive en el tema global a
+/// tracking en Neotokyo+—, que **no** vive en el tema global a
 /// propósito: allí Neotokyo+ acabaría poniendo en mayúsculas hasta el cuerpo de
 /// un artículo. Un wordmark es titular puro, que es justo donde ese
 /// tratamiento sí toca.
@@ -34,48 +33,43 @@ class WordmarkIdentidad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final id = identidad(context);
-    final base = Theme.of(context).textTheme.headlineMedium ?? const TextStyle();
+    final base =
+        Theme.of(context).textTheme.headlineMedium ?? const TextStyle();
 
     return switch (id.forma) {
       // Profundidad — el wordmark de siempre, sin más.
       FormaIdentidad.glass => Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: base.copyWith(
-              fontSize: tamano, color: color, letterSpacing: 0.5),
+        texto,
+        textAlign: TextAlign.center,
+        style: base.copyWith(
+          fontSize: tamano,
+          color: color,
+          letterSpacing: 0.5,
         ),
+      ),
 
       // Neotokyo+ — mayúsculas y tracking generoso, proporcional al cuerpo para
       // que no se cierre al reducirlo.
       FormaIdentidad.chamfer => Text(
-          texto.toUpperCase(),
-          textAlign: TextAlign.center,
-          style: base.copyWith(
-              fontSize: tamano, color: color, letterSpacing: tamano * 0.09),
+        texto.toUpperCase(),
+        textAlign: TextAlign.center,
+        style: base.copyWith(
+          fontSize: tamano,
+          color: color,
+          letterSpacing: tamano * 0.09,
         ),
-
-      // Alba — itálica. Se pide al catálogo y no con un `copyWith` sobre el
-      // estilo del tema porque la itálica de verdad es otro fichero: inclinar
-      // la redonda daría un falso cursiva.
-      FormaIdentidad.hairline => Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.getFont(
-            id.fontDisplay,
-            fontSize: tamano,
-            fontWeight: FontWeight.w600,
-            fontStyle: FontStyle.italic,
-            color: color,
-          ),
-        ),
+      ),
 
       // Dulce — redonda y apretadita, como todo lo suyo.
       FormaIdentidad.pill => Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: base.copyWith(
-              fontSize: tamano, color: color, letterSpacing: 0.2),
+        texto,
+        textAlign: TextAlign.center,
+        style: base.copyWith(
+          fontSize: tamano,
+          color: color,
+          letterSpacing: 0.2,
         ),
+      ),
     };
   }
 }

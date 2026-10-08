@@ -22,40 +22,45 @@ void main() {
   tearDown(() => aplicarIdentidadEquipada(identidadInicial.codigo));
 
   Widget montar(Widget child) => MaterialApp(
-        theme: AppTheme.deTema(temaEquipadoNotifier.value),
-        home: Scaffold(body: child),
-      );
+    theme: AppTheme.deTema(temaEquipadoNotifier.value),
+    home: Scaffold(body: child),
+  );
 
-  testWidgets('la superficie construye y ocupa sitio en las cuatro identidades',
-      (tester) async {
-    for (final codigo in catalogoIdentidades.keys) {
-      aplicarIdentidadEquipada(codigo);
-      await tester.pumpWidget(montar(
-        const SuperficieIdentidad(child: Text('contenido')),
-      ));
-      await tester.pump();
+  testWidgets(
+    'la superficie construye y ocupa sitio en las cuatro identidades',
+    (tester) async {
+      for (final codigo in catalogoIdentidades.keys) {
+        aplicarIdentidadEquipada(codigo);
+        await tester.pumpWidget(
+          montar(const SuperficieIdentidad(child: Text('contenido'))),
+        );
+        await tester.pump();
 
-      expect(find.text('contenido'), findsOneWidget, reason: codigo);
-      final tamano = tester.getSize(find.byType(SuperficieIdentidad));
-      expect(tamano.width, greaterThan(0), reason: codigo);
-      expect(tamano.height, greaterThan(0), reason: codigo);
-    }
-  });
+        expect(find.text('contenido'), findsOneWidget, reason: codigo);
+        final tamano = tester.getSize(find.byType(SuperficieIdentidad));
+        expect(tamano.width, greaterThan(0), reason: codigo);
+        expect(tamano.height, greaterThan(0), reason: codigo);
+      }
+    },
+  );
 
-  testWidgets('la superficie protagonista traslúcida sigue pintando su hijo',
-      (tester) async {
+  testWidgets('la superficie protagonista traslúcida sigue pintando su hijo', (
+    tester,
+  ) async {
     // 0.75 es lo que usan el login, Tienda, Colección y Logros. Sólo tiene
     // efecto en glass, así que las otras tres pasan por el mismo camino sin
     // que cambie nada: eso es justo lo que hay que comprobar.
     for (final codigo in catalogoIdentidades.keys) {
       aplicarIdentidadEquipada(codigo);
-      await tester.pumpWidget(montar(
-        const SuperficieIdentidad(
-          protagonista: true,
-          opacidadSuperficie: 0.75,
-          child: Text('contenido'),
+      await tester.pumpWidget(
+        montar(
+          const SuperficieIdentidad(
+            protagonista: true,
+            opacidadSuperficie: 0.75,
+            child: Text('contenido'),
+          ),
         ),
-      ));
+      );
       await tester.pump();
       expect(find.text('contenido'), findsOneWidget, reason: codigo);
     }
@@ -66,25 +71,26 @@ void main() {
     // mayúsculas y un find.text con el original fallaría sólo ahí.
     for (final codigo in catalogoIdentidades.keys) {
       aplicarIdentidadEquipada(codigo);
-      await tester.pumpWidget(montar(
-        const BurbujaContexto(texto: 'buen ritmo'),
-      ));
+      await tester.pumpWidget(
+        montar(const BurbujaContexto(texto: 'buen ritmo')),
+      );
       await tester.pump();
       expect(find.byType(Text), findsOneWidget, reason: codigo);
     }
   });
 
-  testWidgets('la burbuja usa el color que le pasan, en las cuatro formas',
-      (tester) async {
+  testWidgets('la burbuja usa el color que le pasan, en las cuatro formas', (
+    tester,
+  ) async {
     // El dashboard lo necesita para marcar el día completado. Sin este test,
     // que una rama se dejara el `color ??` no lo vería nadie.
     const tinta = Color(0xFF123456);
 
     for (final codigo in catalogoIdentidades.keys) {
       aplicarIdentidadEquipada(codigo);
-      await tester.pumpWidget(montar(
-        const BurbujaContexto(texto: 'buen ritmo', color: tinta),
-      ));
+      await tester.pumpWidget(
+        montar(const BurbujaContexto(texto: 'buen ritmo', color: tinta)),
+      );
       await tester.pump();
 
       final texto = tester.widget<Text>(find.byType(Text));
@@ -92,16 +98,14 @@ void main() {
     }
   });
 
-  testWidgets('el fondo llena el Stack cuando el Stack se lo permite',
-      (tester) async {
+  testWidgets('el fondo llena el Stack cuando el Stack se lo permite', (
+    tester,
+  ) async {
     for (final codigo in catalogoIdentidades.keys) {
       aplicarIdentidadEquipada(codigo);
-      await tester.pumpWidget(montar(
-        const Stack(
-          fit: StackFit.expand,
-          children: [FondoIdentidad()],
-        ),
-      ));
+      await tester.pumpWidget(
+        montar(const Stack(fit: StackFit.expand, children: [FondoIdentidad()])),
+      );
       await tester.pump();
 
       final tamano = tester.getSize(find.byType(FondoIdentidad));
@@ -117,9 +121,7 @@ void main() {
     // se enteraría. Aquí está escrito el motivo por el que el `StackFit`
     // no es opcional.
     aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
-    await tester.pumpWidget(montar(
-      const Stack(children: [FondoIdentidad()]),
-    ));
+    await tester.pumpWidget(montar(const Stack(children: [FondoIdentidad()])));
     await tester.pump();
 
     expect(tester.getSize(find.byType(FondoIdentidad)), Size.zero);
