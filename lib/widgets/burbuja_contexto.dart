@@ -41,12 +41,7 @@ class BurbujaContexto extends StatelessWidget {
 
   /// Profundidad — nota de cristal con una pegatina en la esquina. El
   /// degradado entre las dos superficies y el filo claro de arriba son lo que
-  /// hace que parezca un panel con canto y no un rectángulo de color; la
-  /// inclinación y la pegatina son lo que la convierten en algo puesto ahí
-  /// por alguien, como el post-it de Dulce.
-  ///
-  /// Se inclina al revés que Dulce (positivo, no negativo) a propósito: las
-  /// dos identidades comparten el gesto pero no la mano.
+  /// hace que parezca un panel con canto y no un rectángulo de color.
   Widget _cristal(IdentidadPaleta id, TokensContextuales t) {
     final tarjeta = Container(
       padding: _relleno,
@@ -78,18 +73,13 @@ class BurbujaContexto extends StatelessWidget {
       ),
     );
 
-    return Transform.rotate(
-      // Más que Dulce, no menos: el post-it lo tuerce la mano y a esto lo
-      // tuerce el peso de haberlo dejado ahí.
-      angle: 0.028,
-      child: Stack(
-        // La pegatina sobresale del borde, así que el Stack no puede recortar.
-        clipBehavior: Clip.none,
-        children: [
-          tarjeta,
-          Positioned(top: -6, left: -4, child: _pegatina(t)),
-        ],
-      ),
+    return Stack(
+      // La pegatina sobresale del borde, así que el Stack no puede recortar.
+      clipBehavior: Clip.none,
+      children: [
+        tarjeta,
+        Positioned(top: -6, left: -4, child: _pegatina(t)),
+      ],
     );
   }
 
@@ -132,37 +122,34 @@ class BurbujaContexto extends StatelessWidget {
     );
   }
 
-  /// Dulce — post-it: torcido, con sombra de color y escrito a mano. Éste es
-  /// el uso único de [IdentidadPaleta.fontAcento] en la pantalla; si aparece
-  /// en algún otro sitio, se está usando mal.
+  /// Dulce — post-it, con sombra de color y escrito a mano. Éste es el uso
+  /// único de [IdentidadPaleta.fontAcento] en la pantalla; si aparece en algún
+  /// otro sitio, se está usando mal.
   Widget _postIt(IdentidadPaleta id, TokensContextuales t) {
-    return Transform.rotate(
-      angle: -0.025, // ~1.4°, lo justo para que se note pegado a mano
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: t.fondoNota,
-          borderRadius: BorderRadius.circular(id.radioSecundario),
-          boxShadow: [
-            BoxShadow(
-              color: t.primary.withValues(alpha: 0.28),
-              blurRadius: 14,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.getFont(
-            // La de acento es opcional en el modelo; sin ella, el cuerpo.
-            id.fontAcento ?? id.fontBody,
-            // Las manuscritas piden más cuerpo que una de palo para leerse
-            // igual de bien.
-            fontSize: 19,
-            height: 1.2,
-            color: color ?? t.text,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        color: t.fondoNota,
+        borderRadius: BorderRadius.circular(id.radioSecundario),
+        boxShadow: [
+          BoxShadow(
+            color: t.primary.withValues(alpha: 0.28),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
           ),
+        ],
+      ),
+      child: Text(
+        texto,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.getFont(
+          // La de acento es opcional en el modelo; sin ella, el cuerpo.
+          id.fontAcento ?? id.fontBody,
+          // Las manuscritas piden más cuerpo que una de palo para leerse
+          // igual de bien.
+          fontSize: 19,
+          height: 1.2,
+          color: color ?? t.text,
         ),
       ),
     );

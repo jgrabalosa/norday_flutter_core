@@ -165,16 +165,18 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       _irADestino(usuario.usuarioId, false, posee);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _error = _textoError(e, l);
         });
+      }
     } finally {
       // pushReplacement ya ha desmontado esta pantalla en el caso bueno
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
+      }
     }
   }
 
@@ -230,10 +232,11 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
+      }
     }
   }
 
@@ -251,10 +254,11 @@ class _LoginScreenState extends State<LoginScreen> {
       // que llega indistinguible de una cancelación. En ambos casos se
       // avisa: quedarse en silencio deja al usuario ante una pantalla muerta.
       if (esNuevo == null) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _error = l.loginCancelado;
           });
+        }
         return;
       }
       final usuarioLocal = await ApiServiceCore.getUsuarioLocal();
@@ -277,10 +281,11 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
+      }
     }
   }
 

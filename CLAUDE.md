@@ -36,10 +36,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     día), `BurbujaContexto` y `CelebracionNivel`;
   - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
-  - fondos y cierre del día (8): `FondoIdentidad` y `CapaProgresoIdentidad`
-    (las únicas puertas), los cuatro dibujos —cielo estelar, ciudad,
-    burbujas y amanecer (de Alba)—, el catálogo de constelaciones, su capa y
-    el cierre del día;
+  - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
+    (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
+    burbujas—, el catálogo de constelaciones, su capa y el cierre del día;
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
   - genéricos (9): anillo de progreso, `+X` flotante, check, skeleton,
@@ -149,13 +148,10 @@ superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
 | Profundidad | `TEMA_PROFUNDIDAD` | Space Grotesk | Manrope | `glass` | cielo estelar, con constelación |
 | Neotokyo+ | `TEMA_NEOTOKYO_PLUS` | Chakra Petch | IBM Plex Sans | `chamfer` | ciudad |
 | Dulce | `TEMA_DULCE` | Quicksand | Nunito (acento: Caveat) | `pill` | burbujas |
-| Alba | `TEMA_ALBA` | Fraunces | Work Sans | `hairline` | amanecer |
 
-**Salen tres.** Alba está retirada desde el 6-sep-2026: sigue en el catálogo
-del cliente, pero el backend tiene `TEMA_ALBA` con `activo = false` y ninguna
-pantalla la ofrece, porque todas parten de lo que manda el backend (la
-elección del onboarding descarta los productos inactivos). Quitarla del
-catálogo y `FormaIdentidad.hairline` está pendiente para después de la salida.
+**Son tres.** Alba se eliminó del cliente el 8-oct-2026: ya no está en el
+catálogo ni existe `FormaIdentidad.hairline`. En el backend, `TEMA_ALBA`
+sigue con `activo = false`.
 
 **Avatares retirados** desde el 15-sep-2026. `catalogoAvatares`,
 `SelectorAvatarGratis`, `assets/avatares/` y sus textos siguen aquí como

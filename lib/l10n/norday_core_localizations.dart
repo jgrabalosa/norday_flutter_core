@@ -163,12 +163,6 @@ abstract class NordayCoreLocalizations {
   /// **'Detectada de tu dispositivo'**
   String get zonaDetectada;
 
-  /// No description provided for @zonaAyuda.
-  ///
-  /// In es, this message translates to:
-  /// **'Define cuándo empieza y acaba tu día para las rachas y los recordatorios.'**
-  String get zonaAyuda;
-
   /// No description provided for @logroBienvenido.
   ///
   /// In es, this message translates to:
@@ -276,12 +270,6 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Sonido'**
   String get sonido;
-
-  /// No description provided for @sonidoAyuda.
-  ///
-  /// In es, this message translates to:
-  /// **'Activa o silencia la música y los efectos de la aplicación.'**
-  String get sonidoAyuda;
 
   /// No description provided for @sonidoOnboardingTitulo.
   ///

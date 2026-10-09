@@ -39,10 +39,6 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get zonaDetectada => 'Detectada de tu dispositivo';
 
   @override
-  String get zonaAyuda =>
-      'Define cuándo empieza y acaba tu día para las rachas y los recordatorios.';
-
-  @override
   String get logroBienvenido => 'Bienvenido/a';
 
   @override
@@ -95,10 +91,6 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
 
   @override
   String get sonido => 'Sonido';
-
-  @override
-  String get sonidoAyuda =>
-      'Activa o silencia la música y los efectos de la aplicación.';
 
   @override
   String get sonidoOnboardingTitulo => '¿Quieres sonido?';
