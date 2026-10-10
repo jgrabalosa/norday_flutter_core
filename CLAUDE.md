@@ -213,6 +213,20 @@ de verdad y se desincronizaba al equipar desde otro dispositivo.
   `#1EA85B` en ese caso), Gris Muy Claro `#EEF2F6`.
 - **Iconos**: Lucide Icons.
 
+## Formato del código
+
+Todo el código Dart va formateado con `dart format`. Antes de cada commit que
+toque un `.dart`, desde la raíz: `dart format lib test`.
+
+- Sólo `lib` y `test`. Nunca `dart format .`.
+- **Después de formatear, `flutter analyze`.** El formateador parte en varias
+  líneas un `if` sin llaves que cabía en una, y entonces salta
+  `curly_braces_in_flow_control_structures`. Se arregla poniendo llaves, no
+  deshaciendo el formato.
+- Un cambio que sólo reformatea va en su propio commit, sin mezclar con código.
+- `l10n.yaml` lleva `format: true`: `flutter gen-l10n` deja los
+  `norday_core_localizations*.dart` ya formateados. No se quita.
+
 ## Estilo de trabajo con el usuario
 
 - Un paso a la vez, confirmar que compila antes de seguir.
