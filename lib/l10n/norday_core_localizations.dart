@@ -421,6 +421,12 @@ abstract class NordayCoreLocalizations {
   /// **'sin novedad'**
   String get mascotaAnimoTranquila;
 
+  /// No description provided for @mascotaAnimoExultante.
+  ///
+  /// In es, this message translates to:
+  /// **'radiante'**
+  String get mascotaAnimoExultante;
+
   /// No description provided for @mascotaSubidaNivel.
   ///
   /// In es, this message translates to:

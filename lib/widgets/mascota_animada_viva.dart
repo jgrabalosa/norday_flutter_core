@@ -100,9 +100,21 @@ const _PerfilVida _perfilDormida = _PerfilVida(
   amplitudGiro: 0.3,
 );
 
+/// Más que feliz: las tres capas más rápidas y más amplias. Provisional
+/// hasta que se revisen las animaciones de Nori.
+const _PerfilVida _perfilExultante = _PerfilVida(
+  respiracion: Duration(milliseconds: 850),
+  vaiven: Duration(milliseconds: 1100),
+  balanceo: Duration(milliseconds: 1500),
+  amplitudEscala: 0.055,
+  amplitudY: 7.0,
+  amplitudGiro: 3.0,
+);
+
 /// Un estado que este cliente aún no conozca cae al perfil sereno, mismo
 /// criterio que `assetMascota`: ante la duda, no darla por contenta.
 _PerfilVida _perfilDe(String? estado) => switch (estado) {
+  'exultante' => _perfilExultante,
   'feliz' => _perfilFeliz,
   'dormida' => _perfilDormida,
   _ => _perfilTriste,

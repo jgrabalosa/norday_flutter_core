@@ -9,9 +9,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const fases = ['HUEVO', 'CRIA', 'ADULTO'];
-  const estados = ['feliz', 'triste', 'dormida'];
+  const estados = ['feliz', 'triste', 'dormida', 'exultante'];
 
-  test('las 9 combinaciones de fase y estado existen en el bundle', () async {
+  test('las 12 combinaciones de fase y estado existen en el bundle', () async {
     for (final fase in fases) {
       for (final estado in estados) {
         final ruta = assetMascota(fase: fase, estado: estado);
@@ -37,6 +37,21 @@ void main() {
     expect(
       assetMascota(fase: 'ADULTO', estado: 'triste'),
       'assets/mascota/Nori_adulto_triste.png',
+    );
+  });
+
+  test('exultante tiene su propio dibujo en cada fase', () {
+    expect(
+      assetMascota(fase: 'HUEVO', estado: 'exultante'),
+      'assets/mascota/Nori_huevo_exultante.png',
+    );
+    expect(
+      assetMascota(fase: 'CRIA', estado: 'exultante'),
+      'assets/mascota/Nori_cria_exultante.png',
+    );
+    expect(
+      assetMascota(fase: 'ADULTO', estado: 'exultante'),
+      'assets/mascota/Nori_adulto_exultante.png',
     );
   });
 

@@ -4,7 +4,8 @@
 ///
 /// Los ficheros se llaman `Nori_{fase}_{estado}.png` con la fase en minúscula
 /// y el estado en su forma visual, que no es la del backend:
-/// `feliz→sonriente`, `triste→triste`, `dormida→dormido`.
+/// `feliz→sonriente`, `triste→triste`, `dormida→dormido`,
+/// `exultante→exultante`.
 library;
 
 /// Estado del backend → sufijo del fichero.
@@ -12,6 +13,7 @@ const Map<String, String> _sufijoDeEstado = {
   'feliz': 'sonriente',
   'triste': 'triste',
   'dormida': 'dormido',
+  'exultante': 'exultante',
 };
 
 const Set<String> _fasesConocidas = {'huevo', 'cria', 'adulto'};

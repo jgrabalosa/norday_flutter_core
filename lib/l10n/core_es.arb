@@ -84,6 +84,7 @@
   "mascotaAnimoAtencion": "echando una cabezada",
   "mascotaAnimoTriste": "te echa de menos",
   "mascotaAnimoTranquila": "sin novedad",
+  "mascotaAnimoExultante": "radiante",
   "mascotaSubidaNivel": "¡Nivel {n}!",
   "@mascotaSubidaNivel": {
     "placeholders": {

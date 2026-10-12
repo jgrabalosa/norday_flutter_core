@@ -176,6 +176,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get mascotaAnimoTranquila => 'nothing new';
 
   @override
+  String get mascotaAnimoExultante => 'beaming';
+
+  @override
   String mascotaSubidaNivel(int n) {
     return 'Level $n!';
   }
