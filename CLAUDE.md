@@ -26,9 +26,11 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `RecorridoService` (si el recorrido guiado
   ya se hizo; sólo un sí o un no).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
-  `Equipamiento`, `assetMascota`, `refrescoMascotaNotifier`, `tonoError`,
-  `progreso_dia.dart` (cuántos hay y cuántos hechos en el día, sin decir
-  cuáles: de ahí dibuja el fondo) y `catalogoAvatares` (retirado, ver abajo).
+  `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
+  `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
+  `tonoError`, `progreso_dia.dart` (cuántos hay, cuántos hechos y cuánto se
+  lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
+  fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
 - `widgets/` — 33 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
@@ -41,9 +43,11 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     burbujas—, el catálogo de constelaciones, su capa y el cierre del día;
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
-  - genéricos (9): anillo de progreso, `+X` flotante, check, skeleton,
+  - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
     splash, hoja de valoración, selector de idioma y zona, onboarding de dos
-    pasos y `BurbujaFlotante` (arrastre que gana al pager);
+    pasos, `BurbujaFlotante` (arrastre que gana al pager) e
+    `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
+    estrellas en Profundidad, escalones en las demás);
   - tienda (1): la vista previa de una identidad;
   - retirado (1): `SelectorAvatarGratis`.
 - `screens/` — login, recuperación, elección de identidad (onboarding),
@@ -93,8 +97,9 @@ limpiar:
    ha elegido su identidad gratis en el onboarding.
 6. **El progreso del día**: la app publica cuántos hay y cuántos hechos con
    `publicarProgresoDia` (y `limpiarProgresoDia`), y monta
-   `CapaProgresoIdentidad` donde quiera la constelación. El core no sabe qué
-   se cuenta.
+   `CapaProgresoIdentidad` donde quiera la constelación. Puede pasar además
+   el `avance` del día, de 0 a 1 con lo hecho a medias; sin él vale
+   `hechos / total`. El core no sabe qué se cuenta.
 7. **El cierre del día**: la app monta `CapaCierreDelDia` y llama a
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces
