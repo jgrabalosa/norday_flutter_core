@@ -141,7 +141,7 @@ class _FondoCiudadPainter extends CustomPainter {
   /// Con `total` a cero la fracción es cero, pero los edificios SÍ se pintan:
   /// los bloques son el equivalente del cielo, no del progreso.
   double get _fraccionEncendida =>
-      progreso.total > 0 ? (progreso.hechos / progreso.total) * 0.55 : 0.0;
+      progreso.total > 0 ? progreso.avance * 0.55 : 0.0;
 
   @override
   void paint(Canvas canvas, Size size) {

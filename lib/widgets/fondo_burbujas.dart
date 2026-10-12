@@ -101,9 +101,8 @@ class _FondoBurbujasPainter extends CustomPainter {
   ///
   /// Con `total` a cero no sale ninguna, y entonces esta identidad no dibuja
   /// nada: al contrario que la ciudad de Neotokyo+, aquí no hay parte fija.
-  int get _visibles => progreso.total > 0
-      ? (_totalBurbujas * (progreso.hechos / progreso.total) * 0.8).round()
-      : 0;
+  int get _visibles =>
+      progreso.total > 0 ? (_totalBurbujas * progreso.avance * 0.8).round() : 0;
 
   @override
   void paint(Canvas canvas, Size size) {

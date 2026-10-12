@@ -17,7 +17,7 @@ import 'constelaciones.dart';
 ///
 /// Tiene estado por las animaciones: al marcar un hábito, su estrella entra
 /// como fugaz; al desmarcarlo, se desvanece. Sólo se anima un cambio de
-/// `hechos` dentro del MISMO día y la MISMA figura. Al montarse, al cambiar de
+/// `completas` dentro del MISMO día y la MISMA figura. Al montarse, al cambiar de
 /// día o al cambiar el número de hábitos, las estrellas aparecen quietas en
 /// su sitio: la capa se vuelve a montar cada vez que se pasa por Mascota, y
 /// si volaran también entonces dejarían de ser un premio.
@@ -133,12 +133,12 @@ class _CapaConstelacionState extends State<CapaConstelacion>
         return;
       }
       // Suben: las nuevas entran volando.
-      for (var i = anterior.hechos; i < nuevo.hechos; i++) {
+      for (var i = anterior.completas; i < nuevo.completas; i++) {
         _apagados.remove(i)?.dispose();
         _lanzar(_vuelos, i, _duracionVuelo);
       }
       // Bajan: las que sobran se desvanecen donde están.
-      for (var i = nuevo.hechos; i < anterior.hechos; i++) {
+      for (var i = nuevo.completas; i < anterior.completas; i++) {
         _vuelos.remove(i)?.dispose();
         _lanzar(_apagados, i, _duracionApagado);
       }
@@ -220,19 +220,26 @@ class _CapaConstelacionPainter extends CustomPainter {
       cuadro.top + p.dy * cuadro.height,
     );
 
-    final encendidas = progreso.hechos.clamp(0, figura.puntos.length);
+    final encendidas = progreso.completas.clamp(0, figura.puntos.length);
 
     // Cuánta luz tiene cada estrella ahora mismo, de 0 a 1. Una estrella en
     // vuelo todavía no ha llegado: cuenta como apagada hasta posarse, así que
     // sus trazos aparecen al llegar. Una que se está apagando conserva la luz
     // que le queda, y sus trazos se desvanecen con ella.
+    // La siguiente a las enteras brilla en proporción a lo que se lleva de
+    // ella ([ProgresoDia.resto]); las demás, apagadas.
+    final parcial = progreso.resto;
+
     double luz(int i) {
       if (i < encendidas) {
         final vuelo = vuelos[i];
         return vuelo == null || vuelo >= 1.0 ? 1.0 : 0.0;
       }
+      final base = i == encendidas ? parcial : 0.0;
       final apagado = apagados[i];
-      return apagado == null ? 0.0 : 1.0 - Curves.easeOut.transform(apagado);
+      return apagado == null
+          ? base
+          : math.max(base, 1.0 - Curves.easeOut.transform(apagado));
     }
 
     // El día cerrado, en Hoy: un velo que apaga un poco lo de debajo para
