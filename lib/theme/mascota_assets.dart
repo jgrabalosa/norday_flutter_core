@@ -33,3 +33,11 @@ String assetMascota({String? fase, String? estado}) {
   final sufijo = _sufijoDeEstado[estado] ?? _sufijoDeEstado[_estadoPorDefecto]!;
   return 'assets/mascota/Nori_${faseValida}_$sufijo.png';
 }
+
+/// El ánimo que se pinta, sacado de la respuesta de la mascota. Lo manda
+/// `animo`, que trae los cuatro (`triste`, `dormida`, `feliz` y
+/// `exultante`); si no viene —un backend anterior a ese campo—, `estado`, que
+/// es lo que se leía antes. Sin ninguno de los dos devuelve null, y
+/// [assetMascota] y la animación caen a su valor por defecto.
+String? animoDeMascota(Map<String, dynamic> data) =>
+    (data['animo'] ?? data['estado']) as String?;

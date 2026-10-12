@@ -107,7 +107,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
         _xpParaSiguienteNivel = data['xpParaSiguienteNivel'] ?? 20;
         _fase = data['fase'] ?? 'HUEVO';
         _faseReal = data['faseReal'] ?? data['fase'] ?? 'HUEVO';
-        _estado = data['estado'] ?? 'triste';
+        _estado = animoDeMascota(data) ?? 'triste';
         _loading = false;
       });
     } catch (e) {

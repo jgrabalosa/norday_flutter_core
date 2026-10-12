@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
+import '../theme/mascota_assets.dart';
 import '../theme/mascota_refresh.dart';
 import 'burbuja_flotante.dart';
 import 'halo_identidad.dart';
@@ -101,7 +102,7 @@ class _MiniMascotaState extends State<MiniMascota> {
     String? fase;
     try {
       final data = await ApiServiceCore.getMascota(widget.usuarioId);
-      estado = data['estado'];
+      estado = animoDeMascota(data);
       fase = data['fase'];
     } catch (_) {
       // Si falla, se muestra igualmente con fase y estado por defecto
