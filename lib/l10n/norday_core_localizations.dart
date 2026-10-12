@@ -1404,6 +1404,12 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Lo que ya tienes: equipa un tema o usa lo que has comprado.'**
   String get colAyuda;
+
+  /// Lo que lee el lector de pantalla en IndicadorNivel cuando quien lo usa no pone su propia etiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel {n} de 5'**
+  String indicadorNivel(int n);
 }
 
 class _NordayCoreLocalizationsDelegate

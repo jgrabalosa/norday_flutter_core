@@ -708,4 +708,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   @override
   String get colAyuda =>
       'What you already own: equip a theme or use what you\'ve bought.';
+
+  @override
+  String indicadorNivel(int n) {
+    return 'Level $n of 5';
+  }
 }

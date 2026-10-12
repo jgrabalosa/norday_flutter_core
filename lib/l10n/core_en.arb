@@ -216,5 +216,6 @@
   "constelacionOsaMayor": "Big Dipper",
   "constelacionOrion": "Orion",
   "colAyudaEtiqueta": "Help about the collection",
-  "colAyuda": "What you already own: equip a theme or use what you've bought."
+  "colAyuda": "What you already own: equip a theme or use what you've bought.",
+  "indicadorNivel": "Level {n} of 5"
 }
