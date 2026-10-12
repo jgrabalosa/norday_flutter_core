@@ -17,10 +17,10 @@ import 'constelaciones.dart';
 ///
 /// Tiene estado por las animaciones: al marcar un hábito, su estrella entra
 /// como fugaz; al desmarcarlo, se desvanece. Sólo se anima un cambio de
-/// `completas` dentro del MISMO día y la MISMA figura. Al montarse, al cambiar de
-/// día o al cambiar el número de hábitos, las estrellas aparecen quietas en
-/// su sitio: la capa se vuelve a montar cada vez que se pasa por Mascota, y
-/// si volaran también entonces dejarían de ser un premio.
+/// `completas` dentro del MISMO día y la MISMA figura. Al montarse, al
+/// cambiar de día o al cambiar el número de hábitos, las estrellas aparecen
+/// quietas en su sitio: la capa se vuelve a montar cada vez que se pasa por
+/// Mascota, y si volaran también entonces dejarían de ser un premio.
 class CapaConstelacion extends StatefulWidget {
   /// Los colores de la identidad, que los da el despachador.
   final TokensContextuales tokens;
@@ -222,14 +222,14 @@ class _CapaConstelacionPainter extends CustomPainter {
 
     final encendidas = progreso.completas.clamp(0, figura.puntos.length);
 
-    // Cuánta luz tiene cada estrella ahora mismo, de 0 a 1. Una estrella en
-    // vuelo todavía no ha llegado: cuenta como apagada hasta posarse, así que
-    // sus trazos aparecen al llegar. Una que se está apagando conserva la luz
-    // que le queda, y sus trazos se desvanecen con ella.
     // La siguiente a las enteras brilla en proporción a lo que se lleva de
     // ella ([ProgresoDia.resto]); las demás, apagadas.
     final parcial = progreso.resto;
 
+    // Cuánta luz tiene cada estrella ahora mismo, de 0 a 1. Una estrella en
+    // vuelo todavía no ha llegado: cuenta como apagada hasta posarse, así que
+    // sus trazos aparecen al llegar. Una que se está apagando conserva la luz
+    // que le queda, y sus trazos se desvanecen con ella.
     double luz(int i) {
       if (i < encendidas) {
         final vuelo = vuelos[i];
