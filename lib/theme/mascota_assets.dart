@@ -4,7 +4,8 @@
 ///
 /// Los ficheros se llaman `Nori_{fase}_{estado}.png` con la fase en minúscula
 /// y el estado en su forma visual, que no es la del backend:
-/// `feliz→sonriente`, `triste→triste`, `dormida→dormido`.
+/// `feliz→sonriente`, `triste→triste`, `dormida→dormido`,
+/// `exultante→exultante`.
 library;
 
 /// Estado del backend → sufijo del fichero.
@@ -12,6 +13,7 @@ const Map<String, String> _sufijoDeEstado = {
   'feliz': 'sonriente',
   'triste': 'triste',
   'dormida': 'dormido',
+  'exultante': 'exultante',
 };
 
 const Set<String> _fasesConocidas = {'huevo', 'cria', 'adulto'};
@@ -31,3 +33,11 @@ String assetMascota({String? fase, String? estado}) {
   final sufijo = _sufijoDeEstado[estado] ?? _sufijoDeEstado[_estadoPorDefecto]!;
   return 'assets/mascota/Nori_${faseValida}_$sufijo.png';
 }
+
+/// El ánimo que se pinta, sacado de la respuesta de la mascota. Lo manda
+/// `animo`, que trae los cuatro (`triste`, `dormida`, `feliz` y
+/// `exultante`); si no viene —un backend anterior a ese campo—, `estado`, que
+/// es lo que se leía antes. Sin ninguno de los dos devuelve null, y
+/// [assetMascota] y la animación caen a su valor por defecto.
+String? animoDeMascota(Map<String, dynamic> data) =>
+    (data['animo'] ?? data['estado']) as String?;

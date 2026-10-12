@@ -421,6 +421,12 @@ abstract class NordayCoreLocalizations {
   /// **'sin novedad'**
   String get mascotaAnimoTranquila;
 
+  /// No description provided for @mascotaAnimoExultante.
+  ///
+  /// In es, this message translates to:
+  /// **'radiante'**
+  String get mascotaAnimoExultante;
+
   /// No description provided for @mascotaSubidaNivel.
   ///
   /// In es, this message translates to:
@@ -1398,6 +1404,12 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Lo que ya tienes: equipa un tema o usa lo que has comprado.'**
   String get colAyuda;
+
+  /// Lo que lee el lector de pantalla en IndicadorNivel cuando quien lo usa no pone su propia etiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel {n} de 5'**
+  String indicadorNivel(int n);
 }
 
 class _NordayCoreLocalizationsDelegate

@@ -84,6 +84,7 @@
   "mascotaAnimoAtencion": "echando una cabezada",
   "mascotaAnimoTriste": "te echa de menos",
   "mascotaAnimoTranquila": "sin novedad",
+  "mascotaAnimoExultante": "radiante",
   "mascotaSubidaNivel": "¡Nivel {n}!",
   "@mascotaSubidaNivel": {
     "placeholders": {
@@ -331,5 +332,14 @@
   "constelacionOsaMayor": "Osa Mayor",
   "constelacionOrion": "Orión",
   "colAyudaEtiqueta": "Ayuda sobre la colección",
-  "colAyuda": "Lo que ya tienes: equipa un tema o usa lo que has comprado."
+  "colAyuda": "Lo que ya tienes: equipa un tema o usa lo que has comprado.",
+  "indicadorNivel": "Nivel {n} de 5",
+  "@indicadorNivel": {
+    "description": "Lo que lee el lector de pantalla en IndicadorNivel cuando quien lo usa no pone su propia etiqueta.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

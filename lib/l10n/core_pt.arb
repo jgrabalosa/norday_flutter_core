@@ -53,6 +53,7 @@
   "mascotaAnimoAtencion": "a dormitar",
   "mascotaAnimoTriste": "com saudades tuas",
   "mascotaAnimoTranquila": "sem novidades",
+  "mascotaAnimoExultante": "radiante",
   "mascotaSubidaNivel": "Nível {n}!",
   "plantillaBeberAgua": "Beber água",
   "detLogrosDe": "{n} de {total} conquistas",
@@ -215,5 +216,6 @@
   "constelacionOsaMayor": "Ursa Maior",
   "constelacionOrion": "Oríon",
   "colAyudaEtiqueta": "Ajuda sobre a coleção",
-  "colAyuda": "O que já tens: equipa um tema ou usa o que compraste."
+  "colAyuda": "O que já tens: equipa um tema ou usa o que compraste.",
+  "indicadorNivel": "Nível {n} de 5"
 }

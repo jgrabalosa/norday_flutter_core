@@ -37,6 +37,7 @@ class MensajesMascota {
     final animo = codigoFase == 'HUEVO'
         ? l.mascotaAnimoHuevo
         : switch (codigoEstado) {
+            'exultante' => l.mascotaAnimoExultante,
             'feliz' => l.mascotaAnimoFeliz,
             'dormida' => l.mascotaAnimoAtencion,
             'triste' => l.mascotaAnimoTriste,

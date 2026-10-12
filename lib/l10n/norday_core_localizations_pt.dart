@@ -177,6 +177,9 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get mascotaAnimoTranquila => 'sem novidades';
 
   @override
+  String get mascotaAnimoExultante => 'radiante';
+
+  @override
   String mascotaSubidaNivel(int n) {
     return 'Nível $n!';
   }
@@ -713,4 +716,9 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   @override
   String get colAyuda =>
       'O que já tens: equipa um tema ou usa o que compraste.';
+
+  @override
+  String indicadorNivel(int n) {
+    return 'Nível $n de 5';
+  }
 }
