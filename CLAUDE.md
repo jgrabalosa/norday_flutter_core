@@ -109,6 +109,10 @@ limpiar:
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
    backend filtra los catálogos. Ver las excepciones de arriba.
+10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
+   `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
+   es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
+   apps la copian en las suyas (Norday Habits, en `ApiServiceHabitos`).
 
 ## Assets: siempre con `package:`
 

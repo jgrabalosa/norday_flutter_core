@@ -16,7 +16,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 /// [getToken], [baseUrl] y [cliente] son públicos: son el punto de apoyo de
 /// esos servicios de dominio, que viven fuera del paquete.
 class ApiServiceCore {
-  static const String baseUrl = 'https://api.norday.app/api';
+  /// URL base del backend. Se fija al compilar con
+  /// `--dart-define=NORDAY_API_URL=<url>`; sin él, producción.
+  /// Es `const` a propósito: las apps la copian en sus propias constantes.
+  static const String baseUrl = String.fromEnvironment(
+    'NORDAY_API_URL',
+    defaultValue: 'https://api.norday.app/api',
+  );
 
   /// Qué app del ecosistema es esta. Viaja en la cabecera `X-Norday-App` de
   /// los dos catálogos para que el backend filtre lo que es exclusivo de otra
