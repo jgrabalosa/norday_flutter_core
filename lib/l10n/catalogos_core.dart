@@ -15,12 +15,16 @@ import 'norday_core_localizations.dart';
 /// la tienda, niveles, categorías de logro y los logros que no saben de
 /// dominio). Los logros propios de cada app se enchufan con
 /// [registrarLogrosDeDominio]: el paquete no puede conocerlos, pero es él
-/// quien pinta la pantalla de logros y las celebraciones.
+/// quien pinta la pantalla de logros y las celebraciones. Lo mismo con los
+/// productos propios, con [registrarProductosDeDominio].
 class CatalogosCore {
   const CatalogosCore._();
 
   static Map<String, String> Function(BuildContext)? _logrosDeDominio;
   static Map<String, String> Function(BuildContext)? _logrosDescDeDominio;
+  static Map<String, String> Function(BuildContext)? _productosDeDominio;
+  static Map<String, String> Function(BuildContext)? _productosDescDeDominio;
+  static Map<String, String> Function(BuildContext)? _productosUsoDeDominio;
 
   /// La llama la app una vez al arrancar. Los mapas se piden con el
   /// [BuildContext] a mano porque las traducciones dependen del idioma
@@ -33,17 +37,55 @@ class CatalogosCore {
     _logrosDescDeDominio = descripciones;
   }
 
+  /// Igual que [registrarLogrosDeDominio], para los productos propios de una
+  /// app. Se llama una vez al arrancar.
+  ///
+  /// [usos] dice cómo se usa un consumible que no se gasta desde Colección
+  /// sino desde una pantalla de la app. Colección enseña ese texto en vez
+  /// del botón «Usar».
+  static void registrarProductosDeDominio({
+    required Map<String, String> Function(BuildContext) nombres,
+    required Map<String, String> Function(BuildContext) descripciones,
+    required Map<String, String> Function(BuildContext) usos,
+  }) {
+    _productosDeDominio = nombres;
+    _productosDescDeDominio = descripciones;
+    _productosUsoDeDominio = usos;
+  }
+
+  /// Cómo se usa un producto de la app, o `null` si se usa como siempre.
+  static String? productoUso(BuildContext context, String? codigo) {
+    if (codigo == null) return null;
+    return _productosUsoDeDominio?.call(context)[codigo];
+  }
+
   static String producto(
     BuildContext context,
     String? codigo,
     String nombreBackend,
-  ) => traducir(_productos(context), codigo, nombreBackend);
+  ) => traducir(
+    _productos(context),
+    codigo,
+    traducir(
+      _productosDeDominio?.call(context) ?? const {},
+      codigo,
+      nombreBackend,
+    ),
+  );
 
   static String productoDescripcion(
     BuildContext context,
     String? codigo,
     String descripcionBackend,
-  ) => traducir(_productosDescripcion(context), codigo, descripcionBackend);
+  ) => traducir(
+    _productosDescripcion(context),
+    codigo,
+    traducir(
+      _productosDescDeDominio?.call(context) ?? const {},
+      codigo,
+      descripcionBackend,
+    ),
+  );
 
   /// Busca primero en los logros del motor y luego en los que haya registrado
   /// la app. Si el código no está en ninguno de los dos, cae al nombre del
