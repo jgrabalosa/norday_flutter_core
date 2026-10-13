@@ -3,7 +3,7 @@ description: >-
   Motor compartido del ecosistema Norday: red, temas, gamificación, mascota,
   onboarding y preferencias. Genérico y sin conceptos de dominio — las apps
   que lo consumen ponen los disparadores.
-version: 0.28.2
+version: 0.29.0
 publish_to: 'none'
 
 environment:
@@ -36,6 +36,9 @@ dependencies:
   firebase_analytics: ^12.4.3
   permission_handler: ^12.0.3
   play_install_referrer: ^0.5.0
+  in_app_update: ^5.0.0
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

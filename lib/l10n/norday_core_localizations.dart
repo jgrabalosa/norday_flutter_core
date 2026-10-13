@@ -1416,6 +1416,24 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Nivel {n} de 5'**
   String indicadorNivel(int n);
+
+  /// Pantalla de actualización obligatoria: título
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una versión nueva'**
+  String get actualizacionTitulo;
+
+  /// Pantalla de actualización obligatoria: explicación
+  ///
+  /// In es, this message translates to:
+  /// **'Para seguir usando Norday, actualiza la app. Tus hábitos y tu progreso se quedan tal cual.'**
+  String get actualizacionTexto;
+
+  /// Pantalla de actualización obligatoria: botón
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar ahora'**
+  String get actualizacionBoton;
 }
 
 class _NordayCoreLocalizationsDelegate

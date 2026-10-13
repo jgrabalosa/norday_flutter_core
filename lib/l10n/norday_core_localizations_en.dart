@@ -716,4 +716,14 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String indicadorNivel(int n) {
     return 'Level $n of 5';
   }
+
+  @override
+  String get actualizacionTitulo => 'A new version is ready';
+
+  @override
+  String get actualizacionTexto =>
+      'To keep using Norday, update the app. Your habits and progress stay just as they are.';
+
+  @override
+  String get actualizacionBoton => 'Update now';
 }

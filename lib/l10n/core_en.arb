@@ -218,5 +218,8 @@
   "constelacionOrion": "Orion",
   "colAyudaEtiqueta": "Help about the collection",
   "colAyuda": "What you already own: equip a theme or use what you've bought.",
-  "indicadorNivel": "Level {n} of 5"
+  "indicadorNivel": "Level {n} of 5",
+  "actualizacionTitulo": "A new version is ready",
+  "actualizacionTexto": "To keep using Norday, update the app. Your habits and progress stay just as they are.",
+  "actualizacionBoton": "Update now"
 }
