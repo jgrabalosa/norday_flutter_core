@@ -704,9 +704,12 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     final poseido = _poseido(producto);
     final cantidad = (_inventario[productoId]?['cantidad'] ?? 0) as int;
     final procesandoEste = _procesando == productoId;
-    // 'Protección' es justo la categoria de lo que se gasta solo cuando hace
-    // falta (el escudo salta al romperse la racha); lo demas se usa a mano.
-    final automatico = categoria == 'Protección';
+    // Un producto de la app que se usa desde su propia pantalla dice cómo se
+    // usa y no lleva botón: usado aquí, el backend lo rechazaría.
+    final usoPropio = CatalogosCore.productoUso(context, codigo);
+    // 'Protección' sin uso propio es lo que se gasta solo cuando hace falta
+    // (el escudo salta al romperse la racha); lo demas se usa a mano.
+    final automatico = usoPropio == null && categoria == 'Protección';
 
     final contenido = _cajaTarjeta(
       child: Row(
@@ -740,10 +743,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                     context,
                   ).textTheme.titleMedium?.copyWith(color: t.text),
                 ),
-                if (automatico) ...[
+                if (usoPropio != null || automatico) ...[
                   const SizedBox(height: 2),
                   Text(
-                    l.colSeActivaSolo,
+                    usoPropio ?? l.colSeActivaSolo,
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: t.textMuted),
@@ -760,7 +763,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                 context,
               ).textTheme.titleMedium?.copyWith(color: t.text),
             ),
-            if (!automatico) ...[
+            if (!automatico && usoPropio == null) ...[
               const SizedBox(width: 10),
               if (procesandoEste)
                 const SizedBox(
