@@ -1171,6 +1171,12 @@ abstract class NordayCoreLocalizations {
   /// **'Mascota'**
   String get logroCatMascota;
 
+  /// No description provided for @logroCatRitmo.
+  ///
+  /// In es, this message translates to:
+  /// **'Ritmo'**
+  String get logroCatRitmo;
+
   /// No description provided for @nivelFacil.
   ///
   /// In es, this message translates to:

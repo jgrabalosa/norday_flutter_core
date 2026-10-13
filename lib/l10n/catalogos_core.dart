@@ -178,6 +178,7 @@ class CatalogosCore {
       'Exploración': l.logroCatExploracion,
       'Identidad': l.logroCatIdentidad,
       'Mascota': l.logroCatMascota,
+      'Ritmo': l.logroCatRitmo,
     };
   }
 
