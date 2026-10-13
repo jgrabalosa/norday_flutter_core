@@ -342,5 +342,17 @@
         "type": "int"
       }
     }
+  },
+  "actualizacionTitulo": "Hay una versión nueva",
+  "@actualizacionTitulo": {
+    "description": "Pantalla de actualización obligatoria: título"
+  },
+  "actualizacionTexto": "Para seguir usando Norday, actualiza la app. Tus hábitos y tu progreso se quedan tal cual.",
+  "@actualizacionTexto": {
+    "description": "Pantalla de actualización obligatoria: explicación"
+  },
+  "actualizacionBoton": "Actualizar ahora",
+  "@actualizacionBoton": {
+    "description": "Pantalla de actualización obligatoria: botón"
   }
 }

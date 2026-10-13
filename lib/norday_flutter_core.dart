@@ -17,6 +17,7 @@ export 'services/idioma_service.dart';
 export 'services/zona_service.dart';
 export 'services/origen_instalacion_service.dart';
 export 'services/recorrido_service.dart';
+export 'services/version_minima_service.dart';
 
 // ── Textos ───────────────────────────────────────────────
 export 'l10n/norday_core_localizations.dart';
@@ -81,3 +82,4 @@ export 'screens/mascota_screen.dart';
 export 'screens/logros_screen.dart';
 export 'screens/coleccion_screen.dart';
 export 'screens/perfil_screen.dart';
+export 'screens/actualizacion_obligatoria_screen.dart';
