@@ -52,6 +52,7 @@ export 'widgets/cierre_del_dia.dart';
 export 'widgets/coach_mark.dart';
 export 'widgets/fondo_identidad.dart';
 export 'widgets/halo_identidad.dart';
+export 'widgets/indicador_nivel.dart';
 export 'widgets/logo_google.dart';
 export 'widgets/mascota_animada_viva.dart';
 export 'widgets/mini_mascota.dart';

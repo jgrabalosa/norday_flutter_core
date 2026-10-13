@@ -585,6 +585,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get logroCatMascota => 'Pet';
 
   @override
+  String get logroCatRitmo => 'Pace';
+
+  @override
   String get nivelFacil => 'Easy';
 
   @override
