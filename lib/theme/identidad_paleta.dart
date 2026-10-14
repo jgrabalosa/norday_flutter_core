@@ -26,10 +26,10 @@ enum FondoIdentidadTipo {
   /// Profundidad — campo estelar y constelación del día.
   cielo,
 
-  /// Neotokyo+ — una ciudad cuyas ventanas se encienden. Sin pintar todavía.
+  /// Neotokyo+ — una ciudad cuyas ventanas se encienden con el progreso.
   ciudad,
 
-  /// Dulce — algo que se acumula. Sin pintar todavía.
+  /// Dulce — burbujas que se acumulan con el progreso.
   acumulacion,
 }
 

@@ -205,7 +205,7 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
             child: Text(
               texto.toUpperCase(),
               style: base.copyWith(
-                color: t.points.withValues(alpha: 0.85),
+                color: t.streak.withValues(alpha: 0.85),
                 letterSpacing: 2,
               ),
             ),
@@ -287,7 +287,7 @@ class _FondoCelebracionIdentidadState extends State<FondoCelebracionIdentidad> {
       // Neotokyo+ — glitch: bandas horizontales desplazadas, como una señal
       // que se rompe. El desgarro va aquí; la separación de color, en el texto.
       FormaIdentidad.chamfer => CustomPaint(
-        painter: _GlitchPainter(color: t.primary, acento: t.points, avance: v),
+        painter: _GlitchPainter(color: t.primary, acento: t.streak, avance: v),
       ),
       // Dulce — confeti de corazones cayendo.
       FormaIdentidad.pill => CustomPaint(

@@ -120,12 +120,12 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       successText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
       // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
       // y no separaba la nota del fondo. Sobre este amarillo, `text` da
-      // 10.95, `successText` 5.67 y `textMuted` 5.04.
+      // 10.95, `successText` 5.67 y `textMuted` 7.13.
       fondoNota: Color(0xFFFFF4D6),
     ),
     fontDisplay: 'Quicksand',
     fontBody: 'Nunito', // cuerpo SIEMPRE aquí
-    // ÚNICO uso: el detalle manuscrito "¡qué crack!" junto al badge de racha.
+    // ÚNICO uso: la frase manuscrita del post-it de Hoy (BurbujaContexto).
     fontAcento: 'Caveat',
     radioHero: 26, // casi píldora
     radioSecundario: 20,

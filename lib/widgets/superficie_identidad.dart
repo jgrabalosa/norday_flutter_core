@@ -150,7 +150,10 @@ class SuperficieIdentidad extends StatelessWidget {
                   ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
                   : BorderSide.none,
             FormaIdentidad.chamfer => BorderSide(
-              color: t.primary.withValues(alpha: 0.55),
+              // 0.70 y no menos: la tarjeta y el fondo están a 1.04, así que
+              // el filo es lo único que la dibuja. A 0.55 daba 2.37; a 0.70,
+              // 3.23 sobre el fondo y 3.18 sobre `surface` (WCAG 1.4.11).
+              color: t.primary.withValues(alpha: 0.70),
               width: 1.2,
             ),
             _ => BorderSide.none,

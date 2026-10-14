@@ -169,11 +169,16 @@ class _FondoCiudadPainter extends CustomPainter {
 
     // El canto iluminado del edificio. Es una LÍNEA, no una superficie: no
     // aclara ningún área donde pueda caer texto, que es justo lo que impide
-    // subir el halo de arriba.
+    // subir el halo de arriba. Alterna el rosa y el tercer color de la
+    // identidad (el cian): la tríada del neón también en la silueta.
     final canto = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
       ..color = tokens.primary.withValues(alpha: 0.45 * atenuacion);
+    final cantoAcento = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..color = tokens.streak.withValues(alpha: 0.45 * atenuacion);
 
     final fraccion = _fraccionEncendida;
 
@@ -191,7 +196,7 @@ class _FondoCiudadPainter extends CustomPainter {
       canvas.drawLine(
         Offset(izquierda, arriba),
         Offset(izquierda + ancho, arriba),
-        canto,
+        i.isEven ? canto : cantoAcento,
       );
 
       var columna = 0;
@@ -231,6 +236,7 @@ class _FondoCiudadPainter extends CustomPainter {
   bool shouldRepaint(covariant _FondoCiudadPainter oldDelegate) =>
       oldDelegate.tokens.surface2 != tokens.surface2 ||
       oldDelegate.tokens.primary != tokens.primary ||
+      oldDelegate.tokens.streak != tokens.streak ||
       oldDelegate.atenuacion != atenuacion ||
       oldDelegate.progreso != progreso;
 }

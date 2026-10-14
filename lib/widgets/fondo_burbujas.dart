@@ -52,13 +52,13 @@ final List<_Burbuja> _burbujas = _generarBurbujas();
 ///
 /// LAS BURBUJAS SON MÁS CLARAS QUE EL FONDO, Y ESO NO ES DECORATIVO. En Dulce
 /// hay texto en `textMuted` flotando sobre el fondo sin tarjeta debajo —la
-/// cabecera "Completados" y el aviso de día sin hábitos—, y ese token sólo
-/// tiene 4.95 de contraste sobre el `bg`: 0.45 de margen sobre el 4.5 de AA.
+/// cabecera "Completados" y el aviso de día sin hábitos—, y ese token tiene
+/// 7.01 de contraste sobre el `bg`.
 /// Con el rosa primario de la web, dos burbujas solapadas lo hunden a 3.45 y
 /// no hay alfa que lo salve: el máximo que aguantaría es 0.05, invisible.
 ///
-/// Al ser más claras que el fondo se invierte el signo: `textMuted` da 4.95
-/// sobre el `bg` y 5.52 sobre `surface`, así que cada burbuja SUBE el
+/// Al ser más claras que el fondo se invierte el signo: `textMuted` da 7.01
+/// sobre el `bg` y 7.81 sobre `surface`, así que cada burbuja SUBE el
 /// contraste del texto y solaparse sólo mejora las cosas. Si algún día se
 /// cambia este color por uno más oscuro que el fondo, hay que volver a medir
 /// el peor caso con solapamiento.
