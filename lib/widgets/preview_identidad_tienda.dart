@@ -234,7 +234,8 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
                   etiqueta,
                   style: GoogleFonts.getFont(
                     id.fontDisplay,
-                    fontSize: 10,
+                    // 11 es el suelo de la escala (labelSmall); a 10 se salía.
+                    fontSize: 11,
                     color: p.textMuted,
                   ),
                 ),

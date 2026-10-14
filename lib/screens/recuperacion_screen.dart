@@ -110,7 +110,7 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
               Text(
                 _codigoEnviado ? l.recCodigoEnviado : l.recIntro,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
 
