@@ -97,7 +97,9 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
             colors: [t.surface2, t.surface],
           ),
           border: Border.all(
-            color: enfocado ? t.primary : Colors.white.withValues(alpha: 0.08),
+            color: enfocado
+                ? t.primaryTrazo
+                : Colors.white.withValues(alpha: 0.08),
             width: enfocado ? 1.4 : 1,
           ),
           boxShadow: enfocado
@@ -124,14 +126,16 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontSize: 11,
               letterSpacing: 1.4,
-              color: enfocado ? t.primary : t.textMuted,
+              color: enfocado ? t.successText : t.textMuted,
             ),
           ),
           _entrada(t),
           AnimatedContainer(
             duration: _duracionFoco,
             height: enfocado ? 2 : 1,
-            color: enfocado ? t.primary : t.textMuted.withValues(alpha: 0.5),
+            color: enfocado
+                ? t.primaryTrazo
+                : t.textMuted.withValues(alpha: 0.5),
           ),
         ],
       ),
@@ -144,7 +148,7 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
           color: t.surface2,
           borderRadius: BorderRadius.circular(id.radioHero),
           border: Border.all(
-            color: enfocado ? t.primary : Colors.transparent,
+            color: enfocado ? t.primaryTrazo : Colors.transparent,
             width: 1.6,
           ),
           boxShadow: enfocado
@@ -175,14 +179,14 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
       keyboardType: widget.teclado,
       textCapitalization: widget.capitalizacion,
       validator: widget.validador,
-      cursorColor: t.primary,
+      cursorColor: t.primaryTrazo,
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
         color: widget.habilitado ? t.text : t.textMuted,
       ),
       decoration: InputDecoration(
         labelText: etiquetaDentro,
         labelStyle: TextStyle(color: t.textMuted),
-        floatingLabelStyle: TextStyle(color: t.primary),
+        floatingLabelStyle: TextStyle(color: t.successText),
         helperText: widget.textoAyuda,
         helperStyle: TextStyle(color: t.textMuted, fontSize: 11),
         errorStyle: TextStyle(color: tono.texto),

@@ -154,7 +154,10 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
                             LucideIcons.star,
                             color: marcada
                                 ? t.pointsText
-                                : t.textMuted.withValues(alpha: 0.45),
+                                // El contorno de lo vacío: 3:1 en las tres
+                                // identidades. Al 45 % de `textMuted` se
+                                // quedaba en 2.96 (Profundidad) y 2.20 (Dulce).
+                                : t.aroVacio,
                           ),
                         );
                       }),

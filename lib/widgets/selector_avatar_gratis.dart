@@ -146,7 +146,7 @@ class _SelectorAvatarGratisState extends State<SelectorAvatarGratis> {
                   else
                     Text(
                       l.selElegirGratis,
-                      style: TextStyle(color: t.primary, fontSize: 12),
+                      style: TextStyle(color: t.successText, fontSize: 12),
                     ),
                 ],
               ),

@@ -352,7 +352,7 @@ class _ListaZonasState extends State<_ListaZonas> {
                               ? Text(
                                   l.zonaDetectada,
                                   style: TextStyle(
-                                    color: t.primary,
+                                    color: t.successText,
                                     fontSize: 11,
                                   ),
                                 )
@@ -360,7 +360,7 @@ class _ListaZonasState extends State<_ListaZonas> {
                           trailing: zona == widget.zonaActual
                               ? Icon(
                                   LucideIcons.check,
-                                  color: t.primary,
+                                  color: t.primaryTrazo,
                                   size: 18,
                                 )
                               : null,

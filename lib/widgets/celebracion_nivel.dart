@@ -214,9 +214,11 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
         ],
       ),
 
+      // Dulce — el texto sobre su fondo claro: el rosa de relleno da 2.33 y
+      // la sombra negra de las otras dos ensucia un mundo claro.
       FormaIdentidad.pill => Text(
         texto,
-        style: base.copyWith(color: t.primary),
+        style: base.copyWith(color: t.successText, shadows: const []),
       ),
     };
   }
