@@ -95,4 +95,29 @@ void main() {
       );
     }
   });
+
+  /// `primary` como trazo —icono, borde, chevron, foco— es un objeto
+  /// gráfico: 1.4.11. En Dulce el rosa de relleno no llega y hace falta
+  /// `primaryTrazo`.
+  test('primaryTrazo cumple 1.4.11 sobre sus tres fondos', () {
+    for (final identidad in catalogoIdentidades.values) {
+      final t = identidad.tokens;
+      exigir(
+        identidad.codigo,
+        'primaryTrazo',
+        t.primaryTrazo,
+        fondosDe(t),
+        aaNoTexto,
+      );
+    }
+  });
+
+  /// El tercer color de cada identidad (`streak`) se usa como relleno: la
+  /// sección «Esta semana», sus chips, el acento de la celebración.
+  test('el tercer color cumple 1.4.11 como relleno sobre sus tres fondos', () {
+    for (final identidad in catalogoIdentidades.values) {
+      final t = identidad.tokens;
+      exigir(identidad.codigo, 'streak', t.streak, fondosDe(t), aaNoTexto);
+    }
+  });
 }

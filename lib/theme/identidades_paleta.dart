@@ -32,7 +32,11 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     tokens: TokensContextuales(
       primary: Color(0xFFFF2E88),
       success: Color(0xFFFF2E88),
-      streak: Color(0xFFFF4D2E),
+      // El tercer color: cian. Cierra la tríada del neón (rosa, amarillo,
+      // cian) y se separa del rosa también por luminosidad (2.28). 13.03 /
+      // 12.48 / 12.05 sobre bg / surface / surface2: vale también como
+      // texto corto, así que no declara `streakText`.
+      streak: Color(0xFF00E5FF),
       points: Color(0xFFFFE347),
       bg: Color(0xFF090614),
       surface: Color(0xFF110B21),
@@ -74,7 +78,11 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // por debajo de los 3.0 de WCAG 1.4.11—, así que éste es el mismo tono
       // asentado: HSL 338, igual que `primary`. Da 3.92 / 3.52 / 3.22.
       success: Color(0xFFE53F80),
-      streak: Color(0xFFE86A58),
+      // El tercer color: lavanda. El coral era casi el mismo color que los
+      // dos rosas (1.22-1.24 de luminosidad, ΔE 38). La lavanda se separa
+      // del rosa también con daltonismo y como relleno da 4.70 / 4.22 / 3.86
+      // sobre surface / bg / surface2. Provisional hasta verla en el móvil.
+      streak: Color(0xFF7C5CE0),
       points: Color(0xFFE86A58),
       bg: Color(0xFFFAF0F4),
       surface: Color(0xFFFFFFFF),
@@ -99,11 +107,15 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       aroVacio: Color(0xFFA57595),
       // 4.61 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF4A2E3D),
+      // El rosa como trazo (icono, borde, foco): el de relleno no llega a
+      // 3.0. Es el mismo tono que `success`: 3.92 / 3.52 / 3.22 sobre
+      // surface / bg / surface2.
+      primaryTrazo: Color(0xFFE53F80),
       // Sobre fondo claro ningún relleno de esta identidad vale como texto:
       // ni el coral de `streak` ni el rosa de `success` llegan a 4.5, así
       // que hacen falta las variantes oscurecidas. Verificadas con WebAIM
       // sobre los tres fondos de la identidad (surface / bg / surface2).
-      streakText: Color(0xFF9C4E1A), // 5.96 / 5.35 / 4.89
+      streakText: Color(0xFF6145CF), // 6.44 / 5.78 / 5.29
       pointsText: Color(0xFFBB2E1A), // 5.97 / 5.35 / 4.90
       successText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
       // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
