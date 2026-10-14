@@ -23,16 +23,25 @@ void main() {
     home: Scaffold(body: Center(child: child)),
   );
 
-  test('Profundidad pinta estrellas y las otras formas, escalones', () {
+  test('cada identidad pinta el objeto de su mundo', () {
     expect(
       IndicadorNivel.dibujoDe(FormaIdentidad.glass),
       DibujoNivel.estrellas,
     );
     expect(
       IndicadorNivel.dibujoDe(FormaIdentidad.chamfer),
-      DibujoNivel.escalones,
+      DibujoNivel.ventanas,
     );
-    expect(IndicadorNivel.dibujoDe(FormaIdentidad.pill), DibujoNivel.escalones);
+    expect(IndicadorNivel.dibujoDe(FormaIdentidad.pill), DibujoNivel.burbujas);
+  });
+
+  test('las vacías van en contorno de aroVacio y las llenas en points', () {
+    for (final codigo in catalogoIdentidades.keys) {
+      aplicarIdentidadEquipada(codigo);
+      final t = temaEquipadoNotifier.value;
+      expect(IndicadorNivel.colorVacia(t), t.aroVacio, reason: codigo);
+      expect(IndicadorNivel.colorLlena(t), t.points, reason: codigo);
+    }
   });
 
   test('van llenas tantas figuras como el nivel', () {
