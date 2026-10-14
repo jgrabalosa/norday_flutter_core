@@ -90,6 +90,25 @@ double _ruido(int bloque, int columna, int fila) {
   return (h % 100000) / 100000.0;
 }
 
+/// Qué fracción de las ventanas va encendida con este progreso.
+///
+/// El 0.55 es el mismo tope que usa la landing: ni con el día entero
+/// completado se enciende la ciudad al completo. Una ciudad con TODAS las
+/// ventanas dadas no parece una ciudad viva, parece un error.
+///
+/// Con `total` a cero la fracción es cero, pero los edificios SÍ se pintan:
+/// los bloques son el equivalente del cielo, no del progreso.
+double _fraccionDe(ProgresoDia p) => p.total > 0 ? p.avance * 0.55 : 0.0;
+
+/// Un solo parpadeo de neón al encenderse una ventana: se enciende, se va un
+/// instante y vuelve para quedarse. Una vez y nada más: por debajo de los tres
+/// destellos por segundo de WCAG 2.3.1.
+double _parpadeo(double v) {
+  if (v < 0.25) return v / 0.25;
+  if (v < 0.45) return 0.15;
+  return 1.0;
+}
+
 /// La ciudad de Neotokyo+: un perfil de edificios cuyas ventanas se encienden
 /// con el progreso del día.
 ///
@@ -98,9 +117,12 @@ double _ruido(int bloque, int columna, int fila) {
 /// A diferencia de `FondoEstelar`, este widget SÍ escucha el progreso: en
 /// Neotokyo+ el fondo y la capa de progreso son la misma cosa —la ciudad es el
 /// fondo y sus ventanas son el progreso—, así que no hace falta la capa de
-/// delante. Escucha él, como hace `CapaConstelacion`, y no el despachador: así
-/// Profundidad no se entera de nada.
-class FondoCiudad extends StatelessWidget {
+/// delante.
+///
+/// Al marcar, las ventanas que se acaban de encender hacen un parpadeo de neón
+/// (ver [_parpadeo]). Sólo cuando el avance sube en el mismo día: moverse por
+/// la tira o deshacer no es un gesto. Con «Quitar animaciones», nada.
+class FondoCiudad extends StatefulWidget {
   /// Los colores de la identidad, que los da el despachador.
   final TokensContextuales tokens;
 
@@ -109,17 +131,72 @@ class FondoCiudad extends StatelessWidget {
 
   const FondoCiudad({super.key, required this.tokens, required this.nivel});
 
+  @override
+  State<FondoCiudad> createState() => _FondoCiudadState();
+}
+
+class _FondoCiudadState extends State<FondoCiudad>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _gesto = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+    value: 1,
+  );
+
+  ProgresoDia _progreso = progresoDiaNotifier.value;
+
+  /// La fracción encendida ANTES del último marcado. Las ventanas entre ésta y
+  /// la actual son las nuevas. `null` si no hay nada nuevo que animar.
+  double? _desde;
+
   /// La ciudad más apagada, que es como Neotokyo+ dice "esto está más lejos".
   /// El mismo 0.55 que Profundidad aplica a su cielo, y por el mismo motivo:
   /// es la misma ciudad, no otra.
-  double get _atenuacion => nivel == NivelFondo.mundo ? 1.0 : 0.55;
+  double get _atenuacion => widget.nivel == NivelFondo.mundo ? 1.0 : 0.55;
+
+  @override
+  void initState() {
+    super.initState();
+    progresoDiaNotifier.addListener(_alCambiar);
+  }
+
+  void _alCambiar() {
+    if (!mounted) return;
+    final nuevo = progresoDiaNotifier.value;
+    final sube =
+        nuevo.fecha == _progreso.fecha && nuevo.avance > _progreso.avance;
+    final sinMovimiento = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final antes = _progreso;
+    setState(() {
+      _progreso = nuevo;
+      _desde = sube && !sinMovimiento ? _fraccionDe(antes) : null;
+    });
+    if (_desde != null) {
+      _gesto.forward(from: 0);
+    } else {
+      _gesto.value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    progresoDiaNotifier.removeListener(_alCambiar);
+    _gesto.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ProgresoDia>(
-      valueListenable: progresoDiaNotifier,
-      builder: (context, progreso, _) => CustomPaint(
-        painter: _FondoCiudadPainter(tokens, _atenuacion, progreso),
+    return AnimatedBuilder(
+      animation: _gesto,
+      builder: (context, _) => CustomPaint(
+        painter: _FondoCiudadPainter(
+          widget.tokens,
+          _atenuacion,
+          _progreso,
+          desde: _desde,
+          gesto: _gesto.value,
+        ),
       ),
     );
   }
@@ -130,18 +207,22 @@ class _FondoCiudadPainter extends CustomPainter {
   final double atenuacion;
   final ProgresoDia progreso;
 
-  const _FondoCiudadPainter(this.tokens, this.atenuacion, this.progreso);
+  /// Ver `_FondoCiudadState._desde`.
+  final double? desde;
 
-  /// Qué fracción de las ventanas se enciende.
-  ///
-  /// El 0.55 del final es el mismo tope que usa la landing: ni con el día
-  /// entero completado se enciende la ciudad al completo. Una ciudad con
-  /// TODAS las ventanas dadas no parece una ciudad viva, parece un error.
-  ///
-  /// Con `total` a cero la fracción es cero, pero los edificios SÍ se pintan:
-  /// los bloques son el equivalente del cielo, no del progreso.
-  double get _fraccionEncendida =>
-      progreso.total > 0 ? progreso.avance * 0.55 : 0.0;
+  /// De 0 a 1, el recorrido del parpadeo de las ventanas nuevas.
+  final double gesto;
+
+  const _FondoCiudadPainter(
+    this.tokens,
+    this.atenuacion,
+    this.progreso, {
+    this.desde,
+    this.gesto = 1.0,
+  });
+
+  /// Ver [_fraccionDe].
+  double get _fraccionEncendida => _fraccionDe(progreso);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -217,11 +298,26 @@ class _FondoCiudadPainter extends CustomPainter {
             _ventanaAncho,
             _ventanaAlto,
           );
-          final estaEncendida = _ruido(i, columna, fila) < fraccion;
-          if (estaEncendida) {
+          final ruido = _ruido(i, columna, fila);
+          final estaEncendida = ruido < fraccion;
+          // Una ventana recién encendida parpadea; las demás, fijas.
+          final esNueva = estaEncendida && desde != null && ruido >= desde!;
+          final luz = esNueva ? _parpadeo(gesto) : 1.0;
+          if (estaEncendida && luz > 0.5) {
             canvas.drawRect(rectVentana.inflate(3.0), halo);
           }
-          canvas.drawRect(rectVentana, estaEncendida ? encendida : apagada);
+          if (estaEncendida && luz < 1.0) {
+            canvas.drawRect(rectVentana, apagada);
+            canvas.drawRect(
+              rectVentana,
+              Paint()
+                ..color = _amarilloVentana.withValues(
+                  alpha: 0.80 * atenuacion * luz,
+                ),
+            );
+          } else {
+            canvas.drawRect(rectVentana, estaEncendida ? encendida : apagada);
+          }
           fila++;
         }
         columna++;
@@ -238,5 +334,7 @@ class _FondoCiudadPainter extends CustomPainter {
       oldDelegate.tokens.primary != tokens.primary ||
       oldDelegate.tokens.streak != tokens.streak ||
       oldDelegate.atenuacion != atenuacion ||
-      oldDelegate.progreso != progreso;
+      oldDelegate.progreso != progreso ||
+      oldDelegate.desde != desde ||
+      oldDelegate.gesto != gesto;
 }
