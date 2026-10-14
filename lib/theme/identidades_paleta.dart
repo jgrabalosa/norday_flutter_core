@@ -59,6 +59,9 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
     radioHero: 8,
     radioSecundario: 8,
     chaflan: 10,
+    // Las mayúsculas de la identidad: un espaciado por rol, en em.
+    espaciadoEtiqueta: 0.10,
+    espaciadoTitular: 0.05,
     forma: FormaIdentidad.chamfer,
     fondo: FondoIdentidadTipo.ciudad,
     duracionAnimacionFirma: Duration(milliseconds: 2400),

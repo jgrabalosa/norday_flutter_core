@@ -125,7 +125,7 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
             widget.etiqueta.toUpperCase(),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontSize: 11,
-              letterSpacing: 1.4,
+              letterSpacing: id.espaciadoEtiquetaPara(11),
               color: enfocado ? t.successText : t.textMuted,
             ),
           ),
