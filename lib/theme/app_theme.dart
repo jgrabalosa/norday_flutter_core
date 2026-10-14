@@ -60,12 +60,18 @@ class AppColors {
   static const textMutedDark = Color(0xFFA3B3C9); // gris azulado sobre noche
 }
 
-/// ── Escala de espaciado oficial (4/8/16/24) ──
+/// ── Escala de espaciado: rejilla de 4 ──
+///
+/// 4, 8, 12, 16, 24, 32. Todo relleno, margen o hueco NUEVO sale de aquí; lo
+/// que ya existe con otros valores (3, 5, 6, 10, 14…) se pasa a la rejilla
+/// cuando se toque, no de golpe.
 class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
+  static const double ms = 12;
   static const double md = 16;
   static const double lg = 24;
+  static const double xl = 32;
 }
 
 /// ── Radios oficiales (generosos, 16-24) ──
@@ -375,9 +381,9 @@ class AppTheme {
       ),
       // Explícito y no heredado, por el mismo motivo que `appBarTheme`: hoy
       // Material 3 saca el título del diálogo de `headlineSmall`, que en esta
-      // escala vale 18 y es el valor correcto, pero eso es una decisión de
+      // escala vale 20 y es el valor correcto, pero eso es una decisión de
       // Material y puede cambiar de versión. Apuntándolo aquí, el título de
-      // un diálogo es 18 porque lo dice esta escala, no porque coincida.
+      // un diálogo es 20 porque lo dice esta escala, no porque coincida.
       //
       // La FORMA no cabe aquí: `deTema` recibe colores y fuentes, no la
       // identidad, y este fichero es la capa de abajo — no puede importar el
@@ -480,19 +486,19 @@ class AppTheme {
       // ── Titulares — familia display ──────────────────────────────────────
       // La cifra. Hoy, el saldo de puntos de Tienda y Logros.
       displaySmall: base.displaySmall?.copyWith(
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: FontWeight.w800,
       ),
       // Título de pantalla.
       headlineMedium: base.headlineMedium?.copyWith(
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: FontWeight.w700,
       ),
       // Título de sección, y también el título del AppBar: `deTema` lo apunta
       // explícitamente en `appBarTheme`, porque el de Material es `titleLarge`
       // y aquí `titleLarge` vale otra cosa.
       headlineSmall: base.headlineSmall?.copyWith(
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: FontWeight.w700,
       ),
       // Cabecera de grupo y título de estado vacío.
@@ -517,8 +523,10 @@ class AppTheme {
       // titula por encima de un título de pantalla normal. Ocupa el hueco que
       // este comentario reservaba: el 22 estaba escrito a mano allí, fuera de
       // la escala y sin familia de titulares.
+      // La escala de titulares va en pasos de 4 (16/20/24/28): con pasos de 2
+      // no se distinguían.
       headlineLarge: base.headlineLarge?.copyWith(
-        fontSize: 22,
+        fontSize: 28,
         fontWeight: FontWeight.w700,
       ),
       // `displayLarge` y `displayMedium` siguen sin uso y sin tamaño

@@ -56,13 +56,13 @@ void main() {
             body: Builder(
               builder: (context) => Column(
                 children: [
-                  // Lo que hoy hay escrito en onboarding_overlay: 20 y negrita,
+                  // Lo que hoy hay escrito en onboarding_overlay: 24 y negrita,
                   // sin familia.
                   const Text(
                     'crudo',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  // Lo mismo pedido al tema: headlineMedium es 20 y w700.
+                  // Lo mismo pedido al tema: headlineMedium es 24 y w700.
                   Text(
                     'tema',
                     style: Theme.of(context).textTheme.headlineMedium,
@@ -83,8 +83,8 @@ void main() {
       final delTema = estiloPintado(tester, 'tema');
 
       // Mismo tamaño: la diferencia no está ahí.
-      expect(crudo.fontSize, 20, reason: codigo);
-      expect(delTema.fontSize, 20, reason: codigo);
+      expect(crudo.fontSize, 24, reason: codigo);
+      expect(delTema.fontSize, 24, reason: codigo);
 
       // Y sin embargo, distinta letra.
       expect(
