@@ -59,4 +59,73 @@ void main() {
       expect(tester.takeException(), isNull, reason: codigo);
     }
   });
+
+  Widget montar(String codigo, {bool sinMovimiento = false}) => MaterialApp(
+    key: ValueKey('$codigo-$sinMovimiento'),
+    theme: AppTheme.deTema(temaEquipadoNotifier.value),
+    home: MediaQuery(
+      data: MediaQueryData(disableAnimations: sinMovimiento),
+      child: const Scaffold(
+        body: Stack(fit: StackFit.expand, children: [FondoIdentidad()]),
+      ),
+    ),
+  );
+
+  testWidgets('al marcar, la ciudad y las burbujas hacen su gesto y acaban', (
+    tester,
+  ) async {
+    for (final codigo in ['TEMA_NEOTOKYO_PLUS', 'TEMA_DULCE']) {
+      aplicarIdentidadEquipada(codigo);
+      final fecha = DateTime(2026, 10, 14);
+      publicarProgresoDia(hechos: 1, total: 3, fecha: fecha, avance: 1 / 3);
+      await tester.pumpWidget(montar(codigo));
+      await tester.pump();
+
+      publicarProgresoDia(hechos: 2, total: 3, fecha: fecha, avance: 2 / 3);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(tester.hasRunningAnimations, isTrue, reason: codigo);
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.hasRunningAnimations, isFalse, reason: codigo);
+      expect(tester.takeException(), isNull, reason: codigo);
+    }
+  });
+
+  testWidgets('sin gesto al cambiar de día ni con «Quitar animaciones»', (
+    tester,
+  ) async {
+    for (final codigo in ['TEMA_NEOTOKYO_PLUS', 'TEMA_DULCE']) {
+      aplicarIdentidadEquipada(codigo);
+      publicarProgresoDia(
+        hechos: 1,
+        total: 3,
+        fecha: DateTime(2026, 10, 13),
+        avance: 1 / 3,
+      );
+      await tester.pumpWidget(montar(codigo));
+      await tester.pump();
+
+      // Otro día con más avance: no es marcar, es moverse por la tira.
+      publicarProgresoDia(
+        hechos: 3,
+        total: 3,
+        fecha: DateTime(2026, 10, 14),
+        avance: 1,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(tester.hasRunningAnimations, isFalse, reason: '$codigo, día');
+
+      // Marcar con «Quitar animaciones».
+      final fecha = DateTime(2026, 10, 15);
+      publicarProgresoDia(hechos: 0, total: 3, fecha: fecha, avance: 0);
+      await tester.pumpWidget(montar(codigo, sinMovimiento: true));
+      await tester.pump();
+      publicarProgresoDia(hechos: 1, total: 3, fecha: fecha, avance: 1 / 3);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(tester.hasRunningAnimations, isFalse, reason: '$codigo, sin mov.');
+    }
+  });
 }
