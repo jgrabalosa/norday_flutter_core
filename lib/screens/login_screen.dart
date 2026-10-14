@@ -530,7 +530,9 @@ class _LoginScreenState extends State<LoginScreen> {
             textAlign: TextAlign.center,
             style: base?.copyWith(
               color: color,
-              letterSpacing: esNeotokyo ? 1.2 : null,
+              letterSpacing: esNeotokyo
+                  ? id.espaciadoEtiquetaPara(base.fontSize ?? 12)
+                  : null,
             ),
           ),
           const SizedBox(height: 8),
@@ -710,7 +712,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontSize: 16,
                   color: t.tinta,
-                  letterSpacing: esNeotokyo ? 1.2 : null,
+                  letterSpacing: esNeotokyo
+                      ? id.espaciadoEtiquetaPara(16)
+                      : null,
                 ),
               ),
       ),

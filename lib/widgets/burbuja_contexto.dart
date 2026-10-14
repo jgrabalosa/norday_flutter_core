@@ -113,7 +113,7 @@ class BurbujaContexto extends StatelessWidget {
             id.fontDisplay,
             fontSize: 12,
             height: 1.3,
-            letterSpacing: 1.4,
+            letterSpacing: id.espaciadoEtiquetaPara(12),
             fontWeight: FontWeight.w600,
             color: color ?? t.textMuted,
           ),

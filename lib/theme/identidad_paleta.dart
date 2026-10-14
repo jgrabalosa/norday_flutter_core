@@ -100,6 +100,26 @@ class IdentidadPaleta {
   /// corte dejaba de leerse como un rasgo de la identidad.
   final double chaflan;
 
+  /// Espaciado de letra de una etiqueta corta en MAYÚSCULAS (chip, etiqueta
+  /// de campo, pestaña, nota, nombre en la tienda), en fracción del tamaño de
+  /// la letra (em). Sólo lo usa la identidad que escribe en mayúsculas; las
+  /// demás lo dejan a 0.
+  ///
+  /// Un solo valor para todas: antes había cinco escritos a mano (0.6, 1.1,
+  /// 1.2 y 1.4 px) y el rasgo dejaba de leerse como de la identidad.
+  final double espaciadoEtiqueta;
+
+  /// Espaciado de letra de un titular grande en MAYÚSCULAS (la celebración de
+  /// nivel), en em. Más cerrado que el de etiqueta: a 40 px, 0.10 em
+  /// desmontaría la palabra.
+  final double espaciadoTitular;
+
+  /// El espaciado de etiqueta en píxeles para una letra de [tamano].
+  double espaciadoEtiquetaPara(double tamano) => espaciadoEtiqueta * tamano;
+
+  /// El espaciado de titular en píxeles para una letra de [tamano].
+  double espaciadoTitularPara(double tamano) => espaciadoTitular * tamano;
+
   /// Cómo se pinta una superficie en esta identidad.
   final FormaIdentidad forma;
 
@@ -140,6 +160,8 @@ class IdentidadPaleta {
     required this.radioHero,
     required this.radioSecundario,
     this.chaflan = 10.0,
+    this.espaciadoEtiqueta = 0.0,
+    this.espaciadoTitular = 0.0,
     required this.forma,
     required this.fondo,
     required this.duracionAnimacionFirma,

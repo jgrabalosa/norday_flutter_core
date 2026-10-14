@@ -196,7 +196,7 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
               texto.toUpperCase(),
               style: base.copyWith(
                 color: t.primary.withValues(alpha: 0.85),
-                letterSpacing: 2,
+                letterSpacing: id.espaciadoTitularPara(40),
               ),
             ),
           ),
@@ -206,11 +206,14 @@ class _CelebracionNivelOverlayState extends State<_CelebracionNivelOverlay>
               texto.toUpperCase(),
               style: base.copyWith(
                 color: t.streak.withValues(alpha: 0.85),
-                letterSpacing: 2,
+                letterSpacing: id.espaciadoTitularPara(40),
               ),
             ),
           ),
-          Text(texto.toUpperCase(), style: base.copyWith(letterSpacing: 2)),
+          Text(
+            texto.toUpperCase(),
+            style: base.copyWith(letterSpacing: id.espaciadoTitularPara(40)),
+          ),
         ],
       ),
 

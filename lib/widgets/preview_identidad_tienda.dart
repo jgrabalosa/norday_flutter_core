@@ -44,7 +44,7 @@ class ChipIdentidad extends StatelessWidget {
           id.fontDisplay,
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1.1,
+          letterSpacing: id.espaciadoEtiquetaPara(12),
           color: color,
         ),
       ),

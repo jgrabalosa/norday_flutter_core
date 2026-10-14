@@ -142,4 +142,20 @@ void main() {
       }
     }
   });
+
+  test(
+    'Neotokyo+ declara sus dos espaciados de mayúsculas; las demás, ninguno',
+    () {
+      final neotokyo = catalogoIdentidades['TEMA_NEOTOKYO_PLUS']!;
+      expect(neotokyo.espaciadoEtiqueta, 0.10);
+      expect(neotokyo.espaciadoTitular, 0.05);
+      expect(neotokyo.espaciadoEtiquetaPara(12), closeTo(1.2, 1e-9));
+      expect(neotokyo.espaciadoTitularPara(40), closeTo(2.0, 1e-9));
+      for (final codigo in ['TEMA_PROFUNDIDAD', 'TEMA_DULCE']) {
+        final id = catalogoIdentidades[codigo]!;
+        expect(id.espaciadoEtiqueta, 0.0, reason: codigo);
+        expect(id.espaciadoTitular, 0.0, reason: codigo);
+      }
+    },
+  );
 }
