@@ -43,7 +43,6 @@ class TonoError {
 /// El tono de error de la identidad equipada. Se lee el valor, como
 /// [tokens] o [identidad] — no se suscribe nadie aquí.
 TonoError tonoError(BuildContext context) {
-  final t = tokens(context);
   return switch (identidad(context).forma) {
     // Profundidad — coral propio. Su `streak` es ámbar (#FFB020) y sobre el
     // azul casi negro se lee como un dato de racha, no como un fallo; y
@@ -57,27 +56,27 @@ TonoError tonoError(BuildContext context) {
       tinta: const Color(0xFF1A1A1A), // 6.27:1 sobre #FF6B6B
     ),
 
-    // Neotokyo+ — su propio `streak` (#FF4D2E). Es el único rojo de la paleta,
-    // ya está a un tono de distancia del magenta primario, y sobre el violeta
-    // casi negro se lee como una señal rota, que es exactamente el registro de
-    // la identidad. 5.2:1 sobre el banner.
+    // Neotokyo+ — el rojo que antes era su `streak` (#FF4D2E), ahora literal:
+    // su tercer color pasó a ser el cian. Está a un tono del magenta
+    // primario y sobre el violeta casi negro se lee como una señal rota, que
+    // es el registro de la identidad. 5.2:1 sobre el banner.
     FormaIdentidad.chamfer => TonoError(
-      texto: t.streak,
-      borde: t.streak,
-      fondo: t.streak.withValues(alpha: 0.12),
+      texto: const Color(0xFFFF4D2E),
+      borde: const Color(0xFFFF4D2E),
+      fondo: const Color(0xFFFF4D2E).withValues(alpha: 0.12),
       tinta: const Color(0xFF1A1A1A), // 5.27:1 sobre #FF4D2E
     ),
 
     // Dulce — rosa-rojo propio para el texto (5.4:1 sobre el blanco de la
-    // tarjeta). Aquí no vale derivar: `streak` es el coral (#E86A58), que como
-    // relleno funciona de alerta pero como texto no llega, y su `streakText`
-    // (#9C4E1A) es un marrón anaranjado que se lee como aviso, no como error.
-    // El rosa-rojo es más oscuro y menos saturado que el primario, para que no
-    // parezca un elemento activo; el relleno sí lo pone el coral.
+    // tarjeta). Aquí no vale derivar: el coral (#E86A58), que fue su `streak`
+    // hasta que el tercer color pasó a lavanda, como relleno funciona de
+    // alerta pero como texto no llega. El rosa-rojo es más oscuro y menos
+    // saturado que el primario, para que no parezca un elemento activo; el
+    // relleno sí lo pone el coral.
     FormaIdentidad.pill => TonoError(
       texto: const Color(0xFFC2325A),
-      borde: t.streak,
-      fondo: t.streak.withValues(alpha: 0.14),
+      borde: const Color(0xFFE86A58),
+      fondo: const Color(0xFFE86A58).withValues(alpha: 0.14),
       tinta: const Color(0xFF1A1A1A), // 5.50:1 sobre #E86A58
     ),
   };

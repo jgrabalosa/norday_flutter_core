@@ -173,6 +173,18 @@ class TokensContextuales {
   /// Quien no lo declare se queda en blanco, que es como estaba.
   final Color tinta;
 
+  /// `primary` cuando se pinta como TRAZO: un icono, un borde, el chevron de
+  /// «Ver detalle», el foco de un campo, el cursor. Se rige por WCAG 1.4.11
+  /// (3:1), no por AA de texto: para escribir con el acento está
+  /// `successText`.
+  ///
+  /// Existe por Dulce: su rosa de relleno (#FF6FA5) da 2.60 / 2.33 / 2.14
+  /// sobre surface / bg / surface2 y no vale como trazo. En las identidades
+  /// oscuras `primary` ya contrasta de sobra y es su propio valor.
+  ///
+  /// Quien no lo declare se queda en `primary`.
+  final Color primaryTrazo;
+
   /// El fondo de una nota al margen: hoy la `BurbujaContexto`.
   ///
   /// No es una capa del sistema de estratos —eso es `surface2`— sino el papel
@@ -200,6 +212,7 @@ class TokensContextuales {
     Color? inactivo,
     Color? aroVacio,
     Color? tinta,
+    Color? primaryTrazo,
     Color? fondoNota,
   }) : successText = successText ?? success,
        streakText = streakText ?? streak,
@@ -208,6 +221,7 @@ class TokensContextuales {
        inactivo = inactivo ?? surface2,
        aroVacio = aroVacio ?? surface2,
        tinta = tinta ?? Colors.white,
+       primaryTrazo = primaryTrazo ?? primary,
        fondoNota = fondoNota ?? surface2;
 }
 
@@ -227,13 +241,15 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   // 101B2F) → surface (base, 1E2E4C) → surfaceAlta (elevada, 2B4068). La
   // jerarquía la lleva la luminosidad, no un degradado entre dos extremos.
   // Contrastes verificados con WebAIM sobre estos fondos:
-  // text 12.04 sobre base y 9.17 sobre elevada; textMuted 8.62 y 6.56;
+  // text 12.04 sobre base y 9.17 sobre elevada; textMuted 6.35 y 4.84;
   // primary 6.12 y 4.66; streak 7.41 y 5.64. Todos pasan AA.
   surface: Color(0xFF1E2E4C),
   surface2: Color(0xFF101B2F),
   surfaceAlta: Color(0xFF2B4068),
   text: Color(0xFFEEF2F6),
-  textMuted: Color(0xFFC7CFDA), // 12.3 sobre bg (WebAIM), de sobra
+  // 9.11 sobre bg, 6.35 sobre surface, 8.07 sobre surface2 y 4.84 sobre
+  // surfaceAlta. Antes era #C7CFDA, a 1.40 de `text`: no se apartaba.
+  textMuted: Color(0xFFA3B3C9),
   // `textMuted` al 0.29 sobre `bg`, resuelto a opaco. 2.02 de contraste.
   inactivo: Color(0xFF3F4551),
   // `textMuted` al 0.70 sobre `bg`, resuelto a opaco: el mismo valor que la
@@ -299,26 +315,59 @@ class AppTheme {
   /// ThemeData para el tema actualmente equipado — un único look, construido
   /// a partir de sus tokens. Todas las paletas (básicas o premium) pasan por aquí.
   static ThemeData deTema(TokensContextuales t) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: t.primary,
-      brightness: Brightness.dark,
-      surface: t.surface,
-    );
+    // El brillo sale del fondo de la identidad: Dulce es clara. Con
+    // `Brightness.dark` fijo, todo lo que Material pinta sin color propio
+    // —lo que se escribe en un TextField, el título de un diálogo, un
+    // TextButton— salía claro sobre claro en Dulce (1.13 en el formulario
+    // de hábito).
+    final brillo = ThemeData.estimateBrightnessForColor(t.bg);
+
+    // `fromSeed` sólo rellena los roles que aquí no se fijan (contenedores de
+    // secondary y tertiary, error). Todo lo que se ve a menudo sale de los
+    // tokens, y `surfaceTint` transparente quita el velo de color que
+    // Material 3 pone encima de las superficies elevadas.
+    final scheme =
+        ColorScheme.fromSeed(seedColor: t.primary, brightness: brillo).copyWith(
+          primary: t.primary,
+          onPrimary: t.tinta,
+          surface: t.surface,
+          onSurface: t.text,
+          onSurfaceVariant: t.textMuted,
+          surfaceContainerLowest: t.surface,
+          surfaceContainerLow: t.surface,
+          surfaceContainer: t.surface,
+          surfaceContainerHigh: t.surfaceAlta,
+          surfaceContainerHighest: t.surface2,
+          outline: t.aroVacio,
+          outlineVariant: t.inactivo,
+          inverseSurface: t.text,
+          onInverseSurface: t.surface,
+          surfaceTint: Colors.transparent,
+        );
 
     // La letra sale de la identidad equipada, no del parámetro: `deTema`
     // recibe sólo colores y las apps la llaman así desde antes de que una
-    // identidad fuera algo más que su paleta.
-    final tipografia = _tipografia(fuentesEquipadasNotifier.value);
+    // identidad fuera algo más que su paleta. El color de toda la escala es
+    // `text`: la base de Material trae el blanco del tema oscuro.
+    final tipografia = _tipografia(
+      fuentesEquipadasNotifier.value,
+    ).apply(bodyColor: t.text, displayColor: t.text);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: t.bg,
       textTheme: tipografia,
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: t.primaryTrazo,
+        selectionHandleColor: t.primaryTrazo,
+        selectionColor: t.primary.withValues(alpha: 0.30),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: t.surface,
         foregroundColor: t.text,
         elevation: 1,
+        surfaceTintColor: Colors.transparent,
         // Explícito y no heredado: Material saca el título del AppBar de
         // `titleLarge`, que en esta escala es la cabecera de grupo y vale 16.
         // El título de una pantalla es `headlineSmall`.
@@ -334,7 +383,25 @@ class AppTheme {
       // identidad, y este fichero es la capa de abajo — no puede importar el
       // catálogo sin montar un ciclo. La ponen las cinco llamadas.
       dialogTheme: DialogThemeData(
+        // La capa elevada: en Profundidad, `surfaceAlta`; en las demás es
+        // `surface`. Sin esto Material la sacaba de un esquema oscuro y en
+        // Dulce el diálogo salía negro con el título a 1.36.
+        backgroundColor: t.surfaceAlta,
+        surfaceTintColor: Colors.transparent,
         titleTextStyle: tipografia.headlineSmall?.copyWith(color: t.text),
+        contentTextStyle: tipografia.bodyMedium?.copyWith(color: t.text),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: t.surface,
+        modalBackgroundColor: t.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      // El aviso va invertido: el color del texto de fondo y la superficie
+      // como letra. Así se separa de la pantalla en las tres identidades.
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: t.text,
+        contentTextStyle: tipografia.bodyMedium?.copyWith(color: t.surface),
+        actionTextColor: t.surface,
       ),
       cardTheme: CardThemeData(
         color: t.surface,
@@ -357,14 +424,25 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+      // El acento ESCRITO: un botón de texto o de contorno es texto, 4.5:1.
+      // `successText` es esa variante (en Dulce el rosa de relleno da 2.60
+      // como texto; en las oscuras es el mismo acento de siempre).
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: t.successText),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(foregroundColor: t.successText),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: t.primaryTrazo),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide(color: t.primary, width: 2),
+          borderSide: BorderSide(color: t.primaryTrazo, width: 2),
         ),
+        floatingLabelStyle: TextStyle(color: t.successText),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: t.primary,
@@ -425,7 +503,7 @@ class AppTheme {
       // Nombre de ítem: un hábito, un producto, un logro. Va en la display a
       // propósito — es lo que se nombra, no lo que se lee.
       titleMedium: base.titleMedium?.copyWith(
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
       // Antetítulo: la etiqueta que encabeza un grupo. El tracking es suyo,
