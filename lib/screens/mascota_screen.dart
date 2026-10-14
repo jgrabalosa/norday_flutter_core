@@ -316,7 +316,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: elegida ? t.primary : Colors.transparent,
+                  color: elegida ? t.primaryTrazo : Colors.transparent,
                   width: 2,
                 ),
               ),

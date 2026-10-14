@@ -306,7 +306,7 @@ class CoachMark extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: i == paso ? t.primary : t.inactivo,
+            color: i == paso ? t.primaryTrazo : t.inactivo,
           ),
         ),
       ),

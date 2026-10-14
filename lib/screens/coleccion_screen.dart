@@ -424,7 +424,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                 l.colEligeAvatar,
                 style: Theme.of(
                   context,
-                ).textTheme.labelLarge?.copyWith(color: t.primary),
+                ).textTheme.labelLarge?.copyWith(color: t.successText),
               ),
             ),
             SelectorAvatarGratis(
@@ -526,7 +526,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           l.colDescubre(titulo),
           style: Theme.of(
             context,
-          ).textTheme.labelLarge?.copyWith(color: t.primary),
+          ).textTheme.labelLarge?.copyWith(color: t.successText),
         ),
       ),
     );

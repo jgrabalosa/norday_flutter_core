@@ -296,7 +296,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     l.tiendaEquipado,
                     style: Theme.of(
                       context,
-                    ).textTheme.labelMedium?.copyWith(color: t.primary),
+                    ).textTheme.labelMedium?.copyWith(color: t.successText),
                   ),
                 ),
             ],
