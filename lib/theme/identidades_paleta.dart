@@ -77,50 +77,52 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // El éxito sigue teniendo color propio, pero vuelve a la familia rosa
       // de la identidad: la salvia rompía con Detalle de hábito, que pinta
       // los días cumplidos con `primary`. El rosa de `primary` (#FF6FA5) no
-      // vale como relleno —2.60 / 2.33 / 2.14 sobre surface / bg / surface2,
+      // vale como relleno —2.54 / 2.54 / 2.28 sobre surface / bg / surface2,
       // por debajo de los 3.0 de WCAG 1.4.11—, así que éste es el mismo tono
-      // asentado: HSL 338, igual que `primary`. Da 3.92 / 3.52 / 3.22.
+      // asentado: HSL 338, igual que `primary`. Da 3.83 / 3.83 / 3.43.
       success: Color(0xFFE53F80),
       // Lavanda retirada (Quim, 18-oct): lo semanal va en rosa, como lo
       // diario. El rosa de relleno es el de `success`, porque `primary` no
       // llega a 3.0.
       streak: Color(0xFFE53F80),
       points: Color(0xFFE86A58),
-      bg: Color(0xFFFAF0F4),
-      surface: Color(0xFFFFFFFF),
-      surface2: Color(0xFFFFE1EC),
+      // Papel claro (Quim, 18-oct): fondo y tarjeta son el mismo papel, y solo
+      // el lápiz y su sombra los dibujan. El campo va algo más oscuro.
+      bg: Color(0xFFFFFCF5),
+      surface: Color(0xFFFFFCF5),
+      surface2: Color(0xFFF6EFE3),
       text: Color(0xFF4A2E3D),
       // El magenta de diseño (#B85E9F) no llegaba a AA como texto normal —4.08
       // sobre surface, 3.66 sobre bg (WebAIM), donde hace falta 4.5—, así que
       // se oscureció conservando el tono. La primera corrección (#A04A83,
       // 5.52 / 4.95 / 4.53) pasaba la métrica pero seguía leyéndose lavada en
       // las etiquetas de formulario, así que se bajó otro escalón de
-      // luminosidad manteniendo tono (HSL 320) y saturación: 7.81 / 7.01 /
-      // 6.41 sobre surface / bg / surface2. Sigue lejos de `text`
-      // (12.00 / 10.77 / 9.85), que es lo que mantiene la jerarquía entre
+      // luminosidad manteniendo tono (HSL 320) y saturación. Sobre el papel
+      // claro: 7.62 / 7.62 / 6.84 sobre surface / bg / surface2. Sigue lejos de
+      // `text` (11.72 / 11.72 / 10.50), que es lo que mantiene la jerarquía entre
       // texto principal y secundario.
       textMuted: Color(0xFF7E3A67),
-      // `textMuted` al 0.42 sobre `bg`, resuelto a opaco. 2.00 de contraste.
-      // Recalculado al oscurecer `textMuted`: se conserva el contraste, no la
+      // `textMuted` al 0.42 sobre `bg`, resuelto a opaco. 2.05 sobre bg y
+      // surface, 1.84 sobre surface2. Es un apagado a propósito: se conserva la
       // alfa, para que el estado apagado pese lo mismo que en las otras tres.
-      inactivo: Color(0xFFC6A4B9),
+      inactivo: Color(0xFFC9ABB9),
       // `textMuted` al 0.70 sobre `surface`, que es el fondo de sus filas,
-      // resuelto a opaco. 3.38 / 3.76 / 3.09 sobre bg / surface / surface2.
-      aroVacio: Color(0xFFA57595),
+      // resuelto a opaco. 3.72 / 3.72 / 3.33 sobre bg / surface / surface2.
+      aroVacio: Color(0xFFA57492),
       // 4.61 sobre el rosa. El mismo valor que la landing.
       tinta: Color(0xFF4A2E3D),
       // El rosa como trazo (icono, borde, foco): el de relleno no llega a
-      // 3.0. Es el mismo tono que `success`: 3.92 / 3.52 / 3.22 sobre
+      // 3.0. Es el mismo tono que `success`: 3.83 / 3.83 / 3.43 sobre
       // surface / bg / surface2.
       primaryTrazo: Color(0xFFE53F80),
       // Sobre fondo claro ningún relleno de esta identidad vale como texto:
       // ni el rosa de `streak` ni el de `success` llegan a 4.5, así que hacen
       // falta las variantes oscurecidas. Verificadas con WebAIM sobre los tres
       // fondos de la identidad (surface / bg / surface2).
-      streakText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
-      pointsText: Color(0xFFBB2E1A), // 5.97 / 5.35 / 4.90
-      successText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
-      // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
+      streakText: Color(0xFFB01E5A), // 6.45 / 6.45 / 5.78
+      pointsText: Color(0xFFBB2E1A), // 5.82 / 5.82 / 5.22
+      successText: Color(0xFFB01E5A), // 6.45 / 6.45 / 5.78
+      // El neutro cálido de Dulce: el papel del post-it. `surface2` era rosa
       // y no separaba la nota del fondo. Sobre este amarillo, `text` da
       // 10.95, `successText` 5.67 y `textMuted` 7.13.
       fondoNota: Color(0xFFFFF4D6),

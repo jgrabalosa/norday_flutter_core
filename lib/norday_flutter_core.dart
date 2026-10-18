@@ -52,6 +52,7 @@ export 'widgets/check_circular.dart';
 export 'widgets/cierre_del_dia.dart';
 export 'widgets/coach_mark.dart';
 export 'widgets/fondo_identidad.dart';
+export 'widgets/grano_papel.dart';
 export 'widgets/halo_identidad.dart';
 export 'widgets/indicador_nivel.dart';
 export 'widgets/lapiz.dart';
