@@ -323,16 +323,13 @@ class _CheckPainter extends CustomPainter {
         size.width.roundToDouble(),
         size.height.roundToDouble(),
       );
-      pintarConCache(canvas, (
-        tamano.width,
-        tamano.height,
-        relleno,
-        trazo,
-        color,
-        colorAro,
-        colorBase,
-        colorCheck,
-      ), (c) => _pintar(c, tamano));
+      pintarConCache(
+        canvas,
+        (relleno, trazo, color, colorAro, colorBase, colorCheck),
+        tamano,
+        (c) => _pintar(c, tamano),
+        desborde: 4,
+      );
       return;
     }
     _pintar(canvas, size);

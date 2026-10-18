@@ -44,7 +44,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     diálogos, tarjetas, hojas y campos van a lápiz (la forma llega a
     `AppTheme.deTema` por `FuentesIdentidad.forma`). El trazo lleva presión y
     grano, y el sombreado (`pintarSombreado`) una intensidad por punto. Lo que
-    se repite se graba una vez en una caché (`pintarConCache`).
+    se repite se graba una vez en una caché (`pintarConCache`): imágenes a
+    la densidad de la pantalla, con su desborde y como mucho 12 millones de
+    píxeles. El anillo de Nori, en Dulce, también va a lápiz.
   - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
     pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
   - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`

@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
-import 'dart:ui' show Picture, PathMetric, PictureRecorder;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -31,49 +31,111 @@ import 'package:flutter/material.dart';
 @visibleForTesting
 bool usarCacheLapiz = true;
 
-/// Cuántas grabaciones guarda la caché antes de soltar la más antigua.
-const int _maxCache = 256;
+/// Límite de la caché de imágenes, en píxeles: unos 48 MB en RGBA.
+const int _limitePixeles = 12000000;
 
-final LinkedHashMap<Object, Picture> _cache = LinkedHashMap();
+/// Una imagen grabada, con su tamaño en píxeles.
+class _Entrada {
+  _Entrada(this.imagen, this.pixeles);
+
+  final ui.Image imagen;
+  final int pixeles;
+}
+
+final LinkedHashMap<Object, _Entrada> _cache = LinkedHashMap();
+int _pixeles = 0;
 int _grabaciones = 0;
 
-/// Cuántas veces se ha grabado un dibujo desde la última [vaciarCacheLapiz].
+/// Cuántas imágenes se han grabado desde la última [vaciarCacheLapiz].
 @visibleForTesting
 int get grabacionesLapiz => _grabaciones;
 
-/// Vacía la caché y pone a cero el contador de grabaciones.
+/// Cuántos píxeles ocupa la caché ahora.
+@visibleForTesting
+int get pixelesCacheLapiz => _pixeles;
+
+/// Cuántas imágenes hay en la caché ahora.
+@visibleForTesting
+int get entradasCacheLapiz => _cache.length;
+
+/// El límite de la caché, en píxeles.
+@visibleForTesting
+int get limitePixelesCacheLapiz => _limitePixeles;
+
+/// Vacía la caché y pone a cero los contadores.
 @visibleForTesting
 void vaciarCacheLapiz() {
-  for (final dibujo in _cache.values) {
-    dibujo.dispose();
+  for (final entrada in _cache.values) {
+    entrada.imagen.dispose();
   }
   _cache.clear();
+  _pixeles = 0;
   _grabaciones = 0;
 }
 
-/// Graba una vez lo que dibuja [dibujo] para esa [clave] y después solo lo
-/// reproduce. LRU de [_maxCache] entradas: al salir una, se libera su `Picture`.
+/// La densidad de píxeles de la pantalla: la imagen se graba a esa resolución.
+double _densidad() {
+  final vistas = ui.PlatformDispatcher.instance.views;
+  return vistas.isEmpty ? 1.0 : vistas.first.devicePixelRatio;
+}
+
+/// Graba una vez, como imagen a la densidad de la pantalla, lo que dibuja
+/// [dibujo] en una caja de [tamano], y después solo la reproduce.
+///
+/// [desborde] deja margen por cada lado para lo que se sale de la caja (el
+/// filo, la sombra). La caché es LRU por píxeles: al pasar de
+/// [_limitePixeles], salen primero las grabaciones más antiguas.
 void pintarConCache(
   Canvas canvas,
   Object clave,
-  void Function(Canvas c) dibujo,
-) {
+  Size tamano,
+  void Function(Canvas c) dibujo, {
+  double desborde = 0,
+}) {
   if (!usarCacheLapiz) {
     dibujo(canvas);
     return;
   }
-  var grabado = _cache.remove(clave);
-  if (grabado == null) {
-    final grabadora = PictureRecorder();
-    dibujo(Canvas(grabadora));
-    grabado = grabadora.endRecording();
+  final densidad = _densidad();
+  final completa = (clave, densidad, tamano.width, tamano.height, desborde);
+  var entrada = _cache.remove(completa);
+  if (entrada == null) {
+    final ancho = ((tamano.width + 2 * desborde) * densidad).ceil();
+    final alto = ((tamano.height + 2 * desborde) * densidad).ceil();
+    final grabadora = ui.PictureRecorder();
+    final lienzo = Canvas(grabadora);
+    lienzo.scale(densidad);
+    lienzo.translate(desborde, desborde);
+    dibujo(lienzo);
+    final grabado = grabadora.endRecording();
+    final imagen = grabado.toImageSync(ancho, alto);
+    grabado.dispose();
     _grabaciones++;
-    if (_cache.length >= _maxCache) {
-      _cache.remove(_cache.keys.first)?.dispose();
-    }
+    entrada = _Entrada(imagen, ancho * alto);
+    _pixeles += entrada.pixeles;
   }
-  _cache[clave] = grabado;
-  canvas.drawPicture(grabado);
+  _cache[completa] = entrada;
+  while (_pixeles > _limitePixeles && _cache.length > 1) {
+    final vieja = _cache.remove(_cache.keys.first)!;
+    _pixeles -= vieja.pixeles;
+    vieja.imagen.dispose();
+  }
+  canvas.drawImageRect(
+    entrada.imagen,
+    Rect.fromLTWH(
+      0,
+      0,
+      entrada.imagen.width.toDouble(),
+      entrada.imagen.height.toDouble(),
+    ),
+    Rect.fromLTWH(
+      -desborde,
+      -desborde,
+      tamano.width + 2 * desborde,
+      tamano.height + 2 * desborde,
+    ),
+    Paint()..filterQuality = ui.FilterQuality.medium,
+  );
 }
 
 /// Un punto del contorno: dónde está, hacia dónde se desplaza el temblor (la
@@ -88,7 +150,7 @@ class _Muestra {
 
 /// Muestrea el contorno de [m] cada [paso] px. Un contorno cerrado no repite
 /// el punto final; uno abierto sí lo incluye.
-List<_Muestra> _muestrear(PathMetric m, double paso) {
+List<_Muestra> _muestrear(ui.PathMetric m, double paso) {
   final cuenta = max(2, (m.length / paso).round());
   final total = m.isClosed ? cuenta : cuenta + 1;
   final salto = m.length / cuenta;
@@ -327,6 +389,7 @@ void _capaRayas(
   required double alfa,
   required double minimo,
   required int semilla,
+  bool Function(Offset punto)? dentro,
 }) {
   final azar = Random(semilla);
   final caja = zona.getBounds();
@@ -334,6 +397,8 @@ void _capaRayas(
   // Media diagonal: así las rayas cubren la caja a cualquier ángulo.
   final radio = sqrt(caja.width * caja.width + caja.height * caja.height) / 2;
   final normalBase = Offset(-sin(angulo), cos(angulo));
+  // Quien da [dentro] sabe mejor que la zona dónde cae el sombreado.
+  final bool Function(Offset) dentroDe = dentro ?? zona.contains;
 
   for (
     var s = -radio;
@@ -351,9 +416,9 @@ void _capaRayas(
     final tramos = <(double, double)>[];
     double? inicioTramo;
     for (var t = -radio; t <= radio; t += 1) {
-      final dentro = zona.contains(enT(t)) && intensidad(enT(t)) > minimo;
-      if (dentro && inicioTramo == null) inicioTramo = t;
-      if (!dentro && inicioTramo != null) {
+      final dentroAhora = dentroDe(enT(t)) && intensidad(enT(t)) > minimo;
+      if (dentroAhora && inicioTramo == null) inicioTramo = t;
+      if (!dentroAhora && inicioTramo != null) {
         tramos.add((inicioTramo, t));
         inicioTramo = null;
       }
@@ -412,6 +477,7 @@ void pintarSombreado(
   double alfa = 0.6,
   bool cruzado = false,
   required int semilla,
+  bool Function(Offset punto)? dentro,
 }) {
   final tinta = intensidad ?? (_) => 1.0;
   canvas.save();
@@ -427,6 +493,7 @@ void pintarSombreado(
     alfa: alfa,
     minimo: 0,
     semilla: semilla,
+    dentro: dentro,
   );
   if (cruzado) {
     _capaRayas(
@@ -440,6 +507,7 @@ void pintarSombreado(
       alfa: alfa * 0.55,
       minimo: 0.6,
       semilla: semilla + 11,
+      dentro: dentro,
     );
   }
   canvas.restore();
@@ -528,13 +596,13 @@ class BordeLapiz extends OutlinedBorder {
     final alto = rect.height.round().toDouble();
     canvas.save();
     canvas.translate(rect.left, rect.top);
-    pintarConCache(canvas, (
-      ancho,
-      alto,
-      radio,
-      side,
-      rayas,
-    ), (c) => _pintarEnOrigen(c, Size(ancho, alto)));
+    pintarConCache(
+      canvas,
+      (ancho, alto, radio, side, rayas),
+      Size(ancho, alto),
+      (c) => _pintarEnOrigen(c, Size(ancho, alto)),
+      desborde: 4,
+    );
     canvas.restore();
   }
 

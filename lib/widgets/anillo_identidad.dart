@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'lapiz.dart';
 
 /// Un aro de progreso con el trazo de la identidad equipada. Lo usan el XP de
 /// la mascota (rodeándola, a ~320px) y el resumen del día (a 64px, dentro de
@@ -64,6 +65,7 @@ class AnilloIdentidad extends StatelessWidget {
             progreso: progreso,
             color: color ?? t.primary,
             colorPista: colorPista ?? t.inactivo,
+            colorSombra: t.successText,
           ),
         ),
       ),
@@ -126,11 +128,16 @@ class _AnilloIdentidadPainter extends CustomPainter {
   final Color color;
   final Color colorPista;
 
+  /// El oscuro de la identidad, para el sombreado del arco a lápiz. Solo lo
+  /// usa Dulce.
+  final Color colorSombra;
+
   _AnilloIdentidadPainter({
     required this.forma,
     required this.progreso,
     required this.color,
     required this.colorPista,
+    required this.colorSombra,
   });
 
   /// Arriba, las 12. Que el progreso empiece donde empieza un reloj es lo
@@ -145,6 +152,27 @@ class _AnilloIdentidadPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (forma == FormaIdentidad.pill) {
+      // Dulce, a lápiz: se graba una vez por progreso redondeado, y en el
+      // crecimiento animado se reutilizan las imágenes.
+      final tamano = Size(
+        size.width.roundToDouble(),
+        size.height.roundToDouble(),
+      );
+      pintarConCache(
+        canvas,
+        (
+          (progreso.clamp(0.0, 1.0) * 200).round(),
+          color,
+          colorPista,
+          colorSombra,
+        ),
+        tamano,
+        (c) => _pintarPill(c, tamano),
+        desborde: 4,
+      );
+      return;
+    }
     final trazo = _trazo;
     final diametro = size.shortestSide;
     final grosor = trazo.grosorPara(diametro);
@@ -206,24 +234,77 @@ class _AnilloIdentidadPainter extends CustomPainter {
         }
 
       case FormaIdentidad.pill:
-        _pista(canvas, centro, radio, grosor, trazo.alfaPista);
-        if (barrido <= 0) return;
-        canvas.drawArc(
-          caja,
+        // Lo pinta `_pintarPill`, arriba, a lápiz.
+        return;
+    }
+  }
+
+  /// El aro de Dulce a lápiz: la pista entera, y el arco en capas concéntricas
+  /// de trazo de lápiz, con un sombreado de rayas oscuras dentro de la banda.
+  void _pintarPill(Canvas canvas, Size size) {
+    final trazo = _trazoPill;
+    final diametro = size.shortestSide;
+    final grosor = trazo.grosorPara(diametro);
+    final centro = size.center(Offset.zero);
+    final radio = (diametro - grosor) / 2;
+    final semilla = semillaDe(size);
+
+    pintarTrazoLapiz(
+      canvas,
+      Path()..addOval(Rect.fromCircle(center: centro, radius: radio)),
+      color: colorPista.withValues(alpha: trazo.alfaPista),
+      grosor: 2,
+      semilla: semilla,
+    );
+
+    final barrido = 2 * math.pi * progreso.clamp(0.0, 1.0);
+    if (barrido <= 0) return;
+
+    // La banda del arco: entre el radio interior y el exterior del trazo.
+    final exterior = radio + grosor / 2;
+    final interior = radio - grosor / 2;
+    final banda = Path()
+      ..arcTo(
+        Rect.fromCircle(center: centro, radius: exterior),
+        _inicio,
+        barrido,
+        true,
+      )
+      ..arcTo(
+        Rect.fromCircle(center: centro, radius: interior),
+        _inicio + barrido,
+        -barrido,
+        false,
+      )
+      ..close();
+
+    // Trazos concéntricos a lápiz, repartidos a lo ancho de la banda.
+    final capas = math.max(3, (grosor / 2.5).round());
+    for (var i = 0; i < capas; i++) {
+      final r = interior + grosor * (i + 0.5) / capas;
+      pintarTrazoLapiz(
+        canvas,
+        Path()..addArc(
+          Rect.fromCircle(center: centro, radius: r),
           _inicio,
           barrido,
-          false,
-          _arco(grosor, trazo.remate, color),
-        );
-        // Perdigón en la punta: remata el trazo grueso y da un punto donde
-        // mirar mientras el aro crece.
-        final punta = _inicio + barrido;
-        canvas.drawCircle(
-          centro + Offset(math.cos(punta), math.sin(punta)) * radio,
-          grosor * 0.34,
-          Paint()..color = Colors.white.withValues(alpha: 0.85),
-        );
+        ),
+        color: color,
+        grosor: 2.2,
+        semilla: semilla + 1 + i,
+      );
     }
+
+    // El sombreado de rayas oscuras, siguiendo más o menos la tangente.
+    pintarSombreado(
+      canvas,
+      banda,
+      color: colorSombra,
+      angulo: _inicio + barrido / 2 + math.pi / 2,
+      separacion: 3,
+      alfa: 0.25,
+      semilla: semilla + 31,
+    );
   }
 
   Paint _arco(double grosor, StrokeCap remate, Color c) => Paint()
@@ -254,5 +335,6 @@ class _AnilloIdentidadPainter extends CustomPainter {
       old.progreso != progreso ||
       old.forma != forma ||
       old.color != color ||
-      old.colorPista != colorPista;
+      old.colorPista != colorPista ||
+      old.colorSombra != colorSombra;
 }

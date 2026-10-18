@@ -287,7 +287,9 @@ class SuperficieIdentidad extends StatelessWidget {
       painter: _SombraLapiz(
         radio: protagonista ? id.radioHero : id.radioSecundario,
         margen: margen,
-        color: t.text,
+        // Del mismo lápiz que el contorno, apretando más: el rosa oscuro de la
+        // identidad, no un negro.
+        color: t.successText,
       ),
       child: caja,
     );
@@ -315,13 +317,13 @@ class _SombraLapiz extends CustomPainter {
       size.width.roundToDouble(),
       size.height.roundToDouble(),
     );
-    pintarConCache(canvas, (
-      tamano.width,
-      tamano.height,
-      radio,
-      margen,
-      color,
-    ), (c) => _pintar(c, tamano));
+    pintarConCache(
+      canvas,
+      (radio, margen, color),
+      tamano,
+      (c) => _pintar(c, tamano),
+      desborde: 12,
+    );
   }
 
   void _pintar(Canvas canvas, Size size) {
@@ -348,6 +350,9 @@ class _SombraLapiz extends CustomPainter {
       return max(0.15, 1 - fuera / 9);
     }
 
+    // Dentro: la tarjeta desplazada y fuera de la tarjeta. Con dos RRect,
+    // sin consultar la zona raya a raya.
+    final rrDesplazada = rr.shift(const Offset(7, 9));
     pintarSombreado(
       canvas,
       sombra,
@@ -358,6 +363,7 @@ class _SombraLapiz extends CustomPainter {
       grosor: 0.9,
       cruzado: true,
       semilla: semillaDe(size),
+      dentro: (p) => rrDesplazada.contains(p) && !rr.contains(p),
     );
   }
 
