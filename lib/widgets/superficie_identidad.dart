@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -308,6 +310,21 @@ class _SombraLapiz extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Con el tamaño redondeado, igual que la clave de la caché.
+    final tamano = Size(
+      size.width.roundToDouble(),
+      size.height.roundToDouble(),
+    );
+    pintarConCache(canvas, (
+      tamano.width,
+      tamano.height,
+      radio,
+      margen,
+      color,
+    ), (c) => _pintar(c, tamano));
+  }
+
+  void _pintar(Canvas canvas, Size size) {
     final caja = Rect.fromLTRB(
       margen.left,
       margen.top,
@@ -315,19 +332,31 @@ class _SombraLapiz extends CustomPainter {
       size.height - margen.bottom,
     );
     final rr = RRect.fromRectAndRadius(caja, Radius.circular(radio));
-    final desplazada = Path()..addRRect(rr.shift(const Offset(5, 6)));
+    final desplazada = Path()..addRRect(rr.shift(const Offset(7, 9)));
     final sombra = Path.combine(
       PathOperation.difference,
       desplazada,
       Path()..addRRect(rr),
     );
-    pintarRayas(
+    // Más oscura pegada a la tarjeta y que se desvanece hacia fuera: cuánto se
+    // sale el punto de la caja por la derecha o por abajo, lo que sea mayor.
+    double tinta(Offset p) {
+      final fuera = max(
+        max(0.0, p.dx - caja.right),
+        max(0.0, p.dy - caja.bottom),
+      );
+      return max(0.15, 1 - fuera / 9);
+    }
+
+    pintarSombreado(
       canvas,
       sombra,
       color: color,
-      separacion: 3.2,
-      alfa: 0.32,
-      grosor: 0.8,
+      intensidad: tinta,
+      separacion: 2.1,
+      alfa: 0.55,
+      grosor: 0.9,
+      cruzado: true,
       semilla: semillaDe(size),
     );
   }
