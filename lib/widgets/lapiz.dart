@@ -133,21 +133,37 @@ int semillaDe(Size size) =>
 /// El borde de Dulce: el mismo rectángulo redondeado de siempre, pero con el
 /// filo dibujado a lápiz. La forma (recortes, `InkWell`, relleno) no tiene
 /// temblor: sólo el trazo.
+///
+/// Si trae [rayas], la figura se rellena antes con rayas de ese color. Las rayas
+/// solo valen donde la figura se pinta DETRÁS del contenido (Container o Ink con
+/// ShapeDecoration, el indicador de NavigationBar). En los botones y diálogos de
+/// Material el borde se pinta delante y las rayas taparían el texto.
 class BordeLapiz extends OutlinedBorder {
   final double radio;
 
-  const BordeLapiz({required this.radio, super.side = BorderSide.none});
+  /// El color de las rayas del relleno, o null para no rellenar. Por defecto,
+  /// ninguno.
+  final Color? rayas;
+
+  const BordeLapiz({
+    required this.radio,
+    super.side = BorderSide.none,
+    this.rayas,
+  });
 
   @override
-  OutlinedBorder copyWith({BorderSide? side}) =>
-      BordeLapiz(radio: radio, side: side ?? this.side);
+  BordeLapiz copyWith({BorderSide? side, Color? rayas}) => BordeLapiz(
+    radio: radio,
+    side: side ?? this.side,
+    rayas: rayas ?? this.rayas,
+  );
 
   @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.all(side.width);
 
   @override
   ShapeBorder scale(double t) =>
-      BordeLapiz(radio: radio * t, side: side.scale(t));
+      BordeLapiz(radio: radio * t, side: side.scale(t), rayas: rayas);
 
   Path _camino(Rect rect) =>
       Path()..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radio)));
@@ -161,6 +177,18 @@ class BordeLapiz extends OutlinedBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final color = rayas;
+    if (color != null) {
+      pintarRayas(
+        canvas,
+        _camino(rect),
+        color: color,
+        separacion: 2.6,
+        alfa: 0.7,
+        grosor: 1.0,
+        semilla: semillaDe(rect.size) + 3,
+      );
+    }
     if (side.style == BorderStyle.none) return;
     pintarTrazoLapiz(
       canvas,
@@ -173,8 +201,11 @@ class BordeLapiz extends OutlinedBorder {
 
   @override
   bool operator ==(Object other) =>
-      other is BordeLapiz && other.radio == radio && other.side == side;
+      other is BordeLapiz &&
+      other.radio == radio &&
+      other.side == side &&
+      other.rayas == rayas;
 
   @override
-  int get hashCode => Object.hash(radio, side);
+  int get hashCode => Object.hash(radio, side, rayas);
 }

@@ -182,6 +182,7 @@ void aplicarIdentidadEquipada(String? codigo) {
     body: resuelta.fontBody,
     escalaLectura: resuelta.escalaLectura,
     nombresEnLectura: resuelta.nombresEnLectura,
+    forma: resuelta.forma,
   );
   // Compatibilidad con los consumidores solo-color existentes: las pantallas
   // aún sin migrar escuchan este y no se tocan.

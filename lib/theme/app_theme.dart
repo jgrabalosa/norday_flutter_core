@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/lapiz.dart';
+import 'identidad_paleta.dart';
+
 /// ── Design Tokens — Identidad oficial Norday ──
 class AppColors {
   // Marca
@@ -285,7 +288,12 @@ class FuentesIdentidad {
   /// [escalaLectura], en vez de en la de titulares.
   final bool nombresEnLectura;
 
+  /// La forma de la identidad. Los temas de Material (botones, diálogos,
+  /// tarjetas, hojas) la leen de aquí: `deTema` sólo recibe colores y fuentes.
+  final FormaIdentidad forma;
+
   const FuentesIdentidad({
+    this.forma = FormaIdentidad.glass,
     required this.display,
     required this.body,
     this.escalaLectura = 1.0,
@@ -369,8 +377,10 @@ class AppTheme {
     // recibe sólo colores y las apps la llaman así desde antes de que una
     // identidad fuera algo más que su paleta. El color de toda la escala es
     // `text`: la base de Material trae el blanco del tema oscuro.
+    final fuentes = fuentesEquipadasNotifier.value;
+    final pill = fuentes.forma == FormaIdentidad.pill;
     final tipografia = _tipografia(
-      fuentesEquipadasNotifier.value,
+      fuentes,
     ).apply(bodyColor: t.text, displayColor: t.text);
 
     return ThemeData(
@@ -399,9 +409,9 @@ class AppTheme {
       // Material y puede cambiar de versión. Apuntándolo aquí, el título de
       // un diálogo es 20 porque lo dice esta escala, no porque coincida.
       //
-      // La FORMA no cabe aquí: `deTema` recibe colores y fuentes, no la
-      // identidad, y este fichero es la capa de abajo — no puede importar el
-      // catálogo sin montar un ciclo. La ponen las cinco llamadas.
+      // La FORMA llega por `fuentes.forma`, no por el catálogo: `deTema` recibe
+      // colores y fuentes, y este fichero es la capa de abajo, que no puede
+      // importar el catálogo sin montar un ciclo.
       dialogTheme: DialogThemeData(
         // La capa elevada: en Profundidad, `surfaceAlta`; en las demás es
         // `surface`. Sin esto Material la sacaba de un esquema oscuro y en
@@ -410,11 +420,23 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         titleTextStyle: tipografia.headlineSmall?.copyWith(color: t.text),
         contentTextStyle: tipografia.bodyMedium?.copyWith(color: t.text),
+        shape: pill
+            ? BordeLapiz(
+                radio: 26,
+                side: BorderSide(color: t.primaryTrazo, width: 1.6),
+              )
+            : null,
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: t.surface,
         modalBackgroundColor: t.surface,
         surfaceTintColor: Colors.transparent,
+        shape: pill
+            ? BordeLapiz(
+                radio: 26,
+                side: BorderSide(color: t.primaryTrazo, width: 1.6),
+              )
+            : null,
       ),
       // El aviso va invertido: el color del texto de fondo y la superficie
       // como letra. Así se separa de la pantalla en las tres identidades.
@@ -426,21 +448,32 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: t.surface,
         // Sin sombra a proposito. La profundidad la decide SuperficieIdentidad
-        // por identidad — glass y chamfer sin sombra, pill con resplandor del
-        // color primario — y esta sombra negra global la contradecia en todo
-        // Card de Material que no pasa por ahi (Logros, Login, SkeletonCard).
+        // por identidad — glass y chamfer sin sombra, pill con su filo a lápiz
+        // y su sombra a rayas— y esta sombra negra global la contradecia en
+        // todo Card de Material que no pasa por ahi (Logros, Login,
+        // SkeletonCard).
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-        ),
+        shape: pill
+            ? BordeLapiz(
+                radio: AppRadius.lg,
+                side: BorderSide(color: t.primaryTrazo, width: 1.6),
+              )
+            : RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: t.primary,
           foregroundColor: t.tinta,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-          ),
+          shape: pill
+              ? BordeLapiz(
+                  radio: 999,
+                  side: BorderSide(color: t.primaryTrazo, width: 1.4),
+                )
+              : RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
@@ -451,7 +484,16 @@ class AppTheme {
         style: TextButton.styleFrom(foregroundColor: t.successText),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(foregroundColor: t.successText),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: t.successText,
+          shape: pill
+              ? BordeLapiz(
+                  radio: 999,
+                  side: BorderSide(color: t.primaryTrazo, width: 1.4),
+                )
+              : null,
+          side: pill ? BorderSide(color: t.primaryTrazo, width: 1.4) : null,
+        ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: t.primaryTrazo),
       inputDecorationTheme: InputDecorationTheme(

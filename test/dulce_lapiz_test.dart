@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
+import 'package:norday_flutter_core/widgets/campo_identidad.dart';
 import 'package:norday_flutter_core/widgets/check_circular.dart';
 import 'package:norday_flutter_core/widgets/lapiz.dart';
 import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
@@ -237,6 +238,156 @@ void main() {
         reason: codigo,
       );
     }
+  });
+
+  group('relleno a rayas', () {
+    testWidgets(
+      'con rayas pinta líneas dentro de la figura; sin rayas, ninguna',
+      (tester) async {
+        Widget pintor(ShapeBorder borde) => Directionality(
+          textDirection: TextDirection.ltr,
+          child: CustomPaint(
+            size: const Size(120, 60),
+            painter: _PintaBorde(borde),
+          ),
+        );
+
+        await tester.pumpWidget(
+          pintor(BordeLapiz(radio: 18, rayas: Colors.pink)),
+        );
+        expect(
+          tester.renderObject(find.byType(CustomPaint)),
+          paints
+            ..clipPath()
+            ..something((nombre, args) => nombre == #drawLine),
+        );
+
+        await tester.pumpWidget(pintor(BordeLapiz(radio: 18)));
+        expect(tester.renderObject(find.byType(CustomPaint)), paintsNothing);
+      },
+    );
+
+    test('copyWith y == tienen en cuenta las rayas', () {
+      final sinRayas = BordeLapiz(radio: 18);
+      final conRayas = sinRayas.copyWith(rayas: Colors.pink);
+
+      expect(conRayas.rayas, Colors.pink);
+      expect(conRayas == sinRayas, isFalse);
+      expect(conRayas == BordeLapiz(radio: 18, rayas: Colors.pink), isTrue);
+    });
+  });
+
+  group('formas de Dulce en el tema', () {
+    ThemeData temaDe(String codigo) {
+      aplicarIdentidadEquipada(codigo);
+      return AppTheme.deTema(temaEquipadoNotifier.value);
+    }
+
+    test('en Dulce, botones, diálogo, tarjeta y hoja van a lápiz', () {
+      final tema = temaDe('TEMA_DULCE');
+      final lapiz = temaEquipadoNotifier.value.primaryTrazo;
+
+      final elevado = tema.elevatedButtonTheme.style!.shape!.resolve(
+        const <WidgetState>{},
+      );
+      expect(elevado, isA<BordeLapiz>());
+      expect((elevado! as BordeLapiz).radio, 999);
+      expect(elevado.side, BorderSide(color: lapiz, width: 1.4));
+
+      final contorno = tema.outlinedButtonTheme.style!;
+      final formaContorno = contorno.shape!.resolve(const <WidgetState>{});
+      expect(formaContorno, isA<BordeLapiz>());
+      expect((formaContorno! as BordeLapiz).radio, 999);
+      expect(formaContorno.side, BorderSide(color: lapiz, width: 1.4));
+      expect(
+        contorno.side!.resolve(const <WidgetState>{}),
+        BorderSide(color: lapiz, width: 1.4),
+      );
+
+      final dialogo = tema.dialogTheme.shape as BordeLapiz;
+      expect(dialogo.radio, 26);
+      expect(dialogo.side, BorderSide(color: lapiz, width: 1.6));
+
+      final tarjeta = tema.cardTheme.shape as BordeLapiz;
+      expect(tarjeta.radio, AppRadius.lg);
+      expect(tarjeta.side, BorderSide(color: lapiz, width: 1.6));
+
+      final hoja = tema.bottomSheetTheme.shape as BordeLapiz;
+      expect(hoja.radio, 26);
+      expect(hoja.side, BorderSide(color: lapiz, width: 1.6));
+    });
+
+    test('Profundidad y Neotokyo+ siguen con las formas de antes', () {
+      for (final codigo in ['TEMA_PROFUNDIDAD', 'TEMA_NEOTOKYO_PLUS']) {
+        final tema = temaDe(codigo);
+        expect(
+          tema.elevatedButtonTheme.style!.shape!.resolve(const <WidgetState>{}),
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          reason: codigo,
+        );
+        expect(
+          tema.cardTheme.shape,
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+          ),
+          reason: codigo,
+        );
+        expect(tema.dialogTheme.shape, isNull, reason: codigo);
+        expect(tema.bottomSheetTheme.shape, isNull, reason: codigo);
+        expect(tema.outlinedButtonTheme.style!.shape, isNull, reason: codigo);
+      }
+    });
+  });
+
+  group('campo de Dulce', () {
+    testWidgets(
+      'sin foco, borde aroVacio; con foco, primaryTrazo; sin sombra',
+      (tester) async {
+        aplicarIdentidadEquipada('TEMA_DULCE');
+        final t = temaEquipadoNotifier.value;
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.deTema(t),
+            home: Scaffold(
+              body: CampoIdentidad(
+                controlador: TextEditingController(),
+                etiqueta: 'Email',
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        ShapeDecoration decoracionDelCampo() {
+          final caja = tester.widget<AnimatedContainer>(
+            find
+                .descendant(
+                  of: find.byType(CampoIdentidad),
+                  matching: find.byType(AnimatedContainer),
+                )
+                .first,
+          );
+          return caja.decoration! as ShapeDecoration;
+        }
+
+        var deco = decoracionDelCampo();
+        var lado = (deco.shape as OutlinedBorder).side;
+        expect(lado.color, t.aroVacio);
+        expect(lado.width, 1.3);
+        expect(deco.shadows, anyOf(isNull, isEmpty));
+
+        await tester.tap(find.byType(TextFormField));
+        await tester.pumpAndSettle();
+
+        deco = decoracionDelCampo();
+        lado = (deco.shape as OutlinedBorder).side;
+        expect(lado.color, t.primaryTrazo);
+        expect(lado.width, 1.8);
+        expect(deco.shadows, anyOf(isNull, isEmpty));
+      },
+    );
   });
 }
 
