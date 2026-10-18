@@ -194,16 +194,23 @@ class _TrazoCheck {
   /// Halo alrededor del relleno. A 0 no lo hay.
   final double glow;
 
-  /// Si esta identidad pinta el control sin tarjeta detrás. Cuando es cierto
-  /// el aro se dibuja sobre el fondo de la pantalla, así que necesita base
-  /// propia, color claro y el check insinuado.
-  final bool sinTarjeta;
+  /// Si pinta una base opaca detrás del aro, en `colorBase`. El aro se dibuja
+  /// sobre el fondo de la pantalla cuando no hay tarjeta opaca debajo; la base
+  /// le da contraste y tapa lo que cruce por detrás (una estrella, una ventana
+  /// encendida).
+  final bool base;
+
+  /// Si pinta el check insinuado: el check al 0.15 de `colorAro`. Dice qué va a
+  /// aparecer al pulsar, y hace que el trazo animado rellene un hueco que ya
+  /// estaba ahí en vez de salir de la nada.
+  final bool insinuado;
 
   const _TrazoCheck({
     required this.aro,
     required this.check,
     this.glow = 0,
-    this.sinTarjeta = false,
+    this.base = false,
+    this.insinuado = false,
   });
 }
 
@@ -211,9 +218,10 @@ const _checkGlass = _TrazoCheck(
   aro: 3.4,
   check: 0.09,
   glow: 5,
-  sinTarjeta: true,
+  base: true,
+  insinuado: true,
 );
-const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10);
+const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10, base: true);
 const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10, glow: 7);
 
 class _CheckPainter extends CustomPainter {
@@ -226,8 +234,8 @@ class _CheckPainter extends CustomPainter {
   /// no se veía. Ver `TokensContextuales.aroVacio`.
   final Color colorAro;
 
-  /// La base opaca, que impide que una estrella cruce el aro y lo parta. Sólo
-  /// la usa la identidad sin tarjeta.
+  /// La base opaca, que impide que una estrella cruce el aro y lo parta. La
+  /// pintan las identidades con `_TrazoCheck.base`.
   final Color colorBase;
   final FormaIdentidad forma;
   final double chaflan;
@@ -300,10 +308,10 @@ class _CheckPainter extends CustomPainter {
     final centro = Offset(size.width / 2, size.height / 2);
     final radio = size.width / 2 - t.aro / 2;
 
-    // Sin tarjeta detrás, el control necesita base propia: le da cuerpo para
-    // que se lea como pulsable, y tapa el campo estelar, que si no cruza el
-    // aro y lo parte.
-    if (t.sinTarjeta) {
+    // Sin tarjeta opaca detrás, el control necesita base propia: le da cuerpo
+    // para que se lea como pulsable, y tapa el campo estelar o la ciudad, que
+    // si no cruzan el aro y lo parten.
+    if (t.base) {
       canvas.drawPath(_figura(centro, radio, 1.0), Paint()..color = colorBase);
     }
 
@@ -316,11 +324,10 @@ class _CheckPainter extends CustomPainter {
         ..color = colorAro,
     );
 
-    // El check insinuado: dice qué va a aparecer al pulsar, y hace que el
-    // trazo animado rellene un hueco que ya estaba ahí en vez de salir de la
-    // nada. Va debajo del relleno a propósito: cuando el círculo se llena, el
-    // verde lo tapa solo, sin necesidad de animar su desaparición.
-    if (t.sinTarjeta) {
+    // El check insinuado (sólo Profundidad). Va debajo del relleno a
+    // propósito: cuando el círculo se llena, el verde lo tapa solo, sin
+    // necesidad de animar su desaparición.
+    if (t.insinuado) {
       canvas.drawPath(
         _caminoCheck(size, 1.0),
         Paint()

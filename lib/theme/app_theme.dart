@@ -259,7 +259,8 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   // `textMuted` al 0.29 sobre `bg`, resuelto a opaco. 2.02 de contraste.
   inactivo: Color(0xFF3F4551),
   // `textMuted` al 0.70 sobre `bg`, resuelto a opaco: el mismo valor que la
-  // rama `sinTarjeta` ya calculaba al vuelo. 6.42 sobre el cielo.
+  // rama de base propia (`_TrazoCheck.base`) ya calculaba al vuelo. 6.42 sobre
+  // el cielo.
   aroVacio: Color(0xFF8D95A0),
   // 6.19 sobre el verde. El mismo valor que la landing.
   tinta: Color(0xFF04342C),
