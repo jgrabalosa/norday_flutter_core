@@ -345,8 +345,18 @@ void main() {
       );
       await tester.pump();
 
-      expect(pintadoDelCheck(tester), paintsExactlyCountTimes(#drawPath, 1));
-      expect(pintadoDelCheck(tester), paints..path(color: t.aroVacio));
+      // El aro a lápiz son dos pasadas (firme y repaso): ningún otro trazo, ni
+      // base ni insinuado.
+      expect(pintadoDelCheck(tester), paintsExactlyCountTimes(#drawPath, 2));
+      expect(
+        pintadoDelCheck(tester),
+        paints..something(
+          (nombre, args) =>
+              nombre == #drawPath &&
+              (args[1] as Paint).color.toARGB32() ==
+                  t.aroVacio.withValues(alpha: 0.95).toARGB32(),
+        ),
+      );
     });
   });
 }

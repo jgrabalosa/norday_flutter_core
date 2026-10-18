@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'lapiz.dart';
 
 /// Cómo se resuelve una superficie en cada identidad, en un solo sitio.
 ///
@@ -79,7 +80,8 @@ ShapeBorder formaIdentidad(
   BorderSide lado = BorderSide.none,
 }) => switch (id.forma) {
   FormaIdentidad.chamfer => BordeChaflan(chaflan: id.chaflan, side: lado),
-  _ => RoundedRectangleBorder(
+  FormaIdentidad.pill => BordeLapiz(radio: radio, side: lado),
+  FormaIdentidad.glass => RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(radio),
     side: lado,
   ),
@@ -143,8 +145,8 @@ class SuperficieIdentidad extends StatelessWidget {
   /// 5,68, porque la tarjeta se oscurece hacia el fondo y el texto es claro.
   ///
   /// Sólo tiene efecto en la protagonista de glass. En Dulce la tarjeta ya
-  /// está a 1,11 de contraste sobre su fondo —lo que la define es el
-  /// resplandor, no el relleno—, así que bajar el alpha allí no aclararía nada
+  /// está a 1,11 de contraste sobre su fondo —lo que la define es el filo a
+  /// lápiz, no el relleno—, así que bajar el alpha allí no aclararía nada
   /// y en cambio dejaría pasar las burbujas a través del formulario. En
   /// Neotokyo+ tampoco aplica: la protagonista va opaca (`surface`) para que
   /// las ventanas de la ciudad no crucen el formulario, y las secundarias no
@@ -203,7 +205,9 @@ class SuperficieIdentidad extends StatelessWidget {
           ),
           width: _filoGrosor,
         ),
-        _ => BorderSide.none,
+        // El filo de Dulce es el trazo a lápiz: el rosa de trazo, no el de
+        // relleno, que no llega a 3.0 sobre el fondo.
+        FormaIdentidad.pill => BorderSide(color: t.primaryTrazo, width: 1.6),
       };
 
   /// La superficie en sí: forma, relleno, sombra y contenido. Es la misma con
@@ -219,7 +223,7 @@ class SuperficieIdentidad extends StatelessWidget {
       lado: lado,
     );
 
-    return Container(
+    final caja = Container(
       margin: margen,
       decoration: ShapeDecoration(
         shape: forma,
@@ -257,17 +261,11 @@ class SuperficieIdentidad extends StatelessWidget {
           // halo alrededor de cada tarjeta, justo lo contrario del efecto
           // buscado. Profundidad se queda sin sombra, como Neotokyo+.
           FormaIdentidad.glass => const [],
-          // Dulce: la sombra es del color de la identidad, no negra. Es lo que
-          // convierte una sombra en un resplandor.
-          FormaIdentidad.pill => [
-            BoxShadow(
-              color: t.primary.withValues(alpha: protagonista ? 0.22 : 0.18),
-              blurRadius: protagonista ? 26 : 16,
-              offset: Offset(0, protagonista ? 12 : 6),
-            ),
-          ],
+          // Dulce no proyecta un resplandor de Material: su sombra es un
+          // trazo a rayas, que pinta `_SombraLapiz` detrás de la caja.
+          FormaIdentidad.pill => const [],
           // Neotokyo+ no proyecta sombra: su relieve es el corte y el borde.
-          _ => const [],
+          FormaIdentidad.chamfer => const [],
         },
       ),
       child: onTap == null
@@ -281,7 +279,62 @@ class SuperficieIdentidad extends StatelessWidget {
               ),
             ),
     );
+
+    if (id.forma != FormaIdentidad.pill) return caja;
+    return CustomPaint(
+      painter: _SombraLapiz(
+        radio: protagonista ? id.radioHero : id.radioSecundario,
+        margen: margen,
+        color: t.text,
+      ),
+      child: caja,
+    );
   }
+}
+
+/// La sombra a rayas de Dulce: la caja desplazada un poco hacia abajo y a la
+/// derecha, menos la caja en sí, rellena de rayas. Se pinta detrás de la
+/// superficie y dentro del tamaño de la caja, no del margen.
+class _SombraLapiz extends CustomPainter {
+  _SombraLapiz({
+    required this.radio,
+    required this.margen,
+    required this.color,
+  });
+
+  final double radio;
+  final EdgeInsets margen;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final caja = Rect.fromLTRB(
+      margen.left,
+      margen.top,
+      size.width - margen.right,
+      size.height - margen.bottom,
+    );
+    final rr = RRect.fromRectAndRadius(caja, Radius.circular(radio));
+    final desplazada = Path()..addRRect(rr.shift(const Offset(5, 6)));
+    final sombra = Path.combine(
+      PathOperation.difference,
+      desplazada,
+      Path()..addRRect(rr),
+    );
+    pintarRayas(
+      canvas,
+      sombra,
+      color: color,
+      separacion: 3.2,
+      alfa: 0.32,
+      grosor: 0.8,
+      semilla: semillaDe(size),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SombraLapiz viejo) =>
+      viejo.radio != radio || viejo.margen != margen || viejo.color != color;
 }
 
 /// La superficie de Neotokyo+ con el filo latiendo. Es el único caso con

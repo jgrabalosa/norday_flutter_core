@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'lapiz.dart';
 
 /// Checkbox animado — EL gesto de la app.
 /// Genérico: recibe el estado [hecho] y un [onTap]; no conoce el dominio.
@@ -169,6 +172,10 @@ class _CheckCircularState extends State<CheckCircular>
                     color: widget.color,
                     colorAro: t.aroVacio,
                     colorBase: t.surface,
+                    // En Dulce el check va en el color del texto, no en blanco.
+                    colorCheck: identidad(context).forma == FormaIdentidad.pill
+                        ? t.text
+                        : Colors.white,
                     forma: identidad(context).forma,
                     chaflan: identidad(context).chaflan,
                   ),
@@ -222,7 +229,7 @@ const _checkGlass = _TrazoCheck(
   insinuado: true,
 );
 const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10, base: true);
-const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10, glow: 7);
+const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10);
 
 class _CheckPainter extends CustomPainter {
   final double relleno;
@@ -237,6 +244,10 @@ class _CheckPainter extends CustomPainter {
   /// La base opaca, que impide que una estrella cruce el aro y lo parta. La
   /// pintan las identidades con `_TrazoCheck.base`.
   final Color colorBase;
+
+  /// El color del check dibujándose. En Dulce es el del texto, para que se lea
+  /// sobre el relleno a rayas; en las demás, blanco.
+  final Color colorCheck;
   final FormaIdentidad forma;
   final double chaflan;
 
@@ -246,6 +257,7 @@ class _CheckPainter extends CustomPainter {
     required this.color,
     required this.colorAro,
     required this.colorBase,
+    required this.colorCheck,
     required this.forma,
     required this.chaflan,
   });
@@ -315,14 +327,26 @@ class _CheckPainter extends CustomPainter {
       canvas.drawPath(_figura(centro, radio, 1.0), Paint()..color = colorBase);
     }
 
-    // Aro exterior (estado vacío)
-    canvas.drawPath(
-      _figura(centro, radio, 1.0),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = t.aro
-        ..color = colorAro,
-    );
+    // Aro exterior (estado vacío). En Dulce, a lápiz y algo más grueso: tiene
+    // que pasar 3:1 sobre la tarjeta, y `aroVacio` da 3.76 con él.
+    final figura = _figura(centro, radio, 1.0);
+    if (forma == FormaIdentidad.pill) {
+      pintarTrazoLapiz(
+        canvas,
+        figura,
+        color: colorAro,
+        grosor: 2.2,
+        semilla: semillaDe(size),
+      );
+    } else {
+      canvas.drawPath(
+        figura,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = t.aro
+          ..color = colorAro,
+      );
+    }
 
     // El check insinuado (sólo Profundidad). Va debajo del relleno a
     // propósito: cuando el círculo se llena, el verde lo tapa solo, sin
@@ -341,17 +365,52 @@ class _CheckPainter extends CustomPainter {
     // Relleno que crece desde el centro
     if (relleno > 0) {
       final dentro = _figura(centro, radio, relleno);
-      // El glow va debajo del relleno y sólo en las identidades que lo piden.
-      // Es estático dentro de cada fotograma del pop, no una sombra animada.
-      if (t.glow > 0) {
-        canvas.drawPath(
+      if (forma == FormaIdentidad.pill) {
+        // Dulce: el relleno son dos pasadas de rayas cruzadas, y encima el
+        // contorno a lápiz. Sin glow: no hay resplandor en Dulce.
+        final semilla = semillaDe(size);
+        pintarRayas(
+          canvas,
           dentro,
-          Paint()
-            ..color = color.withValues(alpha: 0.55)
-            ..maskFilter = MaskFilter.blur(BlurStyle.normal, t.glow * relleno),
+          color: color,
+          separacion: 2.4,
+          alfa: 0.85,
+          grosor: 1.1,
+          semilla: semilla,
         );
+        pintarRayas(
+          canvas,
+          dentro,
+          color: color,
+          separacion: 3.4,
+          angulo: 3 * pi / 4,
+          alfa: 0.5,
+          grosor: 0.9,
+          semilla: semilla + 7,
+        );
+        pintarTrazoLapiz(
+          canvas,
+          dentro,
+          color: color,
+          grosor: 1.8,
+          semilla: semilla + 13,
+        );
+      } else {
+        // El glow va debajo del relleno y sólo en las identidades que lo piden.
+        // Es estático dentro de cada fotograma del pop, no una sombra animada.
+        if (t.glow > 0) {
+          canvas.drawPath(
+            dentro,
+            Paint()
+              ..color = color.withValues(alpha: 0.55)
+              ..maskFilter = MaskFilter.blur(
+                BlurStyle.normal,
+                t.glow * relleno,
+              ),
+          );
+        }
+        canvas.drawPath(dentro, Paint()..color = color);
       }
-      canvas.drawPath(dentro, Paint()..color = color);
     }
 
     // Check dibujándose, ahora con el camino compartido.
@@ -364,7 +423,7 @@ class _CheckPainter extends CustomPainter {
           ..strokeCap = forma == FormaIdentidad.chamfer
               ? StrokeCap.butt
               : StrokeCap.round
-          ..color = Colors.white,
+          ..color = colorCheck,
       );
     }
   }
@@ -376,5 +435,6 @@ class _CheckPainter extends CustomPainter {
       old.color != color ||
       old.colorAro != colorAro ||
       old.colorBase != colorBase ||
+      old.colorCheck != colorCheck ||
       old.forma != forma;
 }
