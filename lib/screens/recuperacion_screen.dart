@@ -3,6 +3,8 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
 import '../services/api_service_core.dart';
 
@@ -197,7 +199,10 @@ class _RecuperacionScreenState extends State<RecuperacionScreen> {
                           _codigoEnviado
                               ? l.recBotonRestablecer
                               : l.recBotonEnviar,
-                          style: TextStyle(color: t.tinta, fontSize: 16),
+                          style: TextStyle(
+                            color: t.tinta,
+                            fontSize: tamanoLectura(identidad(context), 16),
+                          ),
                         ),
                 ),
               ),

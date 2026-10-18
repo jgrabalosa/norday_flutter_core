@@ -710,7 +710,7 @@ class _LoginScreenState extends State<LoginScreen> {
             : Text(
                 esNeotokyo ? etiqueta.toUpperCase() : etiqueta,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontSize: 16,
+                  fontSize: tamanoLectura(identidad(context), 16),
                   color: t.tinta,
                   letterSpacing: esNeotokyo
                       ? id.espaciadoEtiquetaPara(16)

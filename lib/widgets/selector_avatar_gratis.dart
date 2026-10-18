@@ -5,6 +5,8 @@ import '../l10n/mensajes_error.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
 import '../theme/avatares.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import '../theme/equipamiento.dart';
 
 /// Grid para elegir el primer avatar gratis (una sola vez). Motor genérico:
@@ -146,7 +148,10 @@ class _SelectorAvatarGratisState extends State<SelectorAvatarGratis> {
                   else
                     Text(
                       l.selElegirGratis,
-                      style: TextStyle(color: t.successText, fontSize: 12),
+                      style: TextStyle(
+                        color: t.successText,
+                        fontSize: tamanoLectura(identidad(context), 12),
+                      ),
                     ),
                 ],
               ),

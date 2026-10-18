@@ -277,7 +277,20 @@ class FuentesIdentidad {
   /// Texto de lectura.
   final String body;
 
-  const FuentesIdentidad({required this.display, required this.body});
+  /// Cuánto se agranda el texto de lectura (`body*`, `label*`) respecto a la
+  /// escala. Sólo Dulce la usa, por la letra manuscrita de Caveat.
+  final double escalaLectura;
+
+  /// Si `titleMedium` (nombre de ítem) va en la familia de lectura, con
+  /// [escalaLectura], en vez de en la de titulares.
+  final bool nombresEnLectura;
+
+  const FuentesIdentidad({
+    required this.display,
+    required this.body,
+    this.escalaLectura = 1.0,
+    this.nombresEnLectura = false,
+  });
 }
 
 /// La tipografía de "Profundidad", la de serie: Space Grotesk para los
@@ -461,13 +474,15 @@ class AppTheme {
   /// La escala tipográfica de la identidad equipada.
   ///
   /// La escala se declara aquí entera —tamaño y peso— y es la misma para las
-  /// identidades: lo único que cambia con la identidad es la familia.
-  /// Una identidad no puede tocar tamaños ni pesos porque no tiene dónde
-  /// declararlos, y ese es justo el motivo de que no se le añada el campo.
+  /// identidades. Lo que cambia con la identidad es la familia y, sólo en el
+  /// texto de lectura, una escala ([FuentesIdentidad.escalaLectura]): la letra
+  /// manuscrita de Dulce se lee menos a igual tamaño. Ninguna identidad toca
+  /// pesos ni los tamaños de titular.
   /// Los roles de titular, cifra y etiqueta corta (`display*`, `headline*`,
   /// `title*`) van en [FuentesIdentidad.display]; los de texto de lectura
   /// (`body*`, `label*`) en [FuentesIdentidad.body], que es SIEMPRE la más
-  /// legible de la identidad.
+  /// legible de la identidad. `titleMedium` (el nombre de ítem) va también en
+  /// la de lectura si [FuentesIdentidad.nombresEnLectura] lo pide.
   ///
   /// `fontAcento` no entra aquí a propósito: es un detalle puntual que se
   /// invoca a mano donde toca, nunca una familia de uso general.
@@ -483,6 +498,8 @@ class AppTheme {
   /// Neotokyo+ pondría en mayúsculas hasta el cuerpo de un artículo.
   static TextTheme _tipografia(FuentesIdentidad fuentes) {
     final base = ThemeData.dark().textTheme;
+    // El tamaño de un rol de lectura, por la escala de la identidad.
+    double lectura(double tamano) => tamano * fuentes.escalaLectura;
     final escala = base.copyWith(
       // ── Titulares — familia display ──────────────────────────────────────
       // La cifra. Hoy, el saldo de puntos de Tienda y Logros.
@@ -508,9 +525,11 @@ class AppTheme {
         fontWeight: FontWeight.w700,
       ),
       // Nombre de ítem: un hábito, un producto, un logro. Va en la display a
-      // propósito — es lo que se nombra, no lo que se lee.
+      // propósito —es lo que se nombra, no lo que se lee—, salvo que la
+      // identidad lo pida en la de lectura (Dulce), y entonces se agranda con
+      // ella.
       titleMedium: base.titleMedium?.copyWith(
-        fontSize: 16,
+        fontSize: fuentes.nombresEnLectura ? lectura(16) : 16,
         fontWeight: FontWeight.w700,
       ),
       // Antetítulo: la etiqueta que encabeza un grupo. El tracking es suyo,
@@ -536,34 +555,34 @@ class AppTheme {
       // ── Cuerpo — familia body ────────────────────────────────────────────
       // Texto largo, y título de `ListTile`, que hereda de aquí.
       bodyLarge: base.bodyLarge?.copyWith(
-        fontSize: 16,
+        fontSize: lectura(16),
         fontWeight: FontWeight.w400,
       ),
       // Texto corriente.
       bodyMedium: base.bodyMedium?.copyWith(
-        fontSize: 14,
+        fontSize: lectura(14),
         fontWeight: FontWeight.w400,
       ),
       // Metadato y subtítulo.
       bodySmall: base.bodySmall?.copyWith(
-        fontSize: 12,
+        fontSize: lectura(12),
         fontWeight: FontWeight.w400,
       ),
       // Botones.
       labelLarge: base.labelLarge?.copyWith(
-        fontSize: 14,
+        fontSize: lectura(14),
         fontWeight: FontWeight.w600,
       ),
       // Chips y contadores.
       labelMedium: base.labelMedium?.copyWith(
-        fontSize: 12,
+        fontSize: lectura(12),
         fontWeight: FontWeight.w600,
       ),
       // Micro-etiqueta: el pie de una cifra, la leyenda de un heatmap. Es el
       // suelo de la escala y no hay nada por debajo: si algo pide menos de 11,
       // el problema es el sitio, no el tamaño.
       labelSmall: base.labelSmall?.copyWith(
-        fontSize: 11,
+        fontSize: lectura(11),
         fontWeight: FontWeight.w600,
       ),
     );
@@ -581,7 +600,9 @@ class AppTheme {
       headlineMedium: display.headlineMedium,
       headlineSmall: display.headlineSmall,
       titleLarge: display.titleLarge,
-      titleMedium: display.titleMedium,
+      titleMedium: fuentes.nombresEnLectura
+          ? cuerpo.titleMedium
+          : display.titleMedium,
       titleSmall: display.titleSmall,
       bodyLarge: cuerpo.bodyLarge,
       bodyMedium: cuerpo.bodyMedium,

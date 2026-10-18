@@ -188,7 +188,10 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
         labelStyle: TextStyle(color: t.textMuted),
         floatingLabelStyle: TextStyle(color: t.successText),
         helperText: widget.textoAyuda,
-        helperStyle: TextStyle(color: t.textMuted, fontSize: 11),
+        helperStyle: TextStyle(
+          color: t.textMuted,
+          fontSize: tamanoLectura(identidad(context), 11),
+        ),
         errorStyle: TextStyle(color: tono.texto),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,

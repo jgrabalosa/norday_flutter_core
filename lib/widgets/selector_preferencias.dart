@@ -5,6 +5,8 @@ import '../services/idioma_service.dart';
 import '../services/sonido_service.dart';
 import '../services/zona_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import 'superficie_identidad.dart';
 
 /// Dos selectores independientes: idioma y zona horaria.
@@ -102,7 +104,10 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
           ),
           Text(
             l.preferenciasSubtitulo,
-            style: TextStyle(color: t.textMuted, fontSize: 12),
+            style: TextStyle(
+              color: t.textMuted,
+              fontSize: tamanoLectura(identidad(context), 12),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -353,7 +358,10 @@ class _ListaZonasState extends State<_ListaZonas> {
                                   l.zonaDetectada,
                                   style: TextStyle(
                                     color: t.successText,
-                                    fontSize: 11,
+                                    fontSize: tamanoLectura(
+                                      identidad(context),
+                                      11,
+                                    ),
                                   ),
                                 )
                               : null,

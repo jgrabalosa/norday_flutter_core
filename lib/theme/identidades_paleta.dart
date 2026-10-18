@@ -81,11 +81,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // por debajo de los 3.0 de WCAG 1.4.11—, así que éste es el mismo tono
       // asentado: HSL 338, igual que `primary`. Da 3.92 / 3.52 / 3.22.
       success: Color(0xFFE53F80),
-      // El tercer color: lavanda. El coral era casi el mismo color que los
-      // dos rosas (1.22-1.24 de luminosidad, ΔE 38). La lavanda se separa
-      // del rosa también con daltonismo y como relleno da 4.70 / 4.22 / 3.86
-      // sobre surface / bg / surface2. Provisional hasta verla en el móvil.
-      streak: Color(0xFF7C5CE0),
+      // Lavanda retirada (Quim, 18-oct): lo semanal va en rosa, como lo
+      // diario. El rosa de relleno es el de `success`, porque `primary` no
+      // llega a 3.0.
+      streak: Color(0xFFE53F80),
       points: Color(0xFFE86A58),
       bg: Color(0xFFFAF0F4),
       surface: Color(0xFFFFFFFF),
@@ -115,10 +114,10 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       // surface / bg / surface2.
       primaryTrazo: Color(0xFFE53F80),
       // Sobre fondo claro ningún relleno de esta identidad vale como texto:
-      // ni el coral de `streak` ni el rosa de `success` llegan a 4.5, así
-      // que hacen falta las variantes oscurecidas. Verificadas con WebAIM
-      // sobre los tres fondos de la identidad (surface / bg / surface2).
-      streakText: Color(0xFF6145CF), // 6.44 / 5.78 / 5.29
+      // ni el rosa de `streak` ni el de `success` llegan a 4.5, así que hacen
+      // falta las variantes oscurecidas. Verificadas con WebAIM sobre los tres
+      // fondos de la identidad (surface / bg / surface2).
+      streakText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
       pointsText: Color(0xFFBB2E1A), // 5.97 / 5.35 / 4.90
       successText: Color(0xFFB01E5A), // 6.61 / 5.92 / 5.42
       // El neutro cálido de Dulce: el papel del post-it. `surface2` es rosa
@@ -127,8 +126,13 @@ const Map<String, IdentidadPaleta> catalogoIdentidades = {
       fondoNota: Color(0xFFFFF4D6),
     ),
     fontDisplay: 'Quicksand',
-    fontBody: 'Nunito', // cuerpo SIEMPRE aquí
-    // ÚNICO uso: la frase manuscrita del post-it de Hoy (BurbujaContexto).
+    // Caveat escribe todo el texto de lectura, agrandada un 25 %, y también los
+    // nombres de ítem. Los titulares siguen en Quicksand.
+    fontBody: 'Caveat',
+    escalaLectura: 1.25,
+    nombresEnLectura: true,
+    // La misma letra que el cuerpo. Se invoca a mano en la frase del post-it
+    // (BurbujaContexto), que ya va a tamaño fijo.
     fontAcento: 'Caveat',
     radioHero: 26, // casi píldora
     radioSecundario: 20,
@@ -176,6 +180,8 @@ void aplicarIdentidadEquipada(String? codigo) {
   fuentesEquipadasNotifier.value = FuentesIdentidad(
     display: resuelta.fontDisplay,
     body: resuelta.fontBody,
+    escalaLectura: resuelta.escalaLectura,
+    nombresEnLectura: resuelta.nombresEnLectura,
   );
   // Compatibilidad con los consumidores solo-color existentes: las pantallas
   // aún sin migrar escuchan este y no se tocan.
