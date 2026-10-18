@@ -193,9 +193,11 @@ lee `MediaQuery.maybeDisableAnimationsOf`, como ya hacía `MascotaAnimadaViva`.
 **Una tarjeta o un campo nuevos no se escriben a mano**: `SuperficieIdentidad`
 y `CampoIdentidad` (`widgets/`) ya resuelven los cuatro tratamientos, y
 `formaIdentidad`/`BordeChaflan` dan la figura para botones, recortes e
-insignias. Un `Card` de Material en medio de una pantalla achaflanada canta, y
-cuatro copias del mismo `switch` acaban divergiendo. Es el equivalente aquí de
-`identidad_ui.dart` en la app de hábitos.
+insignias. En Neotokyo+ las secundarias son transparentes y el filo puede ir
+`fijo`, `latiendo` o `encendido` (`FiloNeon`). Un `Card` de Material en medio
+de una pantalla achaflanada canta, y cuatro copias del mismo `switch` acaban
+divergiendo. Es el equivalente aquí de `identidad_ui.dart` en la app de
+hábitos.
 
 `Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
 antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el

@@ -85,6 +85,31 @@ ShapeBorder formaIdentidad(
   ),
 };
 
+/// Cómo luce el filo de neón de Neotokyo+. En las demás identidades no
+/// tiene efecto.
+enum FiloNeon {
+  /// El de siempre: 0,70.
+  fijo,
+
+  /// Respira de 0,70 a 1,0 y vuelta, en un ciclo de
+  /// `duracionAnimacionFirma` (2400 ms). Para lo que está pendiente.
+  latiendo,
+
+  /// Fijo a 1,0. Para lo ya hecho.
+  encendido,
+}
+
+/// El reloj del latido. Es el de la pared y no el del montaje: todas las
+/// tarjetas laten en la misma fase, y dos montadas en momentos distintos siguen
+/// latiendo juntas. Los tests lo cambian para fijar la hora.
+@visibleForTesting
+int Function() relojFilo = () => DateTime.now().millisecondsSinceEpoch;
+
+/// Los extremos del filo de Neotokyo+ y su grosor.
+const double _filoFijo = 0.70;
+const double _filoEncendido = 1.0;
+const double _filoGrosor = 1.2;
+
 /// Una superficie —tarjeta, panel, fila de lista— en el lenguaje de la
 /// identidad equipada.
 ///
@@ -102,8 +127,12 @@ class SuperficieIdentidad extends StatelessWidget {
   final bool protagonista;
 
   /// Filo propio, cuando esta superficie tiene que destacar sobre las de su
-  /// alrededor. Sin él manda el de la identidad.
+  /// alrededor. Sin él manda el de la identidad, y [filoNeon] no se mira.
   final BorderSide? filo;
+
+  /// Cómo late el filo de Neotokyo+: fijo, latiendo o encendido. Sólo tiene
+  /// efecto en esa identidad, y no si viene [filo].
+  final FiloNeon filoNeon;
 
   /// Deja ver el fondo de la identidad a través de la superficie.
   ///
@@ -113,11 +142,13 @@ class SuperficieIdentidad extends StatelessWidget {
   /// el del texto encima: `text` pasa de 9,17 a 11,18 y `primary` de 4,66 a
   /// 5,68, porque la tarjeta se oscurece hacia el fondo y el texto es claro.
   ///
-  /// Sólo tiene efecto en la protagonista de glass: en Neotokyo+ y Dulce la
-  /// tarjeta ya está a 1,04 y 1,11 de contraste sobre su fondo —lo que la
-  /// define es el borde rosa y el resplandor, no el relleno—, así que bajar
-  /// el alpha allí no aclararía nada y en cambio dejaría pasar las burbujas
-  /// y los edificios a través del formulario.
+  /// Sólo tiene efecto en la protagonista de glass. En Dulce la tarjeta ya
+  /// está a 1,11 de contraste sobre su fondo —lo que la define es el
+  /// resplandor, no el relleno—, así que bajar el alpha allí no aclararía nada
+  /// y en cambio dejaría pasar las burbujas a través del formulario. En
+  /// Neotokyo+ tampoco aplica: la protagonista va opaca (`surface`) para que
+  /// las ventanas de la ciudad no crucen el formulario, y las secundarias no
+  /// pintan relleno.
   final double opacidadSuperficie;
 
   const SuperficieIdentidad({
@@ -128,6 +159,7 @@ class SuperficieIdentidad extends StatelessWidget {
     this.relleno = const EdgeInsets.all(16),
     this.protagonista = false,
     this.filo,
+    this.filoNeon = FiloNeon.fijo,
     this.opacidadSuperficie = 1.0,
   });
 
@@ -136,28 +168,55 @@ class SuperficieIdentidad extends StatelessWidget {
     final id = identidad(context);
     final t = tokens(context);
 
+    // Sólo el filo que late necesita estado. Un filo explícito manda sobre el
+    // modo, así que en ese caso no entra aquí.
+    if (filo == null &&
+        id.forma == FormaIdentidad.chamfer &&
+        filoNeon == FiloNeon.latiendo) {
+      return _FiloLatiente(
+        duracion: id.duracionAnimacionFirma,
+        color: t.primary,
+        construir: (lado) => _superficie(id, t, lado),
+      );
+    }
+    return _superficie(id, t, _ladoDe(id, t));
+  }
+
+  /// El filo que pide esta superficie cuando nadie lo pone. Un [filo] explícito
+  /// gana siempre; en Neotokyo+ depende de [filoNeon] cuando no late.
+  BorderSide _ladoDe(IdentidadPaleta id, TokensContextuales t) =>
+      filo ??
+      switch (id.forma) {
+        // El filo claro es lo que hace que el cristal tenga canto, y
+        // ahora sólo lo lleva la protagonista: la secundaria de
+        // Profundidad ya no tiene superficie que enmarcar.
+        FormaIdentidad.glass =>
+          protagonista
+              ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
+              : BorderSide.none,
+        FormaIdentidad.chamfer => BorderSide(
+          // 0.70 y no menos: el filo es lo que dibuja la tarjeta. A 0.55
+          // daba 2.37; a 0.70, 3.23 sobre el fondo y 3.18 sobre `surface`
+          // (WCAG 1.4.11).
+          color: t.primary.withValues(
+            alpha: filoNeon == FiloNeon.encendido ? _filoEncendido : _filoFijo,
+          ),
+          width: _filoGrosor,
+        ),
+        _ => BorderSide.none,
+      };
+
+  /// La superficie en sí: forma, relleno, sombra y contenido. Es la misma con
+  /// el filo fijo y con el que late; lo único que cambia es el [lado].
+  Widget _superficie(
+    IdentidadPaleta id,
+    TokensContextuales t,
+    BorderSide lado,
+  ) {
     final forma = formaIdentidad(
       id,
       radio: protagonista ? id.radioHero : id.radioSecundario,
-      lado:
-          filo ??
-          switch (id.forma) {
-            // El filo claro es lo que hace que el cristal tenga canto, y
-            // ahora sólo lo lleva la protagonista: la secundaria de
-            // Profundidad ya no tiene superficie que enmarcar.
-            FormaIdentidad.glass =>
-              protagonista
-                  ? BorderSide(color: Colors.white.withValues(alpha: 0.08))
-                  : BorderSide.none,
-            FormaIdentidad.chamfer => BorderSide(
-              // 0.70 y no menos: la tarjeta y el fondo están a 1.04, así que
-              // el filo es lo único que la dibuja. A 0.55 daba 2.37; a 0.70,
-              // 3.23 sobre el fondo y 3.18 sobre `surface` (WCAG 1.4.11).
-              color: t.primary.withValues(alpha: 0.70),
-              width: 1.2,
-            ),
-            _ => BorderSide.none,
-          },
+      lado: lado,
     );
 
     return Container(
@@ -177,16 +236,20 @@ class SuperficieIdentidad extends StatelessWidget {
         // las cinco protagonistas. Lo que le da canto no es el relleno sino
         // el filo claro de arriba.
         //
-        // Las secundarias de glass no pintan superficie (null): van
-        // directamente sobre el cielo. Lo que separa una fila de la
+        // Las secundarias de glass y de chamfer no pintan superficie (null):
+        // van directamente sobre el fondo. Lo que separa una fila de la
         // siguiente ya no es una caja, y lo que dice «esto se toca» es el
-        // propio CheckCircular, que en glass lleva aro grueso, base propia y
-        // el check insinuado. Las otras tres identidades, `surface` opaco.
-        color: id.forma == FormaIdentidad.glass
-            ? (protagonista
-                  ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
-                  : null)
-            : t.surface,
+        // propio CheckCircular: en glass, aro grueso, base propia y el check
+        // insinuado; en chamfer, base propia y el filo rosa. Pill y las
+        // protagonistas de chamfer, `surface` opaco; la de glass, `surfaceAlta`.
+        color: switch (id.forma) {
+          FormaIdentidad.glass =>
+            protagonista
+                ? t.surfaceAlta.withValues(alpha: opacidadSuperficie)
+                : null,
+          FormaIdentidad.chamfer => protagonista ? t.surface : null,
+          FormaIdentidad.pill => t.surface,
+        },
         shadows: switch (id.forma) {
           // Con el sistema de estratos la elevación la lleva la luminosidad
           // de la capa y, en la protagonista, el filo claro. Una
@@ -219,4 +282,85 @@ class SuperficieIdentidad extends StatelessWidget {
             ),
     );
   }
+}
+
+/// La superficie de Neotokyo+ con el filo latiendo. Es el único caso con
+/// estado: el resto de la superficie se construye igual, y sólo cambia el alfa
+/// del borde en cada fotograma.
+class _FiloLatiente extends StatefulWidget {
+  final Duration duracion;
+  final Color color;
+  final Widget Function(BorderSide lado) construir;
+
+  const _FiloLatiente({
+    required this.duracion,
+    required this.color,
+    required this.construir,
+  });
+
+  @override
+  State<_FiloLatiente> createState() => _FiloLatienteState();
+}
+
+class _FiloLatienteState extends State<_FiloLatiente>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _alfa;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duracion);
+    // Ida y vuelta, cada tramo con la misma curva: 0,70 → 1,0 → 0,70.
+    _alfa = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: _filoFijo,
+          end: _filoEncendido,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: _filoEncendido,
+          end: _filoFijo,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+
+    // La fase sale del reloj, no del montaje: todas las tarjetas laten juntas.
+    final ciclo = widget.duracion.inMilliseconds;
+    _controller.value = (relojFilo() % ciclo) / ciclo;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Con "reducir movimiento" el filo se queda en 0,70 y no corre ningún
+    // ticker.
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _controller.stop();
+      _controller.value = 0;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _alfa,
+    builder: (context, _) => widget.construir(
+      BorderSide(
+        color: widget.color.withValues(alpha: _alfa.value),
+        width: _filoGrosor,
+      ),
+    ),
+  );
 }
