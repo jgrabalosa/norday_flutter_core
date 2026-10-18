@@ -328,10 +328,6 @@ class _FiloLatienteState extends State<_FiloLatiente>
         weight: 50,
       ),
     ]).animate(_controller);
-
-    // La fase sale del reloj, no del montaje: todas las tarjetas laten juntas.
-    final ciclo = widget.duracion.inMilliseconds;
-    _controller.value = (relojFilo() % ciclo) / ciclo;
   }
 
   @override
@@ -343,6 +339,11 @@ class _FiloLatienteState extends State<_FiloLatiente>
       _controller.stop();
       _controller.value = 0;
     } else if (!_controller.isAnimating) {
+      // La fase sale del reloj, no del montaje ni de lo último que se pintó:
+      // todas las tarjetas laten juntas, también al volver de «Quitar
+      // animaciones».
+      final ciclo = widget.duracion.inMilliseconds;
+      _controller.value = (relojFilo() % ciclo) / ciclo;
       _controller.repeat();
     }
   }

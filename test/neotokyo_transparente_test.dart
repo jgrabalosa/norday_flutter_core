@@ -237,6 +237,39 @@ void main() {
     );
   });
 
+  group('fase del latido', () {
+    testWidgets('volver de Quitar animaciones pone la fase del reloj', (
+      tester,
+    ) async {
+      aplicarIdentidadEquipada('TEMA_NEOTOKYO_PLUS');
+      var ahora = 1200;
+      relojFilo = () => ahora;
+      final k = UniqueKey();
+      final kRef = UniqueKey();
+
+      Widget tarjeta(Key key) => SuperficieIdentidad(
+        key: key,
+        filoNeon: FiloNeon.latiendo,
+        child: const Text('x'),
+      );
+
+      // Montada con «Quitar animaciones» y luego reactivada, 300 ms después.
+      await tester.pumpWidget(montar(tarjeta(k), reducirMovimiento: true));
+      await tester.pump();
+      ahora += 300;
+      await tester.pumpWidget(montar(tarjeta(k)));
+      await tester.pump();
+      final tras = alfaDelFilo(tester);
+
+      // Referencia: montada de cero en ese mismo instante del reloj.
+      await tester.pumpWidget(montar(tarjeta(kRef)));
+      await tester.pump();
+      final referencia = alfaDelFilo(tester);
+
+      expect(tras, closeTo(referencia, 1e-9));
+    });
+  });
+
   group('filo fuera de Neotokyo+', () {
     testWidgets('filoNeon no cambia el borde de Dulce ni de Profundidad', (
       tester,
