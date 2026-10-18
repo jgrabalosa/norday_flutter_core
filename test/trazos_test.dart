@@ -41,7 +41,7 @@ void main() {
     final caja = tester.widget<AnimatedContainer>(
       find.byType(AnimatedContainer).first,
     );
-    final borde = (caja.decoration! as BoxDecoration).border! as Border;
-    expect(borde.top.color, t.primaryTrazo);
+    final deco = caja.decoration! as ShapeDecoration;
+    expect((deco.shape as OutlinedBorder).side.color, t.primaryTrazo);
   });
 }

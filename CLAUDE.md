@@ -39,7 +39,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
   - lenguaje a lápiz (1): `lapiz.dart`, con el trazo, las rayas y
-    `BordeLapiz`, que es el lenguaje de Dulce;
+    `BordeLapiz`, que es el lenguaje de Dulce. `BordeLapiz` admite relleno a
+    rayas, solo donde se pinta detrás del contenido. En Dulce, botones,
+    diálogos, tarjetas, hojas y campos van a lápiz (la forma llega a
+    `AppTheme.deTema` por `FuentesIdentidad.forma`);
   - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
     (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
     burbujas—, el catálogo de constelaciones, su capa y el cierre del día;

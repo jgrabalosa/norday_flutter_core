@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
+import 'lapiz.dart';
 
 /// Un campo de texto resuelto en el lenguaje de la identidad equipada.
 ///
@@ -140,26 +141,21 @@ class _CampoIdentidadState extends State<CampoIdentidad> {
         ],
       ),
 
-      // Dulce — campo redondeado, rosa, con su glow al enfocar.
+      // Dulce — campo a lápiz. Sin foco, el filo va en `aroVacio`: un campo sin
+      // borde visible no se reconoce como campo. Al enfocar, el rosa de trazo y
+      // algo más grueso.
       FormaIdentidad.pill => AnimatedContainer(
         duration: _duracionFoco,
         padding: const EdgeInsets.symmetric(horizontal: 18),
-        decoration: BoxDecoration(
+        decoration: ShapeDecoration(
           color: t.surface2,
-          borderRadius: BorderRadius.circular(id.radioHero),
-          border: Border.all(
-            color: enfocado ? t.primaryTrazo : Colors.transparent,
-            width: 1.6,
+          shape: BordeLapiz(
+            radio: id.radioHero,
+            side: BorderSide(
+              color: enfocado ? t.primaryTrazo : t.aroVacio,
+              width: enfocado ? 1.8 : 1.3,
+            ),
           ),
-          boxShadow: enfocado
-              ? [
-                  BoxShadow(
-                    color: t.primary.withValues(alpha: 0.25),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
         ),
         child: _entrada(t, etiquetaDentro: widget.etiqueta),
       ),
