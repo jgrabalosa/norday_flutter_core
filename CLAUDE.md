@@ -42,7 +42,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     `BordeLapiz`, que es el lenguaje de Dulce. `BordeLapiz` admite relleno a
     rayas, solo donde se pinta detrás del contenido. En Dulce, botones,
     diálogos, tarjetas, hojas y campos van a lápiz (la forma llega a
-    `AppTheme.deTema` por `FuentesIdentidad.forma`);
+    `AppTheme.deTema` por `FuentesIdentidad.forma`). El trazo lleva presión y
+    grano, y el sombreado (`pintarSombreado`) una intensidad por punto. Lo que
+    se repite se graba una vez en una caché (`pintarConCache`).
   - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
     (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
     burbujas—, el catálogo de constelaciones, su capa y el cierre del día;

@@ -1,19 +1,198 @@
+import 'dart:collection';
 import 'dart:math';
+import 'dart:ui' show Picture, PathMetric, PictureRecorder;
 
 import 'package:flutter/material.dart';
 
 /// El trazo a lápiz de color: el lenguaje de Dulce, que parece dibujada en un
 /// bloc de papel.
 ///
-/// Un trazo de lápiz no es una línea perfecta: tiembla un poco y se repasa.
-/// Aquí se hace con geometría. El contorno se recorre, cada punto se desplaza en
-/// perpendicular con una onda suave, y encima se pinta un segundo trazo más fino
-/// y más tenue.
+/// Un trazo de lápiz no es una línea perfecta. El contorno se muestrea y cada
+/// punto se desplaza en perpendicular con una onda lenta: tiembla un poco. El
+/// trazo se hace en tres pasadas (firme, repaso y una tercera tenue y parcial),
+/// con presión —más grueso en el centro del recorrido, fino en las puntas— y
+/// grano: de vez en cuando un tramo sale más claro, como el papel que deja
+/// huecos. En un contorno cerrado, las dos primeras pasadas se pasan del inicio.
 ///
-/// El temblor es DETERMINISTA: sale de una semilla y de la distancia recorrida,
-/// nunca de un `Random()` sin semilla ni de la hora. El mismo dibujo sale igual
-/// en cada fotograma y no baila. Cada pieza tiene su temblor propio, que sólo
-/// cambia cuando cambia su tamaño ([semillaDe]).
+/// El sombreado va a rayas desiguales, de bordes deshilachados. Puede tener una
+/// intensidad por punto: se desvanece donde la intensidad baja y se cruza solo
+/// donde es más oscuro.
+///
+/// Todo es DETERMINISTA: sale de una semilla, nunca de un `Random()` sin semilla
+/// ni de la hora. El mismo dibujo sale igual en cada fotograma y no baila. Cada
+/// pieza tiene su propia semilla, que sólo cambia cuando cambia su tamaño
+/// ([semillaDe]).
+///
+/// Lo que es mucho dibujo —el borde, la sombra, el check— se graba una vez en
+/// una caché ([pintarConCache]) y después sólo se reproduce.
+
+/// Interruptor de la caché de dibujos. Solo para los tests que miran las
+/// llamadas de dibujo: dentro de un `Picture` no se ven.
+@visibleForTesting
+bool usarCacheLapiz = true;
+
+/// Cuántas grabaciones guarda la caché antes de soltar la más antigua.
+const int _maxCache = 256;
+
+final LinkedHashMap<Object, Picture> _cache = LinkedHashMap();
+int _grabaciones = 0;
+
+/// Cuántas veces se ha grabado un dibujo desde la última [vaciarCacheLapiz].
+@visibleForTesting
+int get grabacionesLapiz => _grabaciones;
+
+/// Vacía la caché y pone a cero el contador de grabaciones.
+@visibleForTesting
+void vaciarCacheLapiz() {
+  for (final dibujo in _cache.values) {
+    dibujo.dispose();
+  }
+  _cache.clear();
+  _grabaciones = 0;
+}
+
+/// Graba una vez lo que dibuja [dibujo] para esa [clave] y después solo lo
+/// reproduce. LRU de [_maxCache] entradas: al salir una, se libera su `Picture`.
+void pintarConCache(
+  Canvas canvas,
+  Object clave,
+  void Function(Canvas c) dibujo,
+) {
+  if (!usarCacheLapiz) {
+    dibujo(canvas);
+    return;
+  }
+  var grabado = _cache.remove(clave);
+  if (grabado == null) {
+    final grabadora = PictureRecorder();
+    dibujo(Canvas(grabadora));
+    grabado = grabadora.endRecording();
+    _grabaciones++;
+    if (_cache.length >= _maxCache) {
+      _cache.remove(_cache.keys.first)?.dispose();
+    }
+  }
+  _cache[clave] = grabado;
+  canvas.drawPicture(grabado);
+}
+
+/// Un punto del contorno: dónde está, hacia dónde se desplaza el temblor (la
+/// normal) y cuánto camino lleva recorrido desde el inicio.
+class _Muestra {
+  const _Muestra(this.p, this.n, this.s);
+
+  final Offset p;
+  final Offset n;
+  final double s;
+}
+
+/// Muestrea el contorno de [m] cada [paso] px. Un contorno cerrado no repite
+/// el punto final; uno abierto sí lo incluye.
+List<_Muestra> _muestrear(PathMetric m, double paso) {
+  final cuenta = max(2, (m.length / paso).round());
+  final total = m.isClosed ? cuenta : cuenta + 1;
+  final salto = m.length / cuenta;
+  final muestras = <_Muestra>[];
+  for (var i = 0; i < total; i++) {
+    final d = i * salto;
+    final tangente = m.getTangentForOffset(d)!;
+    muestras.add(
+      _Muestra(
+        tangente.position,
+        Offset(-tangente.vector.dy, tangente.vector.dx),
+        d,
+      ),
+    );
+  }
+  return muestras;
+}
+
+/// Una pasada del trazo: cuánto tiembla, cuánto pesa, de dónde sale y cuántos
+/// tramos recorre.
+class _Pasada {
+  const _Pasada({
+    required this.semilla,
+    required this.amplitud,
+    required this.grosor,
+    required this.alfa,
+    required this.desplazo,
+    required this.k0,
+    required this.cuenta,
+    required this.puntas,
+  });
+
+  final int semilla;
+  final double amplitud;
+  final double grosor;
+  final double alfa;
+  final Offset desplazo;
+
+  /// Índice de la muestra donde empieza la pasada.
+  final int k0;
+
+  /// Cuántos tramos recorre.
+  final int cuenta;
+
+  /// Si las puntas se afinan (contorno abierto).
+  final bool puntas;
+}
+
+/// Dibuja una pasada de trazo sobre las muestras [ms] de un contorno de
+/// longitud [longitud], como una sucesión de tramos cortos con presión.
+void _pasada(
+  Canvas canvas,
+  List<_Muestra> ms,
+  double longitud,
+  _Pasada p,
+  Color color,
+) {
+  final n = ms.length;
+  final azar = Random(p.semilla);
+  final f1 = 0.05 + azar.nextDouble() * 0.05;
+  final f2 = 0.11 + azar.nextDouble() * 0.08;
+  final fase1 = azar.nextDouble() * 2 * pi;
+  final fase2 = azar.nextDouble() * 2 * pi;
+  final fasePresion = azar.nextDouble() * 2 * pi;
+
+  // Un contorno cerrado da la vuelta: el índice sigue contando y la distancia
+  // recorrida se suma una longitud por vuelta, para que la onda no salte.
+  Offset punto(int i) {
+    final m = ms[i % n];
+    final s = m.s + (i ~/ n) * longitud;
+    final onda =
+        p.amplitud * (0.6 * sin(s * f1 + fase1) + 0.4 * sin(s * f2 + fase2));
+    return m.p + m.n * onda + p.desplazo;
+  }
+
+  final cuenta = p.cuenta;
+  for (var j = 0; j < cuenta; j++) {
+    final t = j / cuenta;
+    var presion =
+        (0.55 + 0.45 * sin(pi * t)) *
+        (0.82 + 0.18 * (0.5 + 0.5 * sin(2 * pi * 1.3 * t + fasePresion)));
+    presion = presion.clamp(0.2, 1.0);
+    var ancho = p.grosor * presion;
+    var alfaTramo = p.alfa * (0.75 + 0.25 * presion);
+    if (p.puntas) {
+      final f = min(1.0, min(t / 0.08, (1 - t) / 0.08));
+      ancho *= 0.3 + 0.7 * f;
+    }
+    // Grano: de vez en cuando el tramo sale más claro, como un hueco del papel.
+    if (azar.nextDouble() < 0.18) {
+      alfaTramo *= 0.25 + 0.35 * azar.nextDouble();
+    }
+    final a = p.k0 + j;
+    canvas.drawLine(
+      punto(a),
+      punto(a + 1),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = ancho
+        ..color = color.withValues(alpha: alfaTramo.clamp(0.0, 1.0)),
+    );
+  }
+}
 
 /// El contorno [original] con el temblor de un lápiz. Cada [paso] píxeles se
 /// toma un punto y se desplaza en perpendicular a la tangente, con una onda de
@@ -56,9 +235,11 @@ Path caminoTembloroso(
   return camino;
 }
 
-/// Un trazo a lápiz de [grosor] y [color] sobre [camino]. Dos pasadas: la
-/// firme, casi opaca, y encima el repaso, más fino, más tenue y con otro
-/// temblor.
+/// Un trazo a lápiz de [grosor] y [color] sobre [camino], un solo contorno.
+///
+/// Tres pasadas: la firme (casi opaca), el repaso (más fino, desplazado) y una
+/// tercera tenue que cubre solo un tramo. Un contorno cerrado se pasa del inicio
+/// la firme y el repaso; uno abierto afina las puntas.
 void pintarTrazoLapiz(
   Canvas canvas,
   Path camino, {
@@ -66,31 +247,206 @@ void pintarTrazoLapiz(
   required double grosor,
   required int semilla,
 }) {
-  final firme = Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = grosor
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round
-    ..color = color.withValues(alpha: 0.95);
-  canvas.drawPath(
-    caminoTembloroso(camino, semilla: semilla, amplitud: 0.6),
-    firme,
-  );
+  final metricas = camino.computeMetrics().toList();
+  if (metricas.isEmpty || metricas.first.length == 0) return;
+  final metrica = metricas.first;
+  final cerrado = metrica.isClosed;
+  final longitud = metrica.length;
+  final ms = _muestrear(metrica, 1.5);
+  final n = ms.length;
 
-  final repaso = Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = grosor * 0.55
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round
-    ..color = color.withValues(alpha: 0.45);
-  canvas.drawPath(
-    caminoTembloroso(camino, semilla: semilla + 1, amplitud: 1.2),
-    repaso,
+  final azar = Random(semilla);
+  final inicio = cerrado ? azar.nextInt(n) : 0;
+  final cuentaFirme = cerrado ? (n * 1.06).round() : n - 1;
+  final cuentaTercera = (n * 0.35).round();
+  final inicioTercera = cerrado
+      ? (inicio + n ~/ 3) % n
+      : azar.nextInt(max(1, n - 1 - cuentaTercera));
+
+  _pasada(
+    canvas,
+    ms,
+    longitud,
+    _Pasada(
+      semilla: semilla,
+      amplitud: 0.6,
+      grosor: grosor,
+      alfa: 0.92,
+      desplazo: Offset.zero,
+      k0: inicio,
+      cuenta: cuentaFirme,
+      puntas: !cerrado,
+    ),
+    color,
+  );
+  _pasada(
+    canvas,
+    ms,
+    longitud,
+    _Pasada(
+      semilla: semilla + 1,
+      amplitud: 1.3,
+      grosor: grosor * 0.55,
+      alfa: 0.5,
+      desplazo: const Offset(0.6, 0.5),
+      k0: inicio,
+      cuenta: cuentaFirme,
+      puntas: !cerrado,
+    ),
+    color,
+  );
+  _pasada(
+    canvas,
+    ms,
+    longitud,
+    _Pasada(
+      semilla: semilla + 2,
+      amplitud: 1.6,
+      grosor: grosor * 0.4,
+      alfa: 0.35,
+      desplazo: const Offset(-0.4, 0.3),
+      k0: inicioTercera,
+      cuenta: cuentaTercera,
+      puntas: !cerrado,
+    ),
+    color,
   );
 }
 
+/// Una capa de rayas paralelas dentro de [zona]. Cada raya tiene su separación,
+/// su ángulo y sus extremos al azar; se pinta solo donde [intensidad] pasa de
+/// [minimo].
+void _capaRayas(
+  Canvas canvas,
+  Path zona,
+  Color color,
+  double Function(Offset punto) intensidad, {
+  required double angulo,
+  required double separacion,
+  required double grosor,
+  required double alfa,
+  required double minimo,
+  required int semilla,
+}) {
+  final azar = Random(semilla);
+  final caja = zona.getBounds();
+  final centro = caja.center;
+  // Media diagonal: así las rayas cubren la caja a cualquier ángulo.
+  final radio = sqrt(caja.width * caja.width + caja.height * caja.height) / 2;
+  final normalBase = Offset(-sin(angulo), cos(angulo));
+
+  for (
+    var s = -radio;
+    s <= radio;
+    s += separacion * (0.8 + 0.4 * azar.nextDouble())
+  ) {
+    final desvio = (azar.nextDouble() * 2 - 1) * 3 * pi / 180;
+    final a = angulo + desvio;
+    final dir = Offset(cos(a), sin(a));
+    final normal = Offset(-dir.dy, dir.dx);
+    final base = centro + normalBase * s;
+    Offset enT(double t) => base + dir * t;
+
+    // Tramos contiguos de la raya que caen dentro de la zona y donde hay tinta.
+    final tramos = <(double, double)>[];
+    double? inicioTramo;
+    for (var t = -radio; t <= radio; t += 1) {
+      final dentro = zona.contains(enT(t)) && intensidad(enT(t)) > minimo;
+      if (dentro && inicioTramo == null) inicioTramo = t;
+      if (!dentro && inicioTramo != null) {
+        tramos.add((inicioTramo, t));
+        inicioTramo = null;
+      }
+    }
+    if (inicioTramo != null) tramos.add((inicioTramo, radio));
+
+    for (final (t0Bruto, t1Bruto) in tramos) {
+      // Los extremos se acortan al azar: bordes deshilachados, no cortados.
+      final t0 = t0Bruto + azar.nextDouble() * 2.5;
+      final t1 = t1Bruto - azar.nextDouble() * 2.5;
+      final curva = (azar.nextDouble() * 2 - 1) * 0.7;
+      if (t1 - t0 < 2) continue;
+
+      // La raya se curva ±0,7 px en su centro.
+      Offset q(double t) {
+        final u = ((t - t0) / (t1 - t0)).clamp(0.0, 1.0);
+        return enT(t) + normal * (curva * sin(pi * u));
+      }
+
+      for (var tt = t0; tt < t1; tt += 2) {
+        final fin = min(tt + 2, t1);
+        final mitad = (tt + fin) / 2;
+        final u = ((mitad - t0) / (t1 - t0)).clamp(0.0, 1.0);
+        final presion = 0.35 + 0.65 * sin(pi * u);
+        final tinta = intensidad(q(mitad));
+        if (tinta <= minimo) continue;
+        canvas.drawLine(
+          q(tt),
+          q(fin),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeWidth = grosor * (0.6 + 0.5 * presion)
+            ..color = color.withValues(
+              alpha: (alfa * presion * tinta * (0.7 + 0.3 * azar.nextDouble()))
+                  .clamp(0.0, 1.0),
+            ),
+        );
+      }
+    }
+  }
+}
+
+/// Sombrea [zona] con rayas desiguales a lápiz. [intensidad] (0 a 1, por
+/// defecto 1) dice cuánta tinta lleva cada punto: donde vale 0, no se pinta.
+/// Con [cruzado], una segunda capa a 70° se pone solo donde la intensidad pasa
+/// de 0,6: lo más oscuro se cruza, el resto no.
+void pintarSombreado(
+  Canvas canvas,
+  Path zona, {
+  required Color color,
+  double Function(Offset punto)? intensidad,
+  double angulo = pi / 4,
+  double separacion = 2.4,
+  double grosor = 0.9,
+  double alfa = 0.6,
+  bool cruzado = false,
+  required int semilla,
+}) {
+  final tinta = intensidad ?? (_) => 1.0;
+  canvas.save();
+  canvas.clipPath(zona);
+  _capaRayas(
+    canvas,
+    zona,
+    color,
+    tinta,
+    angulo: angulo,
+    separacion: separacion,
+    grosor: grosor,
+    alfa: alfa,
+    minimo: 0,
+    semilla: semilla,
+  );
+  if (cruzado) {
+    _capaRayas(
+      canvas,
+      zona,
+      color,
+      tinta,
+      angulo: angulo + 70 * pi / 180,
+      separacion: separacion * 1.4,
+      grosor: grosor,
+      alfa: alfa * 0.55,
+      minimo: 0.6,
+      semilla: semilla + 11,
+    );
+  }
+  canvas.restore();
+}
+
 /// Rellena [zona] con rayas paralelas en [angulo], cada [separacion] píxeles.
-/// Cada raya varía su grosor y su alfa un 25 % arriba o abajo, según [semilla].
+/// Es [pintarSombreado] sin intensidad y sin cruzar.
 void pintarRayas(
   Canvas canvas,
   Path zona, {
@@ -101,28 +457,16 @@ void pintarRayas(
   double alfa = 0.6,
   required int semilla,
 }) {
-  final azar = Random(semilla);
-  final caja = zona.getBounds();
-  final centro = caja.center;
-  // Media diagonal: con esto las rayas cubren la caja a cualquier ángulo.
-  final radio = sqrt(caja.width * caja.width + caja.height * caja.height) / 2;
-  final dir = Offset(cos(angulo), sin(angulo));
-  final normal = Offset(-dir.dy, dir.dx);
-
-  canvas.save();
-  canvas.clipPath(zona);
-  for (var s = -radio; s <= radio; s += separacion) {
-    final base = centro + normal * s;
-    final variaG = 1 + (azar.nextDouble() * 0.5 - 0.25);
-    final variaA = 1 + (azar.nextDouble() * 0.5 - 0.25);
-    final pincel = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = grosor * variaG
-      ..strokeCap = StrokeCap.round
-      ..color = color.withValues(alpha: (alfa * variaA).clamp(0.0, 1.0));
-    canvas.drawLine(base - dir * radio, base + dir * radio, pincel);
-  }
-  canvas.restore();
+  pintarSombreado(
+    canvas,
+    zona,
+    color: color,
+    angulo: angulo,
+    separacion: separacion,
+    grosor: grosor,
+    alfa: alfa,
+    semilla: semilla,
+  );
 }
 
 /// La semilla de una pieza, a partir de su tamaño. Estable mientras la pieza no
@@ -177,25 +521,44 @@ class BordeLapiz extends OutlinedBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    // Sin relleno ni filo no hay nada que pintar: ni siquiera se mueve el canvas.
+    if (rayas == null && side.style == BorderStyle.none) return;
+    // Se graba en el origen, con el tamaño redondeado (la clave), y se mueve.
+    final ancho = rect.width.round().toDouble();
+    final alto = rect.height.round().toDouble();
+    canvas.save();
+    canvas.translate(rect.left, rect.top);
+    pintarConCache(canvas, (
+      ancho,
+      alto,
+      radio,
+      side,
+      rayas,
+    ), (c) => _pintarEnOrigen(c, Size(ancho, alto)));
+    canvas.restore();
+  }
+
+  void _pintarEnOrigen(Canvas canvas, Size size) {
+    final origen = Offset.zero & size;
     final color = rayas;
     if (color != null) {
       pintarRayas(
         canvas,
-        _camino(rect),
+        _camino(origen),
         color: color,
         separacion: 2.6,
         alfa: 0.7,
         grosor: 1.0,
-        semilla: semillaDe(rect.size) + 3,
+        semilla: semillaDe(size) + 3,
       );
     }
     if (side.style == BorderStyle.none) return;
     pintarTrazoLapiz(
       canvas,
-      _camino(rect.deflate(side.width / 2)),
+      _camino(origen.deflate(side.width / 2)),
       color: side.color,
       grosor: side.width,
-      semilla: semillaDe(rect.size),
+      semilla: semillaDe(size),
     );
   }
 

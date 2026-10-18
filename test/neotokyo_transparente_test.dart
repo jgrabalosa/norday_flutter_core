@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
+import 'package:norday_flutter_core/widgets/lapiz.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/widgets/check_circular.dart';
 import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
@@ -14,6 +15,8 @@ import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
 /// cómo queda en pantalla.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Las llamadas de dibujo no se ven dentro de la caché: aquí se miran.
+  usarCacheLapiz = false;
   GoogleFonts.config.allowRuntimeFetching = false;
 
   final identidadInicial = identidadEquipadaNotifier.value;
@@ -345,16 +348,16 @@ void main() {
       );
       await tester.pump();
 
-      // El aro a lápiz son dos pasadas (firme y repaso): ningún otro trazo, ni
-      // base ni insinuado.
-      expect(pintadoDelCheck(tester), paintsExactlyCountTimes(#drawPath, 2));
+      // El aro a lápiz son tramos de línea (drawLine), no un path: ningún
+      // drawPath, ni base ni insinuado. Y el aro va en el color de `aroVacio`.
+      expect(pintadoDelCheck(tester), paintsExactlyCountTimes(#drawPath, 0));
       expect(
         pintadoDelCheck(tester),
         paints..something(
           (nombre, args) =>
-              nombre == #drawPath &&
-              (args[1] as Paint).color.toARGB32() ==
-                  t.aroVacio.withValues(alpha: 0.95).toARGB32(),
+              nombre == #drawLine &&
+              ((args[2] as Paint).color.toARGB32() & 0xFFFFFF) ==
+                  (t.aroVacio.toARGB32() & 0xFFFFFF),
         ),
       );
     });

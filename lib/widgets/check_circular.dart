@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -316,6 +314,31 @@ class _CheckPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Dulce, en reposo (sin animar el relleno ni el trazo), se graba una vez.
+    // Durante la animación no: cada fotograma sería una grabación nueva.
+    final enReposo =
+        (relleno == 0 || relleno == 1) && (trazo == 0 || trazo == 1);
+    if (forma == FormaIdentidad.pill && enReposo) {
+      final tamano = Size(
+        size.width.roundToDouble(),
+        size.height.roundToDouble(),
+      );
+      pintarConCache(canvas, (
+        tamano.width,
+        tamano.height,
+        relleno,
+        trazo,
+        color,
+        colorAro,
+        colorBase,
+        colorCheck,
+      ), (c) => _pintar(c, tamano));
+      return;
+    }
+    _pintar(canvas, size);
+  }
+
+  void _pintar(Canvas canvas, Size size) {
     final t = _trazoDe;
     final centro = Offset(size.width / 2, size.height / 2);
     final radio = size.width / 2 - t.aro / 2;
@@ -366,27 +389,17 @@ class _CheckPainter extends CustomPainter {
     if (relleno > 0) {
       final dentro = _figura(centro, radio, relleno);
       if (forma == FormaIdentidad.pill) {
-        // Dulce: el relleno son dos pasadas de rayas cruzadas, y encima el
-        // contorno a lápiz. Sin glow: no hay resplandor en Dulce.
+        // Dulce: el relleno es sombreado a rayas cruzadas, y encima el contorno
+        // a lápiz. Sin glow: no hay resplandor en Dulce.
         final semilla = semillaDe(size);
-        pintarRayas(
+        pintarSombreado(
           canvas,
           dentro,
           color: color,
-          separacion: 2.4,
-          alfa: 0.85,
-          grosor: 1.1,
+          separacion: 1.6,
+          alfa: 0.95,
+          cruzado: true,
           semilla: semilla,
-        );
-        pintarRayas(
-          canvas,
-          dentro,
-          color: color,
-          separacion: 3.4,
-          angulo: 3 * pi / 4,
-          alfa: 0.5,
-          grosor: 0.9,
-          semilla: semilla + 7,
         );
         pintarTrazoLapiz(
           canvas,

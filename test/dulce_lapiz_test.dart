@@ -12,6 +12,8 @@ import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
 /// check. Profundidad y Neotokyo+ no cambian en nada.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Las llamadas de dibujo no se ven dentro de la caché: aquí se miran.
+  usarCacheLapiz = false;
   GoogleFonts.config.allowRuntimeFetching = false;
 
   final identidadInicial = identidadEquipadaNotifier.value;
