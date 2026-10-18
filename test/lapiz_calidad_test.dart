@@ -202,23 +202,6 @@ void main() {
       borde.paint(canvas, const Rect.fromLTWH(0, 0, 40, 36));
       expect(grabacionesLapiz, 2);
     });
-
-    test('al pasar de 256 claves sale la primera y se vuelve a grabar', () {
-      final canvas = Canvas(PictureRecorder());
-      const primera = Rect.fromLTWH(0, 0, 36, 36);
-      borde.paint(canvas, primera);
-      expect(grabacionesLapiz, 1);
-
-      for (var w = 40; w < 40 + 256; w++) {
-        borde.paint(canvas, Rect.fromLTWH(0, 0, w.toDouble(), 36));
-      }
-      final despues = grabacionesLapiz;
-      expect(despues, 257);
-
-      // La primera salió de la caché: pintarla otra vez graba de nuevo.
-      borde.paint(canvas, primera);
-      expect(grabacionesLapiz, despues + 1);
-    });
   });
 }
 

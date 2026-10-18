@@ -34,11 +34,12 @@ class _GranoPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ancho = size.width.roundToDouble();
     final alto = size.height.roundToDouble();
-    pintarConCache(canvas, (
+    pintarConCache(
+      canvas,
       'grano',
-      ancho,
-      alto,
-    ), (c) => _grabar(c, Size(ancho, alto)));
+      Size(ancho, alto),
+      (c) => _grabar(c, Size(ancho, alto)),
+    );
   }
 
   /// Tres motas por celda de 10 × 10 px, y de vez en cuando una fibra corta.
