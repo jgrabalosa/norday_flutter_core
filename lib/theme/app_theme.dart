@@ -198,8 +198,9 @@ class TokensContextuales {
   ///
   /// No es una capa del sistema de estratos —eso es `surface2`— sino el papel
   /// de algo que se pega encima y se lee como ajeno a la pantalla. Se separa
-  /// porque en Dulce `surface2` es el rosa `#FFE1EC` y una nota rosa sobre
-  /// fondo rosa no es una nota: es la misma pantalla un tono más.
+  /// porque en Dulce `surface2` es el papel algo más oscuro (`#F6EFE3`) y una
+  /// nota de papel sobre papel no se separa de la pantalla: es la misma
+  /// pantalla un tono más.
   ///
   /// Quien no lo declare se queda en `surface2`, que es como estaba.
   final Color fondoNota;

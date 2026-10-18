@@ -32,7 +32,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 34 ficheros:
+- `widgets/` — 35 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -45,6 +45,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     `AppTheme.deTema` por `FuentesIdentidad.forma`). El trazo lleva presión y
     grano, y el sombreado (`pintarSombreado`) una intensidad por punto. Lo que
     se repite se graba una vez en una caché (`pintarConCache`).
+  - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
+    pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
   - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
     (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
     burbujas—, el catálogo de constelaciones, su capa y el cierre del día;
@@ -163,7 +165,7 @@ superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
 |---|---|---|---|---|---|
 | Profundidad | `TEMA_PROFUNDIDAD` | Space Grotesk | Manrope | `glass` | cielo estelar, con constelación |
 | Neotokyo+ | `TEMA_NEOTOKYO_PLUS` | Chakra Petch | IBM Plex Sans | `chamfer` | ciudad |
-| Dulce | `TEMA_DULCE` | Quicksand | Caveat | `pill` a lápiz | burbujas |
+| Dulce | `TEMA_DULCE` | Quicksand | Caveat | `pill` a lápiz | papel claro (y burbujas) |
 
 Dulce escribe en Caveat, agrandada un 25 % (`escalaLectura`), y sus nombres de
 ítem van también en Caveat (`nombresEnLectura`). Los titulares, en Quicksand.
