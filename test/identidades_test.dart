@@ -113,6 +113,14 @@ void main() {
       'labelSmall': tt.labelSmall,
     };
 
+    const rolesDeLectura = {
+      'bodyLarge',
+      'bodyMedium',
+      'bodySmall',
+      'labelLarge',
+      'labelMedium',
+      'labelSmall',
+    };
     Map<String, TextStyle?>? referencia;
     String? codigoReferencia;
 
@@ -128,7 +136,20 @@ void main() {
 
       for (final rol in referencia.keys) {
         final motivo = '$rol — ${entrada.key} frente a $codigoReferencia';
-        expect(roles[rol]?.fontSize, referencia[rol]?.fontSize, reason: motivo);
+        // La escala de lectura agranda los roles de lectura, y el nombre de
+        // ítem si la identidad lo pide en esa letra (Dulce). El resto, igual.
+        final enLectura =
+            rolesDeLectura.contains(rol) ||
+            (rol == 'titleMedium' && entrada.value.nombresEnLectura);
+        final factor = enLectura ? entrada.value.escalaLectura : 1.0;
+        // displayLarge y displayMedium no declaran tamaño: ahí siguen siendo
+        // null en todas.
+        final tamanoRef = referencia[rol]?.fontSize;
+        expect(
+          roles[rol]?.fontSize,
+          tamanoRef == null ? null : closeTo(tamanoRef * factor, 1e-9),
+          reason: motivo,
+        );
         expect(
           roles[rol]?.fontWeight,
           referencia[rol]?.fontWeight,

@@ -86,6 +86,15 @@ class IdentidadPaleta {
   /// está usando mal.
   final String? fontAcento;
 
+  /// Multiplica el tamaño de los roles que van en la letra de lectura (`body*`
+  /// y `label*`). Existe porque las letras manuscritas son más pequeñas a igual
+  /// tamaño: a 16, Caveat se lee menos que Nunito.
+  final double escalaLectura;
+
+  /// Si es cierto, `titleMedium` (nombre de ítem: hábito, producto, logro) va en
+  /// la letra de lectura y con [escalaLectura], no en la de titulares.
+  final bool nombresEnLectura;
+
   /// Radio del elemento protagonista de la pantalla: tarjeta de identidad,
   /// burbuja de mascota, tarjeta de swipe.
   final double radioHero;
@@ -157,6 +166,8 @@ class IdentidadPaleta {
     required this.fontDisplay,
     required this.fontBody,
     this.fontAcento,
+    this.escalaLectura = 1.0,
+    this.nombresEnLectura = false,
     required this.radioHero,
     required this.radioSecundario,
     this.chaflan = 10.0,
@@ -169,3 +180,8 @@ class IdentidadPaleta {
     this.curvaTransicion = Curves.easeOutCubic,
   });
 }
+
+/// El tamaño [base] en la letra de lectura de esta identidad. Para los pocos
+/// textos que no salen de la escala del tema.
+double tamanoLectura(IdentidadPaleta id, double base) =>
+    base * id.escalaLectura;

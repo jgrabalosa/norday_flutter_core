@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../theme/identidad_paleta.dart';
+import '../theme/identidades_paleta.dart';
 import 'anillo_identidad.dart';
 
 /// Anillo de progreso con la cuenta dentro — genérico y exportable.
@@ -55,7 +57,7 @@ class AnilloProgreso extends StatelessWidget {
         Text(
           '$actual/$total',
           style: TextStyle(
-            fontSize: tamano * 0.24,
+            fontSize: tamanoLectura(identidad(context), tamano * 0.24),
             fontWeight: FontWeight.w600, // Números = SemiBold (identidad)
             color: colorTexto ?? t.text,
           ),

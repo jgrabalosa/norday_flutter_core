@@ -156,7 +156,10 @@ superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
 |---|---|---|---|---|---|
 | Profundidad | `TEMA_PROFUNDIDAD` | Space Grotesk | Manrope | `glass` | cielo estelar, con constelación |
 | Neotokyo+ | `TEMA_NEOTOKYO_PLUS` | Chakra Petch | IBM Plex Sans | `chamfer` | ciudad |
-| Dulce | `TEMA_DULCE` | Quicksand | Nunito (acento: Caveat) | `pill` | burbujas |
+| Dulce | `TEMA_DULCE` | Quicksand | Caveat | `pill` | burbujas |
+
+Dulce escribe en Caveat, agrandada un 25 % (`escalaLectura`), y sus nombres de
+ítem van también en Caveat (`nombresEnLectura`). Los titulares, en Quicksand.
 
 **Son tres.** Alba se eliminó del cliente el 8-oct-2026: ya no está en el
 catálogo ni existe `FormaIdentidad.hairline`. En el backend, `TEMA_ALBA`

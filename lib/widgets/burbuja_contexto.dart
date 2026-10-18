@@ -66,7 +66,7 @@ class BurbujaContexto extends StatelessWidget {
         textAlign: TextAlign.center,
         style: GoogleFonts.getFont(
           id.fontBody,
-          fontSize: 14,
+          fontSize: tamanoLectura(id, 14),
           height: 1.3,
           color: color ?? t.textMuted,
         ),

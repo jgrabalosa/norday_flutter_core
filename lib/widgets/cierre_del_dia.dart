@@ -249,7 +249,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     );
     final estiloDespedida = GoogleFonts.getFont(
       id.fontBody,
-      fontSize: 16,
+      fontSize: tamanoLectura(id, 16),
       color: t.textMuted,
     );
 
