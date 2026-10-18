@@ -104,7 +104,7 @@ limpiar:
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces
    (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
-   sólo hace algo en Profundidad; en las demás identidades termina en el acto.
+   sólo hace algo en Profundidad; en las demás identidades termina en el acto. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
@@ -273,6 +273,7 @@ Errores que ya se cometieron una vez. No se vuelven a cometer.
   `unnecessary_null_comparison`.
 - **Test en rojo antes del arreglo.** Si el test nuevo pasa contra el código
   sin arreglar, no demuestra nada: parar.
+- **Para comprobar que algo NO se oye, `find.semantics.byLabel`, no `find.bySemanticsLabel`.** El segundo mira el nodo que guarda el render object, que se queda viejo cuando un `ExcludeSemantics` lo saca del árbol: «encuentra» lo que el lector ya no lee.
 
 ### Publicar una versión
 

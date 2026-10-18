@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../l10n/norday_core_localizations.dart';
@@ -21,6 +22,11 @@ import 'constelaciones.dart';
 ///
 /// Al empezar marca el día como cerrado ([marcarDiaCerrado]), así que al
 /// irse el velo queda ya el estado final: la figura realzada.
+///
+/// Para el lector de pantalla, la ceremonia es un solo nodo: oye los tres
+/// textos de una vez y la acción «Cerrar», con el mismo bloqueo que el toque
+/// (no cierra hasta que los textos han entrado). Lo de debajo no se oye
+/// mientras dura. Y vibra una vez al salir el nombre de la constelación.
 ///
 /// Necesita que la app tenga montada una [CapaCierreDelDia]; si no, no
 /// espera a nadie y termina en el acto.
@@ -107,12 +113,16 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   bool _sinMovimiento = false;
   bool _cerrando = false;
 
+  /// Si ya ha vibrado en esta ceremonia: una sola vez, al salir el nombre.
+  bool _vibro = false;
+
   @override
   void initState() {
     super.initState();
     _velo = AnimationController(vsync: this, duration: _duracionVelo)
       ..addListener(() => _Cierre.velo.value = _velo.value);
-    _textos = AnimationController(vsync: this, duration: _duracionTextos);
+    _textos = AnimationController(vsync: this, duration: _duracionTextos)
+      ..addListener(_alMoverTextos);
     _Cierre.capas++;
     _Cierre.alTocar = _alTocar;
     _Cierre.peticion.addListener(_alCambiarPeticion);
@@ -131,10 +141,19 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     if (_Cierre.peticion.value != null) _empezar();
   }
 
+  void _alMoverTextos() {
+    if (_vibro || _textos.value < _tramoNombre.begin) return;
+    _vibro = true;
+    HapticFeedback.heavyImpact();
+  }
+
   void _empezar() {
     if (!mounted || _Cierre.peticion.value == null) return;
     _cerrando = false;
+    _vibro = false;
     if (_sinMovimiento) {
+      _vibro = true;
+      HapticFeedback.heavyImpact();
       _velo.value = 1;
       _textos.value = 1;
     } else {
@@ -181,12 +200,25 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
       builder: (context, _) {
         final peticion = _Cierre.peticion.value;
         if (peticion == null) return const SizedBox.shrink();
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _alTocar,
-          child: LayoutBuilder(
-            builder: (context, restricciones) =>
-                _pintar(context, peticion, restricciones.biggest),
+        final l = NordayCoreLocalizations.of(context)!;
+        return Semantics(
+          container: true,
+          liveRegion: true,
+          label:
+              '${peticion.titulo}\n'
+              '${nombreConstelacion(l, progresoDiaNotifier.value.total)}\n'
+              '${peticion.despedida}',
+          onTap: () => _alTocar(),
+          onTapHint: l.comunCerrar,
+          child: ExcludeSemantics(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _alTocar,
+              child: LayoutBuilder(
+                builder: (context, restricciones) =>
+                    _pintar(context, peticion, restricciones.biggest),
+              ),
+            ),
           ),
         );
       },
@@ -238,13 +270,10 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
             children: [
               Opacity(
                 opacity: alfa(_tramoTitulo),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    peticion.titulo,
-                    textAlign: TextAlign.center,
-                    style: estiloTitulo,
-                  ),
+                child: Text(
+                  peticion.titulo,
+                  textAlign: TextAlign.center,
+                  style: estiloTitulo,
                 ),
               ),
               const SizedBox(height: 10),
@@ -278,6 +307,27 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   }
 }
 
+/// Oculta [child] al lector de pantalla mientras dura el cierre del día.
+///
+/// La app envuelve con él lo que queda debajo del velo: las páginas y la
+/// barra de navegación. Sin él, con TalkBack se podría llegar a lo de
+/// debajo y cambiar de pestaña a media ceremonia.
+class OcultoAlLectorDuranteCierre extends StatelessWidget {
+  final Widget child;
+
+  const OcultoAlLectorDuranteCierre({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<_Peticion?>(
+      valueListenable: _Cierre.peticion,
+      builder: (context, peticion, child) =>
+          ExcludeSemantics(excluding: peticion != null, child: child),
+      child: child,
+    );
+  }
+}
+
 /// El mismo velo, para ponerlo encima de la barra de navegación, que va
 /// fuera del `Stack` de la pantalla. Oscurece a la vez que la capa, y un
 /// toque en él hace lo mismo que en la capa: así durante la ceremonia no se
@@ -296,12 +346,14 @@ class VeloBarraCierreDelDia extends StatelessWidget {
       listenable: Listenable.merge([_Cierre.velo, _Cierre.peticion]),
       builder: (context, _) {
         if (_Cierre.peticion.value == null) return const SizedBox.shrink();
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _Cierre.alTocar?.call(),
-          child: ColoredBox(
-            color: Colors.black.withValues(
-              alpha: _CapaCierreDelDiaState._alfaVelo * _Cierre.velo.value,
+        return ExcludeSemantics(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _Cierre.alTocar?.call(),
+            child: ColoredBox(
+              color: Colors.black.withValues(
+                alpha: _CapaCierreDelDiaState._alfaVelo * _Cierre.velo.value,
+              ),
             ),
           ),
         );
