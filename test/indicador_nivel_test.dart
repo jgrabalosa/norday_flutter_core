@@ -6,6 +6,7 @@ import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidad_paleta.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/widgets/indicador_nivel.dart';
+import 'package:norday_flutter_core/widgets/lapiz.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +14,10 @@ void main() {
   GoogleFonts.config.allowRuntimeFetching = false;
 
   final identidadInicial = identidadEquipadaNotifier.value;
-  tearDown(() => aplicarIdentidadEquipada(identidadInicial.codigo));
+  tearDown(() {
+    aplicarIdentidadEquipada(identidadInicial.codigo);
+    usarCacheLapiz = true;
+  });
 
   Widget montar(Widget child) => MaterialApp(
     theme: AppTheme.deTema(temaEquipadoNotifier.value),
@@ -95,5 +99,72 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.bySemanticsLabel('Cuarto de cinco'), findsOneWidget);
+  });
+
+  testWidgets(
+    'en Dulce, el ritmo va a lápiz: sin círculo liso ni brillo blanco',
+    (tester) async {
+      usarCacheLapiz = false;
+      aplicarIdentidadEquipada('TEMA_DULCE');
+      final t = temaEquipadoNotifier.value;
+      await tester.pumpWidget(
+        montar(const IndicadorNivel(nivel: 3, tamano: 20)),
+      );
+      await tester.pumpAndSettle();
+
+      final pintado = tester.renderObject(
+        find.descendant(
+          of: find.byType(IndicadorNivel),
+          matching: find.byType(CustomPaint),
+        ),
+      );
+      expect(
+        pintado,
+        paints..everything((n, a) => n != #drawCircle && n != #drawPath),
+      );
+      expect(
+        pintado,
+        paints..something(
+          (n, a) =>
+              n == #drawLine &&
+              ((a[2] as Paint).color.toARGB32() & 0xFFFFFF) ==
+                  (t.points.toARGB32() & 0xFFFFFF),
+        ),
+      );
+      expect(
+        pintado,
+        paints..something(
+          (n, a) =>
+              n == #drawLine &&
+              ((a[2] as Paint).color.toARGB32() & 0xFFFFFF) ==
+                  (t.aroVacio.toARGB32() & 0xFFFFFF),
+        ),
+      );
+    },
+  );
+
+  testWidgets('en Profundidad y Neotokyo+, el ritmo sigue igual', (
+    tester,
+  ) async {
+    usarCacheLapiz = false;
+    for (final codigo in ['TEMA_PROFUNDIDAD', 'TEMA_NEOTOKYO_PLUS']) {
+      aplicarIdentidadEquipada(codigo);
+      await tester.pumpWidget(
+        montar(const IndicadorNivel(nivel: 3, tamano: 20)),
+      );
+      await tester.pumpAndSettle();
+
+      final pintado = tester.renderObject(
+        find.descendant(
+          of: find.byType(IndicadorNivel),
+          matching: find.byType(CustomPaint),
+        ),
+      );
+      expect(
+        pintado,
+        paints..something((n, a) => n == #drawPath),
+        reason: codigo,
+      );
+    }
   });
 }
