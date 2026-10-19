@@ -32,7 +32,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 35 ficheros:
+- `widgets/` — 36 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -50,9 +50,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     del fondo y las del ritmo (`IndicadorNivel`) también van a lápiz.
   - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
     pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
-  - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
+  - fondos y cierre del día (8): `FondoIdentidad` y `CapaProgresoIdentidad`
     (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
-    burbujas—, el catálogo de constelaciones, su capa y el cierre del día;
+    burbujas—, el catálogo de constelaciones, su capa, el cierre del día y el
+    ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
@@ -117,7 +118,8 @@ limpiar:
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces
    (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
-   sólo hace algo en Profundidad; en las demás identidades termina en el acto. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
+   hace algo en Profundidad (la constelación) y en Dulce (un ramo a lápiz, una
+   flor por hábito); en Neotokyo+ termina en el acto. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el

@@ -716,6 +716,30 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get constelacionOrion => 'Orión';
 
   @override
+  String get ramoUnaRosa => 'Una rosa';
+
+  @override
+  String get ramoDetalle => 'Un detalle';
+
+  @override
+  String get ramoRamillete => 'Ramillete';
+
+  @override
+  String get ramoCampo => 'Ramo de campo';
+
+  @override
+  String get ramoPrimavera => 'Ramo de primavera';
+
+  @override
+  String get ramoJardin => 'Ramo de jardín';
+
+  @override
+  String get ramoFiesta => 'Ramo de fiesta';
+
+  @override
+  String get ramoGrande => 'Gran ramo';
+
+  @override
   String get colAyudaEtiqueta => 'Ayuda sobre la colección';
 
   @override

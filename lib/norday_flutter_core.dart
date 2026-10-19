@@ -50,6 +50,7 @@ export 'widgets/campo_identidad.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
 export 'widgets/cierre_del_dia.dart';
+export 'widgets/ramo_dulce.dart';
 export 'widgets/coach_mark.dart';
 export 'widgets/fondo_identidad.dart';
 export 'widgets/grano_papel.dart';
