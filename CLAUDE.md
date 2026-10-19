@@ -24,7 +24,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `IdiomaService`, `ZonaService`, `OrigenInstalacionService` (install referrer
   de Play, enviado una vez por dispositivo tras el primer login) y
   `RecorridoService` (si el recorrido guiado
-  ya se hizo; sólo un sí o un no).
+  ya se hizo; sólo un sí o un no) y `NotificacionesService` (el permiso de
+  notificaciones y el registro del aviso en el backend: el login solo
+  registra si el permiso ya está dado; la app lo pide en contexto).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
@@ -32,7 +34,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 36 ficheros:
+- `widgets/` — 35 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -56,9 +58,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
-  - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
-    splash, hoja de valoración, selector de idioma y zona, onboarding de dos
-    pasos, `BurbujaFlotante` (arrastre que gana al pager) e
+  - genéricos (9): anillo de progreso, `+X` flotante, check, skeleton,
+    splash, hoja de valoración, selector de idioma y zona,
+    `BurbujaFlotante` (arrastre que gana al pager) e
     `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
     estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
     Dulce);
