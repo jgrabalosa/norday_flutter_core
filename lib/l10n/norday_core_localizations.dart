@@ -1399,6 +1399,54 @@ abstract class NordayCoreLocalizations {
   /// **'Orión'**
   String get constelacionOrion;
 
+  /// No description provided for @ramoUnaRosa.
+  ///
+  /// In es, this message translates to:
+  /// **'Una rosa'**
+  String get ramoUnaRosa;
+
+  /// No description provided for @ramoDetalle.
+  ///
+  /// In es, this message translates to:
+  /// **'Un detalle'**
+  String get ramoDetalle;
+
+  /// No description provided for @ramoRamillete.
+  ///
+  /// In es, this message translates to:
+  /// **'Ramillete'**
+  String get ramoRamillete;
+
+  /// No description provided for @ramoCampo.
+  ///
+  /// In es, this message translates to:
+  /// **'Ramo de campo'**
+  String get ramoCampo;
+
+  /// No description provided for @ramoPrimavera.
+  ///
+  /// In es, this message translates to:
+  /// **'Ramo de primavera'**
+  String get ramoPrimavera;
+
+  /// No description provided for @ramoJardin.
+  ///
+  /// In es, this message translates to:
+  /// **'Ramo de jardín'**
+  String get ramoJardin;
+
+  /// No description provided for @ramoFiesta.
+  ///
+  /// In es, this message translates to:
+  /// **'Ramo de fiesta'**
+  String get ramoFiesta;
+
+  /// No description provided for @ramoGrande.
+  ///
+  /// In es, this message translates to:
+  /// **'Gran ramo'**
+  String get ramoGrande;
+
   /// No description provided for @colAyudaEtiqueta.
   ///
   /// In es, this message translates to:

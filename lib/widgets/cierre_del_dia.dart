@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,15 +11,18 @@ import '../theme/identidades_paleta.dart';
 import '../theme/progreso_dia.dart';
 import 'capa_constelacion.dart';
 import 'constelaciones.dart';
+import 'ramo_dulce.dart';
 
 /// El cierre del día: al completar el último hábito, todo se oscurece y
-/// aparecen, en este orden, [titulo], el nombre de la constelación del día y
-/// [despedida]. Un toque lo cierra, y el Future termina entonces.
+/// aparecen, en este orden, [titulo], el nombre de la figura del día y
+/// [despedida]. La figura es la constelación en Profundidad y un ramo a lápiz
+/// en Dulce, una flor por hábito. Un toque lo cierra, y el Future termina
+/// entonces.
 ///
-/// Sólo existe en Profundidad. En las demás identidades, o si no hay figura,
-/// termina en el acto sin pintar nada: el día que se diseñe su cierre, se
-/// pone aquí. Los textos los pone la app, como el resto de textos que
-/// hablan de hábitos.
+/// Existe en Profundidad y en Dulce. En Neotokyo+, o si no hay nada que
+/// contar (ningún hábito del día), termina en el acto sin pintar nada: el día
+/// que se diseñe su cierre, se pone aquí. Los textos los pone la app, como el
+/// resto de textos que hablan de hábitos.
 ///
 /// Al empezar marca el día como cerrado ([marcarDiaCerrado]), así que al
 /// irse el velo queda ya el estado final: la figura realzada.
@@ -34,12 +38,12 @@ Future<void> mostrarCierreDelDia({
   required String titulo,
   required String despedida,
 }) {
-  if (identidadEquipadaNotifier.value.fondo != FondoIdentidadTipo.cielo) {
+  final fondo = identidadEquipadaNotifier.value.fondo;
+  if (fondo != FondoIdentidadTipo.cielo &&
+      fondo != FondoIdentidadTipo.acumulacion) {
     return Future.value();
   }
-  if (constelacionPara(progresoDiaNotifier.value.total) == null) {
-    return Future.value();
-  }
+  if (progresoDiaNotifier.value.total <= 0) return Future.value();
   if (_Cierre.capas == 0) return Future.value();
 
   final enCurso = _Cierre.peticion.value;
@@ -64,6 +68,16 @@ class _Peticion {
   final Completer<void> hecho = Completer<void>();
 
   _Peticion(this.titulo, this.despedida);
+}
+
+/// El velo, con [v] de 0 a 1. Profundidad lo oscurece; Dulce, con su papel
+/// crema (lo pidió Quim): un fondo oscuro no tiene sitio en Dulce.
+Color _colorVelo(double v) {
+  final id = identidadEquipadaNotifier.value;
+  if (id.fondo == FondoIdentidadTipo.acumulacion) {
+    return id.tokens.fondoNota.withValues(alpha: 0.94 * v);
+  }
+  return Colors.black.withValues(alpha: _CapaCierreDelDiaState._alfaVelo * v);
 }
 
 /// Estado compartido entre la capa del contenido y el velo de la barra.
@@ -110,8 +124,20 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
 
   late final AnimationController _velo;
   late final AnimationController _textos;
+
+  /// El ramo de Dulce: se forma una flor por etapa. Su duración se fija al
+  /// empezar, según cuántos hábitos hay ([_etapas]).
+  late final AnimationController _ramo;
   bool _sinMovimiento = false;
   bool _cerrando = false;
+
+  /// Si la ceremonia de esta vez es la de Dulce, con el ramo antes que los
+  /// textos.
+  bool _enDulce = false;
+
+  /// Cuántas etapas tiene el ramo: una por flor (de 1 a 8) y, al final, el
+  /// atado.
+  int _etapas = 1;
 
   /// Si ya ha vibrado en esta ceremonia: una sola vez, al salir el nombre.
   bool _vibro = false;
@@ -123,6 +149,10 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
       ..addListener(() => _Cierre.velo.value = _velo.value);
     _textos = AnimationController(vsync: this, duration: _duracionTextos)
       ..addListener(_alMoverTextos);
+    _ramo = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..addStatusListener(_alTerminarRamo);
     _Cierre.capas++;
     _Cierre.alTocar = _alTocar;
     _Cierre.peticion.addListener(_alCambiarPeticion);
@@ -147,19 +177,61 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     HapticFeedback.heavyImpact();
   }
 
+  /// En Dulce, los textos esperan a que el ramo esté formado.
+  void _alTerminarRamo(AnimationStatus estado) {
+    if (estado == AnimationStatus.completed && _enDulce && !_sinMovimiento) {
+      _textos.forward(from: 0);
+    }
+  }
+
   void _empezar() {
     if (!mounted || _Cierre.peticion.value == null) return;
     _cerrando = false;
     _vibro = false;
+    _enDulce =
+        identidadEquipadaNotifier.value.fondo == FondoIdentidadTipo.acumulacion;
+    _etapas = min(progresoDiaNotifier.value.total, 8) + 1;
+    // 500 ms de velo, y 500 ms por etapa.
+    _ramo.duration = Duration(milliseconds: 500 + 500 * _etapas);
     if (_sinMovimiento) {
       _vibro = true;
       HapticFeedback.heavyImpact();
       _velo.value = 1;
+      _ramo.value = 1;
       _textos.value = 1;
     } else {
       _velo.forward();
-      _textos.forward(from: 0);
+      if (_enDulce) {
+        _ramo.forward(from: 0);
+      } else {
+        _textos.forward(from: 0);
+      }
     }
+  }
+
+  /// El nombre de la figura del día, en el idioma activo.
+  String _nombreFigura(NordayCoreLocalizations l) => _enDulce
+      ? nombreRamo(l, progresoDiaNotifier.value.total)
+      : nombreConstelacion(l, progresoDiaNotifier.value.total);
+
+  /// El ramo en la etapa que toca. La parte entera de [p] es la etapa en
+  /// curso y la fracción, lo que se ha abierto de la siguiente: la etapa
+  /// `e` muestra `e` flores sin atar, y la última, todas con el atado.
+  Widget _ramoEnCurso(double alto) {
+    // Las flores son las etapas menos la del atado.
+    final n = _etapas - 1;
+    final p = (_ramo.value * (1 + _etapas) - 1).clamp(0.0, _etapas.toDouble());
+    final k = p.floor();
+    final f = p - k;
+    Widget etapa(int e) =>
+        RamoDulce(total: n, alto: alto, flores: e <= n ? e : n, atado: e > n);
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        etapa(k),
+        if (k + 1 <= _etapas) Opacity(opacity: f, child: etapa(k + 1)),
+      ],
+    );
   }
 
   Future<void> _alTocar() async {
@@ -178,6 +250,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   void dispose() {
     _Cierre.peticion.removeListener(_alCambiarPeticion);
     _Cierre.capas--;
+    _ramo.dispose();
     if (_Cierre.alTocar == _alTocar) _Cierre.alTocar = null;
     // Si la pantalla se va a media ceremonia, quien espera no se queda
     // colgado. Tras el frame: avisar ahora a los que escuchan, con el árbol
@@ -196,7 +269,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([_velo, _textos, _Cierre.peticion]),
+      animation: Listenable.merge([_velo, _textos, _ramo, _Cierre.peticion]),
       builder: (context, _) {
         final peticion = _Cierre.peticion.value;
         if (peticion == null) return const SizedBox.shrink();
@@ -206,7 +279,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
           liveRegion: true,
           label:
               '${peticion.titulo}\n'
-              '${nombreConstelacion(l, progresoDiaNotifier.value.total)}\n'
+              '${_nombreFigura(l)}\n'
               '${peticion.despedida}',
           onTap: () => _alTocar(),
           onTapHint: l.comunCerrar,
@@ -240,12 +313,15 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
       fontWeight: FontWeight.w600,
       color: t.text,
     );
+    // En Dulce, el nombre del ramo va en su color de texto, sin brillo.
     final estiloNombre = GoogleFonts.getFont(
       id.fontDisplay,
       fontSize: 34,
       fontWeight: FontWeight.w700,
-      color: t.streak,
-      shadows: [Shadow(color: t.streak.withValues(alpha: 0.6), blurRadius: 18)],
+      color: _enDulce ? t.successText : t.streak,
+      shadows: _enDulce
+          ? null
+          : [Shadow(color: t.streak.withValues(alpha: 0.6), blurRadius: 18)],
     );
     final estiloDespedida = GoogleFonts.getFont(
       id.fontBody,
@@ -255,11 +331,16 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
 
     return Stack(
       children: [
-        Positioned.fill(
-          child: ColoredBox(
-            color: Colors.black.withValues(alpha: _alfaVelo * v),
+        Positioned.fill(child: ColoredBox(color: _colorVelo(v))),
+        // En Dulce, el ramo ocupa el cuadro de la figura y se forma con el velo.
+        if (_enDulce)
+          Positioned.fromRect(
+            rect: cuadro,
+            child: Opacity(
+              opacity: v,
+              child: Center(child: _ramoEnCurso(cuadro.height)),
+            ),
           ),
-        ),
         // El título y el nombre, por encima del cuadro de la figura.
         Positioned(
           left: 24,
@@ -280,7 +361,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
               Opacity(
                 opacity: alfa(_tramoNombre),
                 child: Text(
-                  nombreConstelacion(l, progresoDiaNotifier.value.total),
+                  _nombreFigura(l),
                   textAlign: TextAlign.center,
                   style: estiloNombre,
                 ),
@@ -350,11 +431,7 @@ class VeloBarraCierreDelDia extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => _Cierre.alTocar?.call(),
-            child: ColoredBox(
-              color: Colors.black.withValues(
-                alpha: _CapaCierreDelDiaState._alfaVelo * _Cierre.velo.value,
-              ),
-            ),
+            child: ColoredBox(color: _colorVelo(_Cierre.velo.value)),
           ),
         );
       },

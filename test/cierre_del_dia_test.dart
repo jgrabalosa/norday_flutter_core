@@ -10,6 +10,7 @@ import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/theme/progreso_dia.dart';
 import 'package:norday_flutter_core/widgets/cierre_del_dia.dart';
+import 'package:norday_flutter_core/widgets/ramo_dulce.dart';
 
 /// El cierre del día para quien no lo ve: un lector de pantalla oye los tres
 /// textos de una vez y la acción «Cerrar», con el mismo bloqueo que el toque,
@@ -37,9 +38,13 @@ void main() {
   void alFinal(WidgetTester tester) => addTearDown(() => desmontar(tester));
 
   /// Monta la pantalla con el cierre y publica 3 de 3 para que haya figura.
-  Future<void> montar(WidgetTester tester, {bool sinMovimiento = false}) async {
+  Future<void> montar(
+    WidgetTester tester, {
+    bool sinMovimiento = false,
+    String codigo = 'TEMA_PROFUNDIDAD',
+  }) async {
     alFinal(tester);
-    aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
+    aplicarIdentidadEquipada(codigo);
     publicarProgresoDia(hechos: 3, total: 3, fecha: DateTime(2026, 10, 18));
     await tester.pumpWidget(
       MaterialApp(
@@ -263,4 +268,98 @@ void main() {
       semantica.dispose();
     },
   );
+
+  /// El nodo de la ceremonia de Dulce: lleva el nombre del ramo de 3.
+  Finder nodoRamo() => find.byWidgetPredicate(
+    (w) => w is Semantics && (w.properties.label ?? '').contains('Ramillete'),
+  );
+
+  SemanticsFinder nodoRamoSemantico() =>
+      find.semantics.byPredicate((n) => n.label.contains('Ramillete'));
+
+  testWidgets('en Dulce, la ceremonia pinta el ramo sobre un velo crema', (
+    tester,
+  ) async {
+    await montar(tester, codigo: 'TEMA_DULCE');
+    unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1500));
+
+    expect(find.byType(RamoDulce), findsWidgets);
+    final crema = temaEquipadoNotifier.value.fondoNota.toARGB32() & 0xFFFFFF;
+    final colores = tester
+        .widgetList<ColoredBox>(find.byType(ColoredBox))
+        .map((c) => c.color.toARGB32())
+        .toList();
+    expect(
+      colores.any((c) => (c & 0xFFFFFF) == crema),
+      isTrue,
+      reason: '$colores',
+    );
+    // Un ColoredBox transparente del propio framework no cuenta: lo que no
+    // debe haber es un negro opaco.
+    expect(
+      colores.any((c) => c >>> 24 > 0 && (c & 0xFFFFFF) == 0),
+      isFalse,
+      reason: '$colores',
+    );
+
+    await desmontar(tester);
+  });
+
+  testWidgets(
+    'en Dulce, el nodo lleva el nombre del ramo y no cierra antes de tiempo',
+    (tester) async {
+      final semantica = tester.ensureSemantics();
+      await montar(tester, codigo: 'TEMA_DULCE');
+      var cerrado = false;
+      unawaited(
+        mostrarCierreDelDia(
+          titulo: 'T',
+          despedida: 'D',
+        ).then((_) => cerrado = true),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1000));
+      expect(
+        tester.widget<Semantics>(nodoRamo()).properties.label,
+        contains('Ramillete'),
+      );
+
+      // Con 3 flores y el atado, el ramo son 4 etapas de 500 ms más los 500
+      // de velo, y los textos empiezan cuando el ramo está formado: a los
+      // 3000 ms aún no se puede cerrar.
+      await tester.pump(const Duration(milliseconds: 2000));
+      tester.semantics.tap(nodoRamoSemantico());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(cerrado, isFalse, reason: 'a los 3000 ms');
+
+      // Después de los 5400 ms, con el ramo y los textos ya dentro, sí.
+      await tester.pump(const Duration(milliseconds: 3000));
+      tester.semantics.tap(nodoRamoSemantico());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump();
+      expect(cerrado, isTrue, reason: 'a los 6600 ms');
+
+      await desmontar(tester);
+      semantica.dispose();
+    },
+  );
+
+  testWidgets('en Neotokyo+ termina en el acto, sin ceremonia', (tester) async {
+    await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
+    var cerrado = false;
+    unawaited(
+      mostrarCierreDelDia(
+        titulo: 'T',
+        despedida: 'D',
+      ).then((_) => cerrado = true),
+    );
+    await tester.pump();
+    expect(cerrado, isTrue);
+
+    await desmontar(tester);
+  });
 }
