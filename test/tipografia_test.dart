@@ -42,62 +42,65 @@ void main() {
     },
   );
 
-  testWidgets('un TextStyle crudo de titular se pinta con la letra del cuerpo', (
-    tester,
-  ) async {
-    for (final codigo in catalogoIdentidades.keys) {
-      aplicarIdentidadEquipada(codigo);
-      final tema = AppTheme.deTema(temaEquipadoNotifier.value);
+  testWidgets(
+    'un TextStyle crudo de titular se pinta con la letra del cuerpo',
+    (tester) async {
+      for (final codigo in catalogoIdentidades.keys) {
+        aplicarIdentidadEquipada(codigo);
+        final tema = AppTheme.deTema(temaEquipadoNotifier.value);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: tema,
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => Column(
-                children: [
-                  // Lo que hoy hay escrito en onboarding_overlay: 24 y negrita,
-                  // sin familia.
-                  const Text(
-                    'crudo',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  // Lo mismo pedido al tema: headlineMedium es 24 y w700.
-                  Text(
-                    'tema',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ],
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: tema,
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => Column(
+                  children: [
+                    // Un titular escrito a mano: 24 y negrita, sin familia.
+                    const Text(
+                      'crudo',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // Lo mismo pedido al tema: headlineMedium es 24 y w700.
+                    Text(
+                      'tema',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-      // pumpAndSettle y no pump: MaterialApp interpola el tema con
-      // AnimatedTheme, y TextStyle.lerp devuelve la familia de ORIGEN hasta
-      // media transición. Con un solo fotograma leeríamos la letra de la
-      // identidad anterior.
-      await tester.pumpAndSettle();
+        );
+        // pumpAndSettle y no pump: MaterialApp interpola el tema con
+        // AnimatedTheme, y TextStyle.lerp devuelve la familia de ORIGEN hasta
+        // media transición. Con un solo fotograma leeríamos la letra de la
+        // identidad anterior.
+        await tester.pumpAndSettle();
 
-      final crudo = estiloPintado(tester, 'crudo');
-      final delTema = estiloPintado(tester, 'tema');
+        final crudo = estiloPintado(tester, 'crudo');
+        final delTema = estiloPintado(tester, 'tema');
 
-      // Mismo tamaño: la diferencia no está ahí.
-      expect(crudo.fontSize, 24, reason: codigo);
-      expect(delTema.fontSize, 24, reason: codigo);
+        // Mismo tamaño: la diferencia no está ahí.
+        expect(crudo.fontSize, 24, reason: codigo);
+        expect(delTema.fontSize, 24, reason: codigo);
 
-      // Y sin embargo, distinta letra.
-      expect(
-        crudo.fontFamily,
-        tema.textTheme.bodyMedium!.fontFamily,
-        reason: codigo,
-      );
-      expect(
-        delTema.fontFamily,
-        tema.textTheme.headlineMedium!.fontFamily,
-        reason: codigo,
-      );
-      expect(crudo.fontFamily, isNot(delTema.fontFamily), reason: codigo);
-    }
-  });
+        // Y sin embargo, distinta letra.
+        expect(
+          crudo.fontFamily,
+          tema.textTheme.bodyMedium!.fontFamily,
+          reason: codigo,
+        );
+        expect(
+          delTema.fontFamily,
+          tema.textTheme.headlineMedium!.fontFamily,
+          reason: codigo,
+        );
+        expect(crudo.fontFamily, isNot(delTema.fontFamily), reason: codigo);
+      }
+    },
+  );
 }

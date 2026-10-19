@@ -93,13 +93,6 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get sonido => 'Sonido';
 
   @override
-  String get sonidoOnboardingTitulo => '¿Quieres sonido?';
-
-  @override
-  String get sonidoOnboardingCuerpo =>
-      'Puedes activar o silenciar la música y los efectos cuando quieras.';
-
-  @override
   String get cambiarZona => 'Cambiar zona horaria';
 
   @override
@@ -462,26 +455,6 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   @override
   String get colError =>
       'No se pudo completar la operación. Inténtalo de nuevo.';
-
-  @override
-  String get obTitulo1 => '¡Bienvenido a Norday! 🎉';
-
-  @override
-  String get obCuerpo1 =>
-      'Cada hábito que completes te da puntos. Úsalos para desbloquear temas y más en la tienda.';
-
-  @override
-  String get obTitulo2 => 'Tu compañero crece contigo 🐣';
-
-  @override
-  String get obCuerpo2 =>
-      'Se llama Nori, y gana experiencia con cada hábito que completas. Cuídala y mira cómo evoluciona.';
-
-  @override
-  String get obSiguiente => 'Siguiente';
-
-  @override
-  String get obEmpezar => 'Empezar';
 
   @override
   String get valTitulo => 'Valoración';

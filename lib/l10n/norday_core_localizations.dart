@@ -271,18 +271,6 @@ abstract class NordayCoreLocalizations {
   /// **'Sonido'**
   String get sonido;
 
-  /// No description provided for @sonidoOnboardingTitulo.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Quieres sonido?'**
-  String get sonidoOnboardingTitulo;
-
-  /// No description provided for @sonidoOnboardingCuerpo.
-  ///
-  /// In es, this message translates to:
-  /// **'Puedes activar o silenciar la música y los efectos cuando quieras.'**
-  String get sonidoOnboardingCuerpo;
-
   /// No description provided for @cambiarZona.
   ///
   /// In es, this message translates to:
@@ -930,42 +918,6 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo completar la operación. Inténtalo de nuevo.'**
   String get colError;
-
-  /// No description provided for @obTitulo1.
-  ///
-  /// In es, this message translates to:
-  /// **'¡Bienvenido a Norday! 🎉'**
-  String get obTitulo1;
-
-  /// No description provided for @obCuerpo1.
-  ///
-  /// In es, this message translates to:
-  /// **'Cada hábito que completes te da puntos. Úsalos para desbloquear temas y más en la tienda.'**
-  String get obCuerpo1;
-
-  /// No description provided for @obTitulo2.
-  ///
-  /// In es, this message translates to:
-  /// **'Tu compañero crece contigo 🐣'**
-  String get obTitulo2;
-
-  /// No description provided for @obCuerpo2.
-  ///
-  /// In es, this message translates to:
-  /// **'Se llama Nori, y gana experiencia con cada hábito que completas. Cuídala y mira cómo evoluciona.'**
-  String get obCuerpo2;
-
-  /// No description provided for @obSiguiente.
-  ///
-  /// In es, this message translates to:
-  /// **'Siguiente'**
-  String get obSiguiente;
-
-  /// No description provided for @obEmpezar.
-  ///
-  /// In es, this message translates to:
-  /// **'Empezar'**
-  String get obEmpezar;
 
   /// No description provided for @valTitulo.
   ///

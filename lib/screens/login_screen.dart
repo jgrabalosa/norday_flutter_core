@@ -10,10 +10,10 @@ import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
 import '../services/api_service_core.dart';
 import '../services/api_error.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import '../services/analytics_service.dart';
 import '../services/idioma_service.dart';
 import '../services/zona_service.dart';
+import '../services/notificaciones_service.dart';
 import '../services/origen_instalacion_service.dart';
 import '../theme/equipamiento.dart';
 import '../widgets/campo_identidad.dart';
@@ -22,7 +22,6 @@ import '../widgets/logo_google.dart';
 import '../widgets/nori_marca.dart';
 import '../widgets/superficie_identidad.dart';
 import '../widgets/wordmark_identidad.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'eleccion_identidad_screen.dart';
 import 'recuperacion_screen.dart';
 
@@ -76,26 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return l.loginCredenciales;
     }
     return MensajesError.de(context, e, generico: l.loginError);
-  }
-
-  Future<void> _registrarNotificaciones(int usuarioId) async {
-    try {
-      final status = await Permission.notification.request();
-      if (!status.isGranted) return;
-
-      final messaging = FirebaseMessaging.instance;
-
-      NotificationSettings settings = await messaging.requestPermission();
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        final String? token = await messaging.getToken();
-        if (token != null) {
-          await ApiServiceCore.actualizarFcmToken(usuarioId, token);
-        }
-      }
-    } catch (_) {
-      // No bloqueamos el login si falla el registro de notificaciones
-    }
   }
 
   /// Tras iniciar sesion, el backend manda la ultima palabra sobre las
@@ -157,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await ApiServiceCore.saveToken(usuario.token);
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.login(usuario.usuarioId);
-      await _registrarNotificaciones(usuario.usuarioId);
+      await NotificacionesService.registrarSiHayPermiso(usuario.usuarioId);
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
@@ -218,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await ApiServiceCore.saveToken(usuario.token);
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.registro(usuario.usuarioId);
-      await _registrarNotificaciones(usuario.usuarioId);
+      await NotificacionesService.registrarSiHayPermiso(usuario.usuarioId);
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
@@ -266,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
       bool? posee;
       if (usuarioLocal != null && usuarioLocal['usuarioId'] != null) {
         usuarioId = usuarioLocal['usuarioId'] as int;
-        await _registrarNotificaciones(usuarioId);
+        await NotificacionesService.registrarSiHayPermiso(usuarioId);
         unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuarioId));
         await _sincronizarPreferencias(usuarioId);
         posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuarioId);
