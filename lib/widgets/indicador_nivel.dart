@@ -6,6 +6,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'lapiz.dart';
 
 /// Cómo se pinta un nivel de cinco en cada identidad: el objeto de progreso
 /// de su mundo.
@@ -18,8 +19,7 @@ enum DibujoNivel {
   /// cortadas como el resto de la identidad.
   ventanas,
 
-  /// Dulce: cinco burbujas que crecen, con el punto de brillo de las del
-  /// fondo.
+  /// Dulce: cinco burbujas a lápiz que crecen; el brillo es papel sin pintar.
   burbujas,
 }
 
@@ -124,6 +124,17 @@ class _PintorNivel extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (dibujo == DibujoNivel.burbujas) {
+      // En Dulce se graba una vez: es mucho trazo para cada fotograma.
+      pintarConCache(
+        canvas,
+        ('nivel', llenas, tamano, colorLlena, colorVacia),
+        size,
+        _pintarBurbujasLapiz,
+        desborde: 2,
+      );
+      return;
+    }
     final hueco = IndicadorNivel.separacion(tamano);
     final grosor = _grosor;
     for (var i = 0; i < IndicadorNivel.total; i++) {
@@ -148,18 +159,48 @@ class _PintorNivel extends CustomPainter {
           ..color = colorVacia;
       }
       canvas.drawPath(figura, pincel);
+    }
+  }
 
-      // El punto de brillo de las burbujas del fondo, sólo en las llenas: en
-      // una vacía no hay volumen que iluminar.
-      if (llena && dibujo == DibujoNivel.burbujas) {
+  /// Dulce: las burbujas a lápiz. Las llenas, sombreadas en `points` con rayas
+  /// cruzadas, y el brillo es el papel sin pintar; las vacías, solo el aro a
+  /// lápiz en `aroVacio`. Lleno y vacío se distinguen por la forma (relleno o
+  /// solo aro), no solo por el color.
+  void _pintarBurbujasLapiz(Canvas canvas) {
+    final hueco = IndicadorNivel.separacion(tamano);
+    final grosor = _grosor;
+    for (var i = 0; i < IndicadorNivel.total; i++) {
+      final caja = Rect.fromLTWH(i * (tamano + hueco), 0, tamano, tamano);
+      final llena = i < llenas;
+      final dentro = caja.deflate(grosor / 2);
+      final figura = _burbuja(dentro, i);
+      final semilla = 11 * i + tamano.round();
+      if (llena) {
         final r = _radioBurbuja(dentro, i);
-        final centro = _centroBurbuja(dentro, r);
-        canvas.drawCircle(
-          centro.translate(-r * 0.34, -r * 0.34),
-          r * 0.22,
-          Paint()..color = Colors.white.withValues(alpha: 0.55),
+        final brillo = _centroBurbuja(
+          dentro,
+          r,
+        ).translate(-r * 0.34, -r * 0.34);
+        pintarSombreado(
+          canvas,
+          figura,
+          color: colorLlena,
+          intensidad: (p) =>
+              (((p - brillo).distance - r * 0.3) / r * 1.6).clamp(0.0, 1.0),
+          separacion: math.max(1.2, tamano * 0.08),
+          grosor: math.max(0.6, tamano * 0.045),
+          alfa: 0.95,
+          cruzado: true,
+          semilla: semilla,
         );
       }
+      pintarTrazoLapiz(
+        canvas,
+        figura,
+        color: llena ? colorLlena : colorVacia,
+        grosor: grosor,
+        semilla: semilla + 5,
+      );
     }
   }
 

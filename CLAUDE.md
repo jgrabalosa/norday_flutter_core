@@ -46,7 +46,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     grano, y el sombreado (`pintarSombreado`) una intensidad por punto. Lo que
     se repite se graba una vez en una caché (`pintarConCache`): imágenes a
     la densidad de la pantalla, con su desborde y como mucho 12 millones de
-    píxeles. El anillo de Nori, en Dulce, también va a lápiz.
+    píxeles. El anillo de Nori, en Dulce, también va a lápiz. Las burbujas
+    del fondo y las del ritmo (`IndicadorNivel`) también van a lápiz.
   - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
     pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
   - fondos y cierre del día (7): `FondoIdentidad` y `CapaProgresoIdentidad`
@@ -58,7 +59,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     splash, hoja de valoración, selector de idioma y zona, onboarding de dos
     pasos, `BurbujaFlotante` (arrastre que gana al pager) e
     `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
-    estrellas en Profundidad, escalones en las demás);
+    estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
+    Dulce);
   - tienda (1): la vista previa de una identidad;
   - retirado (1): `SelectorAvatarGratis`.
 - `screens/` — login, recuperación, elección de identidad (onboarding),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/progreso_dia.dart';
+import 'lapiz.dart';
 
 /// Una burbuja del fondo de Dulce.
 ///
@@ -54,6 +55,22 @@ final List<_Burbuja> _burbujas = _generarBurbujas();
 int _visiblesDe(ProgresoDia p) =>
     p.total > 0 ? (_totalBurbujas * p.avance * 0.8).round() : 0;
 
+/// Tope de tinta de cada burbuja: la burbuja entera se pinta dentro de una capa
+/// con esta opacidad (por la atenuación). Con tres burbujas solapadas bajo una
+/// letra, `textMuted` sobre `bg` se queda en 4,53 (AA). Con 0,20 bajaría a 3,9.
+@visibleForTesting
+const double tintaMaximaBurbuja = 0.15;
+
+/// Las burbujas, para que los tests midan cuántas se solapan.
+@visibleForTesting
+List<({double x, double y, double radio})> get burbujasDeDulce => [
+  for (final b in _burbujas) (x: b.x, y: b.y, radio: b.radio),
+];
+
+/// Cuántas se ven como mucho: el tope del 0,8 de [_visiblesDe].
+@visibleForTesting
+int get maximoBurbujasVisibles => (_totalBurbujas * 0.8).round();
+
 /// Las burbujas de Dulce: se acumulan con el progreso del día.
 ///
 /// NO se exporta en el barrel. La puerta es `FondoIdentidad`.
@@ -61,18 +78,17 @@ int _visiblesDe(ProgresoDia p) =>
 /// Escucha el progreso ella misma, como `FondoCiudad`: en Dulce el fondo y la
 /// capa de progreso son la misma cosa, así que no usa la capa de delante.
 ///
-/// LAS BURBUJAS SON MÁS CLARAS QUE EL FONDO, Y ESO NO ES DECORATIVO. En Dulce
-/// hay texto en `textMuted` flotando sobre el fondo sin tarjeta debajo —la
-/// cabecera "Completados" y el aviso de día sin hábitos—, y ese token tiene
-/// 7.01 de contraste sobre el `bg`.
-/// Con el rosa primario de la web, dos burbujas solapadas lo hunden a 3.45 y
-/// no hay alfa que lo salve: el máximo que aguantaría es 0.05, invisible.
+/// LAS BURBUJAS SON DE LÁPIZ ROSA, Y SON MÁS OSCURAS QUE EL PAPEL, ASÍ QUE HAY
+/// QUE CUIDAR SU TINTA. En Dulce hay texto en `textMuted` flotando sobre el
+/// fondo sin tarjeta debajo —la cabecera "Completados" y el aviso de día sin
+/// hábitos—, y ese token tiene 7.01 de contraste sobre el `bg`. Una burbuja
+/// más oscura que el papel lo hunde, y solaparse lo hunde más.
 ///
-/// Al ser más claras que el fondo se invierte el signo: `textMuted` da 7.01
-/// sobre el `bg` y 7.81 sobre `surface`, así que cada burbuja SUBE el
-/// contraste del texto y solaparse sólo mejora las cosas. Si algún día se
-/// cambia este color por uno más oscuro que el fondo, hay que volver a medir
-/// el peor caso con solapamiento.
+/// El invariante: cada burbuja lleva como mucho [tintaMaximaBurbuja] de tinta,
+/// en ningún punto se solapan más de tres burbujas (lo comprueba
+/// dulce_burbujas_lapiz_test.dart), y así `textMuted` sobre `bg` no baja de
+/// 4,5. Si alguien cambia el color, la tinta o cuántas hay, hay que volver a
+/// medir.
 class FondoBurbujas extends StatefulWidget {
   /// Los colores de la identidad, que los da el despachador.
   final TokensContextuales tokens;
@@ -182,52 +198,69 @@ class _FondoBurbujasPainter extends CustomPainter {
     final cuantas = _visibles;
     if (cuantas == 0) return;
 
-    // El punto de luz se prepara una vez: es el mismo blanco en todas.
-    final brillo = Paint()
-      ..color = Colors.white.withValues(alpha: 0.55 * atenuacion);
-
     for (var i = 0; i < cuantas && i < _burbujas.length; i++) {
       final b = _burbujas[i];
       // Las nuevas entran con el rebote de la identidad; las demás, quietas.
       final escala = desde != null && i >= desde!
           ? Curves.easeOutBack.transform(gesto)
           : 1.0;
-      final radio = b.radio * escala;
-      if (radio <= 0) continue;
+      if (escala <= 0) continue;
       final centro = Offset(b.x * size.width, b.y * size.height);
-
-      // Volumen: del blanco casi opaco arriba-izquierda al blanco tenue del
-      // borde de abajo. TODO el rango es blanco y el fondo de Dulce es rosa,
-      // así que la burbuja sigue siendo más clara que el fondo en cualquier
-      // punto: el invariante de la cabecera de esta clase se cumple por
-      // construcción y no hay nada que volver a medir.
-      final cuerpo = Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(-0.4, -0.4),
-          radius: 0.95,
-          colors: [
-            tokens.surface.withValues(alpha: 0.95 * atenuacion),
-            tokens.surface.withValues(alpha: 0.62 * atenuacion),
-          ],
-        ).createShader(Rect.fromCircle(center: centro, radius: radio));
-      canvas.drawCircle(centro, radio, cuerpo);
-
-      // Proporcional al radio: una burbuja grande no puede llevar el mismo
-      // destello que una pequeña o dejaría de leerse como la misma cosa.
-      canvas.drawCircle(
-        centro.translate(-radio * 0.34, -radio * 0.34),
-        radio * 0.22,
-        brillo,
+      final lado = b.radio * 2;
+      // Cada burbuja se graba una vez a su tamaño; el rebote solo la escala.
+      canvas.save();
+      canvas.translate(centro.dx, centro.dy);
+      canvas.scale(escala);
+      canvas.translate(-b.radio, -b.radio);
+      pintarConCache(
+        canvas,
+        ('burbuja', i, b.radio, tokens.primaryTrazo, atenuacion),
+        Size(lado, lado),
+        (c) => _pintarBurbuja(c, b.radio, i),
+        desborde: 3,
       );
+      canvas.restore();
     }
+  }
+
+  /// Una burbuja a lápiz: rayas que se desvanecen hacia el brillo (papel sin
+  /// pintar, arriba a la izquierda) y el aro. Todo en una capa con tope de
+  /// tinta, ver [tintaMaximaBurbuja].
+  void _pintarBurbuja(Canvas c, double r, int i) {
+    final centro = Offset(r, r);
+    final circulo = Path()..addOval(Rect.fromCircle(center: centro, radius: r));
+    final brillo = centro.translate(-r * 0.34, -r * 0.34);
+    c.saveLayer(
+      Rect.fromCircle(center: centro, radius: r + 3),
+      Paint()..color = Color.fromRGBO(0, 0, 0, tintaMaximaBurbuja * atenuacion),
+    );
+    pintarSombreado(
+      c,
+      circulo,
+      color: tokens.primaryTrazo,
+      intensidad: (p) =>
+          (((p - brillo).distance - r * 0.28) / r).clamp(0.0, 1.0),
+      separacion: 2.2,
+      alfa: 0.9,
+      semilla: 7 * i + 3,
+    );
+    pintarTrazoLapiz(
+      c,
+      circulo,
+      color: tokens.primaryTrazo,
+      grosor: 1.4,
+      semilla: 7 * i + 5,
+    );
+    c.restore();
   }
 
   // Mismo motivo que en `_FondoEstelarPainter` y `_FondoCiudadPainter`:
   // `TokensContextuales` no define `operator ==`, así que se compara el campo
-  // que el painter usa de verdad. `ProgresoDia` sí lo define.
+  // que el painter usa de verdad (el trazo de lápiz, `primaryTrazo`).
+  // `ProgresoDia` sí lo define.
   @override
   bool shouldRepaint(covariant _FondoBurbujasPainter oldDelegate) =>
-      oldDelegate.tokens.surface != tokens.surface ||
+      oldDelegate.tokens.primaryTrazo != tokens.primaryTrazo ||
       oldDelegate.atenuacion != atenuacion ||
       oldDelegate.progreso != progreso ||
       oldDelegate.desde != desde ||
