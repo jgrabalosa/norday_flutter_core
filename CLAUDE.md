@@ -26,7 +26,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `RecorridoService` (si el recorrido guiado
   ya se hizo; sólo un sí o un no) y `NotificacionesService` (el permiso de
   notificaciones y el registro del aviso en el backend: el login solo
-  registra si el permiso ya está dado; la app lo pide en contexto).
+  registra si el permiso ya está dado; la app lo pide en contexto. El
+  registro es idempotente por usuario y token, escucha las renovaciones del
+  token y la app lo llama al arrancar con sesión y al volver a primer plano).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
