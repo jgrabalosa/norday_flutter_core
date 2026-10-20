@@ -672,24 +672,32 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
                   ).textTheme.titleMedium?.copyWith(color: t.text),
                 ),
               ),
-              if (poseido) ...[
+              if (poseido && procesandoEste) ...[
                 const SizedBox(width: 8),
-                if (procesandoEste)
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                else if (equipado)
-                  _pastillaEquipado(l, t)
-                else
-                  OutlinedButton(
-                    onPressed: () => _equipar(productoId, codigo, 'Tema'),
-                    child: Text(l.tiendaEquipar),
-                  ),
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ] else if (poseido && equipado) ...[
+                const SizedBox(width: 8),
+                _pastillaEquipado(l, t),
               ],
             ],
           ),
+          // «Equipar» baja a su línea, como «Conseguir»: en la fila se
+          // apretaba con el nombre. Tiene el mismo alto que la copia de no
+          // poseído, así que la tarjeta no cambia de altura al poseerlo.
+          if (poseido && !equipado && !procesandoEste) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: () => _equipar(productoId, codigo, 'Tema'),
+                child: Text(l.tiendaEquipar),
+              ),
+            ),
+          ],
           if (!poseido) ...[
             const SizedBox(height: 8),
             _copiaInvisible(conseguir),
