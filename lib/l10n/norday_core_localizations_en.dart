@@ -396,9 +396,6 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get tiendaPreviewHabito2 => 'Meditate 5 min';
 
   @override
-  String get tiendaPreviewQueCrack => 'nice one!';
-
-  @override
   String get logrosTitulo => 'Achievements';
 
   @override

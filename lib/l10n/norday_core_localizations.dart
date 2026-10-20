@@ -829,12 +829,6 @@ abstract class NordayCoreLocalizations {
   /// **'Meditar 5 min'**
   String get tiendaPreviewHabito2;
 
-  /// No description provided for @tiendaPreviewQueCrack.
-  ///
-  /// In es, this message translates to:
-  /// **'¡qué crack!'**
-  String get tiendaPreviewQueCrack;
-
   /// No description provided for @logrosTitulo.
   ///
   /// In es, this message translates to:
