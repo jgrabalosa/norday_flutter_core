@@ -238,6 +238,15 @@
   },
   "colSeActivaSolo": "Se activa solo",
   "colUsar": "Usar",
+  "colConseguir": "Conseguir",
+  "colConseguirEtiqueta": "Conseguir «{nombre}» en la tienda",
+  "@colConseguirEtiqueta": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "colError": "No se pudo completar la operación. Inténtalo de nuevo.",
   "valTitulo": "Valoración",
   "valEditar": "Editar valoración",

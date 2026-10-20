@@ -913,6 +913,18 @@ abstract class NordayCoreLocalizations {
   /// **'Usar'**
   String get colUsar;
 
+  /// No description provided for @colConseguir.
+  ///
+  /// In es, this message translates to:
+  /// **'Conseguir'**
+  String get colConseguir;
+
+  /// No description provided for @colConseguirEtiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Conseguir «{nombre}» en la tienda'**
+  String colConseguirEtiqueta(String nombre);
+
   /// No description provided for @colError.
   ///
   /// In es, this message translates to:
