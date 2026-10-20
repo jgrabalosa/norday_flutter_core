@@ -25,7 +25,10 @@ Rect? rectDeAncla(
 ///   se señala, y por eso el hueco deja pasar los toques al elemento real de
 ///   debajo. Un botón aquí ofrecería saltarse la acción, y saltársela vacía
 ///   el recorrido: lo que se recuerda es lo que se hizo, no lo que se leyó.
-/// - **De explicación**: no hay nada que hacer, así que sí hay botón.
+/// - **De explicación** ([textoBoton] puesto): no hay nada que hacer, así que
+///   sí hay botón. El hueco NO deja pasar toques: solo responde el botón (y
+///   «Saltar», si lo hay). Si no, un toque en lo señalado llevaría a otra
+///   pantalla —la pista de Hoy abría el detalle del hábito—.
 ///
 /// La tarjeta va siempre en la mitad contraria al foco. Regla tonta a
 /// propósito: así nunca tapa lo señalado y no salta de sitio de forma
@@ -172,17 +175,24 @@ class CoachMark extends StatelessWidget {
     );
   }
 
-  /// Cuatro rectángulos opacos alrededor del hueco, y nada encima del hueco.
-  ///
-  /// Es lo que hace que el elemento señalado siga siendo pulsable: no se
-  /// intercepta el toque para reenviarlo, sencillamente no hay nada en medio.
+  /// Cuatro rectángulos opacos alrededor del hueco, y nada encima del hueco en
+  /// los pasos de acción: ahí el elemento señalado sigue siendo pulsable. No
+  /// se intercepta el toque para reenviarlo, sencillamente no hay nada en medio.
   /// El velo va bajo un IgnorePointer por lo mismo.
+  ///
+  /// Un paso con botón es distinto: también absorbe el hueco, para que solo
+  /// responda el botón. Ver la nota de la clase.
   List<Widget> _barreras(Size pantalla) {
     Widget absorber() =>
         GestureDetector(behavior: HitTestBehavior.opaque, onTap: () {});
 
     final f = foco;
-    if (f == null) return [Positioned.fill(child: absorber())];
+    // Un paso con botón es de explicación: no hay nada que tocar debajo, y un
+    // toque que atravesara el hueco llevaría a otra pantalla (la pista de Hoy
+    // abría el detalle del hábito). Solo responde el botón.
+    if (f == null || textoBoton != null) {
+      return [Positioned.fill(child: absorber())];
+    }
 
     final arriba = f.top.clamp(0.0, pantalla.height);
     final abajo = f.bottom.clamp(0.0, pantalla.height);
