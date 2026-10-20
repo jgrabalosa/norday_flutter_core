@@ -622,8 +622,10 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
       // Micro-etiqueta: el pie de una cifra, la leyenda de un heatmap. Es el
-      // suelo de la escala y no hay nada por debajo: si algo pide menos de 11,
-      // el problema es el sitio, no el tamaño.
+      // suelo de la escala: 11 en las identidades de escala 1 (Profundidad,
+      // Neotokyo+) y 13,75 en Dulce, que agranda su lectura un 25 % (escala
+      // 1,25). No hay nada por debajo: si algo pide menos de 11, el problema es
+      // el sitio, no el tamaño.
       labelSmall: base.labelSmall?.copyWith(
         fontSize: lectura(11),
         fontWeight: FontWeight.w600,

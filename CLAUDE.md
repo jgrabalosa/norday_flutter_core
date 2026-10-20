@@ -34,7 +34,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 35 ficheros:
+- `widgets/` — 36 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -58,8 +58,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
-  - genéricos (9): anillo de progreso, `+X` flotante, check, skeleton,
+  - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
     splash, hoja de valoración, selector de idioma y zona,
+    `EstrellaValoracion` (la estrella de la valoración: a lápiz en Dulce),
     `BurbujaFlotante` (arrastre que gana al pager) e
     `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
     estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
@@ -165,7 +166,7 @@ La fuente de verdad es el backend, no el dispositivo: se lee con
 `catalogoIdentidades`. Ningún `productoId` está cableado en el cliente.
 
 Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
-tiene cuatro identidades, y cada una lleva además tipografía, radios, forma de
+tiene tres identidades, y cada una lleva además tipografía, radios, forma de
 superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
 `theme/identidad_paleta.dart`):
 
@@ -222,8 +223,10 @@ hábitos.
 `Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
 antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el
 splash con sesión guardada, así que hasta que responde se ve el tema por
-defecto. Ya no se usa `SharedPreferences` para esto — era una segunda fuente
-de verdad y se desincronizaba al equipar desde otro dispositivo.
+defecto. Sigue sin ser fuente de verdad —manda siempre el backend—, pero se
+guarda por usuario la última identidad que el backend confirmó
+(`identidad_equipada_<usuarioId>`) y se aplica solo si falla la red al
+arrancar, con hasta 3 reintentos cada 15 s; no se borra al cerrar sesión.
 
 ## Identidad de marca
 
