@@ -136,7 +136,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await ApiServiceCore.saveToken(usuario.token);
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.login(usuario.usuarioId);
-      await NotificacionesService.registrarSiHayPermiso(usuario.usuarioId);
+      await NotificacionesService.registrarSiHayPermiso(
+        usuario.usuarioId,
+        forzar: true,
+      );
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
@@ -197,7 +200,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await ApiServiceCore.saveToken(usuario.token);
       await ApiServiceCore.saveUsuario(usuario);
       await AnalyticsCore.registro(usuario.usuarioId);
-      await NotificacionesService.registrarSiHayPermiso(usuario.usuarioId);
+      await NotificacionesService.registrarSiHayPermiso(
+        usuario.usuarioId,
+        forzar: true,
+      );
       unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuario.usuarioId));
       await _sincronizarPreferencias(usuario.usuarioId);
       final posee = await Equipamiento.cargarDeUsuarioSiSePuede(
@@ -245,7 +251,10 @@ class _LoginScreenState extends State<LoginScreen> {
       bool? posee;
       if (usuarioLocal != null && usuarioLocal['usuarioId'] != null) {
         usuarioId = usuarioLocal['usuarioId'] as int;
-        await NotificacionesService.registrarSiHayPermiso(usuarioId);
+        await NotificacionesService.registrarSiHayPermiso(
+          usuarioId,
+          forzar: true,
+        );
         unawaited(OrigenInstalacionService.enviarSiHaceFalta(usuarioId));
         await _sincronizarPreferencias(usuarioId);
         posee = await Equipamiento.cargarDeUsuarioSiSePuede(usuarioId);
