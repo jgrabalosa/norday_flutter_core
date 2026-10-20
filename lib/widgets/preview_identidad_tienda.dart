@@ -145,23 +145,18 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: ShapeDecoration(
-                    color: p.primary,
-                    shape: formaIdentidad(id, radio: id.radioSecundario),
-                  ),
-                  child: Center(
-                    child: Text(
-                      l.comunContinuar,
-                      style: GoogleFonts.getFont(
-                        id.fontDisplay,
-                        fontWeight: FontWeight.w700,
-                        color: sobrePrimary,
-                      ),
-                    ),
-                  ),
+                _tarjetaHabito(
+                  id: id,
+                  texto: l.plantillaBeberAgua,
+                  hecha: true,
+                  sobrePrimary: sobrePrimary,
+                ),
+                const SizedBox(height: 10),
+                _tarjetaHabito(
+                  id: id,
+                  texto: l.tiendaPreviewHabito2,
+                  hecha: false,
+                  sobrePrimary: sobrePrimary,
                 ),
                 const SizedBox(height: 16),
                 _barraNavSimulada(id, p, l),
@@ -203,6 +198,114 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
     ),
   ];
 
+  /// Una tarjeta de hábito de mentira, con el lenguaje de [id] —su superficie,
+  /// su letra, su color— y nunca con el de la identidad equipada: aquí no se
+  /// usa ni `SuperficieIdentidad` ni `CheckCircular`, que leen la equipada.
+  Widget _tarjetaHabito({
+    required IdentidadPaleta id,
+    required String texto,
+    required bool hecha,
+    required Color sobrePrimary,
+  }) {
+    final p = id.tokens;
+    final Decoration decoracion = switch (id.forma) {
+      FormaIdentidad.glass => BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(id.radioSecundario),
+      ),
+      FormaIdentidad.chamfer => ShapeDecoration(
+        color: p.bg,
+        shape: formaIdentidad(
+          id,
+          radio: id.radioSecundario,
+          lado: BorderSide(color: p.primary, width: 1.5),
+        ),
+      ),
+      FormaIdentidad.pill => BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(id.radioSecundario),
+        border: Border.all(color: p.textMuted, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: p.textMuted.withValues(alpha: 0.2),
+            offset: const Offset(2.3, 2.3),
+          ),
+        ],
+      ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: decoracion,
+      child: Row(
+        children: [
+          _casilla(id: id, hecha: hecha, sobrePrimary: sobrePrimary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              texto,
+              style: GoogleFonts.getFont(
+                id.fontBody,
+                fontSize: tamanoLectura(id, 15),
+                fontWeight: FontWeight.w600,
+                color: p.text,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// La casilla de la tarjeta, con la forma de la identidad. Hecha: relleno y
+  /// marca. Pendiente: solo el aro.
+  Widget _casilla({
+    required IdentidadPaleta id,
+    required bool hecha,
+    required Color sobrePrimary,
+  }) {
+    final p = id.tokens;
+    const lado = 22.0;
+    final Widget? marca = hecha
+        ? Icon(
+            LucideIcons.check,
+            size: 14,
+            color: id.forma == FormaIdentidad.pill
+                ? Colors.white
+                : sobrePrimary,
+          )
+        : null;
+    final Decoration decoracion = switch (id.forma) {
+      FormaIdentidad.glass => BoxDecoration(
+        shape: BoxShape.circle,
+        color: hecha ? p.primary : null,
+        border: hecha ? null : Border.all(color: p.aroVacio, width: 2),
+      ),
+      FormaIdentidad.chamfer => ShapeDecoration(
+        color: hecha ? p.primary : null,
+        shape: BordeChaflan(
+          chaflan: 5,
+          side: hecha
+              ? BorderSide.none
+              : BorderSide(color: p.aroVacio, width: 2),
+        ),
+      ),
+      FormaIdentidad.pill => BoxDecoration(
+        shape: BoxShape.circle,
+        color: hecha ? p.success : null,
+        border: hecha ? null : Border.all(color: p.textMuted, width: 2),
+      ),
+    };
+
+    return Container(
+      width: lado,
+      height: lado,
+      alignment: Alignment.center,
+      decoration: decoracion,
+      child: marca,
+    );
+  }
+
   Widget _barraNavSimulada(
     IdentidadPaleta id,
     TokensContextuales p,
@@ -224,22 +327,30 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // Cada elemento reparte el ancho a partes iguales y su contenido se
+          // encoge si no cabe: con la escala de texto grande, las cuatro
+          // etiquetas no caben en 256 px y la fila se salía 129 px.
           for (final (icono, etiqueta) in items)
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icono, size: 18, color: p.textMuted),
-                const SizedBox(height: 2),
-                Text(
-                  etiqueta,
-                  style: GoogleFonts.getFont(
-                    id.fontDisplay,
-                    // 11 es el suelo de la escala (labelSmall); a 10 se salía.
-                    fontSize: 11,
-                    color: p.textMuted,
-                  ),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icono, size: 18, color: p.textMuted),
+                    const SizedBox(height: 2),
+                    Text(
+                      etiqueta,
+                      style: GoogleFonts.getFont(
+                        id.fontDisplay,
+                        // 11 es el suelo de la escala (labelSmall); a 10 se salía.
+                        fontSize: 11,
+                        color: p.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
         ],
       ),

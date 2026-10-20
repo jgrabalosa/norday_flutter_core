@@ -7,6 +7,7 @@ import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/screens/coleccion_screen.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
+import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Productos de la app (no del core): el consumible con uso propio es la Pausa.
@@ -399,6 +400,60 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(observador.total, 1);
+    });
+  });
+
+  group('Tema en propiedad', () {
+    testWidgets(
+      'no equipado, 320 px, texto 1,5, Dulce: sin overflow y «Equipar» tocable',
+      (tester) async {
+        aplicarIdentidadEquipada('TEMA_DULCE');
+        await montar(
+          tester,
+          catalogo: [_temaDulce],
+          inventario: [_inv(21)],
+          textScale: 1.5,
+          tamano: const Size(320, 640),
+        );
+
+        expect(tester.takeException(), isNull);
+        final equipar = find.widgetWithText(OutlinedButton, 'Equipar');
+        await tester.ensureVisible(equipar);
+        await tester.pump();
+        expect(equipar.hitTestable(), findsOneWidget);
+      },
+    );
+
+    testWidgets('altura igual a la de no poseído (la copia reserva el hueco)', (
+      tester,
+    ) async {
+      aplicarIdentidadEquipada('TEMA_DULCE');
+      final tarjeta = find
+          .ancestor(
+            of: find.text('Dulce'),
+            matching: find.byType(SuperficieIdentidad),
+          )
+          .first;
+
+      await montar(
+        tester,
+        catalogo: [_temaDulce],
+        inventario: [_inv(21)],
+        textScale: 1.5,
+        tamano: const Size(320, 640),
+      );
+      final alturaPoseido = tester.getSize(tarjeta).height;
+
+      await montar(
+        tester,
+        catalogo: [_temaDulce],
+        inventario: [],
+        textScale: 1.5,
+        tamano: const Size(320, 640),
+      );
+      final alturaNoPoseido = tester.getSize(tarjeta).height;
+
+      expect(alturaPoseido, closeTo(alturaNoPoseido, 0.5));
     });
   });
 }
