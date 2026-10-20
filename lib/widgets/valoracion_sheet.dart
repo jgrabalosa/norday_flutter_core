@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
+import 'estrella_valoracion.dart';
 
 /// Diálogo genérico de valoración post-acción, centrado y con tarjeta elevada.
 /// Devuelve un Map {'valoracion': int?, 'nota': String?} con lo que el
@@ -150,15 +150,7 @@ class _ValoracionDialogContentState extends State<_ValoracionDialogContent> {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
                           onPressed: () => _seleccionarEstrella(valor),
-                          icon: Icon(
-                            LucideIcons.star,
-                            color: marcada
-                                ? t.pointsText
-                                // El contorno de lo vacío: 3:1 en las tres
-                                // identidades. Al 45 % de `textMuted` se
-                                // quedaba en 2.96 (Profundidad) y 2.20 (Dulce).
-                                : t.aroVacio,
-                          ),
+                          icon: EstrellaValoracion(marcada: marcada),
                         );
                       }),
                     ),
