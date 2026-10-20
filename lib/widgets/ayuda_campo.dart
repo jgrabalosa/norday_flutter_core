@@ -58,24 +58,33 @@ class _AyudaCampoState extends State<AyudaCampo>
   final _portal = OverlayPortalController();
   final _claveIcono = GlobalKey();
 
-  late final AnimationController _anim = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 220),
-    reverseDuration: const Duration(milliseconds: 150),
-  );
+  late final AnimationController _anim;
 
   /// Para la escala, con un pequeño rebote al abrir. La opacidad usa el
   /// controlador sin curva: `easeOutBack` se pasa de 1, y una opacidad por
   /// encima de 1 es un error, no un efecto.
-  late final CurvedAnimation _escala = CurvedAnimation(
-    parent: _anim,
-    curve: Curves.easeOutBack,
-    reverseCurve: Curves.easeIn,
-  );
+  late final CurvedAnimation _escala;
 
   /// Dónde está el icono y cuánto mide el overlay, tomados al abrir.
   Rect? _icono;
   Size? _areaOverlay;
+
+  @override
+  void initState() {
+    super.initState();
+    // Se crean aquí y no de forma perezosa: un `dispose` que los creara por
+    // primera vez buscaría un ancestro ya desactivado.
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 150),
+    );
+    _escala = CurvedAnimation(
+      parent: _anim,
+      curve: Curves.easeOutBack,
+      reverseCurve: Curves.easeIn,
+    );
+  }
 
   @override
   void dispose() {
