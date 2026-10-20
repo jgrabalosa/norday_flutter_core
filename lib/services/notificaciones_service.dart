@@ -59,12 +59,20 @@ class NotificacionesService {
   }
 
   /// Sin preguntar nada: si hay permiso, registra el aviso; si no, no hace
-  /// nada. Es lo que hace el login.
-  static Future<void> registrarSiHayPermiso(int usuarioId) async {
+  /// nada.
+  ///
+  /// El login pasa `forzar: true`: la cuenta tiene un solo token en el backend,
+  /// así que el último dispositivo en iniciar sesión debe ser el que recibe los
+  /// avisos, aunque este móvil ya enviara ese token antes. El arranque con
+  /// sesión y el volver a primer plano no lo fuerzan.
+  static Future<void> registrarSiHayPermiso(
+    int usuarioId, {
+    bool forzar = false,
+  }) async {
     try {
       // Solo mira: lo que pide el permiso es la app, en contexto.
       if (!await Permission.notification.isGranted) return;
-      await _registrar(usuarioId);
+      await _registrar(usuarioId, forzar: forzar);
     } catch (_) {
       // Un fallo aquí nunca bloquea la entrada.
     }
@@ -97,16 +105,16 @@ class NotificacionesService {
 
   static String _claveToken(int usuarioId) => 'fcm_token_enviado_$usuarioId';
 
-  /// Envía el token si no es el último enviado para ese usuario. Un fallo al
-  /// enviar se propaga a quien llama y el token no se guarda, para que la
-  /// siguiente llamada lo reintente.
-  static Future<void> _registrar(int usuarioId) async {
+  /// Envía el token si no es el último enviado para ese usuario, o siempre si
+  /// [forzar]. Un fallo al enviar se propaga a quien llama y el token no se
+  /// guarda, para que la siguiente llamada lo reintente.
+  static Future<void> _registrar(int usuarioId, {bool forzar = false}) async {
     final token = await tokenDisponible();
     if (token == null) return;
     _escucharCambios();
     final prefs = await SharedPreferences.getInstance();
     final clave = _claveToken(usuarioId);
-    if (prefs.getString(clave) == token) return;
+    if (!forzar && prefs.getString(clave) == token) return;
     await enviarToken(usuarioId, token);
     await prefs.setString(clave, token);
   }

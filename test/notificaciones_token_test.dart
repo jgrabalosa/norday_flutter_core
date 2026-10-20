@@ -141,4 +141,28 @@ void main() {
     await NotificacionesService.registrarSiHayPermiso(8);
     expect(enviados, [(7, 'tok1'), (8, 'tok1')]);
   });
+
+  test('con forzar, un token ya guardado se vuelve a enviar', () async {
+    await NotificacionesService.registrarSiHayPermiso(7);
+    await NotificacionesService.registrarSiHayPermiso(7, forzar: true);
+    expect(enviados, [(7, 'tok1'), (7, 'tok1')]);
+  });
+
+  test('sin forzar, un token ya guardado sigue sin enviarse', () async {
+    await NotificacionesService.registrarSiHayPermiso(7);
+    await NotificacionesService.registrarSiHayPermiso(7);
+    expect(enviados, [(7, 'tok1')]);
+  });
+
+  test('con forzar, si el envío falla no se guarda como enviado', () async {
+    errorAlEnviar = Exception('sin red');
+    await expectLater(
+      NotificacionesService.registrarSiHayPermiso(7, forzar: true),
+      completes,
+    );
+
+    errorAlEnviar = null;
+    await NotificacionesService.registrarSiHayPermiso(7);
+    expect(enviados, [(7, 'tok1')]);
+  });
 }
