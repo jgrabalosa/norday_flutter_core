@@ -31,10 +31,10 @@ Rect? rectDeAncla(
 /// propósito: así nunca tapa lo señalado y no salta de sitio de forma
 /// impredecible entre pasos.
 ///
-/// La caja es la misma que la de OnboardingOverlay a propósito: para el
-/// usuario, la bienvenida y el recorrido son una sola secuencia, y dos cajas
-/// distintas la parten en dos. Lo que la separa de la app no es su forma sino
-/// el velo que tiene debajo.
+/// La caja es la misma que la de la tarjeta de bienvenida de cada app a
+/// propósito: para el usuario, la bienvenida y el recorrido son una sola
+/// secuencia, y dos cajas distintas la parten en dos. Lo que la separa de la
+/// app no es su forma sino el velo que tiene debajo.
 class CoachMark extends StatelessWidget {
   /// Qué se recorta. Null vela la pantalla entera, sin agujero.
   final Rect? foco;
@@ -214,7 +214,7 @@ class CoachMark extends StatelessWidget {
     double? altoMaximo,
   ) {
     return Container(
-      // Mismo lenguaje que la tarjeta de OnboardingOverlay —superficie,
+      // Mismo lenguaje que la tarjeta de bienvenida de la app —superficie,
       // esquinas, sombra, puntitos, botón— pero no su tamaño: aquí comparte
       // pantalla con el hueco y tiene que caber al lado.
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -225,7 +225,7 @@ class CoachMark extends StatelessWidget {
         // El filo lleva el terciario de la identidad. La sombra de color va
         // sin desplazamiento y muy abierta: no es una sombra, es la luz que
         // la tarjeta derrama sobre el velo. La negra sigue debajo dándole
-        // peso, como en OnboardingOverlay.
+        // peso, como en la tarjeta de bienvenida de la app.
         border: Border.all(color: t.points, width: 2),
         boxShadow: [
           BoxShadow(color: t.points.withValues(alpha: 0.35), blurRadius: 28),
@@ -293,7 +293,8 @@ class CoachMark extends StatelessWidget {
     );
   }
 
-  /// Los puntitos de progreso, calcados de los de OnboardingOverlay.
+  /// Los puntitos de progreso, calcados de los de la tarjeta de bienvenida de
+  /// la app.
   Widget _puntos(TokensContextuales t) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

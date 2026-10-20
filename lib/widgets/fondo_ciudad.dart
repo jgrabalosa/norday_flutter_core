@@ -49,9 +49,10 @@ const List<_Bloque> _bloques = [
 /// quiere decir. El perfil no cambia: las alturas de `_bloques` son
 /// fracciones de esta banda, así que sube entero conservando su ritmo.
 ///
-/// Las tarjetas de Neotokyo+ son transparentes desde la v0.40.0 (decisión de
-/// Quim, 18-oct): el aro del check tiene su base propia (`colorBase`), así que
-/// ya no depende de que la tarjeta sea opaca.
+/// Las tarjetas secundarias de Neotokyo+ son transparentes desde la v0.40.0
+/// (decisión de Quim, 18-oct); las protagonistas siguen opacas a propósito. El
+/// aro del check tiene su base propia (`colorBase`), así que ya no depende de
+/// que la tarjeta sea opaca.
 const double _bandaCiudad = 0.60;
 
 /// La rejilla de ventanas, en píxeles lógicos y NO normalizada.

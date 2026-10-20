@@ -81,7 +81,7 @@ int get maximoBurbujasVisibles => (_totalBurbujas * 0.8).round();
 /// LAS BURBUJAS SON DE LÁPIZ ROSA, Y SON MÁS OSCURAS QUE EL PAPEL, ASÍ QUE HAY
 /// QUE CUIDAR SU TINTA. En Dulce hay texto en `textMuted` flotando sobre el
 /// fondo sin tarjeta debajo —la cabecera "Completados" y el aviso de día sin
-/// hábitos—, y ese token tiene 7.01 de contraste sobre el `bg`. Una burbuja
+/// hábitos—, y ese token tiene 7.62 de contraste sobre el `bg`. Una burbuja
 /// más oscura que el papel lo hunde, y solaparse lo hunde más.
 ///
 /// El invariante: cada burbuja lleva como mucho [tintaMaximaBurbuja] de tinta,
