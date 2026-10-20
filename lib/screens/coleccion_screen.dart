@@ -860,10 +860,6 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     return Padding(padding: const EdgeInsets.only(bottom: 8), child: tarjeta);
   }
 
-  /// Lo que aun no se tiene: la tarjeta entera apagada. Su boton «Conseguir»
-  /// va encima y fuera del filtro, en el hueco que la fila le reserva; en esa
-  /// esquina el candado cede su sitio al boton. Tocar la tarjeta lleva también
-  /// a la tienda, y el toque del boton gana al de la tarjeta: se abre una vez.
   /// La copia invisible del «Conseguir»: en la tarjeta apagada reserva el alto
   /// y el sitio del boton real, que va encima. Es la última línea de la
   /// tarjeta, así que el boton real cae en la esquina inferior derecha.
@@ -876,6 +872,10 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     );
   }
 
+  /// Lo que aun no se tiene: la tarjeta entera apagada. Su boton «Conseguir»
+  /// va encima y fuera del filtro, en el hueco que la fila le reserva; en esa
+  /// esquina el candado cede su sitio al boton. Tocar la tarjeta lleva también
+  /// a la tienda, y el toque del boton gana al de la tarjeta: se abre una vez.
   Widget _envolverBloqueado(Widget tarjeta, Widget conseguir) {
     return _margen(
       GestureDetector(
