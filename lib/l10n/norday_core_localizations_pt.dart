@@ -452,6 +452,14 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get colUsar => 'Usar';
 
   @override
+  String get colConseguir => 'Conseguir';
+
+  @override
+  String colConseguirEtiqueta(String nombre) {
+    return 'Conseguir «$nombre» na loja';
+  }
+
+  @override
   String get colError => 'Não foi possível concluir a operação. Tenta de novo.';
 
   @override

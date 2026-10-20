@@ -135,6 +135,15 @@
   "colCantidad": "x{n}",
   "colSeActivaSolo": "Activates on its own",
   "colUsar": "Use",
+  "colConseguir": "Get",
+  "colConseguirEtiqueta": "Get “{nombre}” in the shop",
+  "@colConseguirEtiqueta": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "colError": "Something went wrong. Please try again.",
   "valTitulo": "Rating",
   "valEditar": "Edit rating",

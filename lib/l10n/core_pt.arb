@@ -135,6 +135,15 @@
   "colCantidad": "x{n}",
   "colSeActivaSolo": "Ativa sozinho",
   "colUsar": "Usar",
+  "colConseguir": "Conseguir",
+  "colConseguirEtiqueta": "Conseguir «{nombre}» na loja",
+  "@colConseguirEtiqueta": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "colError": "Não foi possível concluir a operação. Tenta de novo.",
   "valTitulo": "Avaliação",
   "valEditar": "Editar avaliação",
