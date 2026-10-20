@@ -92,6 +92,22 @@ class ColeccionScreen extends StatefulWidget {
   final int usuarioId;
   const ColeccionScreen({super.key, required this.usuarioId});
 
+  /// Seams de test: de dónde salen el catálogo y el inventario. En producción,
+  /// el backend.
+  @visibleForTesting
+  static Future<List<dynamic>> Function() obtenerCatalogo =
+      ApiServiceCore.getCatalogoProductos;
+
+  @visibleForTesting
+  static Future<List<dynamic>> Function(int) obtenerInventario =
+      ApiServiceCore.getInventarioProductos;
+
+  @visibleForTesting
+  static void reiniciarParaTest() {
+    obtenerCatalogo = ApiServiceCore.getCatalogoProductos;
+    obtenerInventario = ApiServiceCore.getInventarioProductos;
+  }
+
   @override
   State<ColeccionScreen> createState() => _ColeccionScreenState();
 }
@@ -120,8 +136,8 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
 
   Future<void> _cargarDatos() async {
     try {
-      final catalogo = await ApiServiceCore.getCatalogoProductos();
-      final inventario = await ApiServiceCore.getInventarioProductos(
+      final catalogo = await ColeccionScreen.obtenerCatalogo();
+      final inventario = await ColeccionScreen.obtenerInventario(
         widget.usuarioId,
       );
 
@@ -200,13 +216,15 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     }
   }
 
-  void _irATienda() {
-    Navigator.push(
+  /// Al volver se recarga: una compra cambia el inventario.
+  Future<void> _irATienda() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => TiendaScreen(usuarioId: widget.usuarioId),
       ),
     );
+    if (mounted) await _cargarDatos();
   }
 
   Map<String, List<dynamic>> _agruparPorCategoria() {
@@ -627,51 +645,61 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           ]
         : [t.inactivo, t.inactivo, t.inactivo];
 
+    final conseguir = _botonConseguir(l, producto);
     final contenido = _cajaTarjeta(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 56,
-            child: _tiraPaleta(
-              id,
-              colores,
-              alto: 40,
-              radio: id.radioSecundario,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              CatalogosCore.producto(context, codigo, producto['nombre']),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: t.text),
-            ),
-          ),
-          if (poseido) ...[
-            const SizedBox(width: 8),
-            if (procesandoEste)
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else if (equipado)
-              _pastillaEquipado(l, t)
-            else
-              OutlinedButton(
-                onPressed: () => _equipar(productoId, codigo, 'Tema'),
-                child: Text(l.tiendaEquipar),
+          Row(
+            children: [
+              SizedBox(
+                width: 56,
+                child: _tiraPaleta(
+                  id,
+                  colores,
+                  alto: 40,
+                  radio: id.radioSecundario,
+                ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  CatalogosCore.producto(context, codigo, producto['nombre']),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: t.text),
+                ),
+              ),
+              if (poseido) ...[
+                const SizedBox(width: 8),
+                if (procesandoEste)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (equipado)
+                  _pastillaEquipado(l, t)
+                else
+                  OutlinedButton(
+                    onPressed: () => _equipar(productoId, codigo, 'Tema'),
+                    child: Text(l.tiendaEquipar),
+                  ),
+              ],
+            ],
+          ),
+          if (!poseido) ...[
+            const SizedBox(height: 8),
+            _copiaInvisible(conseguir),
           ],
         ],
       ),
     );
 
-    if (!poseido) return _envolverBloqueado(contenido, t);
-    return contenido;
+    if (!poseido) return _envolverBloqueado(contenido, conseguir);
+    return _margen(contenido);
   }
 
   Widget _pastillaEquipado(NordayCoreLocalizations l, TokensContextuales t) {
@@ -710,80 +738,99 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     // 'Protección' sin uso propio es lo que se gasta solo cuando hace falta
     // (el escudo salta al romperse la racha); lo demas se usa a mano.
     final automatico = usoPropio == null && categoria == 'Protección';
+    final conseguir = _botonConseguir(l, producto);
 
     final contenido = _cajaTarjeta(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: ShapeDecoration(
-              color: t.successText.withValues(alpha: 0.12),
-              // La misma figura que la tarjeta que lo lleva: en Neotokyo+ el
-              // hueco del icono tambien corta.
-              shape: formaIdentidad(id, radio: id.radioSecundario),
-            ),
-            child: Icon(
-              _iconoConsumible(codigo, categoria),
-              size: 22,
-              color: t.successText,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: ShapeDecoration(
+                  color: t.successText.withValues(alpha: 0.12),
+                  // La misma figura que la tarjeta que lo lleva: en Neotokyo+ el
+                  // hueco del icono tambien corta.
+                  shape: formaIdentidad(id, radio: id.radioSecundario),
+                ),
+                child: Icon(
+                  _iconoConsumible(codigo, categoria),
+                  size: 22,
+                  color: t.successText,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      CatalogosCore.producto(
+                        context,
+                        codigo,
+                        producto['nombre'],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleMedium?.copyWith(color: t.text),
+                    ),
+                    if (usoPropio != null || automatico) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        usoPropio ?? l.colSeActivaSolo,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: t.textMuted),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (poseido) ...[
+                const SizedBox(width: 8),
                 Text(
-                  CatalogosCore.producto(context, codigo, producto['nombre']),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  l.colCantidad(cantidad),
                   style: Theme.of(
                     context,
                   ).textTheme.titleMedium?.copyWith(color: t.text),
                 ),
-                if (usoPropio != null || automatico) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    usoPropio ?? l.colSeActivaSolo,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: t.textMuted),
-                  ),
+                if (cantidad > 0 && !automatico && usoPropio == null) ...[
+                  const SizedBox(width: 10),
+                  if (procesandoEste)
+                    const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () => _usar(productoId),
+                      child: Text(l.colUsar),
+                    ),
                 ],
               ],
-            ),
-          ),
-          if (poseido) ...[
-            const SizedBox(width: 8),
-            Text(
-              l.colCantidad(cantidad),
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: t.text),
-            ),
-            if (!automatico && usoPropio == null) ...[
-              const SizedBox(width: 10),
-              if (procesandoEste)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                ElevatedButton(
-                  onPressed: cantidad > 0 ? () => _usar(productoId) : null,
-                  child: Text(l.colUsar),
-                ),
             ],
+          ),
+          // Gastado (×0) o sin uso desde aquí: el «Conseguir» baja a su línea.
+          if (poseido && cantidad == 0) ...[
+            const SizedBox(height: 8),
+            Align(alignment: Alignment.centerRight, child: conseguir),
+          ],
+          if (!poseido) ...[
+            const SizedBox(height: 8),
+            _copiaInvisible(conseguir),
           ],
         ],
       ),
     );
 
-    if (!poseido) return _envolverBloqueado(contenido, t);
-    return contenido;
+    if (!poseido) return _envolverBloqueado(contenido, conseguir);
+    return _margen(contenido);
   }
 
   /// Por codigo cuando lo conocemos; si no, por categoria, para que un
@@ -804,36 +851,66 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// El filtro de grises de lo bloqueado se aplica por fuera, asi que la caja
   /// no tiene que saber si lo que lleva dentro se tiene o no.
   Widget _cajaTarjeta({required Widget child}) {
-    return SuperficieIdentidad(
-      margen: const EdgeInsets.only(bottom: 8),
-      relleno: const EdgeInsets.all(12),
-      child: child,
+    return SuperficieIdentidad(relleno: const EdgeInsets.all(12), child: child);
+  }
+
+  /// El hueco entre tarjetas va fuera de la caja: así la tarjeta bloqueada y
+  /// su boton comparten el mismo marco.
+  Widget _margen(Widget tarjeta) {
+    return Padding(padding: const EdgeInsets.only(bottom: 8), child: tarjeta);
+  }
+
+  /// Lo que aun no se tiene: la tarjeta entera apagada. Su boton «Conseguir»
+  /// va encima y fuera del filtro, en el hueco que la fila le reserva; en esa
+  /// esquina el candado cede su sitio al boton. Tocar la tarjeta lleva también
+  /// a la tienda, y el toque del boton gana al de la tarjeta: se abre una vez.
+  /// La copia invisible del «Conseguir»: en la tarjeta apagada reserva el alto
+  /// y el sitio del boton real, que va encima. Es la última línea de la
+  /// tarjeta, así que el boton real cae en la esquina inferior derecha.
+  Widget _copiaInvisible(Widget conseguir) {
+    return Opacity(
+      opacity: 0,
+      child: ExcludeSemantics(
+        child: Align(alignment: Alignment.centerRight, child: conseguir),
+      ),
     );
   }
 
-  /// Lo que aun no se tiene: la misma tarjeta apagada y con candado. Tocarla
-  /// lleva a la tienda, que es donde se consigue.
-  Widget _envolverBloqueado(Widget tarjeta, TokensContextuales t) {
-    return GestureDetector(
-      onTap: _irATienda,
-      child: Stack(
-        children: [
-          // El candado se queda fuera del filtro: es lo unico que tiene que
-          // seguir leyendose a plena opacidad.
-          Opacity(
-            opacity: _opacidadBloqueado,
-            child: ColorFiltered(
-              colorFilter: _filtroGrises,
-              child: IgnorePointer(child: tarjeta),
+  Widget _envolverBloqueado(Widget tarjeta, Widget conseguir) {
+    return _margen(
+      GestureDetector(
+        onTap: _irATienda,
+        child: Stack(
+          children: [
+            Opacity(
+              opacity: _opacidadBloqueado,
+              child: ColorFiltered(
+                colorFilter: _filtroGrises,
+                child: IgnorePointer(child: tarjeta),
+              ),
             ),
-          ),
-          Positioned(
-            right: 12,
-            top: 12,
-            child: Icon(LucideIcons.lock, size: 16, color: t.text),
-          ),
-        ],
+            // Mismo sitio que la copia invisible: el relleno de la caja es 12.
+            Positioned(right: 12, bottom: 12, child: conseguir),
+          ],
+        ),
       ),
+    );
+  }
+
+  /// El «Conseguir» de una tarjeta: el mismo OutlinedButton que «Equipar», con
+  /// el nombre del producto en la etiqueta, porque hay varios en la pantalla.
+  Widget _botonConseguir(NordayCoreLocalizations l, dynamic producto) {
+    final nombre = CatalogosCore.producto(
+      context,
+      producto['codigo'] as String?,
+      producto['nombre'],
+    );
+    return Semantics(
+      button: true,
+      label: l.colConseguirEtiqueta(nombre),
+      onTap: () => _irATienda(),
+      excludeSemantics: true,
+      child: OutlinedButton(onPressed: _irATienda, child: Text(l.colConseguir)),
     );
   }
 }
