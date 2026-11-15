@@ -80,12 +80,18 @@ void main() {
     avisos = AvisosFalsos();
   });
 
-  MotorSesion nuevoMotor(WidgetTester tester) => MotorSesion(
-    reloj: reloj,
-    pantalla: pantalla,
-    avisos: avisos,
-    binding: tester.binding,
-  );
+  /// Cada motor se desecha al acabar el test aunque falle: si no, seguiría
+  /// escuchando el binding, que es el mismo para todos los tests.
+  MotorSesion nuevoMotor(WidgetTester tester) {
+    final motor = MotorSesion(
+      reloj: reloj,
+      pantalla: pantalla,
+      avisos: avisos,
+      binding: tester.binding,
+    );
+    addTearDown(motor.dispose);
+    return motor;
+  }
 
   /// Lleva el ciclo de vida por los pasos que da Android, de uno en uno.
   Future<void> ciclo(WidgetTester tester, List<AppLifecycleState> pasos) async {
@@ -187,14 +193,18 @@ void main() {
     expect(pantalla.consultas, 2);
     expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
     expect((await guardada())!['estado'], 'enGracia');
-    expect(avisos.llamadas, ['fin', 'gracia']);
+    // Al salir: aviso de gracia y fuera el de fin (si no vuelve, no hay fin).
+    expect(avisos.llamadas, ['fin', 'gracia', '-fin']);
     // La gracia se mide desde el `paused`: ya se han ido 400 ms.
     expect(avisos.ultimaGracia, const Duration(milliseconds: 9600));
 
     reloj.avanzar(const Duration(seconds: 5));
     await ciclo(tester, volver);
     expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
-    expect(avisos.llamadas.last, '-gracia');
+    // Al volver: fuera el de gracia y otra vez el de fin, a la hora que toca.
+    expect(avisos.llamadas, ['fin', 'gracia', '-fin', '-gracia', 'fin']);
+    final restante = motor.sesion.value!.restante(reloj.mono);
+    expect(avisos.ultimoFin, reloj.utc.add(restante));
     motor.dispose();
   });
 
@@ -229,6 +239,25 @@ void main() {
     await tester.pump(const Duration(milliseconds: 10001));
     await tester.pump();
     expect(motor.sesion.value!.estado, EstadoSesion.perdida);
+    motor.dispose();
+  });
+
+  testWidgets('la meta llega dentro de la gracia con la app detrás: '
+      'completada, y sale el aviso de fin', (tester) async {
+    final motor = await empezado(tester);
+    reloj.avanzar(const Duration(minutes: 24, seconds: 55));
+    await tester.pump(const Duration(seconds: 1));
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+
+    reloj.avanzar(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
+    final s = motor.sesion.value!;
+    expect(s.estado, EstadoSesion.completada);
+    expect(s.minutos, 25);
+    expect(avisos.llamadas.sublist(1), ['gracia', '-fin', '-gracia', 'fin']);
     motor.dispose();
   });
 

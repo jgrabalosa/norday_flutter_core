@@ -66,6 +66,11 @@ abstract interface class FuentePantalla {
 /// al recomponer, el motor vuelve a programar el fin.
 abstract interface class AvisosSesion {
   /// Aviso inmediato: el usuario ha salido y le quedan [quedan] de gracia.
+  /// Conviene que la notificación caduque sola a ese plazo (en Android,
+  /// `setTimeoutAfter(quedan)` del `NotificationCompat.Builder`; en
+  /// `flutter_local_notifications`, `timeoutAfter`): pasada la gracia ya no
+  /// dice la verdad. Al salir, el motor también llama a [cancelarFin], y
+  /// vuelve a [programarFin] si el usuario vuelve a tiempo.
   Future<void> avisarGracia(Duration quedan);
 
   /// Quita el aviso de gracia (ha vuelto, o la sesión ha terminado).
@@ -283,8 +288,10 @@ class MotorSesion {
     return _comprobarSalida(_generacion);
   }
 
-  /// Suelta el ciclo de vida y los temporizadores.
+  /// Suelta el ciclo de vida y los temporizadores. Llamarlo dos veces no
+  /// hace nada.
   void dispose() {
+    if (_desechado) return;
     _desechado = true;
     _tic?.cancel();
     _vigia?.cancel();
@@ -423,26 +430,37 @@ class MotorSesion {
   }) async {
     final a = anterior.estado;
     final n = nueva.estado;
+    final programar = reloj.ahoraUtc().add(nueva.restante(mono));
     if (a != EstadoSesion.enGracia && n == EstadoSesion.enGracia) {
+      // Fuera de la app: el aviso de gracia, y fuera el de fin, que solo
+      // vuelve si vuelve el usuario.
       await _seguro(
         () => avisos.avisarGracia(
           Duration(milliseconds: math.max(0, nueva.finGraciaMonoMs! - mono)),
         ),
       );
+      await _seguro(avisos.cancelarFin);
     }
     if (a == EstadoSesion.enGracia && n != EstadoSesion.enGracia) {
       await _seguro(avisos.cancelarGracia);
     }
     final empieza = a == EstadoSesion.preparada && n == EstadoSesion.corriendo;
-    if (empieza || (recompuesta && n.activa)) {
-      final fin = reloj.ahoraUtc().add(nueva.restante(mono));
-      await _seguro(() => avisos.programarFin(fin));
+    final vuelve = a == EstadoSesion.enGracia && n == EstadoSesion.corriendo;
+    if (empieza || vuelve || (recompuesta && n == EstadoSesion.corriendo)) {
+      await _seguro(() => avisos.programarFin(programar));
     }
     if (n.esFinal && !a.esFinal) {
-      // Completada con la app detrás (pantalla apagada): el aviso de fin es
-      // justo el que tiene que salir. En cualquier otro final, fuera.
       final completadaDetras = n == EstadoSesion.completada && !_enPrimerPlano;
-      if (!completadaDetras) await _seguro(avisos.cancelarFin);
+      if (completadaDetras && a == EstadoSesion.enGracia) {
+        // La meta llegó dentro de la gracia, con la app detrás: el aviso de
+        // fin se había quitado al salir, así que se pone ahora.
+        await _seguro(() => avisos.programarFin(reloj.ahoraUtc()));
+      } else if (!completadaDetras) {
+        // Completada con la app detrás (pantalla apagada): el aviso de fin
+        // programado es justo el que tiene que salir. En cualquier otro
+        // final, fuera.
+        await _seguro(avisos.cancelarFin);
+      }
     }
   }
 
