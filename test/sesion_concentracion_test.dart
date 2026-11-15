@@ -417,6 +417,44 @@ void main() {
       });
     });
 
+    test('lo que está fuera de rango o no cuadra con el estado da null', () {
+      Map<String, Object?> con(
+        SesionConcentracion base,
+        Map<String, Object?> cambios,
+      ) => {...base.toJson(), ...cambios};
+      final completada = enCurso.actualizar(inicio + 45 * min);
+      final perdida = enCurso.rendirse(inicio + min);
+      final enGracia = enCurso.salir(inicio + min);
+      final rotos = <String, Map<String, Object?>>{
+        'objetivo cero': con(enCurso, {'objetivoMs': 0}),
+        'gracia negativa': con(enCurso, {'graciaMs': -1}),
+        'mínimo negativo': con(enCurso, {'minimoMs': -1}),
+        'tolerancia negativa': con(enCurso, {'toleranciaArranqueMs': -1}),
+        'clave vacía': con(enCurso, {'clave': ''}),
+        'final sin fin': con(completada, {'finMonoMs': null}),
+        'fin antes del inicio': con(completada, {'finMonoMs': inicio - 1}),
+        'perdida sin motivo': con(perdida, {'motivoPerdida': null}),
+        'completada con motivo': con(completada, {'motivoPerdida': 'salida'}),
+        'gracia con salida antes del inicio': con(enGracia, {
+          'salidaMonoMs': inicio - 1,
+        }),
+        'corriendo con salida': con(enCurso, {'salidaMonoMs': inicio + 1}),
+        'corriendo con fin': con(enCurso, {'finMonoMs': inicio + 1}),
+        'preparada con inicio': con(base, {'inicioMonoMs': inicio}),
+        'monótono negativo': con(enCurso, {'inicioMonoMs': -5}),
+      };
+      rotos.forEach((nombre, json) {
+        expect(SesionConcentracion.fromJson(json), isNull, reason: nombre);
+      });
+    });
+
+    test('la versión del formato es la 1', () {
+      expect(SesionConcentracion.versionFormato, 1);
+      expect(enCurso.toJson()['version'], 1);
+      final sinVersion = {...enCurso.toJson()}..remove('version');
+      expect(SesionConcentracion.fromJson(sinVersion), isNull);
+    });
+
     test('lo que no se entiende da null', () {
       expect(SesionConcentracion.fromJson({}), isNull);
       expect(

@@ -522,23 +522,41 @@ class MotorSesion {
     _tic = Timer(Duration(milliseconds: math.max(0, objetivo - mono)), _tictac);
   }
 
+  /// La sesión guardada. Lo ilegible se borra, salvo lo escrito por una
+  /// versión más nueva del formato (la app se ha vuelto atrás de versión):
+  /// eso se deja donde está, por si vuelve a subir, aunque una sesión nueva
+  /// lo sustituirá.
   Future<SesionConcentracion?> _leer() async {
+    SharedPreferences prefs;
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final crudo = prefs.getString(clavePreferencias);
-      if (crudo == null) return null;
-      final s = SesionConcentracion.fromJson(
-        (jsonDecode(crudo) as Map).cast<String, Object?>(),
-      );
-      if (s == null) {
-        debugPrint('MotorSesion: sesión guardada ilegible, se descarta');
-        await prefs.remove(clavePreferencias);
-      }
-      return s;
+      prefs = await SharedPreferences.getInstance();
     } catch (e) {
       debugPrint('MotorSesion: no se pudo leer la sesión guardada: $e');
       return null;
     }
+    final crudo = prefs.getString(clavePreferencias);
+    if (crudo == null) return null;
+    Object? json;
+    try {
+      json = jsonDecode(crudo);
+    } catch (_) {
+      json = null;
+    }
+    final mapa = json is Map ? json.cast<String, Object?>() : null;
+    final s = mapa == null ? null : SesionConcentracion.fromJson(mapa);
+    if (s != null) return s;
+    final version = mapa?['version'];
+    if (version is int && version > SesionConcentracion.versionFormato) {
+      debugPrint('MotorSesion: sesión guardada con un formato más nuevo');
+      return null;
+    }
+    debugPrint('MotorSesion: sesión guardada ilegible, se borra');
+    try {
+      await prefs.remove(clavePreferencias);
+    } catch (e) {
+      debugPrint('MotorSesion: no se pudo borrar la sesión ilegible: $e');
+    }
+    return null;
   }
 
   Future<void> _guardar(SesionConcentracion s) async {

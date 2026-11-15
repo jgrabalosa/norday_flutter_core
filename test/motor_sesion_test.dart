@@ -707,6 +707,28 @@ void main() {
       motor.dispose();
     });
 
+    testWidgets('lo guardado que ni siquiera es JSON se borra', (tester) async {
+      SharedPreferences.setMockInitialValues({clave: 'no es json'});
+      await alFrente(tester);
+      final motor = nuevoMotor(tester);
+      expect(await motor.iniciar(), isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey(clave), isFalse);
+      motor.dispose();
+    });
+
+    testWidgets('lo guardado por una versión más nueva del formato no se '
+        'borra', (tester) async {
+      final futura = jsonEncode({'version': 2, 'clave': 'x'});
+      SharedPreferences.setMockInitialValues({clave: futura});
+      await alFrente(tester);
+      final motor = nuevoMotor(tester);
+      expect(await motor.iniciar(), isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(clave), futura);
+      motor.dispose();
+    });
+
     testWidgets('lo guardado ilegible se descarta', (tester) async {
       SharedPreferences.setMockInitialValues({clave: '{"version":1}'});
       await alFrente(tester);

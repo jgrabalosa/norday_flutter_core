@@ -422,10 +422,17 @@ class SesionConcentracion {
 
   // ── Persistencia ──────────────────────────────────────
 
-  static const _version = 1;
+  /// Versión del formato de [toJson]. Es la 1 y no hay anteriores
+  /// publicadas.
+  ///
+  /// Para cambiar el formato: subir este número y añadir en [_migrar] el paso
+  /// de la versión anterior a la nueva. Nunca descartar sin más: una sesión
+  /// acabada y aún sin enviar se perdería. Un campo nuevo que pueda faltar
+  /// (como `salidaPendienteMonoMs`) no necesita versión: se lee como `null`.
+  static const int versionFormato = 1;
 
   Map<String, Object?> toJson() => {
-    'version': _version,
+    'version': versionFormato,
     'clave': clave,
     'objetivoMs': _objetivoMs,
     'graciaMs': reglas.gracia.inMilliseconds,
@@ -441,11 +448,21 @@ class SesionConcentracion {
     'motivoPerdida': motivoPerdida?.name,
   };
 
-  /// La sesión de [json], o `null` si no se entiende (otra versión o datos
-  /// rotos).
-  static SesionConcentracion? fromJson(Map<String, Object?> json) {
+  /// Lleva [json] de su versión a [versionFormato]. `null` si la versión no
+  /// se conoce (falta, o es de una app más nueva).
+  static Map<String, Object?>? _migrar(Map<String, Object?> json) =>
+      switch (json['version']) {
+        1 => json,
+        _ => null,
+      };
+
+  /// La sesión de [json], o `null` si no se entiende: versión desconocida,
+  /// datos rotos, valores fuera de rango o campos que no cuadran con el
+  /// estado.
+  static SesionConcentracion? fromJson(Map<String, Object?> original) {
     try {
-      if (json['version'] != _version) return null;
+      final json = _migrar(original);
+      if (json == null) return null;
       final estado = EstadoSesion.values.byName(json['estado']! as String);
       final inicio = json['inicioUtc'] as String?;
       final motivo = json['motivoPerdida'] as String?;
@@ -471,15 +488,47 @@ class SesionConcentracion {
             ? null
             : MotivoPerdida.values.byName(motivo),
       );
-      final empezada = s.inicioMonoMs != null && s.inicioUtc != null;
-      if (estado != EstadoSesion.preparada && !empezada) return null;
-      if (estado == EstadoSesion.enGracia && s.salidaMonoMs == null) {
-        return null;
-      }
-      return s;
+      return s._esCoherente ? s : null;
     } catch (_) {
       return null;
     }
+  }
+
+  /// Los rangos y las combinaciones de campos que puede tener cada estado.
+  bool get _esCoherente {
+    if (clave.isEmpty || duracionObjetivo <= Duration.zero) return false;
+    if (reglas.gracia.isNegative ||
+        reglas.minimoParaContar.isNegative ||
+        reglas.toleranciaArranque.isNegative) {
+      return false;
+    }
+    if (estado == EstadoSesion.preparada) {
+      return inicioMonoMs == null &&
+          inicioUtc == null &&
+          salidaMonoMs == null &&
+          salidaPendienteMonoMs == null &&
+          finMonoMs == null &&
+          motivoPerdida == null;
+    }
+    final ini = inicioMonoMs;
+    if (ini == null || inicioUtc == null || ini < 0) return false;
+    bool desdeInicio(int? v) => v == null || v >= ini;
+    if (!desdeInicio(salidaMonoMs) ||
+        !desdeInicio(salidaPendienteMonoMs) ||
+        !desdeInicio(finMonoMs)) {
+      return false;
+    }
+    if ((motivoPerdida != null) != (estado == EstadoSesion.perdida)) {
+      return false;
+    }
+    return switch (estado) {
+      EstadoSesion.corriendo => salidaMonoMs == null && finMonoMs == null,
+      EstadoSesion.enGracia =>
+        salidaMonoMs != null &&
+            finMonoMs == null &&
+            salidaPendienteMonoMs == null,
+      _ => finMonoMs != null && salidaMonoMs == null,
+    };
   }
 
   @override
