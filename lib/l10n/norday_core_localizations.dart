@@ -103,10 +103,10 @@ abstract class NordayCoreLocalizations {
     Locale('pt'),
   ];
 
-  /// No description provided for @appTitulo.
+  /// Caída neutra del nombre de la app. Cada app pone el suyo con TextosApp.nombre
   ///
   /// In es, this message translates to:
-  /// **'Norday Habits'**
+  /// **'Norday'**
   String get appTitulo;
 
   /// No description provided for @idioma.
@@ -475,10 +475,10 @@ abstract class NordayCoreLocalizations {
   /// **'¿Eliminar tu cuenta?'**
   String get perfilEliminarTitulo;
 
-  /// No description provided for @perfilEliminarCuerpo.
+  /// Caída neutra de la primera confirmación de borrado de cuenta. Cada app pone el suyo con TextosApp.eliminarCuenta
   ///
   /// In es, this message translates to:
-  /// **'Se borrarán para siempre todos tus hábitos, registros, rachas, logros y puntos.\n\nEsta acción no se puede deshacer.'**
+  /// **'Se borrarán para siempre tu cuenta de Norday y todo lo que guarda en cada una de sus apps: tu progreso, tus logros y tus puntos.\n\nEsta acción no se puede deshacer.'**
   String get perfilEliminarCuerpo;
 
   /// No description provided for @perfilUltimaConfirmacion.
@@ -607,10 +607,10 @@ abstract class NordayCoreLocalizations {
   /// **'Eliminar mi cuenta'**
   String get perfilEliminarCuenta;
 
-  /// No description provided for @loginTagline.
+  /// Caída neutra del lema del login. Cada app pone el suyo con TextosApp.lemaLogin
   ///
   /// In es, this message translates to:
-  /// **'Construye hábitos, transforma tu vida'**
+  /// **'Un poco cada día, a tu manera'**
   String get loginTagline;
 
   /// No description provided for @loginIniciarSesion.
@@ -1429,10 +1429,10 @@ abstract class NordayCoreLocalizations {
   /// **'Hay una versión nueva'**
   String get actualizacionTitulo;
 
-  /// Pantalla de actualización obligatoria: explicación
+  /// Pantalla de actualización obligatoria: explicación. Caída neutra; cada app pone la suya con TextosApp.actualizacionObligatoria
   ///
   /// In es, this message translates to:
-  /// **'Para seguir usando Norday, actualiza la app. Tus hábitos y tu progreso se quedan tal cual.'**
+  /// **'Para seguir usando Norday, actualiza la app. Tu progreso se queda tal cual.'**
   String get actualizacionTexto;
 
   /// Pantalla de actualización obligatoria: botón
@@ -1440,6 +1440,42 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Actualizar ahora'**
   String get actualizacionBoton;
+
+  /// Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Si sales de la app, pierdes la sesión'**
+  String get sesionAvisoSalir;
+
+  /// Notificación local al salir de la app durante una sesión: título
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a tu sesión'**
+  String get sesionAvisoGraciaTitulo;
+
+  /// Notificación local al salir de la app durante una sesión: cuerpo
+  ///
+  /// In es, this message translates to:
+  /// **'Si no vuelves en {segundos} s, la pierdes.'**
+  String sesionAvisoGraciaCuerpo(int segundos);
+
+  /// Notificación local al llegar a la meta de una sesión: título
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión completada'**
+  String get sesionAvisoFinTitulo;
+
+  /// Notificación local al llegar a la meta de una sesión: cuerpo
+  ///
+  /// In es, this message translates to:
+  /// **'Has llegado al final. Entra para ver el resultado.'**
+  String get sesionAvisoFinCuerpo;
+
+  /// Lector de pantalla del aro de cuenta atrás: minutos que faltan, redondeados hacia arriba
+  ///
+  /// In es, this message translates to:
+  /// **'{minutos, plural, =0{Tiempo cumplido} =1{Queda 1 minuto} other{Quedan {minutos} minutos}}'**
+  String aroCuentaAtrasEtiqueta(int minutos);
 }
 
 class _NordayCoreLocalizationsDelegate

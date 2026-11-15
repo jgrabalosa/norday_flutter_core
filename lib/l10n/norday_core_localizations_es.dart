@@ -9,7 +9,7 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   NordayCoreLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitulo => 'Norday Habits';
+  String get appTitulo => 'Norday';
 
   @override
   String get idioma => 'Idioma';
@@ -211,7 +211,7 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
 
   @override
   String get perfilEliminarCuerpo =>
-      'Se borrarán para siempre todos tus hábitos, registros, rachas, logros y puntos.\n\nEsta acción no se puede deshacer.';
+      'Se borrarán para siempre tu cuenta de Norday y todo lo que guarda en cada una de sus apps: tu progreso, tus logros y tus puntos.\n\nEsta acción no se puede deshacer.';
 
   @override
   String get perfilUltimaConfirmacion => 'Última confirmación';
@@ -278,7 +278,7 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get perfilEliminarCuenta => 'Eliminar mi cuenta';
 
   @override
-  String get loginTagline => 'Construye hábitos, transforma tu vida';
+  String get loginTagline => 'Un poco cada día, a tu manera';
 
   @override
   String get loginIniciarSesion => 'Iniciar sesión';
@@ -734,8 +734,38 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
 
   @override
   String get actualizacionTexto =>
-      'Para seguir usando Norday, actualiza la app. Tus hábitos y tu progreso se quedan tal cual.';
+      'Para seguir usando Norday, actualiza la app. Tu progreso se queda tal cual.';
 
   @override
   String get actualizacionBoton => 'Actualizar ahora';
+
+  @override
+  String get sesionAvisoSalir => 'Si sales de la app, pierdes la sesión';
+
+  @override
+  String get sesionAvisoGraciaTitulo => 'Vuelve a tu sesión';
+
+  @override
+  String sesionAvisoGraciaCuerpo(int segundos) {
+    return 'Si no vuelves en $segundos s, la pierdes.';
+  }
+
+  @override
+  String get sesionAvisoFinTitulo => 'Sesión completada';
+
+  @override
+  String get sesionAvisoFinCuerpo =>
+      'Has llegado al final. Entra para ver el resultado.';
+
+  @override
+  String aroCuentaAtrasEtiqueta(int minutos) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutos,
+      locale: localeName,
+      other: 'Quedan $minutos minutos',
+      one: 'Queda 1 minuto',
+      zero: 'Tiempo cumplido',
+    );
+    return '$_temp0';
+  }
 }

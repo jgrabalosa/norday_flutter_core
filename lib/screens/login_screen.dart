@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
+import '../l10n/textos_app.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
@@ -345,6 +346,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Nori y el nombre. Sustituye al icono genérico de check que hacía de logo.
   ///
+  /// El nombre y el lema los pone cada app con [TextosApp]; sin registrar,
+  /// «Norday» y un lema genérico.
+  ///
   /// El wordmark va en `text` y no en el verde de antes: aquel se eligió
   /// porque el esmeralda no contrastaba sobre el fondo claro, y con el color
   /// de texto de cada identidad el problema no existe en ninguna de las
@@ -354,10 +358,14 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         const NoriMarca(tamano: _ladoNori, intensidadHalo: 0.7),
         const SizedBox(height: 8),
-        WordmarkIdentidad(texto: l.appTitulo, tamano: 26, color: t.text),
+        WordmarkIdentidad(
+          texto: TextosApp.nombreDe(context),
+          tamano: 26,
+          color: t.text,
+        ),
         const SizedBox(height: 6),
         Text(
-          l.loginTagline,
+          TextosApp.lemaLoginDe(context),
           textAlign: TextAlign.center,
           style: Theme.of(
             context,

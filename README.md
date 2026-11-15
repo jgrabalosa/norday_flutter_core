@@ -29,6 +29,19 @@ Un solo import: el paquete exporta todo por su fichero barril.
 ## Lo que hay que enchufar desde la app
 
 ```dart
+// 0. Antes de runApp: qué app es y sus textos en las pantallas del core.
+//    appId es la cabecera X-Norday-App ('habitos', 'enfoque'…); sin él no se
+//    manda y la versión mínima no se pregunta. Sin TextosApp, el login, la
+//    actualización obligatoria y el borrado de cuenta dicen «Norday» y
+//    frases neutras.
+ApiServiceCore.appId = '<app>';
+TextosApp.registrar(
+  nombre: (context) => ...,
+  lemaLogin: (context) => ...,
+  actualizacionObligatoria: (context) => ...,
+  eliminarCuenta: (context) => ...,
+);
+
 // 1. El navigator del motor, en vez de uno propio.
 MaterialApp(
   navigatorKey: nordayNavigatorKey,
@@ -48,6 +61,9 @@ LoginScreen(destinoTrasLogin: (context, mostrarOnboarding) =>
 // 3. Los logros propios, para que LogrosScreen y las celebraciones los
 //    traduzcan. Una vez, antes de runApp.
 CatalogosCore.registrarLogrosDeDominio(nombres: ..., descripciones: ...);
+// Y los productos propios, si los hay (en Norday Habits, la pausa).
+CatalogosCore.registrarProductosDeDominio(
+    nombres: ..., descripciones: ..., usos: ...);
 ```
 
 Y tras el login (o tras el splash con sesión guardada), el aspecto que el

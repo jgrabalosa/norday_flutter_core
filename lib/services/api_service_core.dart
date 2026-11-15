@@ -25,20 +25,23 @@ class ApiServiceCore {
   );
 
   /// Qué app del ecosistema es esta. Viaja en la cabecera `X-Norday-App` de
-  /// los dos catálogos para que el backend filtre lo que es exclusivo de otra
-  /// app; lo compartido lo ven todas.
+  /// los dos catálogos, para que el backend filtre lo que es exclusivo de otra
+  /// app (lo compartido lo ven todas), y del registro del token de avisos,
+  /// para que el backend guarde un token por app y cada push llegue a la app
+  /// que toca.
   ///
   /// Cada app lo fija antes de `runApp`:
   /// `ApiServiceCore.appId = 'habitos';`
   ///
-  /// El motor no asume ninguna app concreta. Si una app no necesita filtrar
-  /// el catálogo, deja este valor vacío y no se envía la cabecera.
+  /// El motor no asume ninguna app concreta. Si se deja vacío, no se envía la
+  /// cabecera: los catálogos llegan sin filtrar y el backend guarda el token
+  /// como de `habitos`, que es lo que hacía antes de existir la cabecera.
   static String appId = '';
 
-  /// Cabecera de identificación de app. Solo la llevan los catálogos: el
-  /// inventario y los logros de un usuario ya vienen acotados por quién es,
-  /// no por desde dónde mira.
-  static Map<String, String> get _headersCatalogo =>
+  /// Cabecera de identificación de app. Solo la llevan los catálogos y el
+  /// token de avisos: el inventario y los logros de un usuario ya vienen
+  /// acotados por quién es, no por desde dónde mira.
+  static Map<String, String> get _cabeceraApp =>
       appId.isEmpty ? const {} : {'X-Norday-App': appId};
 
   /// Cliente HTTP compartido: reutiliza la conexión TCP+TLS (keep-alive).
@@ -464,7 +467,7 @@ class ApiServiceCore {
   }
 
   static Future<List<dynamic>> getCatalogoLogros() async {
-    final headers = {...await getHeaders(), ..._headersCatalogo};
+    final headers = {...await getHeaders(), ..._cabeceraApp};
     final response = await enviar(
       () => cliente.get(
         Uri.parse('$baseUrl/gamificacion/logros/catalogo'),
@@ -489,7 +492,7 @@ class ApiServiceCore {
 
   // ── Tienda ─────────────────────────────────────────────
   static Future<List<dynamic>> getCatalogoProductos() async {
-    final headers = {...await getHeaders(), ..._headersCatalogo};
+    final headers = {...await getHeaders(), ..._cabeceraApp};
     final response = await enviar(
       () => cliente.get(
         Uri.parse('$baseUrl/gamificacion/productos/catalogo'),
@@ -757,8 +760,10 @@ class ApiServiceCore {
   }
 
   // ── Notificaciones ─────────────────────────────────────
+  /// Registra el token de avisos de este dispositivo para esta app
+  /// (`X-Norday-App`, ver [appId]). El backend guarda uno por usuario y app.
   static Future<void> actualizarFcmToken(int usuarioId, String fcmToken) async {
-    final headers = await getHeaders();
+    final headers = {...await getHeaders(), ..._cabeceraApp};
     final response = await enviar(
       () => cliente.put(
         Uri.parse('$baseUrl/usuarios/$usuarioId/fcm-token'),

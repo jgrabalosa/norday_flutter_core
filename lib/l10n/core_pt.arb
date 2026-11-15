@@ -1,6 +1,6 @@
 {
   "@@locale": "pt",
-  "appTitulo": "Norday Habits",
+  "appTitulo": "Norday",
   "idioma": "Idioma",
   "zonaHoraria": "Fuso horário",
   "preferencias": "Preferências",
@@ -62,7 +62,7 @@
   "perfilErrorPass": "Não foi possível alterar a palavra-passe. Verifica os dados e tenta novamente.",
   "perfilErrorEliminar": "Não foi possível eliminar a conta. Tenta novamente.",
   "perfilEliminarTitulo": "Eliminar a tua conta?",
-  "perfilEliminarCuerpo": "Todos os teus hábitos, registos, sequências, conquistas e pontos serão apagados para sempre.\n\nEsta ação não pode ser anulada.",
+  "perfilEliminarCuerpo": "A tua conta Norday e tudo o que guarda em cada uma das suas apps serão apagados para sempre: o teu progresso, conquistas e pontos.\n\nEsta ação não pode ser anulada.",
   "perfilUltimaConfirmacion": "Última confirmação",
   "perfilUltimaConfirmacionCuerpo": "Tens a certeza absoluta? A tua conta e todos os teus dados serão eliminados definitivamente.",
   "perfilNoVolver": "Não, voltar",
@@ -84,7 +84,7 @@
   "perfilCambiarPass": "Alterar palavra-passe",
   "perfilZonaPeligro": "Zona de perigo",
   "perfilEliminarCuenta": "Eliminar a minha conta",
-  "loginTagline": "Cria hábitos, transforma a tua vida",
+  "loginTagline": "Um pouco todos os dias, à tua maneira",
   "loginIniciarSesion": "Entrar",
   "loginRegistrarse": "Criar conta",
   "loginCrearCuenta": "Criar conta",
@@ -228,6 +228,12 @@
   "colAyuda": "O que já tens: equipa um tema ou usa o que compraste.",
   "indicadorNivel": "Nível {n} de 5",
   "actualizacionTitulo": "Há uma versão nova",
-  "actualizacionTexto": "Para continuares a usar o Norday, atualiza a app. Os teus hábitos e o teu progresso ficam tal como estão.",
-  "actualizacionBoton": "Atualizar agora"
+  "actualizacionTexto": "Para continuares a usar o Norday, atualiza a app. O teu progresso fica tal como está.",
+  "actualizacionBoton": "Atualizar agora",
+  "sesionAvisoSalir": "Se saíres da app, perdes a sessão",
+  "sesionAvisoGraciaTitulo": "Volta à tua sessão",
+  "sesionAvisoGraciaCuerpo": "Se não voltares em {segundos} s, perdes a sessão.",
+  "sesionAvisoFinTitulo": "Sessão concluída",
+  "sesionAvisoFinCuerpo": "Chegaste ao fim. Abre a app para ver o resultado.",
+  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Tempo cumprido} =1{Falta 1 minuto} other{Faltam {minutos} minutos}}"
 }

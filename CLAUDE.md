@@ -7,6 +7,9 @@ dependencia Git.
 Consumidores hoy:
 
 - `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`).
+- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`; mientras el tag no
+  exista, con `pubspec_overrides.yaml` local apuntando a
+  `../norday_flutter_core`.
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
   `a873d8f`, del 12-ago-2026, anterior a `v0.1.0`. No recibe nada de lo que
   se ha hecho aquí desde entonces.
@@ -28,7 +31,16 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   notificaciones y el registro del aviso en el backend: el login solo
   registra si el permiso ya está dado; la app lo pide en contexto. El
   registro es idempotente por usuario y token, escucha las renovaciones del
-  token y la app lo llama al arrancar con sesión y al volver a primer plano).
+  token y la app lo llama al arrancar con sesión y al volver a primer plano),
+  `VersionMinimaService` (la versión mínima por app, `GET
+  /api/version/{appId}`: la app pregunta en su splash con
+  `hayQueActualizar()` y, si toca, `bloquear()` abre
+  `ActualizacionObligatoriaScreen`; `vigilarAlVolver()`, llamado en `main()`,
+  comprueba al volver a primer plano, pero no en la primera llegada de un
+  arranque en frío, desde 0.55.0. Nunca bloquea por un fallo de red),
+  y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
+  máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
+  avisos; ver los puntos de extensión).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
@@ -36,7 +48,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 36 ficheros:
+- `widgets/` — 37 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -60,6 +72,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
+  - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
+    `AnilloIdentidad`, que se vacía con el tiempo;
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
     splash, hoja de valoración, selector de idioma y zona,
     `EstrellaValoracion` (la estrella de la valoración: a lápiz en Dulce),
@@ -69,11 +83,13 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     Dulce);
   - tienda (1): la vista previa de una identidad;
   - retirado (1): `SelectorAvatarGratis`.
-- `screens/` — login, recuperación, elección de identidad (onboarding),
-  tienda, mascota, logros, colección, perfil.
+- `screens/` — 9 pantallas: login, recuperación, elección de identidad
+  (onboarding), tienda, mascota, logros, colección, perfil y actualización
+  obligatoria (`ActualizacionObligatoriaScreen`).
 - `l10n/` — `NordayCoreLocalizations`, `CatalogosCore`, `MensajesError`
-  (errores de red al idioma activo) y `MensajesMascota` (fase, estado y
-  frase de la mascota).
+  (errores de red al idioma activo), `MensajesMascota` (fase, estado y
+  frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
+  ver los puntos de extensión).
 - `assets/` — animations, sounds, mascota y avatares (retirados).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
@@ -86,14 +102,26 @@ la app (ver los puntos de extensión de abajo), nunca al revés: el paquete
 no puede importar de la app.
 
 **Excepciones conocidas**, que se saltan la regla y están pendientes de
-limpiar:
+limpiar (comprobadas contra el código el 15-nov-2026, v0.55.0):
 
-- `ApiServiceCore.appId` vale `'habitos'` por defecto. Norday Conocimiento
-  tiene que cambiarlo a `'conocimiento'` al arrancar.
-- `constelacionPara` y `nombreConstelacion` reciben `totalHabitos`.
 - La vista previa de la tienda (`preview_identidad_tienda.dart`) pinta
-  tarjetas de hábito y la pestaña «Hábitos», con textos del core
-  (`tiendaPreviewHabito2`, `tiendaPreviewNavHabitos`…).
+  una pantalla «Hoy» de mentira con dos tarjetas de hábito y la pestaña
+  «Hábitos», con textos del core: `plantillaBeberAgua`,
+  `tiendaPreviewHabito2` y `tiendaPreviewNavHabitos` (más `navHoy` y
+  `tiendaPreviewNavPerfil`, que son neutros). La ve cualquier app que abra la
+  tienda o la elección de identidad. Limpiarla es rediseñar la maqueta, no
+  cambiar textos: queda para cuando una segunda app la enseñe.
+- `logroDescPrimerosPasos` («Completa tu primer hábito») es la descripción
+  de un logro genérico del core, y `CatalogosCore` da prioridad a la del core
+  sobre la que registre la app.
+- `prodDescEscudoRacha` habla de hábitos, pero el producto está retirado
+  (24-ago-2026) y el backend no lo manda.
+
+Ya no son excepciones: `ApiServiceCore.appId` vale `''` por defecto (sin
+app, no se manda `X-Norday-App`; cada app lo fija antes de `runApp`), y
+`constelacionPara`/`nombreConstelacion` reciben un `total` neutro. Nombre,
+lema del login, actualización obligatoria y borrado de cuenta salen de
+`TextosApp` desde v0.55.0.
 
 ## Los puntos de extensión
 
@@ -106,6 +134,12 @@ limpiar:
    identidad (`IDENTIDAD_PROFUNDIDAD`, `IDENTIDAD_NEOTOKYO_PLUS`,
    `IDENTIDAD_DULCE`), los dos de la mascota (`MASCOTA_CRIA`,
    `MASCOTA_ADULTO`) e `INTERACCION_RESENA` (retirado el 24-ago-2026).
+   **`CatalogosCore.registrarProductosDeDominio`** hace lo mismo con los
+   productos propios de una app: `nombres`, `descripciones` y `usos`. `usos`
+   es para un consumible que no se gasta desde Colección sino desde una
+   pantalla de la app: Colección enseña ese texto en vez del botón «Usar»
+   (`CatalogosCore.productoUso`). Norday Habits registra así la pausa
+   (`PAUSA_HABITO`). Si el core traduce el mismo código, manda el core.
 3. **`nordayNavigatorKey`** (`navegacion.dart`) — cada app se lo pasa a su
    `MaterialApp` en vez de declarar el suyo. Lo usa `CelebracionService`, que
    puede dispararse desde cualquier sitio.
@@ -128,11 +162,77 @@ limpiar:
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
-   backend filtra los catálogos. Ver las excepciones de arriba.
+   backend filtra los catálogos. Vale `''` por defecto: sin él no se manda
+   la cabecera y `VersionMinimaService` no pregunta. Cada app lo fija antes
+   de `runApp` (`'habitos'`, `'conocimiento'`, `'enfoque'`…). La llevan los
+   dos catálogos y `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`): el
+   backend guarda un token por usuario y app, y sin cabecera lo cuenta como
+   `habitos`. Una app desconocida para el backend da 400.
 10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
    `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
    es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
    apps la copian en las suyas (Norday Habits, en `ApiServiceHabitos`).
+11. **`TextosApp`** (`l10n/textos_app.dart`) — los textos que dependen de qué
+   app es, como `String Function(BuildContext)` ya traducidos: `nombre`
+   (wordmark del login), `lemaLogin`, `actualizacionObligatoria` (cuerpo de
+   `ActualizacionObligatoriaScreen`) y `eliminarCuenta` (primera
+   confirmación de `PerfilScreen`). La app llama a `TextosApp.registrar(...)`
+   en `main()`, antes de `runApp`; registrar sustituye los cuatro, y lo que
+   quede a `null` cae en la caída neutra del core (`appTitulo` «Norday»,
+   `loginTagline`, `actualizacionTexto`, `perfilEliminarCuerpo`), que no
+   nombra ningún dominio. El core lee con `TextosApp.nombreDe(context)` y
+   sus hermanos, nunca la clave directamente. El título de la tarea
+   (`onGenerateTitle`) es de cada app: no lo pinta el core.
+12. **La sesión con bloqueo suave** (`services/sesion_concentracion.dart`,
+   `services/motor_sesion.dart`, `widgets/aro_cuenta_atras.dart`). El core
+   lleva la lógica; la app pone lo que es de plataforma o de dominio:
+   - `FuenteReloj` (`Future<int> monotonicoMs()`, `DateTime ahoraUtc()`):
+     el monótono es `SystemClock.elapsedRealtime` por un canal nativo de la
+     app. Un `Stopwatch` de Dart no sirve: muere con el proceso.
+   - `FuentePantalla` (`Future<bool> encendidaYDesbloqueada()`):
+     `PowerManager.isInteractive && !KeyguardManager.isKeyguardLocked`.
+   - `AvisosSesion` (`avisarGracia`, `cancelarGracia`, `programarFin`,
+     `cancelarFin`), idempotentes y sin alarmas exactas. Al salir: aviso de
+     gracia (la app lo hace caducar a `quedan`, `timeoutAfter`) y fuera el
+     de fin; al volver a tiempo, fuera el de gracia y otra vez el de fin.
+     Sin implementación, `AvisosSesionNulos`.
+
+   **Decisión (15-nov-2026): los avisos de la sesión van por `AvisosSesion`,
+   que implementa cada app, y no por `NotificacionesService` ni por una
+   dependencia del core.** `NotificacionesService` es el permiso y el token
+   de push del backend, no notificaciones locales. Y
+   `flutter_local_notifications` obliga a activar el desugaring en el Gradle
+   de la app aunque no se programe nada («even if they don't use scheduled
+   notifications», README de la 23.0.2): en el core rompería el build
+   Android de Norday Habits, que no lo tiene. El permiso
+   `POST_NOTIFICATIONS` sí se pide con `NotificacionesService`.
+   - `datosApp` (`Map` serializable): lo que la app quiera guardar con la
+     sesión (a qué va dedicada). El core no lo mira.
+
+   Reglas: gracia de 10 s y mínimo de 10 min (`ReglasSesion`, con los bordes
+   dentro); terminar antes del mínimo da `descartada` (no se envía);
+   rendirse o volver tarde, `perdida`; minutos = enteros hacia abajo y solo
+   si cuenta. Sale de la app solo un `paused` con dos consultas de pantalla
+   (al llegar y a los 400 ms) que digan encendida y desbloqueada; `inactive`
+   y `hidden` nunca. Tras la primera consulta positiva se guarda una marca
+   provisional (`salidaPendienteMonoMs`): si el proceso muere antes de la
+   segunda, al recomponer cuenta como salida desde la marca. `detached` con
+   la pantalla encendida sale sin esperar a la segunda consulta.
+   Bloquear, desbloquear y abrir otra app puede no pasar por `resumed`: en
+   `paused` con la sesión corriendo se consulta la pantalla cada 2 s, y la
+   app llama a `MotorSesion.avisarDesbloqueo()` desde un receptor nativo de
+   `ACTION_USER_PRESENT`. **Limitación:** Android puede congelar o matar la
+   app en segundo plano y entonces nada de eso corre; sin servicio en primer
+   plano no hay garantía completa. La meta alcanzada dentro de la gracia da `completada`.
+   Reinicio del móvil (monótono por debajo del inicio, o el instante de
+   arranque desplazado más de 5 min, que también salta con un cambio manual
+   de hora con el proceso muerto) → `perdida`. `inactive` cuenta como
+   delante para la cuenta atrás. `SesionConcentracion.versionFormato` es la
+   1: para cambiar el formato se sube y se añade la migración en `_migrar`,
+   sin descartar sesiones acabadas sin enviar. Cada transición se guarda
+   en `SharedPreferences` (`sesion_concentracion_actual`); una sesión
+   acabada se queda guardada hasta que la app la recoge y llama a
+   `MotorSesion.cerrar()`. Una sola sesión a la vez.
 
 ## Assets: siempre con `package:`
 
@@ -232,8 +332,9 @@ arrancar, con hasta 3 reintentos cada 15 s; no se borra al cerrar sesión.
 
 ## Identidad de marca
 
-- **Nombre**: la app es **Norday Habits**, en todos los idiomas. **Norday** es
-  la marca del ecosistema.
+- **Nombre**: **Norday** es la marca del ecosistema y la caída del core. El
+  nombre de cada app (Norday Habits, Norday Focus…) lo pone ella con
+  `TextosApp.nombre`, igual en todos los idiomas.
 - **Símbolo**: la brújula con la N. Hoy es el icono de Norday Habits en Play y
   su splash. Es un asset de cada app, no de este paquete.
 - **Nori** es la mascota y una funcionalidad central, y también aparece como
@@ -319,12 +420,12 @@ Errores que ya se cometieron una vez. No se vuelven a cometer.
   viejo del core seguirá con el comportamiento viejo aunque aquí esté
   arreglado.
 
-### Método de trabajo (vale para los cuatro repos)
+### Método de trabajo (vale para los cinco repos)
 
-- **La primera línea de un prompt se comprueba, no se recuerda.** Tres repos
-  están en `C:\Dev\Norday\` (`habitos-app`, `habitos_app_mobile`,
-  `norday_flutter_core`) y `conocimiento_app_mobile` está en
-  `C:\Dev\Conocimiento\`.
+- **La primera línea de un prompt se comprueba, no se recuerda.** Son cinco
+  repos: cuatro están en `C:\Dev\Norday\` (`habitos-app`,
+  `habitos_app_mobile`, `norday_flutter_core` y `enfoque_app_mobile`) y
+  `conocimiento_app_mobile` está en `C:\Dev\Conocimiento\`.
 - **Un solo agente por repo a la vez.** Todo lo que haga otro agente se revisa
   en el remoto antes de mergear.
 - **Las cifras de verificación se cuentan contra el repositorio**, nunca se
