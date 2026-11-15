@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:norday_flutter_core/services/api_error.dart';
 import 'package:norday_flutter_core/services/api_service_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,7 +64,11 @@ void main() {
     responder = (_) async => http.Response('', 400);
     await expectLater(
       ApiServiceCore.actualizarFcmToken(7, 'abc'),
-      throwsA(anything),
+      throwsA(
+        isA<ApiException>()
+            .having((e) => e.codigoEstado, 'codigoEstado', 400)
+            .having((e) => e.tipo, 'tipo', TipoErrorApi.peticionInvalida),
+      ),
     );
   });
 }

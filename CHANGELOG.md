@@ -15,9 +15,15 @@ está en `git log`.
   - `SesionConcentracion`, `EstadoSesion`, `MotivoPerdida`, `ReglasSesion`
     y `generarClave()` (`services/sesion_concentracion.dart`): la máquina de
     estados pura.
+  - `SesionConcentracion.versionFormato` (1), `marcarSalidaPendiente`,
+    `quitarSalidaPendiente` y `salidaPendienteMonoMs`.
   - `MotorSesion`, `FuenteReloj`, `FuentePantalla`, `AvisosSesion` y
     `AvisosSesionNulos` (`services/motor_sesion.dart`): ciclo de vida,
-    persistencia, recomposición y avisos.
+    persistencia, recomposición y avisos. `MotorSesion.avisarDesbloqueo()`
+    (la app lo llama desde un receptor de `ACTION_USER_PRESENT`) y el
+    parámetro `intervaloVigilancia` (2 s): en `paused` con la sesión
+    corriendo se consulta la pantalla periódicamente. Sin servicio en primer
+    plano no hay garantía completa: Android puede congelar la app.
   - `AroCuentaAtras` (`widgets/aro_cuenta_atras.dart`).
   - Textos: `sesionAvisoSalir`, `sesionAvisoGraciaTitulo`,
     `sesionAvisoGraciaCuerpo`, `sesionAvisoFinTitulo`, `sesionAvisoFinCuerpo`
@@ -30,9 +36,24 @@ está en `git log`.
   siguen existiendo. **Una app que no registre sus textos con `TextosApp`
   verá los neutros**: Norday Habits tiene que registrarlos al subir a esta
   versión.
+- **`appTitulo` vale ahora «Norday», no «Norday Habits».** Quien lo lea
+  directamente —por ejemplo, `onGenerateTitle` del `MaterialApp`, como hace
+  hoy Norday Habits— verá «Norday» en el título de la tarea (Recientes)
+  hasta que use su propio texto.
 - `ApiServiceCore.actualizarFcmToken` manda la cabecera `X-Norday-App` con
   `ApiServiceCore.appId` (sin ella si `appId` está vacío), para que el
   backend guarde un token de avisos por app.
+
+### Reglas de la sesión que conviene saber
+
+- **Reinicio:** al recomponer, una sesión activa se da por perdida
+  (`MotivoPerdida.reinicio`) si el reloj monótono está por debajo del
+  inicio o si el instante de arranque del móvil (hora de pared menos
+  monótono) se ha desplazado más de 5 minutos
+  (`ReglasSesion.toleranciaArranque`). Eso incluye **cambiar la hora a mano
+  más de 5 minutos con el proceso muerto** durante una sesión.
+- Una marca provisional de salida (proceso muerto entre las dos consultas
+  de pantalla) cuenta como salida al recomponer.
 
 ### Compatibilidad
 

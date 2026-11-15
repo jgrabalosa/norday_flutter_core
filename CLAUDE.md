@@ -176,10 +176,20 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    - `FuentePantalla` (`Future<bool> encendidaYDesbloqueada()`):
      `PowerManager.isInteractive && !KeyguardManager.isKeyguardLocked`.
    - `AvisosSesion` (`avisarGracia`, `cancelarGracia`, `programarFin`,
-     `cancelarFin`), idempotentes y sin alarmas exactas. El core no depende
-     de `flutter_local_notifications`: el paquete obliga a activar el
-     desugaring en el Gradle de la app aunque no se programe nada, y Norday
-     Habits no lo tiene. Sin implementación, `AvisosSesionNulos`.
+     `cancelarFin`), idempotentes y sin alarmas exactas. Al salir: aviso de
+     gracia (la app lo hace caducar a `quedan`, `timeoutAfter`) y fuera el
+     de fin; al volver a tiempo, fuera el de gracia y otra vez el de fin.
+     Sin implementación, `AvisosSesionNulos`.
+
+   **Decisión (15-nov-2026): los avisos de la sesión van por `AvisosSesion`,
+   que implementa cada app, y no por `NotificacionesService` ni por una
+   dependencia del core.** `NotificacionesService` es el permiso y el token
+   de push del backend, no notificaciones locales. Y
+   `flutter_local_notifications` obliga a activar el desugaring en el Gradle
+   de la app aunque no se programe nada («even if they don't use scheduled
+   notifications», README de la 23.0.2): en el core rompería el build
+   Android de Norday Habits, que no lo tiene. El permiso
+   `POST_NOTIFICATIONS` sí se pide con `NotificacionesService`.
    - `datosApp` (`Map` serializable): lo que la app quiera guardar con la
      sesión (a qué va dedicada). El core no lo mira.
 
@@ -199,7 +209,11 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    app en segundo plano y entonces nada de eso corre; sin servicio en primer
    plano no hay garantía completa. La meta alcanzada dentro de la gracia da `completada`.
    Reinicio del móvil (monótono por debajo del inicio, o el instante de
-   arranque desplazado más de 5 min) → `perdida`. Cada transición se guarda
+   arranque desplazado más de 5 min, que también salta con un cambio manual
+   de hora con el proceso muerto) → `perdida`. `inactive` cuenta como
+   delante para la cuenta atrás. `SesionConcentracion.versionFormato` es la
+   1: para cambiar el formato se sube y se añade la migración en `_migrar`,
+   sin descartar sesiones acabadas sin enviar. Cada transición se guarda
    en `SharedPreferences` (`sesion_concentracion_actual`); una sesión
    acabada se queda guardada hasta que la app la recoge y llama a
    `MotorSesion.cerrar()`. Una sola sesión a la vez.

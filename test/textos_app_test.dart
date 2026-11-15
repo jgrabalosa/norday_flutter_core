@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/l10n/textos_app.dart';
 import 'package:norday_flutter_core/screens/actualizacion_obligatoria_screen.dart';
 import 'package:norday_flutter_core/screens/login_screen.dart';
+import 'package:norday_flutter_core/screens/perfil_screen.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/widgets/wordmark_identidad.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Los textos que dependen de qué app es: sin registrar, el core habla en
 /// neutro; registrados, manda la app.
@@ -129,5 +132,36 @@ void main() {
       tester.widget<WordmarkIdentidad>(find.byType(WordmarkIdentidad)).texto,
       'Mi App',
     );
+  });
+
+  testWidgets('el borrado de cuenta del perfil pinta el texto de la app', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      'usuarioId': 7,
+      'nombre': 'Ana',
+      'username': 'ana',
+      'email': 'ana@example.com',
+      'proveedorAuth': 'LOCAL',
+    });
+    FlutterSecureStorage.setMockInitialValues({'token': 'tok'});
+    TextosApp.registrar(eliminarCuenta: (_) => 'Se borra lo de esta app');
+    await tester.pumpWidget(
+      app(
+        PerfilScreen(
+          usuarioId: 7,
+          destinoTrasLogin: (_, _) => const SizedBox(),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    final l = lookupNordayCoreLocalizations(const Locale('es'));
+    final boton = find.text(l.perfilEliminarCuenta);
+    await tester.ensureVisible(boton);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(boton);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Se borra lo de esta app'), findsOneWidget);
+    expect(find.text(l.perfilEliminarCuerpo), findsNothing);
   });
 }
