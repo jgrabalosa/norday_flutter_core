@@ -5,9 +5,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/norday_core_localizations.dart';
+import '../l10n/textos_app.dart';
 
 /// La app está por debajo de la versión mínima: solo deja actualizar.
 /// No se puede cerrar con «atrás» ni hay nada debajo a lo que volver.
+///
+/// La explicación la pone cada app con [TextosApp.actualizacionObligatoria].
 class ActualizacionObligatoriaScreen extends StatelessWidget {
   const ActualizacionObligatoriaScreen({super.key});
 
@@ -69,7 +72,7 @@ class ActualizacionObligatoriaScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  t.actualizacionTexto,
+                  TextosApp.actualizacionObligatoriaDe(context),
                   textAlign: TextAlign.center,
                   style: tema.textTheme.bodyLarge,
                 ),

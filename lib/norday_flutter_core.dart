@@ -25,6 +25,7 @@ export 'l10n/norday_core_localizations.dart';
 export 'l10n/catalogos_core.dart';
 export 'l10n/mensajes_error.dart';
 export 'l10n/mensajes_mascota.dart';
+export 'l10n/textos_app.dart';
 
 // ── Tema ─────────────────────────────────────────────────
 export 'theme/app_theme.dart';

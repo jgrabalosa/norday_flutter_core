@@ -21,12 +21,13 @@ class Constelacion {
   const Constelacion({required this.puntos, required this.segmentos});
 }
 
-/// Catálogo indexado por número de hábitos del día, de 1 a 8.
+/// Catálogo indexado por cuántos elementos tiene el día, de 1 a 8. Qué se
+/// cuenta lo decide la app (ver `publicarProgresoDia`).
 ///
 /// Sin huecos: cada cantidad tiene su figura entera, así que no hace falta
-/// ninguna regla de "coger la siguiente y recortarla". Con 0 hábitos no se
+/// ninguna regla de "coger la siguiente y recortarla". Con 0 elementos no se
 /// dibuja nada y con más de 8 se usa Orión, que es el tope: la estrella
-/// número 9 y siguientes no existen. Es deliberado — quien hace ocho hábitos
+/// número 9 y siguientes no existen. Es deliberado — quien completa ocho cosas
 /// en un día ya se ha ganado el cielo entero.
 const Map<int, Constelacion> catalogoConstelaciones = {
   1: Constelacion(
@@ -42,7 +43,7 @@ const Map<int, Constelacion> catalogoConstelaciones = {
     segmentos: [(0, 1)],
   ),
   3: Constelacion(
-    // Alnitak, Alnilam y Mintaka. Quien hace tres hábitos ve el cinturón;
+    // Alnitak, Alnilam y Mintaka. Quien completa tres ve el cinturón;
     // quien hace ocho, a Orión entero.
     puntos: [Offset(0.14, 0.77), Offset(0.51, 0.53), Offset(0.86, 0.23)],
     segmentos: [(0, 1), (1, 2)],

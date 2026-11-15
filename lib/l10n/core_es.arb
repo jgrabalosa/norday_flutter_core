@@ -1,6 +1,9 @@
 {
   "@@locale": "es",
-  "appTitulo": "Norday Habits",
+  "appTitulo": "Norday",
+  "@appTitulo": {
+    "description": "Caída neutra del nombre de la app. Cada app pone el suyo con TextosApp.nombre"
+  },
   "idioma": "Idioma",
   "zonaHoraria": "Zona horaria",
   "preferencias": "Preferencias",
@@ -110,7 +113,10 @@
   "perfilErrorPass": "No se pudo cambiar la contraseña. Revisa los datos e inténtalo de nuevo.",
   "perfilErrorEliminar": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
   "perfilEliminarTitulo": "¿Eliminar tu cuenta?",
-  "perfilEliminarCuerpo": "Se borrarán para siempre todos tus hábitos, registros, rachas, logros y puntos.\n\nEsta acción no se puede deshacer.",
+  "perfilEliminarCuerpo": "Se borrarán para siempre tu cuenta de Norday y todo lo que guarda en cada una de sus apps: tu progreso, tus logros y tus puntos.\n\nEsta acción no se puede deshacer.",
+  "@perfilEliminarCuerpo": {
+    "description": "Caída neutra de la primera confirmación de borrado de cuenta. Cada app pone el suyo con TextosApp.eliminarCuenta"
+  },
   "perfilUltimaConfirmacion": "Última confirmación",
   "perfilUltimaConfirmacionCuerpo": "¿Estás completamente seguro? Tu cuenta y todos tus datos se eliminarán de forma definitiva.",
   "perfilNoVolver": "No, volver",
@@ -132,7 +138,10 @@
   "perfilCambiarPass": "Cambiar contraseña",
   "perfilZonaPeligro": "Zona de peligro",
   "perfilEliminarCuenta": "Eliminar mi cuenta",
-  "loginTagline": "Construye hábitos, transforma tu vida",
+  "loginTagline": "Un poco cada día, a tu manera",
+  "@loginTagline": {
+    "description": "Caída neutra del lema del login. Cada app pone el suyo con TextosApp.lemaLogin"
+  },
   "loginIniciarSesion": "Iniciar sesión",
   "loginRegistrarse": "Registrarse",
   "loginCrearCuenta": "Crear cuenta",
@@ -355,9 +364,9 @@
   "@actualizacionTitulo": {
     "description": "Pantalla de actualización obligatoria: título"
   },
-  "actualizacionTexto": "Para seguir usando Norday, actualiza la app. Tus hábitos y tu progreso se quedan tal cual.",
+  "actualizacionTexto": "Para seguir usando Norday, actualiza la app. Tu progreso se queda tal cual.",
   "@actualizacionTexto": {
-    "description": "Pantalla de actualización obligatoria: explicación"
+    "description": "Pantalla de actualización obligatoria: explicación. Caída neutra; cada app pone la suya con TextosApp.actualizacionObligatoria"
   },
   "actualizacionBoton": "Actualizar ahora",
   "@actualizacionBoton": {

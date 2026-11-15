@@ -72,8 +72,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `screens/` — login, recuperación, elección de identidad (onboarding),
   tienda, mascota, logros, colección, perfil.
 - `l10n/` — `NordayCoreLocalizations`, `CatalogosCore`, `MensajesError`
-  (errores de red al idioma activo) y `MensajesMascota` (fase, estado y
-  frase de la mascota).
+  (errores de red al idioma activo), `MensajesMascota` (fase, estado y
+  frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
+  ver los puntos de extensión).
 - `assets/` — animations, sounds, mascota y avatares (retirados).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
@@ -86,14 +87,26 @@ la app (ver los puntos de extensión de abajo), nunca al revés: el paquete
 no puede importar de la app.
 
 **Excepciones conocidas**, que se saltan la regla y están pendientes de
-limpiar:
+limpiar (comprobadas contra el código el 15-nov-2026, v0.55.0):
 
-- `ApiServiceCore.appId` vale `'habitos'` por defecto. Norday Conocimiento
-  tiene que cambiarlo a `'conocimiento'` al arrancar.
-- `constelacionPara` y `nombreConstelacion` reciben `totalHabitos`.
 - La vista previa de la tienda (`preview_identidad_tienda.dart`) pinta
-  tarjetas de hábito y la pestaña «Hábitos», con textos del core
-  (`tiendaPreviewHabito2`, `tiendaPreviewNavHabitos`…).
+  una pantalla «Hoy» de mentira con dos tarjetas de hábito y la pestaña
+  «Hábitos», con textos del core: `plantillaBeberAgua`,
+  `tiendaPreviewHabito2` y `tiendaPreviewNavHabitos` (más `navHoy` y
+  `tiendaPreviewNavPerfil`, que son neutros). La ve cualquier app que abra la
+  tienda o la elección de identidad. Limpiarla es rediseñar la maqueta, no
+  cambiar textos: queda para cuando una segunda app la enseñe.
+- `logroDescPrimerosPasos` («Completa tu primer hábito») es la descripción
+  de un logro genérico del core, y `CatalogosCore` da prioridad a la del core
+  sobre la que registre la app.
+- `prodDescEscudoRacha` habla de hábitos, pero el producto está retirado
+  (24-ago-2026) y el backend no lo manda.
+
+Ya no son excepciones: `ApiServiceCore.appId` vale `''` por defecto (sin
+app, no se manda `X-Norday-App`; cada app lo fija antes de `runApp`), y
+`constelacionPara`/`nombreConstelacion` reciben un `total` neutro. Nombre,
+lema del login, actualización obligatoria y borrado de cuenta salen de
+`TextosApp` desde v0.55.0.
 
 ## Los puntos de extensión
 
@@ -128,11 +141,25 @@ limpiar:
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
-   backend filtra los catálogos. Ver las excepciones de arriba.
+   backend filtra los catálogos. Vale `''` por defecto: sin él no se manda
+   la cabecera y `VersionMinimaService` no pregunta. Cada app lo fija antes
+   de `runApp` (`'habitos'`, `'conocimiento'`…). Hoy solo la llevan los dos
+   catálogos: `actualizarFcmToken` no la manda.
 10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
    `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
    es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
    apps la copian en las suyas (Norday Habits, en `ApiServiceHabitos`).
+11. **`TextosApp`** (`l10n/textos_app.dart`) — los textos que dependen de qué
+   app es, como `String Function(BuildContext)` ya traducidos: `nombre`
+   (wordmark del login), `lemaLogin`, `actualizacionObligatoria` (cuerpo de
+   `ActualizacionObligatoriaScreen`) y `eliminarCuenta` (primera
+   confirmación de `PerfilScreen`). La app llama a `TextosApp.registrar(...)`
+   en `main()`, antes de `runApp`; registrar sustituye los cuatro, y lo que
+   quede a `null` cae en la caída neutra del core (`appTitulo` «Norday»,
+   `loginTagline`, `actualizacionTexto`, `perfilEliminarCuerpo`), que no
+   nombra ningún dominio. El core lee con `TextosApp.nombreDe(context)` y
+   sus hermanos, nunca la clave directamente. El título de la tarea
+   (`onGenerateTitle`) es de cada app: no lo pinta el core.
 
 ## Assets: siempre con `package:`
 
@@ -232,8 +259,9 @@ arrancar, con hasta 3 reintentos cada 15 s; no se borra al cerrar sesión.
 
 ## Identidad de marca
 
-- **Nombre**: la app es **Norday Habits**, en todos los idiomas. **Norday** es
-  la marca del ecosistema.
+- **Nombre**: **Norday** es la marca del ecosistema y la caída del core. El
+  nombre de cada app (Norday Habits, Norday Focus…) lo pone ella con
+  `TextosApp.nombre`, igual en todos los idiomas.
 - **Símbolo**: la brújula con la N. Hoy es el icono de Norday Habits en Play y
   su splash. Es un asset de cada app, no de este paquete.
 - **Nori** es la mascota y una funcionalidad central, y también aparece como

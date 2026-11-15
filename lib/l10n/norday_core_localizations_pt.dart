@@ -9,7 +9,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   NordayCoreLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitulo => 'Norday Habits';
+  String get appTitulo => 'Norday';
 
   @override
   String get idioma => 'Idioma';
@@ -211,7 +211,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get perfilEliminarCuerpo =>
-      'Todos os teus hábitos, registos, sequências, conquistas e pontos serão apagados para sempre.\n\nEsta ação não pode ser anulada.';
+      'A tua conta Norday e tudo o que guarda em cada uma das suas apps serão apagados para sempre: o teu progresso, conquistas e pontos.\n\nEsta ação não pode ser anulada.';
 
   @override
   String get perfilUltimaConfirmacion => 'Última confirmação';
@@ -278,7 +278,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get perfilEliminarCuenta => 'Eliminar a minha conta';
 
   @override
-  String get loginTagline => 'Cria hábitos, transforma a tua vida';
+  String get loginTagline => 'Um pouco todos os dias, à tua maneira';
 
   @override
   String get loginIniciarSesion => 'Entrar';
@@ -732,7 +732,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get actualizacionTexto =>
-      'Para continuares a usar o Norday, atualiza a app. Os teus hábitos e o teu progresso ficam tal como estão.';
+      'Para continuares a usar o Norday, atualiza a app. O teu progresso fica tal como está.';
 
   @override
   String get actualizacionBoton => 'Atualizar agora';

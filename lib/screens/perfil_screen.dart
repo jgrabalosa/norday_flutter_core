@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
+import '../l10n/textos_app.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
@@ -141,7 +142,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
         // de la identidad.
         shape: formaIdentidad(identidad(ctx), radio: identidad(ctx).radioHero),
         title: Text(l.perfilEliminarTitulo),
-        content: Text(l.perfilEliminarCuerpo),
+        // Qué se pierde lo dice cada app ([TextosApp.eliminarCuenta]).
+        content: Text(TextosApp.eliminarCuentaDe(ctx)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
