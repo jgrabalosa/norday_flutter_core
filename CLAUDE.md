@@ -191,7 +191,13 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    y `hidden` nunca. Tras la primera consulta positiva se guarda una marca
    provisional (`salidaPendienteMonoMs`): si el proceso muere antes de la
    segunda, al recomponer cuenta como salida desde la marca. `detached` con
-   la pantalla encendida sale sin esperar a la segunda consulta. La meta alcanzada dentro de la gracia da `completada`.
+   la pantalla encendida sale sin esperar a la segunda consulta.
+   Bloquear, desbloquear y abrir otra app puede no pasar por `resumed`: en
+   `paused` con la sesión corriendo se consulta la pantalla cada 2 s, y la
+   app llama a `MotorSesion.avisarDesbloqueo()` desde un receptor nativo de
+   `ACTION_USER_PRESENT`. **Limitación:** Android puede congelar o matar la
+   app en segundo plano y entonces nada de eso corre; sin servicio en primer
+   plano no hay garantía completa. La meta alcanzada dentro de la gracia da `completada`.
    Reinicio del móvil (monótono por debajo del inicio, o el instante de
    arranque desplazado más de 5 min) → `perdida`. Cada transición se guarda
    en `SharedPreferences` (`sesion_concentracion_actual`); una sesión

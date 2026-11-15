@@ -120,6 +120,16 @@ class AvisosSesionNulos implements AvisosSesion {
 /// provisional, para que un proceso muerto en esos 400 ms cuente como salida
 /// al recomponer. Si mientras tanto cambia el ciclo, la consulta se abandona.
 ///
+/// Bloquear con la sesión delante, desbloquear y abrir otra app puede no
+/// pasar nunca por `resumed`: la app sigue en `paused` y no llega ningún
+/// evento. Para eso, mientras el ciclo esté en `paused` con la sesión
+/// corriendo, se consulta la pantalla cada [intervaloVigilancia] (2 s), y la
+/// app puede avisar del desbloqueo con [avisarDesbloqueo]. **Limitación:**
+/// Android puede congelar o matar el proceso en segundo plano, y entonces ni
+/// la vigilancia ni el aviso corren; sin un servicio en primer plano no hay
+/// garantía completa. Lo que se escape se resuelve como mucho al volver: la
+/// sesión sigue y se completa o se pierde por tiempo.
+///
 /// `resumed` dentro de la gracia vuelve a corriendo; fuera, perdida. El fin
 /// por tiempo se detecta con un temporizador (cada segundo con la app
 /// delante; con la app detrás, uno solo a la meta o al fin de la gracia) y,
@@ -149,6 +159,7 @@ class MotorSesion {
     required this.pantalla,
     this.avisos = const AvisosSesionNulos(),
     this.esperaSegundaConsulta = const Duration(milliseconds: 400),
+    this.intervaloVigilancia = const Duration(seconds: 2),
     this.clavePreferencias = 'sesion_concentracion_actual',
     this.binding,
   });
@@ -159,6 +170,10 @@ class MotorSesion {
 
   /// Cuánto se espera para repetir la consulta de pantalla tras `paused`.
   final Duration esperaSegundaConsulta;
+
+  /// Cada cuánto se consulta la pantalla mientras la app está en `paused`
+  /// con la sesión corriendo (ver la limitación en la clase).
+  final Duration intervaloVigilancia;
 
   /// Dónde se guarda la sesión en `SharedPreferences`.
   final String clavePreferencias;
@@ -182,6 +197,8 @@ class MotorSesion {
   int _generacion = 0;
   Future<void> _cola = Future<void>.value();
   Timer? _tic;
+  Timer? _vigia;
+  int? _generacionComprobando;
   bool _iniciado = false;
   bool _desechado = false;
 
@@ -255,10 +272,22 @@ class MotorSesion {
     }
   });
 
+  /// El usuario acaba de desbloquear el móvil. La app lo llama desde un
+  /// receptor nativo de `Intent.ACTION_USER_PRESENT`
+  /// (https://developer.android.com/reference/android/content/Intent#ACTION_USER_PRESENT),
+  /// para el caso de bloquear con la sesión delante, desbloquear y abrir
+  /// otra app sin que la nuestra llegue a `resumed`. Si el ciclo sigue en
+  /// `paused`, hace la misma doble consulta que un `paused`; si no, nada.
+  Future<void> avisarDesbloqueo() {
+    if (_ciclo != AppLifecycleState.paused) return Future<void>.value();
+    return _comprobarSalida(_generacion);
+  }
+
   /// Suelta el ciclo de vida y los temporizadores.
   void dispose() {
     _desechado = true;
     _tic?.cancel();
+    _vigia?.cancel();
     _oyente?.dispose();
     _sesion.dispose();
     _restante.dispose();
@@ -295,6 +324,18 @@ class MotorSesion {
   /// abandona si el ciclo de vida cambia mientras tanto: quien llegue
   /// (`resumed`, `detached` u otro `paused`) se hace cargo de la marca.
   Future<void> _comprobarSalida(int generacion) async {
+    // Una sola doble consulta a la vez por generación: el `paused`, la
+    // vigilancia y el desbloqueo pueden coincidir.
+    if (_generacionComprobando == generacion) return;
+    _generacionComprobando = generacion;
+    try {
+      await _dobleConsulta(generacion);
+    } finally {
+      if (_generacionComprobando == generacion) _generacionComprobando = null;
+    }
+  }
+
+  Future<void> _dobleConsulta(int generacion) async {
     if (_sesion.value?.estado != EstadoSesion.corriendo) return;
     final mono = await reloj.monotonicoMs();
     bool sigue() => generacion == _generacion && !_desechado;
@@ -416,8 +457,21 @@ class MotorSesion {
   void _reprogramar(int mono) {
     _tic?.cancel();
     _tic = null;
-    if (_desechado) return;
     final s = _sesion.value;
+    final vigilar =
+        !_desechado &&
+        _ciclo == AppLifecycleState.paused &&
+        s?.estado == EstadoSesion.corriendo;
+    if (!vigilar) {
+      _vigia?.cancel();
+      _vigia = null;
+    } else {
+      _vigia ??= Timer.periodic(
+        intervaloVigilancia,
+        (_) => _comprobarSalida(_generacion),
+      );
+    }
+    if (_desechado) return;
     _restante.value = s == null ? Duration.zero : s.restante(mono);
     if (s == null || !s.estado.activa) return;
     if (_enPrimerPlano) {

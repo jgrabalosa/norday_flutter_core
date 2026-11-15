@@ -422,6 +422,81 @@ void main() {
     await ciclo(tester, [AppLifecycleState.resumed]);
   });
 
+  group('bloquear, desbloquear y salir sin pasar por resumed', () {
+    testWidgets(
+      'avisarDesbloqueo con la app en paused hace la doble consulta',
+      (tester) async {
+        pantalla.valor = false;
+        final motor = await empezado(tester);
+        await ciclo(tester, irse);
+        await segundaConsulta(tester);
+        expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+
+        // Desbloquea y, sin volver a la app, abre otra.
+        pantalla.valor = true;
+        reloj.avanzar(const Duration(seconds: 1));
+        final desbloqueo = reloj.mono;
+        final aviso = motor.avisarDesbloqueo();
+        await tester.pump();
+        await segundaConsulta(tester);
+        await aviso;
+        expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+        expect(motor.sesion.value!.salidaMonoMs, desbloqueo);
+        motor.dispose();
+      },
+    );
+
+    testWidgets('avisarDesbloqueo con la app delante no consulta nada', (
+      tester,
+    ) async {
+      final motor = await empezado(tester);
+      await motor.avisarDesbloqueo();
+      await segundaConsulta(tester);
+      expect(pantalla.consultas, 0);
+      motor.dispose();
+    });
+
+    testWidgets('en paused, la pantalla se vigila cada 2 s', (tester) async {
+      pantalla.valor = false;
+      final motor = await empezado(tester);
+      await ciclo(tester, irse);
+      await segundaConsulta(tester);
+      expect(pantalla.consultas, 1);
+
+      reloj.avanzar(const Duration(milliseconds: 1600));
+      await tester.pump(const Duration(milliseconds: 1600));
+      expect(pantalla.consultas, 2);
+      reloj.avanzar(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
+      expect(pantalla.consultas, 3);
+
+      pantalla.valor = true;
+      reloj.avanzar(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
+      reloj.avanzar(const Duration(milliseconds: 400));
+      await segundaConsulta(tester);
+      expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+
+      // En gracia ya no se vigila.
+      final antes = pantalla.consultas;
+      await tester.pump(const Duration(seconds: 5));
+      expect(pantalla.consultas, antes);
+      motor.dispose();
+    });
+
+    testWidgets('al volver se deja de vigilar', (tester) async {
+      pantalla.valor = false;
+      final motor = await empezado(tester);
+      await ciclo(tester, irse);
+      await segundaConsulta(tester);
+      await ciclo(tester, volver);
+      final antes = pantalla.consultas;
+      await tester.pump(const Duration(seconds: 7));
+      expect(pantalla.consultas, antes);
+      motor.dispose();
+    });
+  });
+
   group('recomposición al reabrir', () {
     testWidgets('muerto en la ventana de 400 ms y reabierto tras la meta: '
         'perdida', (tester) async {
