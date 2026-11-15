@@ -44,6 +44,24 @@ está en `git log`.
   `ApiServiceCore.appId` (sin ella si `appId` está vacío), para que el
   backend guarde un token de avisos por app.
 
+### Arreglado
+
+- **`VersionMinimaService.vigilarAlVolver()` ya no comprueba en el arranque.**
+  Escuchaba `onResume`, que en un arranque en frío de Android también salta
+  (de ningún estado directamente a `resumed`): era una segunda petición
+  además de la del splash y, con el proceso lanzado en segundo plano,
+  fallaba por red. Ahora se ignora la primera llegada a primer plano, salvo
+  que la app ya estuviera en `resumed` al empezar a vigilar. Volver del
+  segundo plano y volver de `inactive` (cortina de notificaciones, diálogo
+  del sistema) siguen comprobando. No se usa `onRestart` porque solo salta
+  en `paused` → `hidden` y perdería las vueltas desde `inactive`.
+- El log `Versión mínima: no se pudo comprobar` incluye el `cuerpo` de la
+  `ApiException` (la causa real: DNS, TLS, el cuerpo de un 5xx).
+  `ApiException.toString()` no cambia: lo que no se captura acaba en
+  Crashlytics y no debe llevar cuerpos.
+- `VersionMinimaService.reiniciarParaTest()` (`@visibleForTesting`), para
+  los tests del ciclo de vida.
+
 ### Reglas de la sesión que conviene saber
 
 - **Reinicio:** al recomponer, una sesión activa se da por perdida
