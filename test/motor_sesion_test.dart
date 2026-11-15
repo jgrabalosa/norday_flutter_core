@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' show AppLifecycleState;
 
@@ -17,8 +18,14 @@ class RelojFalso implements FuenteReloj {
     utc = utc.add(d);
   }
 
+  /// Si está puesta, cada lectura espera a que se complete.
+  Completer<void>? puerta;
+
   @override
-  Future<int> monotonicoMs() async => mono;
+  Future<int> monotonicoMs() async {
+    await puerta?.future;
+    return mono;
+  }
 
   @override
   DateTime ahoraUtc() => utc;
@@ -523,6 +530,83 @@ void main() {
       await tester.pump(const Duration(seconds: 7));
       expect(pantalla.consultas, antes);
       motor.dispose();
+    });
+  });
+
+  group('robustez', () {
+    testWidgets('inactive cuenta como delante: la cuenta atrás sigue', (
+      tester,
+    ) async {
+      final motor = await empezado(tester);
+      await ciclo(tester, [AppLifecycleState.inactive]);
+      for (var i = 0; i < 3; i++) {
+        reloj.avanzar(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(motor.restante.value, const Duration(minutes: 24, seconds: 57));
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      motor.dispose();
+    });
+
+    testWidgets('un paused que llega durante empezar() se atiende', (
+      tester,
+    ) async {
+      await alFrente(tester);
+      final motor = nuevoMotor(tester);
+      await motor.iniciar();
+      reloj.puerta = Completer<void>();
+      final empezando = motor.empezar(
+        duracionObjetivo: const Duration(minutes: 25),
+      );
+      await tester.pump();
+      await ciclo(tester, irse);
+      reloj.puerta!.complete();
+      reloj.puerta = null;
+      await empezando;
+      await tester.pump();
+      await segundaConsulta(tester);
+      expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+      motor.dispose();
+    });
+
+    testWidgets('iniciar con la app ya en paused comprueba la salida', (
+      tester,
+    ) async {
+      final primero = await empezado(tester);
+      primero.dispose();
+      await ciclo(tester, irse);
+      final motor = nuevoMotor(tester);
+      await motor.iniciar();
+      await tester.pump();
+      await segundaConsulta(tester);
+      expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+      motor.dispose();
+    });
+
+    testWidgets('iniciar después de dispose no hace nada', (tester) async {
+      final primero = await empezado(tester);
+      primero.dispose();
+      final motor = nuevoMotor(tester);
+      motor.dispose();
+      expect(await motor.iniciar(), isNull);
+      expect(motor.sesion.value, isNull);
+    });
+
+    testWidgets('datosApp que no pasa por JSON: ArgumentError al empezar', (
+      tester,
+    ) async {
+      await alFrente(tester);
+      final motor = nuevoMotor(tester);
+      await motor.iniciar();
+      await expectLater(
+        motor.empezar(
+          duracionObjetivo: const Duration(minutes: 25),
+          datosApp: {'x': Object()},
+        ),
+        throwsArgumentError,
+      );
+      expect(motor.sesion.value, isNull);
+      expect(await guardada(), isNull);
     });
   });
 

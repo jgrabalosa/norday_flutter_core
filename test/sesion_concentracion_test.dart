@@ -48,6 +48,16 @@ void main() {
       );
     });
 
+    test('datosApp que no pasa por JSON no se acepta', () {
+      expect(
+        () => SesionConcentracion.preparar(
+          duracionObjetivo: const Duration(minutes: 25),
+          datosApp: {'x': DateTime(2026)},
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('empezar fija el inicio y pasa a corriendo; dos veces, lanza', () {
       final s = corriendo();
       expect(s.estado, EstadoSesion.corriendo);

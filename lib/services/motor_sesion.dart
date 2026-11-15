@@ -207,12 +207,18 @@ class MotorSesion {
   bool _iniciado = false;
   bool _desechado = false;
 
+  /// Delante, para la cuenta atrás y los avisos: `resumed` e `inactive`
+  /// (cortinilla, pantalla dividida, diálogo del sistema: la app se sigue
+  /// viendo).
   bool get _enPrimerPlano =>
-      _ciclo == null || _ciclo == AppLifecycleState.resumed;
+      _ciclo == null ||
+      _ciclo == AppLifecycleState.resumed ||
+      _ciclo == AppLifecycleState.inactive;
 
   /// Engancha el ciclo de vida y recompone la sesión guardada, si la hay.
   /// Hay que llamarlo una vez, antes de [empezar].
   Future<SesionConcentracion?> iniciar() => _enCola(() async {
+    if (_desechado) return null;
     if (_iniciado) return _sesion.value;
     _iniciado = true;
     final b = binding ?? WidgetsBinding.instance;
@@ -225,6 +231,7 @@ class MotorSesion {
     var s = guardada.recomponer(monoMs: mono, ahoraUtc: reloj.ahoraUtc());
     if (_enPrimerPlano) s = s.volver(mono);
     await _poner(s, anterior: guardada, mono: mono, recompuesta: true);
+    _siSigueDetras();
     return s;
   });
 
@@ -249,8 +256,19 @@ class MotorSesion {
     final mono = await reloj.monotonicoMs();
     final s = preparada.empezar(monoMs: mono, ahoraUtc: reloj.ahoraUtc());
     await _poner(s, anterior: preparada, mono: mono);
+    _siSigueDetras();
     return s;
   });
+
+  /// Si la app ya está en `paused` cuando termina [iniciar] o [empezar] (el
+  /// `paused` llegó antes de que hubiera sesión que vigilar), hace ahora la
+  /// comprobación de salida. Fuera de la cola: se llama desde dentro.
+  void _siSigueDetras() {
+    if (_ciclo == AppLifecycleState.paused &&
+        _sesion.value?.estado == EstadoSesion.corriendo) {
+      unawaited(_comprobarSalida(_generacion));
+    }
+  }
 
   /// Terminar antes: terminada si llega al mínimo, descartada si no.
   Future<SesionConcentracion?> terminar() => _aplicar((s, m) => s.terminar(m));

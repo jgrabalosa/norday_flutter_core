@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -172,6 +173,8 @@ class SesionConcentracion {
   });
 
   /// Una sesión nueva, sin empezar. Sin [clave], se genera un UUID v4.
+  /// Lanza [ArgumentError] si la duración no es positiva o si [datosApp] no
+  /// pasa por `jsonEncode` (no se podría guardar).
   factory SesionConcentracion.preparar({
     required Duration duracionObjetivo,
     ReglasSesion reglas = const ReglasSesion(),
@@ -184,6 +187,17 @@ class SesionConcentracion {
         'duracionObjetivo',
         'tiene que ser positiva',
       );
+    }
+    if (datosApp != null) {
+      try {
+        jsonEncode(datosApp);
+      } catch (e) {
+        throw ArgumentError.value(
+          datosApp,
+          'datosApp',
+          'tiene que poder pasar por jsonEncode ($e)',
+        );
+      }
     }
     return SesionConcentracion._(
       clave: clave ?? generarClave(),
