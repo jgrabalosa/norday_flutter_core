@@ -143,8 +143,10 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
    backend filtra los catálogos. Vale `''` por defecto: sin él no se manda
    la cabecera y `VersionMinimaService` no pregunta. Cada app lo fija antes
-   de `runApp` (`'habitos'`, `'conocimiento'`…). Hoy solo la llevan los dos
-   catálogos: `actualizarFcmToken` no la manda.
+   de `runApp` (`'habitos'`, `'conocimiento'`, `'enfoque'`…). La llevan los
+   dos catálogos y `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`): el
+   backend guarda un token por usuario y app, y sin cabecera lo cuenta como
+   `habitos`. Una app desconocida para el backend da 400.
 10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
    `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
    es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
