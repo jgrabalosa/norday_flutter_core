@@ -7,6 +7,9 @@ dependencia Git.
 Consumidores hoy:
 
 - `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`).
+- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`; mientras el tag no
+  exista, con `pubspec_overrides.yaml` local apuntando a
+  `../norday_flutter_core`.
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
   `a873d8f`, del 12-ago-2026, anterior a `v0.1.0`. No recibe nada de lo que
   se ha hecho aquí desde entonces.
@@ -29,6 +32,12 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   registra si el permiso ya está dado; la app lo pide en contexto. El
   registro es idempotente por usuario y token, escucha las renovaciones del
   token y la app lo llama al arrancar con sesión y al volver a primer plano),
+  `VersionMinimaService` (la versión mínima por app, `GET
+  /api/version/{appId}`: la app pregunta en su splash con
+  `hayQueActualizar()` y, si toca, `bloquear()` abre
+  `ActualizacionObligatoriaScreen`; `vigilarAlVolver()`, llamado en `main()`,
+  comprueba al volver a primer plano, pero no en la primera llegada de un
+  arranque en frío, desde 0.55.0. Nunca bloquea por un fallo de red),
   y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
   máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
   avisos; ver los puntos de extensión).
@@ -74,8 +83,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     Dulce);
   - tienda (1): la vista previa de una identidad;
   - retirado (1): `SelectorAvatarGratis`.
-- `screens/` — login, recuperación, elección de identidad (onboarding),
-  tienda, mascota, logros, colección, perfil.
+- `screens/` — 9 pantallas: login, recuperación, elección de identidad
+  (onboarding), tienda, mascota, logros, colección, perfil y actualización
+  obligatoria (`ActualizacionObligatoriaScreen`).
 - `l10n/` — `NordayCoreLocalizations`, `CatalogosCore`, `MensajesError`
   (errores de red al idioma activo), `MensajesMascota` (fase, estado y
   frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
@@ -124,6 +134,12 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    identidad (`IDENTIDAD_PROFUNDIDAD`, `IDENTIDAD_NEOTOKYO_PLUS`,
    `IDENTIDAD_DULCE`), los dos de la mascota (`MASCOTA_CRIA`,
    `MASCOTA_ADULTO`) e `INTERACCION_RESENA` (retirado el 24-ago-2026).
+   **`CatalogosCore.registrarProductosDeDominio`** hace lo mismo con los
+   productos propios de una app: `nombres`, `descripciones` y `usos`. `usos`
+   es para un consumible que no se gasta desde Colección sino desde una
+   pantalla de la app: Colección enseña ese texto en vez del botón «Usar»
+   (`CatalogosCore.productoUso`). Norday Habits registra así la pausa
+   (`PAUSA_HABITO`). Si el core traduce el mismo código, manda el core.
 3. **`nordayNavigatorKey`** (`navegacion.dart`) — cada app se lo pasa a su
    `MaterialApp` en vez de declarar el suyo. Lo usa `CelebracionService`, que
    puede dispararse desde cualquier sitio.
@@ -404,12 +420,12 @@ Errores que ya se cometieron una vez. No se vuelven a cometer.
   viejo del core seguirá con el comportamiento viejo aunque aquí esté
   arreglado.
 
-### Método de trabajo (vale para los cuatro repos)
+### Método de trabajo (vale para los cinco repos)
 
-- **La primera línea de un prompt se comprueba, no se recuerda.** Tres repos
-  están en `C:\Dev\Norday\` (`habitos-app`, `habitos_app_mobile`,
-  `norday_flutter_core`) y `conocimiento_app_mobile` está en
-  `C:\Dev\Conocimiento\`.
+- **La primera línea de un prompt se comprueba, no se recuerda.** Son cinco
+  repos: cuatro están en `C:\Dev\Norday\` (`habitos-app`,
+  `habitos_app_mobile`, `norday_flutter_core` y `enfoque_app_mobile`) y
+  `conocimiento_app_mobile` está en `C:\Dev\Conocimiento\`.
 - **Un solo agente por repo a la vez.** Todo lo que haga otro agente se revisa
   en el remoto antes de mergear.
 - **Las cifras de verificación se cuentan contra el repositorio**, nunca se
