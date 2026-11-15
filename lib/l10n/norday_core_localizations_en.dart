@@ -728,4 +728,34 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
 
   @override
   String get actualizacionBoton => 'Update now';
+
+  @override
+  String get sesionAvisoSalir => 'If you leave the app, you lose the session';
+
+  @override
+  String get sesionAvisoGraciaTitulo => 'Come back to your session';
+
+  @override
+  String sesionAvisoGraciaCuerpo(int segundos) {
+    return 'If you\'re not back in $segundos s, you\'ll lose it.';
+  }
+
+  @override
+  String get sesionAvisoFinTitulo => 'Session complete';
+
+  @override
+  String get sesionAvisoFinCuerpo =>
+      'You made it to the end. Open the app to see the result.';
+
+  @override
+  String aroCuentaAtrasEtiqueta(int minutos) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutos,
+      locale: localeName,
+      other: '$minutos minutes left',
+      one: '1 minute left',
+      zero: 'Time\'s up',
+    );
+    return '$_temp0';
+  }
 }

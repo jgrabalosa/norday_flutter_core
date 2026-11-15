@@ -229,5 +229,11 @@
   "indicadorNivel": "Level {n} of 5",
   "actualizacionTitulo": "A new version is ready",
   "actualizacionTexto": "To keep using Norday, update the app. Your progress stays just as it is.",
-  "actualizacionBoton": "Update now"
+  "actualizacionBoton": "Update now",
+  "sesionAvisoSalir": "If you leave the app, you lose the session",
+  "sesionAvisoGraciaTitulo": "Come back to your session",
+  "sesionAvisoGraciaCuerpo": "If you're not back in {segundos} s, you'll lose it.",
+  "sesionAvisoFinTitulo": "Session complete",
+  "sesionAvisoFinCuerpo": "You made it to the end. Open the app to see the result.",
+  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Time's up} =1{1 minute left} other{{minutos} minutes left}}"
 }

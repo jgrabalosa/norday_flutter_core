@@ -28,7 +28,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   notificaciones y el registro del aviso en el backend: el login solo
   registra si el permiso ya está dado; la app lo pide en contexto. El
   registro es idempotente por usuario y token, escucha las renovaciones del
-  token y la app lo llama al arrancar con sesión y al volver a primer plano).
+  token y la app lo llama al arrancar con sesión y al volver a primer plano),
+  y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
+  máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
+  avisos; ver los puntos de extensión).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
@@ -36,7 +39,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 36 ficheros:
+- `widgets/` — 37 ficheros:
   - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
     terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
@@ -60,6 +63,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
+  - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
+    `AnilloIdentidad`, que se vacía con el tiempo;
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
     splash, hoja de valoración, selector de idioma y zona,
     `EstrellaValoracion` (la estrella de la valoración: a lápiz en Dulce),
@@ -162,6 +167,33 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    nombra ningún dominio. El core lee con `TextosApp.nombreDe(context)` y
    sus hermanos, nunca la clave directamente. El título de la tarea
    (`onGenerateTitle`) es de cada app: no lo pinta el core.
+12. **La sesión con bloqueo suave** (`services/sesion_concentracion.dart`,
+   `services/motor_sesion.dart`, `widgets/aro_cuenta_atras.dart`). El core
+   lleva la lógica; la app pone lo que es de plataforma o de dominio:
+   - `FuenteReloj` (`Future<int> monotonicoMs()`, `DateTime ahoraUtc()`):
+     el monótono es `SystemClock.elapsedRealtime` por un canal nativo de la
+     app. Un `Stopwatch` de Dart no sirve: muere con el proceso.
+   - `FuentePantalla` (`Future<bool> encendidaYDesbloqueada()`):
+     `PowerManager.isInteractive && !KeyguardManager.isKeyguardLocked`.
+   - `AvisosSesion` (`avisarGracia`, `cancelarGracia`, `programarFin`,
+     `cancelarFin`), idempotentes y sin alarmas exactas. El core no depende
+     de `flutter_local_notifications`: el paquete obliga a activar el
+     desugaring en el Gradle de la app aunque no se programe nada, y Norday
+     Habits no lo tiene. Sin implementación, `AvisosSesionNulos`.
+   - `datosApp` (`Map` serializable): lo que la app quiera guardar con la
+     sesión (a qué va dedicada). El core no lo mira.
+
+   Reglas: gracia de 10 s y mínimo de 10 min (`ReglasSesion`, con los bordes
+   dentro); terminar antes del mínimo da `descartada` (no se envía);
+   rendirse o volver tarde, `perdida`; minutos = enteros hacia abajo y solo
+   si cuenta. Sale de la app solo un `paused` con dos consultas de pantalla
+   (al llegar y a los 400 ms) que digan encendida y desbloqueada; `inactive`
+   y `hidden` nunca. La meta alcanzada dentro de la gracia da `completada`.
+   Reinicio del móvil (monótono por debajo del inicio, o el instante de
+   arranque desplazado más de 5 min) → `perdida`. Cada transición se guarda
+   en `SharedPreferences` (`sesion_concentracion_actual`); una sesión
+   acabada se queda guardada hasta que la app la recoge y llama a
+   `MotorSesion.cerrar()`. Una sola sesión a la vez.
 
 ## Assets: siempre con `package:`
 

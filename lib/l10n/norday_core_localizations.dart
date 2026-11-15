@@ -1440,6 +1440,42 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Actualizar ahora'**
   String get actualizacionBoton;
+
+  /// Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Si sales de la app, pierdes la sesión'**
+  String get sesionAvisoSalir;
+
+  /// Notificación local al salir de la app durante una sesión: título
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a tu sesión'**
+  String get sesionAvisoGraciaTitulo;
+
+  /// Notificación local al salir de la app durante una sesión: cuerpo
+  ///
+  /// In es, this message translates to:
+  /// **'Si no vuelves en {segundos} s, la pierdes.'**
+  String sesionAvisoGraciaCuerpo(int segundos);
+
+  /// Notificación local al llegar a la meta de una sesión: título
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión completada'**
+  String get sesionAvisoFinTitulo;
+
+  /// Notificación local al llegar a la meta de una sesión: cuerpo
+  ///
+  /// In es, this message translates to:
+  /// **'Has llegado al final. Entra para ver el resultado.'**
+  String get sesionAvisoFinCuerpo;
+
+  /// Lector de pantalla del aro de cuenta atrás: minutos que faltan, redondeados hacia arriba
+  ///
+  /// In es, this message translates to:
+  /// **'{minutos, plural, =0{Tiempo cumplido} =1{Queda 1 minuto} other{Quedan {minutos} minutos}}'**
+  String aroCuentaAtrasEtiqueta(int minutos);
 }
 
 class _NordayCoreLocalizationsDelegate

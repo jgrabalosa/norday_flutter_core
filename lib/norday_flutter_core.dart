@@ -19,6 +19,8 @@ export 'services/notificaciones_service.dart';
 export 'services/origen_instalacion_service.dart';
 export 'services/recorrido_service.dart';
 export 'services/version_minima_service.dart';
+export 'services/sesion_concentracion.dart';
+export 'services/motor_sesion.dart';
 
 // ── Textos ───────────────────────────────────────────────
 export 'l10n/norday_core_localizations.dart';
@@ -45,6 +47,7 @@ export 'models/usuario.dart';
 export 'widgets/anillo_identidad.dart';
 export 'widgets/anillo_progreso.dart';
 export 'widgets/animacion_puntos.dart';
+export 'widgets/aro_cuenta_atras.dart';
 export 'widgets/ayuda_campo.dart';
 export 'widgets/burbuja_contexto.dart';
 export 'widgets/burbuja_flotante.dart';

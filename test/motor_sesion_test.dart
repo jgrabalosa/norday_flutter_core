@@ -1,0 +1,445 @@
+import 'dart:convert';
+import 'dart:ui' show AppLifecycleState;
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:norday_flutter_core/services/motor_sesion.dart';
+import 'package:norday_flutter_core/services/sesion_concentracion.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Reloj a mano: el test lo avanza a la vez que el tiempo falso de
+/// `testWidgets`.
+class RelojFalso implements FuenteReloj {
+  int mono = 5000000;
+  DateTime utc = DateTime.utc(2026, 11, 15, 9);
+
+  void avanzar(Duration d) {
+    mono += d.inMilliseconds;
+    utc = utc.add(d);
+  }
+
+  @override
+  Future<int> monotonicoMs() async => mono;
+
+  @override
+  DateTime ahoraUtc() => utc;
+}
+
+/// Contesta lo que diga [respuestas] (en orden) y, agotadas, [valor].
+class PantallaFalsa implements FuentePantalla {
+  bool valor = true;
+  final List<bool> respuestas = [];
+  bool falla = false;
+  int consultas = 0;
+
+  @override
+  Future<bool> encendidaYDesbloqueada() async {
+    consultas++;
+    if (falla) throw StateError('canal roto');
+    return respuestas.isNotEmpty ? respuestas.removeAt(0) : valor;
+  }
+}
+
+class AvisosFalsos implements AvisosSesion {
+  final List<String> llamadas = [];
+  Duration? ultimaGracia;
+  DateTime? ultimoFin;
+
+  @override
+  Future<void> avisarGracia(Duration quedan) async {
+    ultimaGracia = quedan;
+    llamadas.add('gracia');
+  }
+
+  @override
+  Future<void> cancelarGracia() async => llamadas.add('-gracia');
+
+  @override
+  Future<void> programarFin(DateTime finUtc) async {
+    ultimoFin = finUtc;
+    llamadas.add('fin');
+  }
+
+  @override
+  Future<void> cancelarFin() async => llamadas.add('-fin');
+}
+
+void main() {
+  const clave = 'sesion_concentracion_actual';
+  late RelojFalso reloj;
+  late PantallaFalsa pantalla;
+  late AvisosFalsos avisos;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    reloj = RelojFalso();
+    pantalla = PantallaFalsa();
+    avisos = AvisosFalsos();
+  });
+
+  MotorSesion nuevoMotor(WidgetTester tester) => MotorSesion(
+    reloj: reloj,
+    pantalla: pantalla,
+    avisos: avisos,
+    binding: tester.binding,
+  );
+
+  /// Lleva el ciclo de vida por los pasos que da Android, de uno en uno.
+  Future<void> ciclo(WidgetTester tester, List<AppLifecycleState> pasos) async {
+    for (final p in pasos) {
+      tester.binding.handleAppLifecycleStateChanged(p);
+      await tester.pump();
+    }
+  }
+
+  const irse = [
+    AppLifecycleState.inactive,
+    AppLifecycleState.hidden,
+    AppLifecycleState.paused,
+  ];
+  const volver = [
+    AppLifecycleState.hidden,
+    AppLifecycleState.inactive,
+    AppLifecycleState.resumed,
+  ];
+
+  /// Deja el binding en primer plano para el test siguiente.
+  Future<void> alFrente(WidgetTester tester) async {
+    final estado = tester.binding.lifecycleState;
+    if (estado == AppLifecycleState.paused) {
+      await ciclo(tester, volver);
+    } else if (estado == AppLifecycleState.hidden) {
+      await ciclo(tester, volver.sublist(1));
+    } else if (estado == AppLifecycleState.inactive) {
+      await ciclo(tester, [AppLifecycleState.resumed]);
+    }
+  }
+
+  /// Pasa los 400 ms de la segunda consulta y lo que venga detrás.
+  Future<void> segundaConsulta(WidgetTester tester) async {
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
+  }
+
+  Future<MotorSesion> empezado(WidgetTester tester) async {
+    await alFrente(tester);
+    final motor = nuevoMotor(tester);
+    await motor.iniciar();
+    await motor.empezar(duracionObjetivo: const Duration(minutes: 25));
+    return motor;
+  }
+
+  Future<Map<String, Object?>?> guardada() async {
+    final prefs = await SharedPreferences.getInstance();
+    final crudo = prefs.getString(clave);
+    return crudo == null ? null : jsonDecode(crudo) as Map<String, Object?>;
+  }
+
+  testWidgets('empezar guarda la sesión, programa el fin y cuenta atrás', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    final s = motor.sesion.value!;
+    expect(s.estado, EstadoSesion.corriendo);
+    expect((await guardada())!['estado'], 'corriendo');
+    expect(avisos.llamadas, ['fin']);
+    expect(avisos.ultimoFin, reloj.utc.add(const Duration(minutes: 25)));
+    expect(motor.restante.value, const Duration(minutes: 25));
+
+    reloj.avanzar(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(motor.restante.value, const Duration(minutes: 24, seconds: 59));
+    motor.dispose();
+  });
+
+  testWidgets('sin iniciar, o con otra sesión en marcha, empezar lanza', (
+    tester,
+  ) async {
+    final suelto = nuevoMotor(tester);
+    await expectLater(
+      suelto.empezar(duracionObjetivo: const Duration(minutes: 25)),
+      throwsStateError,
+    );
+    suelto.dispose();
+
+    final motor = await empezado(tester);
+    await expectLater(
+      motor.empezar(duracionObjetivo: const Duration(minutes: 25)),
+      throwsStateError,
+    );
+    motor.dispose();
+  });
+
+  testWidgets('salir con la pantalla encendida y volver a tiempo', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    // Entre la primera consulta y la segunda todavía no ha salido.
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    reloj.avanzar(const Duration(milliseconds: 400));
+    await segundaConsulta(tester);
+    expect(pantalla.consultas, 2);
+    expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+    expect((await guardada())!['estado'], 'enGracia');
+    expect(avisos.llamadas, ['fin', 'gracia']);
+    // La gracia se mide desde el `paused`: ya se han ido 400 ms.
+    expect(avisos.ultimaGracia, const Duration(milliseconds: 9600));
+
+    reloj.avanzar(const Duration(seconds: 5));
+    await ciclo(tester, volver);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect(avisos.llamadas.last, '-gracia');
+    motor.dispose();
+  });
+
+  testWidgets('volver pasada la gracia: perdida, y fuera los avisos', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+
+    // Con el proceso dormido no salta ningún temporizador: se ve al volver.
+    reloj.avanzar(const Duration(seconds: 11));
+    await ciclo(tester, volver);
+    final s = motor.sesion.value!;
+    expect(s.estado, EstadoSesion.perdida);
+    expect(s.motivoPerdida, MotivoPerdida.salida);
+    expect(avisos.llamadas, containsAllInOrder(['-gracia', '-fin']));
+    expect((await guardada())!['estado'], 'perdida');
+    motor.dispose();
+  });
+
+  testWidgets('la gracia vence con la app detrás y el proceso vivo', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+
+    reloj.avanzar(const Duration(milliseconds: 10001));
+    await tester.pump(const Duration(milliseconds: 10001));
+    await tester.pump();
+    expect(motor.sesion.value!.estado, EstadoSesion.perdida);
+    motor.dispose();
+  });
+
+  testWidgets('paused con la pantalla apagada no es salir', (tester) async {
+    pantalla.valor = false;
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect(pantalla.consultas, 1);
+    expect(avisos.llamadas, ['fin']);
+    motor.dispose();
+  });
+
+  testWidgets('encendida en la primera consulta y apagada en la segunda: '
+      'no es salir', (tester) async {
+    pantalla.respuestas.addAll([true, false]);
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(pantalla.consultas, 2);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    motor.dispose();
+  });
+
+  testWidgets('inactive (cortinilla, llamada) no consulta ni cuenta', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, [AppLifecycleState.inactive]);
+    await tester.pump(const Duration(seconds: 1));
+    expect(pantalla.consultas, 0);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    await ciclo(tester, [AppLifecycleState.resumed]);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    motor.dispose();
+  });
+
+  testWidgets('si vuelve antes de la segunda consulta, no sale', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    expect(pantalla.consultas, 1);
+    await ciclo(tester, volver);
+    await segundaConsulta(tester);
+    expect(pantalla.consultas, 1);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect(avisos.llamadas, ['fin']);
+    motor.dispose();
+  });
+
+  testWidgets('si la pantalla no responde, no sale', (tester) async {
+    pantalla.falla = true;
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    motor.dispose();
+  });
+
+  testWidgets('con la app delante, el temporizador la completa en la meta', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    reloj.avanzar(const Duration(minutes: 25));
+    await tester.pump(const Duration(seconds: 1));
+    final s = motor.sesion.value!;
+    expect(s.estado, EstadoSesion.completada);
+    expect(s.minutos, 25);
+    expect(motor.restante.value, Duration.zero);
+    // Delante: el aviso de fin sobra.
+    expect(avisos.llamadas.last, '-fin');
+    motor.dispose();
+  });
+
+  testWidgets('completada con la pantalla apagada: el aviso de fin se queda', (
+    tester,
+  ) async {
+    pantalla.valor = false;
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    reloj.avanzar(const Duration(minutes: 25));
+    await tester.pump(const Duration(minutes: 25));
+    await tester.pump();
+    expect(motor.sesion.value!.estado, EstadoSesion.completada);
+    expect(avisos.llamadas, ['fin']);
+    motor.dispose();
+  });
+
+  testWidgets('terminar antes del mínimo descarta; cerrar borra lo guardado', (
+    tester,
+  ) async {
+    final motor = await empezado(tester);
+    reloj.avanzar(const Duration(minutes: 9, seconds: 59));
+    final s = await motor.terminar();
+    expect(s!.estado, EstadoSesion.descartada);
+    expect(avisos.llamadas.last, '-fin');
+    expect(await guardada(), isNotNull);
+
+    await motor.cerrar();
+    expect(motor.sesion.value, isNull);
+    expect(await guardada(), isNull);
+    // Cerrada, se puede empezar otra.
+    await motor.empezar(duracionObjetivo: const Duration(minutes: 10));
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    motor.dispose();
+  });
+
+  testWidgets('terminar a los 10 min cuenta; rendirse pierde', (tester) async {
+    final motor = await empezado(tester);
+    reloj.avanzar(const Duration(minutes: 10));
+    expect((await motor.terminar())!.minutos, 10);
+    await motor.cerrar();
+
+    await motor.empezar(duracionObjetivo: const Duration(minutes: 25));
+    reloj.avanzar(const Duration(minutes: 15));
+    final s = await motor.rendirse();
+    expect(s!.estado, EstadoSesion.perdida);
+    expect(s.motivoPerdida, MotivoPerdida.rendicion);
+    motor.dispose();
+  });
+
+  testWidgets('cerrar una sesión activa lanza', (tester) async {
+    final motor = await empezado(tester);
+    await expectLater(motor.cerrar(), throwsStateError);
+    motor.dispose();
+  });
+
+  group('recomposición al reabrir', () {
+    testWidgets('sigue corriendo donde iba y reprograma el fin', (
+      tester,
+    ) async {
+      final primero = await empezado(tester);
+      primero.dispose();
+      reloj.avanzar(const Duration(minutes: 3));
+      avisos.llamadas.clear();
+
+      final motor = nuevoMotor(tester);
+      final s = await motor.iniciar();
+      expect(s!.estado, EstadoSesion.corriendo);
+      expect(motor.restante.value, const Duration(minutes: 22));
+      expect(avisos.llamadas, ['fin']);
+      motor.dispose();
+    });
+
+    testWidgets('el móvil se reinició: perdida por reinicio', (tester) async {
+      final primero = await empezado(tester);
+      primero.dispose();
+      reloj.mono = 20000; // el monótono vuelve a contar desde cero
+      reloj.utc = reloj.utc.add(const Duration(minutes: 2));
+
+      final motor = nuevoMotor(tester);
+      final s = await motor.iniciar();
+      expect(s!.estado, EstadoSesion.perdida);
+      expect(s.motivoPerdida, MotivoPerdida.reinicio);
+      expect((await guardada())!['motivoPerdida'], 'reinicio');
+      motor.dispose();
+    });
+
+    testWidgets('muerto en la gracia y reabierto a tiempo: sigue', (
+      tester,
+    ) async {
+      final primero = await empezado(tester);
+      await ciclo(tester, irse);
+      await segundaConsulta(tester);
+      expect(primero.sesion.value!.estado, EstadoSesion.enGracia);
+      primero.dispose();
+      await ciclo(tester, volver);
+
+      reloj.avanzar(const Duration(seconds: 5));
+      final motor = nuevoMotor(tester);
+      expect((await motor.iniciar())!.estado, EstadoSesion.corriendo);
+      expect(avisos.llamadas, contains('-gracia'));
+      motor.dispose();
+    });
+
+    testWidgets('muerto en la gracia y reabierto tarde: perdida', (
+      tester,
+    ) async {
+      final primero = await empezado(tester);
+      await ciclo(tester, irse);
+      await segundaConsulta(tester);
+      primero.dispose();
+      await ciclo(tester, volver);
+
+      reloj.avanzar(const Duration(seconds: 30));
+      final motor = nuevoMotor(tester);
+      final s = await motor.iniciar();
+      expect(s!.estado, EstadoSesion.perdida);
+      expect(s.motivoPerdida, MotivoPerdida.salida);
+      motor.dispose();
+    });
+
+    testWidgets('una sesión acabada sin cerrar sigue ahí para recogerla', (
+      tester,
+    ) async {
+      final primero = await empezado(tester);
+      reloj.avanzar(const Duration(minutes: 12));
+      await primero.terminar();
+      primero.dispose();
+
+      final motor = nuevoMotor(tester);
+      final s = await motor.iniciar();
+      expect(s!.estado, EstadoSesion.terminada);
+      expect(s.minutos, 12);
+      motor.dispose();
+    });
+
+    testWidgets('lo guardado ilegible se descarta', (tester) async {
+      SharedPreferences.setMockInitialValues({clave: '{"version":1}'});
+      await alFrente(tester);
+      final motor = nuevoMotor(tester);
+      expect(await motor.iniciar(), isNull);
+      expect(await guardada(), isNull);
+      motor.dispose();
+    });
+  });
+}
