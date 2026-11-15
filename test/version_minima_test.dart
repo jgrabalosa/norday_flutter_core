@@ -1,13 +1,27 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/screens/actualizacion_obligatoria_screen.dart';
 import 'package:norday_flutter_core/services/api_service_core.dart';
 import 'package:norday_flutter_core/services/version_minima_service.dart';
 
+/// Lo que contesta el cliente HTTP falso. `ApiServiceCore.cliente` es un
+/// `static final`: se crea una vez, dentro de `http.runWithClient`, y cada
+/// test cambia solo esta función.
+late Future<http.Response> Function(http.Request) responder;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  final falso = MockClient((peticion) => responder(peticion));
+  http.runWithClient(() => ApiServiceCore.cliente, () => falso);
+
+  // La petición de verdad, antes de que setUp la sustituya.
+  final pedirAlBackend = VersionMinimaService.pedirVersionMinima;
 
   late List<String> preguntadas;
 
@@ -21,7 +35,10 @@ void main() {
     };
   });
 
-  tearDown(() => ApiServiceCore.appId = '');
+  tearDown(() {
+    ApiServiceCore.appId = '';
+    VersionMinimaService.reiniciarParaTest();
+  });
 
   group('hayQueActualizar', () {
     test('instalada por debajo de la mínima: hay que actualizar', () async {
@@ -60,6 +77,136 @@ void main() {
       ApiServiceCore.appId = '';
       expect(await VersionMinimaService.hayQueActualizar(), isFalse);
       expect(preguntadas, isEmpty);
+    });
+  });
+
+  group('vigilarAlVolver', () {
+    /// Lleva el ciclo de vida por los pasos que da Android, de uno en uno.
+    Future<void> ciclo(
+      WidgetTester tester,
+      List<AppLifecycleState> pasos,
+    ) async {
+      for (final p in pasos) {
+        tester.binding.handleAppLifecycleStateChanged(p);
+        await tester.pump();
+      }
+    }
+
+    const irse = [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ];
+    const volver = [
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ];
+
+    testWidgets('arranque en frío directo a resumed: no comprueba', (
+      tester,
+    ) async {
+      // Cada test empieza sin estado, como un proceso recién lanzado.
+      expect(tester.binding.lifecycleState, isNull);
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      expect(preguntadas, isEmpty);
+    });
+
+    testWidgets('arranque en frío sin foco (inactive y luego resumed): '
+        'no comprueba', (tester) async {
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]);
+      expect(preguntadas, isEmpty);
+    });
+
+    testWidgets('volver del segundo plano: comprueba una vez', (tester) async {
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      await ciclo(tester, irse);
+      expect(preguntadas, isEmpty);
+      await ciclo(tester, volver);
+      expect(preguntadas, ['habitos']);
+    });
+
+    testWidgets('cada vuelta del segundo plano comprueba', (tester) async {
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      await ciclo(tester, [...irse, ...volver]);
+      await ciclo(tester, [...irse, ...volver]);
+      expect(preguntadas, ['habitos', 'habitos']);
+    });
+
+    testWidgets('volver de inactive sin pasar por hidden: comprueba, '
+        'como antes', (tester) async {
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      await ciclo(tester, [
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]);
+      expect(preguntadas, ['habitos']);
+    });
+
+    testWidgets('si ya estaba en primer plano al vigilar, la primera vuelta '
+        'comprueba', (tester) async {
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [...irse, ...volver]);
+      expect(preguntadas, ['habitos']);
+    });
+
+    testWidgets('llamarlo dos veces no duplica la comprobación', (
+      tester,
+    ) async {
+      VersionMinimaService.vigilarAlVolver();
+      VersionMinimaService.vigilarAlVolver();
+      await ciclo(tester, [AppLifecycleState.resumed]);
+      await ciclo(tester, [...irse, ...volver]);
+      expect(preguntadas, ['habitos']);
+    });
+  });
+
+  group('log del fallo', () {
+    late List<String> lineas;
+    late DebugPrintCallback printOriginal;
+
+    setUp(() {
+      lineas = [];
+      printOriginal = debugPrint;
+      debugPrint = (mensaje, {wrapWidth}) => lineas.add(mensaje ?? '');
+      VersionMinimaService.pedirVersionMinima = pedirAlBackend;
+    });
+
+    tearDown(() => debugPrint = printOriginal);
+
+    test('sin red: el log lleva la causa, no solo el tipo', () async {
+      responder = (_) async =>
+          throw http.ClientException('Failed host lookup: api.norday.app');
+      expect(await VersionMinimaService.hayQueActualizar(), isFalse);
+      expect(lineas, hasLength(1));
+      expect(lineas.single, contains('sinConexion'));
+      expect(lineas.single, contains('Failed host lookup: api.norday.app'));
+    });
+
+    test('error del servidor: el log lleva el código y el cuerpo', () async {
+      responder = (_) async => http.Response('bad gateway', 502);
+      expect(await VersionMinimaService.hayQueActualizar(), isFalse);
+      expect(lineas, hasLength(1));
+      expect(lineas.single, contains('HTTP 502'));
+      expect(lineas.single, contains('bad gateway'));
+    });
+
+    test('un fallo que no es de la API se registra igual que antes', () async {
+      VersionMinimaService.pedirVersionMinima = (_) async =>
+          throw Exception('otra cosa');
+      expect(await VersionMinimaService.hayQueActualizar(), isFalse);
+      expect(lineas, [
+        'Versión mínima: no se pudo comprobar: Exception: otra cosa',
+      ]);
     });
   });
 
