@@ -326,6 +326,54 @@ void main() {
     });
   });
 
+  group('salida pendiente (entre las dos consultas de pantalla)', () {
+    test('marcar no cambia el estado y salir la consume', () {
+      final marcada = corriendo().marcarSalidaPendiente(inicio + min);
+      expect(marcada.estado, EstadoSesion.corriendo);
+      expect(marcada.salidaPendienteMonoMs, inicio + min);
+      final fuera = marcada.salir(inicio + min);
+      expect(fuera.estado, EstadoSesion.enGracia);
+      expect(fuera.salidaPendienteMonoMs, isNull);
+    });
+
+    test('quitar la marca la borra; volver también', () {
+      final marcada = corriendo().marcarSalidaPendiente(inicio + min);
+      expect(marcada.quitarSalidaPendiente().salidaPendienteMonoMs, isNull);
+      expect(marcada.volver(inicio + min + seg).salidaPendienteMonoMs, isNull);
+    });
+
+    test('solo se marca una sesión corriendo', () {
+      final enGracia = corriendo().salir(inicio + min);
+      expect(enGracia.marcarSalidaPendiente(inicio + 2 * min), same(enGracia));
+    });
+
+    test('recomponer con marca y la gracia vencida: perdida por salida', () {
+      final s = corriendo()
+          .marcarSalidaPendiente(inicio + min)
+          .recomponer(
+            monoMs: inicio + 30 * min,
+            ahoraUtc: inicioUtc.add(const Duration(minutes: 30)),
+          );
+      expect(s.estado, EstadoSesion.perdida);
+      expect(s.motivoPerdida, MotivoPerdida.salida);
+      expect(s.finMonoMs, inicio + min);
+    });
+
+    test(
+      'recomponer con marca dentro de la gracia: en gracia desde la marca',
+      () {
+        final s = corriendo()
+            .marcarSalidaPendiente(inicio + min)
+            .recomponer(
+              monoMs: inicio + min + 3 * seg,
+              ahoraUtc: inicioUtc.add(const Duration(minutes: 1, seconds: 3)),
+            );
+        expect(s.estado, EstadoSesion.enGracia);
+        expect(s.salidaMonoMs, inicio + min);
+      },
+    );
+  });
+
   group('JSON', () {
     final datos = <String, Object?>{'tipo': 'x', 'id': 7};
     final base = SesionConcentracion.preparar(
@@ -341,6 +389,7 @@ void main() {
       'preparada': base,
       'corriendo': enCurso,
       'enGracia': enCurso.salir(inicio + min),
+      'corriendo con marca': enCurso.marcarSalidaPendiente(inicio + min),
       'completada': enCurso.actualizar(inicio + 45 * min),
       'terminada': enCurso.terminar(inicio + 6 * min),
       'descartada': enCurso.terminar(inicio + min),

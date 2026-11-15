@@ -144,6 +144,13 @@ class SesionConcentracion {
   /// Reloj monótono al salir de la app. Solo en [EstadoSesion.enGracia].
   final int? salidaMonoMs;
 
+  /// Marca provisional de salida: la primera consulta de pantalla dijo
+  /// encendida y desbloqueada y falta la segunda. Solo en
+  /// [EstadoSesion.corriendo]. Si el proceso muere antes de la segunda (o lo
+  /// matan desde Recientes), [recomponer] la trata como una salida desde la
+  /// marca.
+  final int? salidaPendienteMonoMs;
+
   /// Reloj monótono en que terminó. Solo en los estados finales.
   final int? finMonoMs;
 
@@ -159,6 +166,7 @@ class SesionConcentracion {
     this.inicioUtc,
     this.inicioMonoMs,
     this.salidaMonoMs,
+    this.salidaPendienteMonoMs,
     this.finMonoMs,
     this.motivoPerdida,
   });
@@ -189,6 +197,7 @@ class SesionConcentracion {
   SesionConcentracion _con({
     required EstadoSesion estado,
     int? salidaMonoMs,
+    int? salidaPendienteMonoMs,
     int? finMonoMs,
     MotivoPerdida? motivoPerdida,
   }) => SesionConcentracion._(
@@ -200,6 +209,7 @@ class SesionConcentracion {
     inicioMonoMs: inicioMonoMs,
     estado: estado,
     salidaMonoMs: salidaMonoMs,
+    salidaPendienteMonoMs: salidaPendienteMonoMs,
     finMonoMs: finMonoMs,
     motivoPerdida: motivoPerdida,
   );
@@ -274,8 +284,22 @@ class SesionConcentracion {
     return this;
   }
 
+  /// Deja la marca provisional de salida en [monoMs] (sustituye a la que
+  /// hubiera). Solo en una sesión corriendo; en cualquier otra, nada.
+  SesionConcentracion marcarSalidaPendiente(int monoMs) {
+    if (estado != EstadoSesion.corriendo) return this;
+    return _con(estado: estado, salidaPendienteMonoMs: monoMs);
+  }
+
+  /// Quita la marca provisional: la segunda consulta dijo que no era salir.
+  SesionConcentracion quitarSalidaPendiente() {
+    if (salidaPendienteMonoMs == null) return this;
+    return _con(estado: estado);
+  }
+
   /// El usuario se ha ido a otra app con la pantalla encendida y
-  /// desbloqueada: empieza la gracia, medida desde [monoMs].
+  /// desbloqueada: empieza la gracia, medida desde [monoMs]. Consume la marca
+  /// provisional, si la había.
   SesionConcentracion salir(int monoMs) {
     final s = actualizar(monoMs);
     if (s.estado != EstadoSesion.corriendo) return s;
@@ -283,11 +307,14 @@ class SesionConcentracion {
   }
 
   /// La app vuelve a primer plano. Dentro de la gracia, sigue corriendo;
-  /// fuera, perdida (eso lo resuelve [actualizar]).
+  /// fuera, perdida (eso lo resuelve [actualizar]). Volver quita también la
+  /// marca provisional: si está delante, no se ha ido.
   SesionConcentracion volver(int monoMs) {
     final s = actualizar(monoMs);
-    if (s.estado != EstadoSesion.enGracia) return s;
-    return s._con(estado: EstadoSesion.corriendo);
+    if (s.estado == EstadoSesion.enGracia) {
+      return s._con(estado: EstadoSesion.corriendo);
+    }
+    return s.quitarSalidaPendiente();
   }
 
   /// Terminar antes. Cuenta si lleva al menos [ReglasSesion.minimoParaContar];
@@ -317,7 +344,9 @@ class SesionConcentracion {
   }
 
   /// Al reabrir la app con una sesión guardada: si el móvil se ha reiniciado
-  /// desde que empezó, perdida; si no, lo que diga [actualizar].
+  /// desde que empezó, perdida; si no, lo que diga [actualizar]. Una marca
+  /// provisional de salida cuenta como salida desde la marca: el proceso
+  /// murió entre las dos consultas de pantalla.
   ///
   /// El reinicio se reconoce de dos formas. La obvia: el reloj monótono está
   /// por debajo del inicio, porque empezó a contar de cero. Y la que cubre
@@ -341,6 +370,10 @@ class SesionConcentracion {
         finMonoMs: salidaMonoMs ?? inicioMonoMs,
         motivoPerdida: MotivoPerdida.reinicio,
       );
+    }
+    final pendiente = salidaPendienteMonoMs;
+    if (estado == EstadoSesion.corriendo && pendiente != null) {
+      return salir(pendiente).actualizar(monoMs);
     }
     return actualizar(monoMs);
   }
@@ -389,6 +422,7 @@ class SesionConcentracion {
     'inicioUtc': inicioUtc?.toIso8601String(),
     'inicioMonoMs': inicioMonoMs,
     'salidaMonoMs': salidaMonoMs,
+    'salidaPendienteMonoMs': salidaPendienteMonoMs,
     'finMonoMs': finMonoMs,
     'motivoPerdida': motivoPerdida?.name,
   };
@@ -417,6 +451,7 @@ class SesionConcentracion {
         inicioUtc: inicio == null ? null : DateTime.parse(inicio).toUtc(),
         inicioMonoMs: json['inicioMonoMs'] as int?,
         salidaMonoMs: json['salidaMonoMs'] as int?,
+        salidaPendienteMonoMs: json['salidaPendienteMonoMs'] as int?,
         finMonoMs: json['finMonoMs'] as int?,
         motivoPerdida: motivo == null
             ? null
@@ -444,6 +479,7 @@ class SesionConcentracion {
       other.inicioUtc == inicioUtc &&
       other.inicioMonoMs == inicioMonoMs &&
       other.salidaMonoMs == salidaMonoMs &&
+      other.salidaPendienteMonoMs == salidaPendienteMonoMs &&
       other.finMonoMs == finMonoMs &&
       other.motivoPerdida == motivoPerdida;
 
@@ -456,6 +492,7 @@ class SesionConcentracion {
     inicioUtc,
     inicioMonoMs,
     salidaMonoMs,
+    salidaPendienteMonoMs,
     finMonoMs,
     motivoPerdida,
   );

@@ -188,7 +188,10 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    rendirse o volver tarde, `perdida`; minutos = enteros hacia abajo y solo
    si cuenta. Sale de la app solo un `paused` con dos consultas de pantalla
    (al llegar y a los 400 ms) que digan encendida y desbloqueada; `inactive`
-   y `hidden` nunca. La meta alcanzada dentro de la gracia da `completada`.
+   y `hidden` nunca. Tras la primera consulta positiva se guarda una marca
+   provisional (`salidaPendienteMonoMs`): si el proceso muere antes de la
+   segunda, al recomponer cuenta como salida desde la marca. `detached` con
+   la pantalla encendida sale sin esperar a la segunda consulta. La meta alcanzada dentro de la gracia da `completada`.
    Reinicio del móvil (monótono por debajo del inicio, o el instante de
    arranque desplazado más de 5 min) → `perdida`. Cada transición se guarda
    en `SharedPreferences` (`sesion_concentracion_actual`); una sesión

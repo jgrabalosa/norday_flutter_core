@@ -31,9 +31,13 @@ class PantallaFalsa implements FuentePantalla {
   bool falla = false;
   int consultas = 0;
 
+  /// Se llama en cada consulta, antes de contestar, con su número (desde 1).
+  void Function(int consulta)? alConsultar;
+
   @override
   Future<bool> encendidaYDesbloqueada() async {
     consultas++;
+    alConsultar?.call(consultas);
     if (falla) throw StateError('canal roto');
     return respuestas.isNotEmpty ? respuestas.removeAt(0) : valor;
   }
@@ -105,7 +109,9 @@ void main() {
   /// Deja el binding en primer plano para el test siguiente.
   Future<void> alFrente(WidgetTester tester) async {
     final estado = tester.binding.lifecycleState;
-    if (estado == AppLifecycleState.paused) {
+    if (estado == AppLifecycleState.detached) {
+      await ciclo(tester, [AppLifecycleState.resumed]);
+    } else if (estado == AppLifecycleState.paused) {
       await ciclo(tester, volver);
     } else if (estado == AppLifecycleState.hidden) {
       await ciclo(tester, volver.sublist(1));
@@ -353,7 +359,87 @@ void main() {
     motor.dispose();
   });
 
+  testWidgets('la primera consulta positiva deja una marca guardada; la '
+      'segunda negativa la borra', (tester) async {
+    pantalla.respuestas.addAll([true, false]);
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    expect((await guardada())!['salidaPendienteMonoMs'], reloj.mono);
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect((await guardada())!['salidaPendienteMonoMs'], isNull);
+    motor.dispose();
+  });
+
+  testWidgets('resumed durante la segunda consulta: el salir encolado no se '
+      'aplica', (tester) async {
+    final motor = await empezado(tester);
+    pantalla.alConsultar = (n) {
+      if (n == 2) {
+        for (final p in volver) {
+          tester.binding.handleAppLifecycleStateChanged(p);
+        }
+      }
+    };
+    await ciclo(tester, irse);
+    await segundaConsulta(tester);
+    await tester.pump();
+    expect(pantalla.consultas, 2);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect(avisos.llamadas, isNot(contains('gracia')));
+    expect((await guardada())!['salidaPendienteMonoMs'], isNull);
+    motor.dispose();
+  });
+
+  testWidgets('detached con la pantalla encendida sale sin esperar, desde la '
+      'marca', (tester) async {
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    final marca = reloj.mono;
+    reloj.avanzar(const Duration(milliseconds: 100));
+    await ciclo(tester, [AppLifecycleState.detached]);
+    expect(motor.sesion.value!.estado, EstadoSesion.enGracia);
+    expect(motor.sesion.value!.salidaMonoMs, marca);
+    expect((await guardada())!['estado'], 'enGracia');
+    // La consulta de los 400 ms ya no hace nada.
+    await segundaConsulta(tester);
+    expect(motor.sesion.value!.salidaMonoMs, marca);
+    motor.dispose();
+    await ciclo(tester, [AppLifecycleState.resumed]);
+  });
+
+  testWidgets('detached con la pantalla apagada no es salir y quita la marca', (
+    tester,
+  ) async {
+    pantalla.respuestas.addAll([true, false]);
+    final motor = await empezado(tester);
+    await ciclo(tester, irse);
+    await ciclo(tester, [AppLifecycleState.detached]);
+    expect(motor.sesion.value!.estado, EstadoSesion.corriendo);
+    expect((await guardada())!['salidaPendienteMonoMs'], isNull);
+    await segundaConsulta(tester);
+    motor.dispose();
+    await ciclo(tester, [AppLifecycleState.resumed]);
+  });
+
   group('recomposición al reabrir', () {
+    testWidgets('muerto en la ventana de 400 ms y reabierto tras la meta: '
+        'perdida', (tester) async {
+      final primero = await empezado(tester);
+      await ciclo(tester, irse);
+      // El proceso muere antes de la segunda consulta.
+      primero.dispose();
+      await segundaConsulta(tester);
+      await ciclo(tester, volver);
+
+      reloj.avanzar(const Duration(minutes: 30));
+      final motor = nuevoMotor(tester);
+      final s = await motor.iniciar();
+      expect(s!.estado, EstadoSesion.perdida);
+      expect(s.motivoPerdida, MotivoPerdida.salida);
+      motor.dispose();
+    });
+
     testWidgets('sigue corriendo donde iba y reprograma el fin', (
       tester,
     ) async {

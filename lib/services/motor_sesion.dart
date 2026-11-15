@@ -109,12 +109,16 @@ class AvisosSesionNulos implements AvisosSesion {
 /// - `inactive` (cortinilla, diálogos del sistema, selector de apps, una
 ///   llamada entrante) y `hidden` (Flutter lo sintetiza en Android antes de
 ///   `paused`): no son salir.
+/// - `detached` con la pantalla encendida y desbloqueada (una sola
+///   consulta): salir, sin esperar.
 ///
 /// Al llegar `paused` se consulta la pantalla y se repite la consulta a los
 /// [esperaSegundaConsulta] (400 ms): sale solo si las DOS dicen encendida y
 /// desbloqueada, para no confundir con una salida un `paused` que llega
 /// mientras la pantalla se está apagando. La gracia se mide desde el
-/// `paused`. Si mientras tanto cambia el ciclo, la consulta se abandona.
+/// `paused`. Tras la primera consulta positiva queda guardada una marca
+/// provisional, para que un proceso muerto en esos 400 ms cuente como salida
+/// al recomponer. Si mientras tanto cambia el ciclo, la consulta se abandona.
 ///
 /// `resumed` dentro de la gracia vuelve a corriendo; fuera, perdida. El fin
 /// por tiempo se detecta con un temporizador (cada segundo con la app
@@ -271,44 +275,64 @@ class MotorSesion {
         return _alPausar(generacion);
       case AppLifecycleState.resumed:
         return _aplicar((s, m) => s.volver(m)).then((_) {});
+      case AppLifecycleState.detached:
+        return _alSoltar();
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
-      case AppLifecycleState.detached:
         return Future<void>.value();
     }
   }
 
   Future<void> _alPausar(int generacion) async {
-    if (_sesion.value?.estado != EstadoSesion.corriendo) {
-      // Nada que vigilar, pero el temporizador pasa al de segundo plano.
-      await _enCola(() async => _reprogramar(await reloj.monotonicoMs()));
-      return;
-    }
+    // El temporizador pasa al de segundo plano.
+    await _enCola(() async => _reprogramar(await reloj.monotonicoMs()));
+    await _comprobarSalida(generacion);
+  }
+
+  /// La doble consulta de pantalla. Si la primera dice encendida y
+  /// desbloqueada, guarda ya una marca provisional (por si el proceso muere
+  /// en los 400 ms); la segunda confirma la salida o quita la marca. Todo se
+  /// abandona si el ciclo de vida cambia mientras tanto: quien llegue
+  /// (`resumed`, `detached` u otro `paused`) se hace cargo de la marca.
+  Future<void> _comprobarSalida(int generacion) async {
+    if (_sesion.value?.estado != EstadoSesion.corriendo) return;
     final mono = await reloj.monotonicoMs();
     bool sigue() => generacion == _generacion && !_desechado;
 
-    final primera = await _consultarPantalla();
+    if (!await _consultarPantalla() || !sigue()) return;
+    await _enCola(() async {
+      final s = _sesion.value;
+      if (s == null || !sigue()) return;
+      await _poner(s.marcarSalidaPendiente(mono), anterior: s, mono: mono);
+    });
+
+    await Future<void>.delayed(esperaSegundaConsulta);
     if (!sigue()) return;
-    if (primera) {
-      await Future<void>.delayed(esperaSegundaConsulta);
-      if (!sigue()) return;
-      final segunda = await _consultarPantalla();
-      if (!sigue()) return;
-      if (segunda) {
-        await _enCola(() async {
-          final s = _sesion.value;
-          if (s == null || !sigue()) return;
-          await _poner(
-            s.salir(mono),
-            anterior: s,
-            mono: await reloj.monotonicoMs(),
-          );
-        });
-        return;
-      }
-    }
-    await _enCola(() async => _reprogramar(await reloj.monotonicoMs()));
+    final segunda = await _consultarPantalla();
+    // La generación se mira dentro de la cola, justo antes de aplicar: un
+    // `resumed` que llegue entre la consulta y este paso ya habrá encolado su
+    // `volver` delante.
+    await _enCola(() async {
+      final s = _sesion.value;
+      if (s == null || !sigue()) return;
+      final nueva = segunda ? s.salir(mono) : s.quitarSalidaPendiente();
+      await _poner(nueva, anterior: s, mono: await reloj.monotonicoMs());
+    });
   }
+
+  /// `detached`: la actividad se destruye (atrás en la raíz, o quitada desde
+  /// Recientes cuando el sistema llega a avisar). No da tiempo a esperar la
+  /// segunda consulta: con una sola que diga encendida y desbloqueada, sale,
+  /// desde la marca provisional si la había.
+  Future<void> _alSoltar() => _enCola(() async {
+    final s = _sesion.value;
+    if (s == null || s.estado != EstadoSesion.corriendo || _desechado) return;
+    final mono = await reloj.monotonicoMs();
+    final nueva = await _consultarPantalla()
+        ? s.salir(s.salidaPendienteMonoMs ?? mono)
+        : s.quitarSalidaPendiente();
+    await _poner(nueva, anterior: s, mono: mono);
+  });
 
   Future<bool> _consultarPantalla() async {
     try {
