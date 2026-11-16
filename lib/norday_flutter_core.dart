@@ -64,6 +64,7 @@ export 'widgets/halo_identidad.dart';
 export 'widgets/indicador_nivel.dart';
 export 'widgets/lapiz.dart';
 export 'widgets/logo_google.dart';
+export 'widgets/imagen_mascota.dart';
 export 'widgets/mascota_animada_viva.dart';
 export 'widgets/mini_mascota.dart';
 export 'widgets/nori_marca.dart';

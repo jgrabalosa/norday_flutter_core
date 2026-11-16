@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/mascota_assets.dart';
+import 'imagen_mascota.dart';
 
 /// Motor: da vida a la ilustración de la mascota sin assets nuevos, sólo con
 /// animación nativa. Tres capas continuas superpuestas —respiración (escala),
@@ -119,6 +120,10 @@ _PerfilVida _perfilDe(String? estado) => switch (estado) {
   'dormida' => _perfilDormida,
   _ => _perfilTriste,
 };
+
+/// Lo más que se estira la ilustración: la respiración más amplia de los
+/// perfiles (5,5 %) por el squish (18 %), 1,245, redondeado arriba.
+const double _margenAnimacion = 1.25;
 
 class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
     with TickerProviderStateMixin {
@@ -240,11 +245,11 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
           ),
         );
       },
-      child: Image.asset(
-        imagen,
-        package: 'norday_flutter_core',
-        width: widget.tamano,
-        height: widget.tamano,
+      // Descodificada a su tamaño, con margen para el pico de la animación.
+      child: ImagenMascota(
+        asset: imagen,
+        tamano: widget.tamano,
+        margen: _margenAnimacion,
       ),
     );
 

@@ -3,6 +3,23 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **`ImagenMascota`** (`widgets/imagen_mascota.dart`) y
+  `ladoOriginalMascota`: una ilustración de Nori descodificada a
+  `tamaño × densidad × margen` píxeles, nunca más de 1024 (Nori vestida,
+  N-3).
+
+### Cambia
+
+- `MascotaAnimadaViva` (y con ella `MiniMascota`, `NoriMarca` y la pantalla
+  de Nori), el selector de fases de `MascotaScreen` y `AvatarUsuario` sin
+  avatar ya no descodifican el PNG de 1024 × 1024 entero (4 MB por imagen):
+  lo piden a su tamaño en pantalla. `MascotaAnimadaViva` deja un margen de
+  1,25 para el estirón de la respiración y el squish.
+
 ## 0.55.0 — 15-nov-2026
 
 ### Nuevo
