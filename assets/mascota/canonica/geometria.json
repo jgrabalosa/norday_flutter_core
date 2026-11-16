@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "lado": 1024,
+  "estados": {
+    "huevo_sonriente": {
+      "cuerpo": [
+        254,
+        256,
+        757,
+        891
+      ],
+      "brote": [
+        392,
+        132,
+        636,
+        274
+      ],
+      "anclajeBrote": [
+        511,
+        274
+      ],
+      "cabezaArriba": [
+        511,
+        264
+      ]
+    },
+    "huevo_dormido": {
+      "cuerpo": [
+        261,
+        179,
+        795,
+        891
+      ],
+      "brote": [
+        392,
+        132,
+        636,
+        275
+      ],
+      "anclajeBrote": [
+        514,
+        275
+      ],
+      "cabezaArriba": [
+        514,
+        264
+      ]
+    },
+    "huevo_triste": {
+      "cuerpo": [
+        261,
+        256,
+        760,
+        891
+      ],
+      "brote": [
+        390,
+        132,
+        636,
+        275
+      ],
+      "anclajeBrote": [
+        512,
+        275
+      ],
+      "cabezaArriba": [
+        512,
+        263
+      ]
+    },
+    "huevo_exultante": {
+      "cuerpo": [
+        254,
+        256,
+        757,
+        891
+      ],
+      "brote": [
+        392,
+        132,
+        636,
+        274
+      ],
+      "anclajeBrote": [
+        511,
+        274
+      ],
+      "cabezaArriba": [
+        511,
+        264
+      ]
+    },
+    "cria_sonriente": {
+      "cuerpo": [
+        295,
+        230,
+        728,
+        787
+      ],
+      "brote": [
+        427,
+        132,
+        604,
+        235
+      ],
+      "anclajeBrote": [
+        515,
+        235
+      ],
+      "cabezaArriba": [
+        515,
+        233
+      ]
+    },
+    "cria_dormido": {
+      "cuerpo": [
+        296,
+        223,
+        855,
+        806
+      ],
+      "brote": [
+        421,
+        128,
+        610,
+        235
+      ],
+      "anclajeBrote": [
+        521,
+        235
+      ],
+      "cabezaArriba": [
+        521,
+        232
+      ]
+    },
+    "cria_triste": {
+      "cuerpo": [
+        292,
+        209,
+        733,
+        793
+      ],
+      "brote": [
+        424,
+        128,
+        609,
+        235
+      ],
+      "anclajeBrote": [
+        514,
+        235
+      ],
+      "cabezaArriba": [
+        514,
+        232
+      ]
+    },
+    "cria_exultante": {
+      "cuerpo": [
+        295,
+        230,
+        728,
+        787
+      ],
+      "brote": [
+        427,
+        132,
+        604,
+        235
+      ],
+      "anclajeBrote": [
+        515,
+        235
+      ],
+      "cabezaArriba": [
+        515,
+        233
+      ]
+    },
+    "adulto_sonriente": {
+      "cuerpo": [
+        258,
+        272,
+        765,
+        894
+      ],
+      "brote": [
+        339,
+        91,
+        682,
+        274
+      ],
+      "anclajeBrote": [
+        510,
+        274
+      ],
+      "cabezaArriba": [
+        510,
+        272
+      ]
+    },
+    "adulto_dormido": {
+      "cuerpo": [
+        268,
+        219,
+        846,
+        894
+      ],
+      "brote": [
+        379,
+        148,
+        660,
+        293
+      ],
+      "anclajeBrote": [
+        513,
+        275
+      ],
+      "cabezaArriba": [
+        513,
+        272
+      ]
+    },
+    "adulto_triste": {
+      "cuerpo": [
+        259,
+        271,
+        765,
+        893
+      ],
+      "brote": [
+        389,
+        143,
+        653,
+        281
+      ],
+      "anclajeBrote": [
+        511,
+        274
+      ],
+      "cabezaArriba": [
+        511,
+        272
+      ]
+    },
+    "adulto_exultante": {
+      "cuerpo": [
+        258,
+        272,
+        765,
+        894
+      ],
+      "brote": [
+        339,
+        91,
+        682,
+        274
+      ],
+      "anclajeBrote": [
+        510,
+        274
+      ],
+      "cabezaArriba": [
+        510,
+        272
+      ]
+    }
+  }
+}

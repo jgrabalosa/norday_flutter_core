@@ -92,6 +92,13 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
   ver los puntos de extensión).
 - `assets/` — animations, sounds, mascota y avatares (retirados).
+  `assets/mascota/canonica/` es Nori separada en cuerpo y brote, con su
+  geometría (Nori vestida, N-1): un contrato para el arte de las prendas,
+  en `docs/funcionamiento/nori-canonica.md`. Aún no se declara en el
+  `pubspec.yaml` (no entra en las apps hasta N-9).
+- `tool/nori_canonica/` — dos scripts de Python: `separar_brote.py`
+  (genera esa carpeta) y `hoja_revision.py` (la hoja con la que se revisa el
+  arte de Nori y de sus prendas, N-2).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
 `Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de

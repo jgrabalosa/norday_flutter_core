@@ -7,6 +7,11 @@ está en `git log`.
 
 ### Nuevo
 
+- **Nori canónica** (Nori vestida, N-1 y N-2): `assets/mascota/canonica/`,
+  los 12 dibujos de Nori separados en cuerpo y brote, con su geometría
+  (`docs/funcionamiento/nori-canonica.md`), y `tool/nori_canonica/`, el
+  script que los separa y la hoja de revisión del arte. No se declaran aún
+  en el `pubspec.yaml`: las apps no cambian.
 - **`ImagenMascota`** (`widgets/imagen_mascota.dart`) y
   `ladoOriginalMascota`: una ilustración de Nori descodificada a
   `tamaño × densidad × margen` píxeles, nunca más de 1024 (Nori vestida,
