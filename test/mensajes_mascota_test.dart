@@ -32,7 +32,7 @@ void main() {
     );
     expect(
       frase('es', 'CRIA', 'triste', 3),
-      'Cría · Nivel 3 · te echa de menos',
+      'Cría · Nivel 3 · te espera',
     );
   });
 

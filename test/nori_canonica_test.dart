@@ -114,4 +114,58 @@ void main() {
       }
     },
   );
+
+  // La pantalla negra (regla 6 del arte: ninguna prenda entra en ella). La
+  // máscara sale del cuerpo (`separar_brote.py --solo-pantallas`).
+  testWidgets(
+    'la pantalla de cada estado es la del cuerpo y su caja, la de la geometría',
+    (tester) async {
+      await tester.runAsync(() async {
+        final geo =
+            jsonDecode(File('$dir/canonica/geometria.json').readAsStringSync())
+                as Map<String, dynamic>;
+        final porEstado = geo['estados'] as Map<String, dynamic>;
+        for (final fase in fases) {
+          for (final estado in estados) {
+            final nombre = 'Nori_${fase}_$estado';
+            final m = await pixeles('$dir/canonica/${nombre}_pantalla.png');
+            final c = await pixeles('$dir/canonica/${nombre}_cuerpo.png');
+            var dentro = 0, oscuros = 0;
+            var x0 = 1024, y0 = 1024, x1 = 0, y1 = 0;
+            for (var i = 0; i < m.length; i += 4) {
+              if (m[i] < 128) continue;
+              dentro++;
+              final p = i ~/ 4, x = p % 1024, y = p ~/ 1024;
+              if (x < x0) x0 = x;
+              if (y < y0) y0 = y;
+              if (x + 1 > x1) x1 = x + 1;
+              if (y + 1 > y1) y1 = y + 1;
+              // Del cuerpo (el huevo tiene algún píxel algo translúcido: hoy,
+              // alfa 200 como mínimo) y casi toda negra (ojos y boca, dentro).
+              expect(c[i + 3], greaterThan(127), reason: nombre);
+              if ((c[i] + c[i + 1] + c[i + 2]) / 3 < 70) oscuros++;
+            }
+            // Hoy, entre 55.000 y 57.000 píxeles por estado.
+            expect(dentro, inInclusiveRange(40000, 70000), reason: nombre);
+            // Hoy, entre el 69 % (adulto exultante, con los ojos de estrella) y el
+            // 91 % de la pantalla es negro.
+            expect(oscuros / dentro, greaterThan(0.6), reason: nombre);
+            final g = porEstado['${fase}_$estado'] as Map<String, dynamic>;
+            expect((g['pantalla'] as List).cast<int>(), [
+              x0,
+              y0,
+              x1,
+              y1,
+            ], reason: nombre);
+            // Debajo de lo alto de la cabeza.
+            expect(
+              y0,
+              greaterThan((g['cabezaArriba'] as List)[1] as int),
+              reason: nombre,
+            );
+          }
+        }
+      });
+    },
+  );
 }

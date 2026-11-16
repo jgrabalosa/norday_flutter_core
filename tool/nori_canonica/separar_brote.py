@@ -7,7 +7,12 @@ lienzo de 1024 x 1024:
   assets/mascota/canonica/Nori_<fase>_<estado>_brote.png    solo el brote
 
 y `assets/mascota/canonica/geometria.json`, con la geometría de cada una (el
-contrato de `docs/funcionamiento/nori-canonica.md`).
+contrato de `docs/funcionamiento/nori-canonica.md`). Además, la pantalla negra
+de cada cuerpo, como máscara (blanco = pantalla):
+
+  assets/mascota/canonica/Nori_<fase>_<estado>_pantalla.png
+
+Ninguna prenda entra en ella (regla 6 de `encargos/arte-nori-vestida.md`).
 
 Cuerpo + brote, montados en ese orden, dan el original salvo unos pocos
 píxeles del borde donde el tallo entra en la cabeza (lo comprueba
@@ -27,6 +32,8 @@ Cómo se separa:
 Uso, desde la raíz del paquete (Python 3 con Pillow, NumPy y SciPy):
   py -m pip install pillow numpy scipy        (Windows; en Linux, python3 -m pip)
   py tool/nori_canonica/separar_brote.py
+  py tool/nori_canonica/separar_brote.py --solo-pantallas   solo las máscaras de la pantalla
+                                                            (no toca cuerpos ni brotes)
 
 Solo hace falta volver a lanzarlo si cambian los 12 originales. Si cambian,
 la geometría cambia con ellos: el arte de las prendas se revisa otra vez con
@@ -121,6 +128,25 @@ def separar(fase, estado):
     return a, cuerpo, capa_brote
 
 
+def pantalla(cuerpo):
+    """La pantalla negra de un cuerpo (RGBA uint8): la mayor mancha oscura, con
+    los ojos y la boca dentro (se rellenan los agujeros)."""
+    oscuro = (cuerpo[..., :3].astype(np.float32).mean(-1) < 70) & (cuerpo[..., 3] > 200)
+    manchas, n = ndimage.label(oscuro)
+    if n == 0:
+        sys.exit("no encuentro la pantalla negra")
+    k = int(np.argmax(ndimage.sum(oscuro, manchas, range(1, n + 1)))) + 1
+    return ndimage.binary_fill_holes(manchas == k)
+
+
+def guardar_pantalla(fase, estado, cuerpo):
+    """Guarda la máscara de la pantalla y devuelve su caja."""
+    m = pantalla(cuerpo)
+    Image.fromarray((m * 255).astype(np.uint8), "L").save(
+        os.path.join(DESTINO, f"Nori_{fase}_{estado}_pantalla.png"), optimize=True)
+    return caja(m.astype(np.uint8))
+
+
 def caja(alfa):
     ys, xs = np.where(alfa > 0)
     return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
@@ -155,15 +181,28 @@ def geometria(cuerpo, brote):
 
 def main():
     os.makedirs(DESTINO, exist_ok=True)
-    geo = {"version": VERSION, "lado": LADO, "estados": {}}
-    for fase in FASES:
-        for estado in ESTADOS:
-            _, cuerpo, brote = separar(fase, estado)
-            Image.fromarray(cuerpo).save(os.path.join(DESTINO, f"Nori_{fase}_{estado}_cuerpo.png"), optimize=True)
-            Image.fromarray(brote).save(os.path.join(DESTINO, f"Nori_{fase}_{estado}_brote.png"), optimize=True)
-            geo["estados"][f"{fase}_{estado}"] = geometria(cuerpo, brote)
-            print(f"OK {fase}_{estado}")
-    with open(os.path.join(DESTINO, "geometria.json"), "w", encoding="utf-8") as f:
+    ruta_geo = os.path.join(DESTINO, "geometria.json")
+    if "--solo-pantallas" in sys.argv[1:]:
+        # Las máscaras salen de los cuerpos ya separados, sin volver a separar.
+        with open(ruta_geo, encoding="utf-8") as f:
+            geo = json.load(f)
+        for fase in FASES:
+            for estado in ESTADOS:
+                ruta = os.path.join(DESTINO, f"Nori_{fase}_{estado}_cuerpo.png")
+                cuerpo = np.array(Image.open(ruta).convert("RGBA"))
+                geo["estados"][f"{fase}_{estado}"]["pantalla"] = guardar_pantalla(fase, estado, cuerpo)
+                print(f"OK pantalla {fase}_{estado}")
+    else:
+        geo = {"version": VERSION, "lado": LADO, "estados": {}}
+        for fase in FASES:
+            for estado in ESTADOS:
+                _, cuerpo, brote = separar(fase, estado)
+                Image.fromarray(cuerpo).save(os.path.join(DESTINO, f"Nori_{fase}_{estado}_cuerpo.png"), optimize=True)
+                Image.fromarray(brote).save(os.path.join(DESTINO, f"Nori_{fase}_{estado}_brote.png"), optimize=True)
+                geo["estados"][f"{fase}_{estado}"] = geometria(cuerpo, brote)
+                geo["estados"][f"{fase}_{estado}"]["pantalla"] = guardar_pantalla(fase, estado, cuerpo)
+                print(f"OK {fase}_{estado}")
+    with open(ruta_geo, "w", encoding="utf-8") as f:
         json.dump(geo, f, ensure_ascii=False, indent=2)
         f.write("\n")
     print(f"Hecho: {DESTINO}")

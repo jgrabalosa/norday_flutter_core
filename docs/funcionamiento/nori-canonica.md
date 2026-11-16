@@ -13,10 +13,12 @@ Los 12 dibujos de Nori (`assets/mascota/Nori_<fase>_<estado>.png`, 3 fases × 4
 |---|---|
 | `assets/mascota/canonica/Nori_<fase>_<estado>_cuerpo.png` | Nori sin brote. Lleva las «zzz» del dormido |
 | `assets/mascota/canonica/Nori_<fase>_<estado>_brote.png` | Solo el brote |
+| `assets/mascota/canonica/Nori_<fase>_<estado>_pantalla.png` | La pantalla negra, como máscara (blanco = pantalla, con los ojos y la boca dentro). Ninguna prenda entra en ella |
 | `assets/mascota/canonica/geometria.json` | La geometría de cada estado (abajo) |
 
 Los genera `tool/nori_canonica/separar_brote.py`. Solo se vuelve a lanzar si
-cambian los 12 originales.
+cambian los 12 originales. `--solo-pantallas` rehace solo las máscaras y su
+caja, sin tocar cuerpos ni brotes (así se añadieron, el 16-nov).
 
 **Aún no van en el `pubspec.yaml`:** `assets/mascota/` declara solo los
 ficheros de esa carpeta, no los de `canonica/`, así que hoy no entran en las
@@ -41,6 +43,10 @@ app sigue pintando los 12 originales.
   hueco del tallo dentro de la cabeza está relleno, para que la cabeza quede
   entera cuando el brote se sube o se oculta. Queda una muesca pequeña donde
   el tallo sobresalía del perfil de la cabeza: la tapa la prenda de cabeza.
+- **La pantalla negra no se tapa** (regla 6 del arte, 16-nov): nada de una
+  prenda dentro de ella; su borde puede tocar el canto. Los ojos y la boca
+  empiezan siempre 48 px o más por debajo del canto de arriba. Se protege la
+  forma exacta de la máscara, no su caja: las esquinas de la caja son cabeza.
 - **El brote se mueve, no se redibuja.** Una prenda de cabeza que no lo
   oculta dice cuántos píxeles del lienzo lo sube en cada fase
   (`subidaBrote`); una que lo oculta, `oculta: ["brote"]` (decisión 8).
@@ -52,6 +58,7 @@ app sigue pintando los 12 originales.
   | `brote` | Caja del brote |
   | `anclajeBrote` | `[x, y]`: donde el tallo toca la cabeza (el pie del brote) |
   | `cabezaArriba` | `[x, y]`: lo más alto de la cabeza en la columna del anclaje |
+  | `pantalla` | Caja de la pantalla negra (su forma exacta, en `…_pantalla.png`) |
 
   Es para quien dibuje prendas (dónde está la cabeza en cada estado) y para
   la hoja de revisión. En el adulto dormido y triste las hojas caen por los
@@ -82,7 +89,8 @@ por estado (`<codigo>_<fase>_<estado>.png`, decisión 9).
 
 Lo vigila `test/nori_canonica_test.dart`: cuerpo + brote dan el original
 (como mucho 50 píxeles distintos por estado), el brote no se ha quedado en el
-cuerpo y la geometría es coherente.
+cuerpo, la geometría es coherente y cada máscara de la pantalla es negra en su
+cuerpo y tiene la caja de la geometría.
 
 ## La hoja de revisión (N-2)
 
@@ -93,13 +101,51 @@ se revisa del arte, no el móvil. Cómo se describe una prenda (`prenda.json`),
 en el propio script. `--crear-prueba` hace un gorro de prueba (no es arte)
 para ver el orden de las capas y la subida del brote.
 
-Las dos herramientas son Python 3 con Pillow y NumPy (y SciPy para separar):
+## Sacar la prenda de una imagen de IA (M-8)
+
+Las prendas se hacen con IA, editando el cuerpo sin brote de cada fase y
+pidiendo solo la prenda. La IA devuelve a Nori entera, con la prenda, sobre un
+fondo liso, y casi siempre a otro tamaño, un poco movida o con otra luz.
+`tool/nori_canonica/sacar_prenda.py` deja de eso el PNG final, en el lienzo de
+Nori:
+
+1. **Alinea** la imagen con el cuerpo canónico (escala, giro y desplazamiento)
+   mirando solo lo que la prenda no puede tapar: la pantalla negra y, según el
+   sitio, lo de debajo de la cara (prendas de cabeza) o la cabeza (de cuerpo).
+2. **Separa** lo que cambia respecto al cuerpo canónico, que hace de fondo
+   conocido: el borde sale suave y sin el color de debajo. Antes corrige la
+   luz (ganancia y desplazamiento por canal).
+3. **Limpia:** quita los hilos (el borde de la silueta que la IA ha movido),
+   las motas y la sombra en el «suelo»; rellena los agujeros pequeños; y deja a
+   cero lo que entra en la pantalla negra (regla 6 del arte, 16-nov: se
+   protege la pantalla, no su rectángulo, y el borde de una prenda puede tocar
+   su canto; los ojos y la boca empiezan siempre 48 px o más por debajo).
+4. **Informa:** alineación, píxeles dudosos, si tapaba la pantalla, verde,
+   halo y la subida del brote sugerida. Deja una imagen de control (la IA
+   alineada con la silueta y el margen encima, la prenda sola y Nori vestida
+   en Profundidad y en Dulce) y apunta la prenda en `prenda.json`, listo para
+   la hoja.
+
+**Su límite:** separa por diferencia de color, así que lo que es casi del color
+de Nori (crema) sobre Nori no se ve: los ribetes blancos del gorro y del traje
+de Papá Noel. Ahí la imagen de control lo enseña y se retoca a mano.
+
+## Las herramientas
+
+Python 3 con Pillow y NumPy (y SciPy para separar y sacar):
 
 ```
 py -m pip install pillow numpy scipy
 py tool/nori_canonica/separar_brote.py
 py tool/nori_canonica/hoja_revision.py
 py tool/nori_canonica/hoja_revision.py --prenda <carpeta>
+py tool/nori_canonica/sacar_prenda.py <imagen> --prenda gorro_lana --fase cria
+py tool/nori_canonica/sacar_prenda.py --carpeta <carpeta>
+py -m unittest discover -s tool/nori_canonica -p "test_*.py"
 ```
 
-Las hojas salen en `tool/nori_canonica/salida/`, que no se versiona.
+Con `--carpeta`, cada imagen se llama como su PNG final (`gorro_lana_cria.png`,
+`bufanda_cria_dormido.jpg`…). Las prendas salen en
+`tool/nori_canonica/salida/prendas/<prenda>/` y las hojas en
+`tool/nori_canonica/salida/`, que no se versiona. Los tests de `sacar_prenda`
+usan el gorro de prueba de la hoja.

@@ -123,7 +123,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get mascotaFaseAdulto => 'Adult';
 
   @override
-  String get mascotaPonleNombre => 'Give it a name';
+  String get mascotaPonleNombre => 'Give him a name';
 
   @override
   String get mascotaHintNombre => 'Your pet\'s name';
@@ -163,7 +163,7 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get mascotaAnimoAtencion => 'taking a nap';
 
   @override
-  String get mascotaAnimoTriste => 'missing you';
+  String get mascotaAnimoTriste => 'waiting for you';
 
   @override
   String get mascotaAnimoTranquila => 'nothing new';

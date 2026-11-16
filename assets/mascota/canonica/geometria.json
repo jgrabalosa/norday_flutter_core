@@ -22,6 +22,12 @@
       "cabezaArriba": [
         511,
         264
+      ],
+      "pantalla": [
+        350,
+        421,
+        675,
+        628
       ]
     },
     "huevo_dormido": {
@@ -44,6 +50,12 @@
       "cabezaArriba": [
         514,
         264
+      ],
+      "pantalla": [
+        351,
+        422,
+        675,
+        629
       ]
     },
     "huevo_triste": {
@@ -66,6 +78,12 @@
       "cabezaArriba": [
         512,
         263
+      ],
+      "pantalla": [
+        350,
+        421,
+        675,
+        630
       ]
     },
     "huevo_exultante": {
@@ -88,6 +106,12 @@
       "cabezaArriba": [
         511,
         264
+      ],
+      "pantalla": [
+        350,
+        421,
+        675,
+        628
       ]
     },
     "cria_sonriente": {
@@ -110,6 +134,12 @@
       "cabezaArriba": [
         515,
         233
+      ],
+      "pantalla": [
+        364,
+        346,
+        671,
+        566
       ]
     },
     "cria_dormido": {
@@ -132,6 +162,12 @@
       "cabezaArriba": [
         521,
         232
+      ],
+      "pantalla": [
+        365,
+        345,
+        671,
+        565
       ]
     },
     "cria_triste": {
@@ -154,6 +190,12 @@
       "cabezaArriba": [
         514,
         232
+      ],
+      "pantalla": [
+        365,
+        345,
+        671,
+        565
       ]
     },
     "cria_exultante": {
@@ -176,6 +218,12 @@
       "cabezaArriba": [
         515,
         233
+      ],
+      "pantalla": [
+        364,
+        346,
+        671,
+        566
       ]
     },
     "adulto_sonriente": {
@@ -198,6 +246,12 @@
       "cabezaArriba": [
         510,
         272
+      ],
+      "pantalla": [
+        360,
+        341,
+        668,
+        562
       ]
     },
     "adulto_dormido": {
@@ -220,6 +274,12 @@
       "cabezaArriba": [
         513,
         272
+      ],
+      "pantalla": [
+        360,
+        341,
+        668,
+        562
       ]
     },
     "adulto_triste": {
@@ -242,6 +302,12 @@
       "cabezaArriba": [
         511,
         272
+      ],
+      "pantalla": [
+        360,
+        341,
+        668,
+        562
       ]
     },
     "adulto_exultante": {
@@ -264,6 +330,12 @@
       "cabezaArriba": [
         510,
         272
+      ],
+      "pantalla": [
+        360,
+        341,
+        668,
+        562
       ]
     }
   }
