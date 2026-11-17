@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
 import 'mascota_assets.dart';
+import '../widgets/imagen_mascota.dart';
 
 /// Info visual de un avatar: la imagen real (Noto Emoji, Apache 2.0 — ver
 /// assets/avatares/LICENCIA.txt). El PNG es transparente, asi que el color de
@@ -65,8 +66,20 @@ class AvatarUsuario extends StatelessWidget {
         // Nori va FIJA, en fase cría: pintar la mascota real del usuario
         // exigiría fase y estado, que este widget no tiene. Aquí es
         // decoración, no estado.
-        final asset =
-            info?.asset ?? assetMascota(fase: 'cria', estado: 'feliz');
+        final lado = radius * 1.5;
+        // Nori, descodificada a su tamaño (N-3); un avatar retirado, como
+        // siempre.
+        final Widget imagen = info == null
+            ? ImagenMascota(
+                asset: assetMascota(fase: 'cria', estado: 'feliz'),
+                tamano: lado,
+              )
+            : Image.asset(
+                info.asset,
+                package: 'norday_flutter_core',
+                width: lado,
+                height: lado,
+              );
         // El contorno va en los dos casos, con avatar y sin él: si sólo lo
         // llevara el de Nori, el estado "sin avatar" destacaría más que los
         // avatares de verdad.
@@ -82,14 +95,7 @@ class AvatarUsuario extends StatelessWidget {
             ),
           ),
           // El PNG cuadrado no llena el círculo: se deja aire alrededor.
-          child: Center(
-            child: Image.asset(
-              asset,
-              package: 'norday_flutter_core',
-              width: radius * 1.5,
-              height: radius * 1.5,
-            ),
-          ),
+          child: Center(child: imagen),
         );
       },
     );

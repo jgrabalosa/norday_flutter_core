@@ -63,7 +63,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get logroMascotaCria => 'Saiu da casca';
 
   @override
-  String get logroMascotaAdulto => 'A Nori cresceu';
+  String get logroMascotaAdulto => 'O Nori cresceu';
 
   @override
   String get prodEscudoRacha => 'Escudo de sequência';
@@ -164,7 +164,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get mascotaAnimoAtencion => 'a dormitar';
 
   @override
-  String get mascotaAnimoTriste => 'com saudades tuas';
+  String get mascotaAnimoTriste => 'à tua espera';
 
   @override
   String get mascotaAnimoTranquila => 'sem novidades';
@@ -509,7 +509,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get logroDescMascotaCria => 'A tua mascote passa de ovo a cria';
 
   @override
-  String get logroDescMascotaAdulto => 'A tua mascote passa de cria a adulta';
+  String get logroDescMascotaAdulto => 'A tua mascote passa de cria a adulto';
 
   @override
   String get prodDescEscudoRacha =>
@@ -665,7 +665,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get tiendaAyuda =>
-      'Gasta aqui os teus pontos: comida para a Nori e temas.';
+      'Gasta aqui os teus pontos: comida para o Nori e temas.';
 
   @override
   String get constelacionPolar => 'Estrela Polar';

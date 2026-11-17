@@ -164,7 +164,7 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get mascotaAnimoAtencion => 'echando una cabezada';
 
   @override
-  String get mascotaAnimoTriste => 'te echa de menos';
+  String get mascotaAnimoTriste => 'te espera';
 
   @override
   String get mascotaAnimoTranquila => 'sin novedad';

@@ -48,9 +48,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo) y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
-- `widgets/` — 37 ficheros:
-  - escena de mascota (7): `MascotaAnimadaViva`, `MiniMascota`, halo,
-    terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
+- `widgets/` — 38 ficheros:
+  - escena de mascota (8): `MascotaAnimadaViva`, `MiniMascota`,
+    `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
+    pinte un PNG de Nori pasa por ella), halo, terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
   - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
@@ -91,6 +92,16 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
   ver los puntos de extensión).
 - `assets/` — animations, sounds, mascota y avatares (retirados).
+  `assets/mascota/canonica/` es Nori separada en cuerpo y brote, con su
+  geometría y la máscara de la pantalla negra (Nori vestida, N-1): un
+  contrato para el arte de las prendas,
+  en `docs/funcionamiento/nori-canonica.md`. Aún no se declara en el
+  `pubspec.yaml` (no entra en las apps hasta N-9).
+- `tool/nori_canonica/` — scripts de Python: `separar_brote.py` (genera esa
+  carpeta), `hoja_revision.py` (la hoja con la que se revisa el arte de Nori
+  y de sus prendas, N-2) y `sacar_prenda.py` (saca la prenda de una imagen de
+  IA y la deja en el lienzo de Nori, M-8), con sus tests
+  (`py -m unittest discover -s tool/nori_canonica -p "test_*.py"`).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
 `Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de

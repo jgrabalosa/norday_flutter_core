@@ -400,7 +400,7 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @mascotaAnimoTriste.
   ///
   /// In es, this message translates to:
-  /// **'te echa de menos'**
+  /// **'te espera'**
   String get mascotaAnimoTriste;
 
   /// No description provided for @mascotaAnimoTranquila.

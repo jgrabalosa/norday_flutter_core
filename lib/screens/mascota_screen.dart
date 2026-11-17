@@ -14,6 +14,7 @@ import '../widgets/burbuja_contexto.dart';
 import '../widgets/celebracion_nivel.dart';
 import '../widgets/fondo_identidad.dart';
 import '../widgets/halo_identidad.dart';
+import '../widgets/imagen_mascota.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/superficie_identidad.dart';
@@ -353,11 +354,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
                               1,
                               0,
                             ]),
-                      child: Image.asset(
-                        assetMascota(fase: fase, estado: _estado),
-                        package: 'norday_flutter_core',
-                        width: 48,
-                        height: 48,
+                      child: ImagenMascota(
+                        asset: assetMascota(fase: fase, estado: _estado),
+                        tamano: 48,
                       ),
                     ),
                   ),

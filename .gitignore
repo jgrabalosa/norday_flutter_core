@@ -29,3 +29,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 /build/
 /coverage/
+
+# Hojas de revisión de Nori (tool/nori_canonica/hoja_revision.py)
+/tool/nori_canonica/salida/
+__pycache__/

@@ -3,6 +3,38 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Nori canónica** (Nori vestida, N-1 y N-2): `assets/mascota/canonica/`,
+  los 12 dibujos de Nori separados en cuerpo y brote, con su geometría
+  (`docs/funcionamiento/nori-canonica.md`), y `tool/nori_canonica/`, el
+  script que los separa y la hoja de revisión del arte. No se declaran aún
+  en el `pubspec.yaml`: las apps no cambian.
+- **`ImagenMascota`** (`widgets/imagen_mascota.dart`) y
+  `ladoOriginalMascota`: una ilustración de Nori descodificada a
+  `tamaño × densidad × margen` píxeles, nunca más de 1024 (Nori vestida,
+  N-3).
+- **La pantalla negra en el contrato:** `Nori_<fase>_<estado>_pantalla.png`
+  y su caja (`pantalla`) en `geometria.json`. Ninguna prenda entra en ella;
+  su borde puede tocar el canto (regla del arte del 16-nov).
+- **`tool/nori_canonica/sacar_prenda.py`** (Nori vestida, M-8): saca la
+  prenda de una imagen de IA, la alinea con el cuerpo canónico y deja el PNG
+  final con un informe, una imagen de control y su `prenda.json`.
+
+### Cambia
+
+- **Textos de Nori** (M-3, acordado con marketing el 16-nov): el ánimo
+  triste pasa de «te echa de menos» a «te espera» («waiting for you», «à tua
+  espera»), sin culpa. Nori es chico: «O Nori cresceu», «comida para o
+  Nori», «passa de cria a adulto» y «Give him a name».
+- `MascotaAnimadaViva` (y con ella `MiniMascota`, `NoriMarca` y la pantalla
+  de Nori), el selector de fases de `MascotaScreen` y `AvatarUsuario` sin
+  avatar ya no descodifican el PNG de 1024 × 1024 entero (4 MB por imagen):
+  lo piden a su tamaño en pantalla. `MascotaAnimadaViva` deja un margen de
+  1,25 para el estirón de la respiración y el squish.
+
 ## 0.55.0 — 15-nov-2026
 
 ### Nuevo
