@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/usuario.dart';
+import '../version_core.dart';
 import 'api_error.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -43,6 +44,14 @@ class ApiServiceCore {
   /// acotados por quién es, no por desde dónde mira.
   static Map<String, String> get _cabeceraApp =>
       appId.isEmpty ? const {} : {'X-Norday-App': appId};
+
+  /// La versión de este core (`versionCore`). Solo la llevan el catálogo de
+  /// productos y la compra: el backend no da ni vende un producto que este
+  /// core no sabe pintar (`version_minima_core`, Nori vestida N-6). Un
+  /// backend anterior la ignora.
+  static const Map<String, String> _cabeceraCore = {
+    'X-Norday-Core': versionCore,
+  };
 
   /// Cliente HTTP compartido: reutiliza la conexión TCP+TLS (keep-alive).
   /// Público para que los servicios de dominio de cada app usen la misma
@@ -492,7 +501,7 @@ class ApiServiceCore {
 
   // ── Tienda ─────────────────────────────────────────────
   static Future<List<dynamic>> getCatalogoProductos() async {
-    final headers = {...await getHeaders(), ..._cabeceraApp};
+    final headers = {...await getHeaders(), ..._cabeceraApp, ..._cabeceraCore};
     final response = await enviar(
       () => cliente.get(
         Uri.parse('$baseUrl/gamificacion/productos/catalogo'),
@@ -539,7 +548,7 @@ class ApiServiceCore {
     int usuarioId,
     int productoId,
   ) async {
-    final headers = await getHeaders();
+    final headers = {...await getHeaders(), ..._cabeceraCore};
     final response = await enviar(
       () => cliente.post(
         Uri.parse(

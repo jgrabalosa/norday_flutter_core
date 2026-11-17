@@ -6,6 +6,7 @@
 library;
 
 export 'navegacion.dart';
+export 'version_core.dart';
 
 // ── Servicios ────────────────────────────────────────────
 export 'services/api_service_core.dart';
