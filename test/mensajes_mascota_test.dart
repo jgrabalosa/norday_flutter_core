@@ -30,10 +30,7 @@ void main() {
       frase('es', 'CRIA', 'dormida', 3),
       'Cría · Nivel 3 · echando una cabezada',
     );
-    expect(
-      frase('es', 'CRIA', 'triste', 3),
-      'Cría · Nivel 3 · te espera',
-    );
+    expect(frase('es', 'CRIA', 'triste', 3), 'Cría · Nivel 3 · te espera');
   });
 
   test('dentro del huevo no se menciona el estado, tampoco exultante', () {
