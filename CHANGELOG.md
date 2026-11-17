@@ -27,6 +27,10 @@ está en `git log`.
   y en `Equipamiento`, `equiparPrenda` y `desequiparPrenda`. Lo puesto sale
   del inventario (la `categoria` del producto es el sitio), con copia local
   por usuario para cuando no hay red. Temas y avatares, igual que antes.
+- **`versionCore`** (`lib/version_core.dart`, Nori vestida N-6): la versión
+  del core, que el catálogo de productos y la compra mandan en
+  `X-Norday-Core`. Un test vigila que es la del `pubspec.yaml`. Un backend
+  anterior ignora la cabecera.
 
 ### Cambia
 

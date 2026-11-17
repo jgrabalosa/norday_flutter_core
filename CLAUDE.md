@@ -179,7 +179,9 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    de `runApp` (`'habitos'`, `'conocimiento'`, `'enfoque'`…). La llevan los
    dos catálogos y `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`): el
    backend guarda un token por usuario y app, y sin cabecera lo cuenta como
-   `habitos`. Una app desconocida para el backend da 400.
+   `habitos`. Una app desconocida para el backend da 400. El catálogo de
+   productos y la compra llevan además `X-Norday-Core` con `versionCore`,
+   que no depende de la app (ver «Publicar una versión»).
 10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
    `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
    es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
@@ -441,6 +443,11 @@ Errores que ya se cometieron una vez. No se vuelven a cometer.
 
 ### Publicar una versión
 
+- **La versión va en dos sitios: la `version:` del `pubspec.yaml` y
+  `versionCore` (`lib/version_core.dart`).** Al subir una, la otra también:
+  lo vigila `test/version_core_test.dart`. El core la manda en
+  `X-Norday-Core` (catálogo de productos y compra) y el backend no da un
+  producto con `version_minima_core` mayor (Nori vestida, N-6).
 - **Antes de `git tag`, `git --no-pager log -1`.** Se creó y subió `v0.9.0`
   sobre el commit de `v0.8.0` porque se saltaron el merge y el cambio de
   versión. Se arregla con `git tag -d` y `git push origin --delete <tag>` si
