@@ -110,7 +110,10 @@ void main() {
     final en = lookupNordayCoreLocalizations(const Locale('en'));
     final pt = lookupNordayCoreLocalizations(const Locale('pt'));
     expect(es.vestidorSeVeraCuando('cría'), 'Se verá cuando Nori sea cría');
-    expect(en.vestidorSeVeraCuando('hatchling'), 'Shows from the hatchling stage');
+    expect(
+      en.vestidorSeVeraCuando('hatchling'),
+      'Shows from the hatchling stage',
+    );
     expect(pt.vestidorSeVeraCuando('cria'), 'Vê-se a partir de cria');
     expect(es.tiendaHastaEl('6 ene'), 'Hasta el 6 ene');
     expect(en.tiendaHastaEl('Jan 6'), 'Until Jan 6');
@@ -119,22 +122,53 @@ void main() {
 
   test('los textos fijos del vestidor y la tienda', () {
     const esperado = {
-      'es': ['Cabeza', 'Cuerpo', 'Vestidor', 'Nada', 'Nori', 'Gratis', 'Tuyo', 'Probar'],
-      'en': ['Head', 'Body', 'Wardrobe', 'Nothing', 'Nori', 'Free', 'Yours', 'Try on'],
-      'pt': ['Cabeça', 'Corpo', 'Roupeiro', 'Nada', 'Nori', 'Grátis', 'Teu', 'Experimentar'],
+      'es': [
+        'Cabeza',
+        'Cuerpo',
+        'Vestidor',
+        'Nada',
+        'Nori',
+        'Gratis',
+        'Tuyo',
+        'Probar',
+      ],
+      'en': [
+        'Head',
+        'Body',
+        'Wardrobe',
+        'Nothing',
+        'Nori',
+        'Free',
+        'Yours',
+        'Try on',
+      ],
+      'pt': [
+        'Cabeça',
+        'Corpo',
+        'Roupeiro',
+        'Nada',
+        'Nori',
+        'Grátis',
+        'Teu',
+        'Experimentar',
+      ],
     };
     esperado.forEach((idioma, textos) {
       final l = lookupNordayCoreLocalizations(Locale(idioma));
-      expect([
-        l.mascotaSitioCabeza,
-        l.mascotaSitioCuerpo,
-        l.vestidorTitulo,
-        l.vestidorNada,
-        l.tiendaSeccionNori,
-        l.tiendaGratis,
-        l.tiendaTuyo,
-        l.tiendaProbar,
-      ], textos, reason: idioma);
+      expect(
+        [
+          l.mascotaSitioCabeza,
+          l.mascotaSitioCuerpo,
+          l.vestidorTitulo,
+          l.vestidorNada,
+          l.tiendaSeccionNori,
+          l.tiendaGratis,
+          l.tiendaTuyo,
+          l.tiendaProbar,
+        ],
+        textos,
+        reason: idioma,
+      );
     });
   });
 }
