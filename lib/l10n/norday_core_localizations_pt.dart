@@ -547,6 +547,73 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Alimenta a tua mascote e ganha experiência';
 
   @override
+  String get prodPrendaGorroLana => 'Gorro de lã';
+
+  @override
+  String get prodPrendaBufanda => 'Cachecol às riscas';
+
+  @override
+  String get prodPrendaGorroNoel => 'Gorro de Pai Natal';
+
+  @override
+  String get prodPrendaTrajeNoel => 'Fato de Pai Natal';
+
+  @override
+  String get prodDescPrendaGorroLana =>
+      'Para as manhãs frias. O rebento continua a espreitar.';
+
+  @override
+  String get prodDescPrendaBufanda => 'Quentinho, às riscas e com franjas.';
+
+  @override
+  String get prodDescPrendaGorroNoel =>
+      'Com pompom. Tapa o rebento, só por uns dias.';
+
+  @override
+  String get prodDescPrendaTrajeNoel =>
+      'Vermelho, com cinto e fivela dourada. Vê-se a partir de cria.';
+
+  @override
+  String get coleccionInvierno => 'Inverno';
+
+  @override
+  String get coleccionNavidad => 'Natal';
+
+  @override
+  String get mascotaSitioCabeza => 'Cabeça';
+
+  @override
+  String get mascotaSitioCuerpo => 'Corpo';
+
+  @override
+  String get vestidorTitulo => 'Roupeiro';
+
+  @override
+  String get vestidorNada => 'Nada';
+
+  @override
+  String vestidorSeVeraCuando(String fase) {
+    return 'Vê-se a partir de $fase';
+  }
+
+  @override
+  String get tiendaSeccionNori => 'Nori';
+
+  @override
+  String tiendaHastaEl(String fecha) {
+    return 'Até $fecha';
+  }
+
+  @override
+  String get tiendaGratis => 'Grátis';
+
+  @override
+  String get tiendaTuyo => 'Teu';
+
+  @override
+  String get tiendaProbar => 'Experimentar';
+
+  @override
   String get logroCatInicio => 'Início';
 
   @override
