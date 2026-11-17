@@ -36,6 +36,7 @@ export 'theme/identidades_paleta.dart';
 export 'theme/progreso_dia.dart';
 export 'theme/avatares.dart';
 export 'theme/equipamiento.dart';
+export 'theme/prendas.dart';
 export 'theme/mascota_assets.dart';
 export 'theme/mascota_refresh.dart';
 export 'theme/tono_error.dart';

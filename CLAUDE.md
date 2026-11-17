@@ -46,7 +46,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
   `tonoError`, `progreso_dia.dart` (cuántos hay, cuántos hechos y cuánto se
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
-  fondo) y `catalogoAvatares` (retirado, ver abajo).
+  fondo), `prendas.dart` (los sitios de las prendas de Nori y lo que lleva
+  puesto, ver «Equipamiento») y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
 - `widgets/` — 38 ficheros:
   - escena de mascota (8): `MascotaAnimadaViva`, `MiniMascota`,
@@ -340,6 +341,30 @@ defecto. Sigue sin ser fuente de verdad —manda siempre el backend—, pero se
 guarda por usuario la última identidad que el backend confirmó
 (`identidad_equipada_<usuarioId>`) y se aplica solo si falla la red al
 arrancar, con hasta 3 reintentos cada 15 s; no se borra al cerrar sesión.
+
+### Las prendas de Nori (Nori vestida, N-7)
+
+Lo que lleva puesto Nori sale del mismo inventario, sin campos nuevos en el
+backend: los productos equipados cuya `categoria` es un sitio de
+`sitiosPrenda` (`theme/prendas.dart`: hoy `Cabeza` y `Cuerpo`; un sitio nuevo
+se añade solo ahí). Se publica en `prendasEquipadasNotifier`, un mapa de sitio
+a código de producto que no se puede modificar desde fuera y que solo avisa
+si cambia; todas las Nori de la app lo escuchan, así que cambian a la vez.
+
+- **Equipar y quitar:** `Equipamiento.equiparPrenda(usuarioId, productoId,
+  codigo, sitio)` y `desequiparPrenda(usuarioId, productoId, sitio)`. Cambian
+  el notifier **solo si el backend contesta bien**; si falla, el error sube y
+  no cambia nada. Otra prenda en el mismo sitio sustituye a la anterior (el
+  backend deja una equipada por categoría). Un sitio que no existe se rechaza
+  sin llamar al backend.
+- **Sin red:** copia por usuario (`prendas_equipadas_<usuarioId>`, JSON), que
+  se aplica solo si falla la red al arrancar y se corrige al leer el
+  inventario. **A diferencia de la identidad, sin copia Nori se queda sin
+  prendas**: lo que llevara puesto podría ser de otra cuenta del mismo móvil.
+- **Backend antiguo** (sin `categoria`) o un sitio que el core no conoce: no
+  cuenta, sin errores. Si un sitio tuviera dos equipadas (no debería, N-5),
+  gana la de `usuarioProductoId` más alto.
+- Pintarlas en Nori (las capas) es N-9; el vestidor y la tienda, N-10.
 
 ## Identidad de marca
 
