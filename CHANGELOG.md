@@ -22,6 +22,11 @@ está en `git log`.
 - **`tool/nori_canonica/sacar_prenda.py`** (Nori vestida, M-8): saca la
   prenda de una imagen de IA, la alinea con el cuerpo canónico y deja el PNG
   final con un informe, una imagen de control y su `prenda.json`.
+- **Las prendas puestas** (Nori vestida, N-7): `theme/prendas.dart`
+  (`sitiosPrenda`, `prendasEquipadasNotifier` y `aplicarPrendasEquipadas`),
+  y en `Equipamiento`, `equiparPrenda` y `desequiparPrenda`. Lo puesto sale
+  del inventario (la `categoria` del producto es el sitio), con copia local
+  por usuario para cuando no hay red. Temas y avatares, igual que antes.
 
 ### Cambia
 
