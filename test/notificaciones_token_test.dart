@@ -154,6 +154,54 @@ void main() {
     expect(enviados, [(7, 'tok1')]);
   });
 
+  group('la clave versionada (_v2_): cada app reenvía su token una vez', () {
+    test('con la clave antigua y el mismo token, envía una vez y guarda la '
+        'nueva', () async {
+      SharedPreferences.setMockInitialValues({'fcm_token_enviado_7': 'tok1'});
+      await NotificacionesService.registrarSiHayPermiso(7);
+      expect(enviados, [(7, 'tok1')]);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('fcm_token_enviado_v2_7'), 'tok1');
+    });
+
+    test('la segunda llamada ya no envía', () async {
+      SharedPreferences.setMockInitialValues({'fcm_token_enviado_7': 'tok1'});
+      await NotificacionesService.registrarSiHayPermiso(7);
+      await NotificacionesService.registrarSiHayPermiso(7);
+      expect(enviados, [(7, 'tok1')]);
+    });
+
+    test('tras enviar, la clave antigua ya no está', () async {
+      SharedPreferences.setMockInitialValues({'fcm_token_enviado_7': 'tok1'});
+      await NotificacionesService.registrarSiHayPermiso(7);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('fcm_token_enviado_7'), isFalse);
+    });
+
+    test('una renovación con el token ya guardado en la clave nueva no '
+        'envía', () async {
+      await NotificacionesService.registrarSiHayPermiso(7);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('fcm_token_enviado_v2_7'), 'tok1');
+      cambios.add('tok1');
+      await asentar();
+      expect(enviados, [(7, 'tok1')]);
+    });
+
+    test('una renovación con la clave antigua guardada envía y la '
+        'migra', () async {
+      await NotificacionesService.registrarSiHayPermiso(7);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('fcm_token_enviado_v2_7');
+      await prefs.setString('fcm_token_enviado_7', 'tok3');
+      cambios.add('tok3');
+      await asentar();
+      expect(enviados, [(7, 'tok1'), (7, 'tok3')]);
+      expect(prefs.getString('fcm_token_enviado_v2_7'), 'tok3');
+      expect(prefs.containsKey('fcm_token_enviado_7'), isFalse);
+    });
+  });
+
   test('con forzar, si el envío falla no se guarda como enviado', () async {
     errorAlEnviar = Exception('sin red');
     await expectLater(

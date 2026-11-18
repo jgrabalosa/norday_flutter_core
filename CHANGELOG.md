@@ -51,6 +51,12 @@ está en `git log`.
   regeneradas: la caja del cuerpo de los huevos acaba en y=853 (antes 891).
   Pesan más (de unos 80 KB a 170-400 KB cada una, 1,4 MB en total),
   comprimidas sin pérdida.
+- **El token de avisos se reenvía una vez con la cabecera de la app**
+  (T-019): `NotificacionesService` apunta lo enviado en
+  `fcm_token_enviado_v2_<usuarioId>` y borra la clave antigua. Un móvil que
+  envió su token antes de que el backend guardara uno por app (V24), sin
+  `X-Norday-App`, lo vuelve a enviar una sola vez al actualizar la app, y su
+  fila de `usuario_dispositivo` deja de faltar.
 
 ## 0.55.0 — 15-nov-2026
 
