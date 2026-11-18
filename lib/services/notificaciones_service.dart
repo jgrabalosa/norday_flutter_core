@@ -103,7 +103,31 @@ class NotificacionesService {
   /// Abre los ajustes de la app en el sistema.
   static Future<bool> abrirAjustes() => openAppSettings();
 
-  static String _claveToken(int usuarioId) => 'fcm_token_enviado_$usuarioId';
+  /// Prefijo de la clave con el último token enviado por usuario.
+  ///
+  /// Lleva versión (`v2`) para que cada app reenvíe su token **una vez** al
+  /// actualizarse, ya con la cabecera `X-Norday-App`: los móviles que lo
+  /// enviaron antes de que el backend guardara un token por app (V24) lo
+  /// mandaron sin cabecera, y sin este cambio no lo volverían a mandar. No
+  /// lleva el `appId`: las preferencias del móvil son de cada app, así que dos
+  /// apps nunca comparten la clave.
+  static const String _prefijoClaveToken = 'fcm_token_enviado_v2_';
+
+  /// La clave de antes de [_prefijoClaveToken]: se borra al guardar la nueva.
+  static const String _prefijoClaveAntigua = 'fcm_token_enviado_';
+
+  static String _claveToken(int usuarioId) => '$_prefijoClaveToken$usuarioId';
+
+  /// Apunta [token] como el último enviado para [usuarioId] y borra la clave
+  /// antigua, si la hay.
+  static Future<void> _guardarEnviado(
+    SharedPreferences prefs,
+    int usuarioId,
+    String token,
+  ) async {
+    await prefs.setString(_claveToken(usuarioId), token);
+    await prefs.remove('$_prefijoClaveAntigua$usuarioId');
+  }
 
   /// Envía el token si no es el último enviado para ese usuario, o siempre si
   /// [forzar]. Un fallo al enviar se propaga a quien llama y el token no se
@@ -113,10 +137,9 @@ class NotificacionesService {
     if (token == null) return;
     _escucharCambios();
     final prefs = await SharedPreferences.getInstance();
-    final clave = _claveToken(usuarioId);
-    if (!forzar && prefs.getString(clave) == token) return;
+    if (!forzar && prefs.getString(_claveToken(usuarioId)) == token) return;
     await enviarToken(usuarioId, token);
-    await prefs.setString(clave, token);
+    await _guardarEnviado(prefs, usuarioId, token);
   }
 
   /// Escucha las renovaciones del token. Una sola suscripción: si ya la hay,
@@ -130,10 +153,9 @@ class NotificacionesService {
         final id = await usuarioActual();
         if (id == null) return;
         final prefs = await SharedPreferences.getInstance();
-        final clave = _claveToken(id);
-        if (prefs.getString(clave) == token) return;
+        if (prefs.getString(_claveToken(id)) == token) return;
         await enviarToken(id, token);
-        await prefs.setString(clave, token);
+        await _guardarEnviado(prefs, id, token);
       } catch (_) {
         // Se reintenta en la siguiente apertura o renovación.
       }
