@@ -46,7 +46,11 @@ Se sirve en `<servidor>/arte/manifiesto-v1.json`. `<servidor>` es
 ```
 
 - La clave de cada prenda es el **código del producto** del backend.
-- `sitio`: uno de `sitiosPrenda` (`theme/prendas.dart`).
+- `sitio`: `"cabeza"` o `"cuerpo"`, en minúscula, como en
+  `hoja_revision.py`. Ojo: `sitiosPrenda` (`theme/prendas.dart`) usa la
+  `categoria` del backend, con mayúscula inicial (`Cabeza`, `Cuerpo`). No son
+  la misma cadena: quien use el manifiesto junto a `sitiosPrenda` (N-9, N-10,
+  N-11) debe convertir entre ambas formas, o no encontrará ninguna prenda.
 - `subidaBrote` es opcional: píxeles del lienzo de 1024, por fase. Si falta una
   fase, 0 (`PrendaArte.subidaBroteEn`).
 - `oculta`: capas de Nori que la prenda tapa. Hoy solo puede traer `"brote"`.
