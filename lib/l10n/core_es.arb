@@ -307,7 +307,7 @@
   "@prodDescPrendaBufanda": {
     "description": "Descripción de la prenda PRENDA_BUFANDA"
   },
-  "prodDescPrendaGorroNoel": "Con borla. Tapa el brote, solo por unos días.",
+  "prodDescPrendaGorroNoel": "Con borla. Tapa el brote.",
   "@prodDescPrendaGorroNoel": {
     "description": "Descripción de la prenda PRENDA_GORRO_NOEL"
   },
@@ -370,6 +370,10 @@
   "tiendaTuyo": "Tuyo",
   "@tiendaTuyo": {
     "description": "Etiqueta de un producto que el usuario ya tiene"
+  },
+  "tiendaCompraRechazada": "No se ha podido comprar. Hemos puesto la tienda al día.",
+  "@tiendaCompraRechazada": {
+    "description": "La compra se rechazó (409: fuera de temporada, hay que actualizar la app o ya es tuyo) y la tienda se ha recargado"
   },
   "tiendaProbar": "Probar",
   "@tiendaProbar": {

@@ -566,8 +566,7 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get prodDescPrendaBufanda => 'Quentinho, às riscas e com franjas.';
 
   @override
-  String get prodDescPrendaGorroNoel =>
-      'Com pompom. Tapa o rebento, só por uns dias.';
+  String get prodDescPrendaGorroNoel => 'Com pompom. Tapa o rebento.';
 
   @override
   String get prodDescPrendaTrajeNoel =>
@@ -609,6 +608,10 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
 
   @override
   String get tiendaTuyo => 'Teu';
+
+  @override
+  String get tiendaCompraRechazada =>
+      'Não foi possível comprar. Atualizámos a loja.';
 
   @override
   String get tiendaProbar => 'Experimentar';

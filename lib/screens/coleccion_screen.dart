@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
+import '../models/precio_tienda.dart';
 import '../services/api_service_core.dart';
 import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
@@ -227,9 +228,14 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
     if (mounted) await _cargarDatos();
   }
 
+  /// Las prendas de Nori no van aquí (Nori vestida, N-10): su sitio es el
+  /// vestidor de la pantalla de Nori y la sección Nori de la tienda. Sin este
+  /// filtro saldrían como una sección «Cabeza» sin traducir y con un botón de
+  /// equipar que no hace nada.
   Map<String, List<dynamic>> _agruparPorCategoria() {
     final mapa = <String, List<dynamic>>{};
     for (final p in _catalogo) {
+      if (esPrenda(p as Map)) continue;
       mapa.putIfAbsent(p['categoria'] as String, () => []).add(p);
     }
     return mapa;

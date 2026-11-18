@@ -55,8 +55,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo), `prendas.dart` (los sitios de las prendas de Nori y lo que lleva
   puesto, ver «Equipamiento») y `catalogoAvatares` (retirado, ver abajo).
-- `models/usuario.dart`.
-- `widgets/` — 38 ficheros:
+- `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
+  (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
+  `esPrenda`).
+- `widgets/` — 40 ficheros:
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
@@ -95,7 +97,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
     estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
     Dulce);
-  - tienda (1): la vista previa de una identidad;
+  - tienda y vestidor (2): la vista previa de una identidad y
+    `VestidorNori` (ver «Las prendas de Nori»);
   - retirado (1): `SelectorAvatarGratis`.
 - `screens/` — 9 pantallas: login, recuperación, elección de identidad
   (onboarding), tienda, mascota, logros, colección, perfil y actualización
@@ -379,7 +382,16 @@ si cambia; todas las Nori de la app lo escuchan, así que cambian a la vez.
 - **Backend antiguo** (sin `categoria`) o un sitio que el core no conoce: no
   cuenta, sin errores. Si un sitio tuviera dos equipadas (no debería, N-5),
   gana la de `usuarioProductoId` más alto.
-- Pintarlas en Nori (las capas) es `NoriVestida` (N-9); el vestidor y la tienda, N-10.
+- Pintarlas en Nori (las capas) es `NoriVestida` (N-9).
+- **Dónde se ponen y se compran (N-10):** el vestidor (`VestidorNori`), en la
+  pantalla de Nori, debajo del selector de fases, y la sección «Nori» de la
+  tienda. **Las prendas no van en Colección** (se filtran antes de agrupar) y
+  **el vestidor nunca las busca en el catálogo**: sale del inventario que la
+  pantalla ya pide, porque al acabar la temporada la prenda deja de venderse
+  pero sigue siendo tuya. La tienda enseña el precio de la oferta de hoy
+  (`precioEnTienda`, con la fecha del móvil) y no enseña lo que hoy no se
+  vende; «Probar» no llama al backend. Un 409 al comprar se dice con un texto
+  propio (`tiendaCompraRechazada`), nunca con el del backend, y recarga.
 
 ## Identidad de marca
 

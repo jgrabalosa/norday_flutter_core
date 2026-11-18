@@ -1126,7 +1126,7 @@ abstract class NordayCoreLocalizations {
   /// Descripción de la prenda PRENDA_GORRO_NOEL
   ///
   /// In es, this message translates to:
-  /// **'Con borla. Tapa el brote, solo por unos días.'**
+  /// **'Con borla. Tapa el brote.'**
   String get prodDescPrendaGorroNoel;
 
   /// Descripción de la prenda PRENDA_TRAJE_NOEL
@@ -1200,6 +1200,12 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Tuyo'**
   String get tiendaTuyo;
+
+  /// La compra se rechazó (409: fuera de temporada, hay que actualizar la app o ya es tuyo) y la tienda se ha recargado
+  ///
+  /// In es, this message translates to:
+  /// **'No se ha podido comprar. Hemos puesto la tienda al día.'**
+  String get tiendaCompraRechazada;
 
   /// Botón para ver una prenda puesta en Nori antes de comprarla
   ///

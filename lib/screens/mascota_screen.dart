@@ -23,6 +23,7 @@ import '../widgets/nori_vestida.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/superficie_identidad.dart';
 import '../widgets/terrario_identidad.dart';
+import '../widgets/vestidor_nori.dart';
 import 'tienda_screen.dart';
 
 class MascotaScreen extends StatefulWidget {
@@ -85,6 +86,11 @@ class _MascotaScreenState extends State<MascotaScreen> {
   int _comidaCantidad = 0;
   bool _alimentando = false;
 
+  /// El inventario entero, tal cual llega: de él salen la comida y el
+  /// vestidor (las prendas son tuyas aunque ya no se vendan, así que nunca se
+  /// buscan en el catálogo).
+  List<dynamic> _inventario = const [];
+
   @override
   void initState() {
     super.initState();
@@ -134,7 +140,8 @@ class _MascotaScreenState extends State<MascotaScreen> {
 
   /// El inventario es accesorio: si falla, la mascota se sigue viendo y el
   /// botón de alimentar se queda deshabilitado. No se avisa por separado
-  /// porque un fallo de red ya lo canta la carga de la mascota.
+  /// porque un fallo de red ya lo canta la carga de la mascota. El vestidor
+  /// se queda con el último inventario que llegó.
   Future<void> _cargarInventario() async {
     try {
       final inventario = await ApiServiceCore.getInventarioProductos(
@@ -153,6 +160,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
       setState(() {
         _comidaProductoId = productoId;
         _comidaCantidad = cantidad;
+        _inventario = inventario;
       });
     } catch (_) {
       if (!mounted) return;
@@ -525,6 +533,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
                       ),
                       const SizedBox(height: 12),
                       _selectorFases(context),
+                      // Sin prendas no pinta nada, ni el hueco de arriba.
+                      VestidorNori(
+                        usuarioId: widget.usuarioId,
+                        inventario: _inventario,
+                        fase: _fase,
+                      ),
                       const SizedBox(height: 20),
                       // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
                       // de competir con ella por la atención.

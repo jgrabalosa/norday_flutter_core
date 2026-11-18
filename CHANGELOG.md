@@ -7,6 +7,30 @@ está en `git log`.
 
 ### Nuevo
 
+- **El vestidor y la tienda de Nori** (N-10, T-028):
+  - `VestidorNori`, debajo del selector de fases de la pantalla de Nori: una
+    fila por sitio con «Nada» y las prendas que tienes, que se ponen y se
+    quitan con `Equipamiento.equiparPrenda`/`desequiparPrenda`. Sale del
+    inventario que la pantalla ya pide, nunca del catálogo: una prenda que
+    ya no se vende sigue siendo tuya. Una prenda que no se ve en la fase de
+    ahora avisa: «Se verá cuando Nori sea cría».
+  - La tienda gana la sección «Nori»: las prendas a la venta hoy, por
+    colección, con una Nori pequeña que la lleva puesta, el precio de la
+    oferta de hoy («Gratis», «Hasta el 6 ene»; si se solapan, la de inicio
+    más reciente, como el backend), «Tuyo» y «Probar» (Nori en
+    grande con la prenda, sin llamar al backend). Sin `ofertas`, el precio de
+    siempre; con todas en otros días, no sale (`precioEnTienda`,
+    `models/precio_tienda.dart`).
+  - Un 409 al comprar (fuera de temporada, actualizar la app o ya es tuyo)
+    dice «No se ha podido comprar. Hemos puesto la tienda al día.»
+    (`tiendaCompraRechazada`) y recarga la tienda.
+  - Colección ya no enseña las prendas.
+  - La descripción del gorro de Papá Noel ya no dice «solo por unos días»:
+    se regala toda la Navidad y es tuyo para siempre (Quim, 18-nov).
+  - `TiendaScreen` gana seams de test (`obtenerSaldo`, `obtenerCatalogo`,
+    `obtenerInventario`, `comprar`, `ahora`), y `equiparTema`,
+    `equiparAvatar` y `desequiparAvatar` pasan por los de `Equipamiento`
+    (en producción, lo mismo que antes).
 - **Nori vestida** (N-9, T-027): `NoriVestida` pinta a Nori con lo que lleva
   puesto, por capas sobre la canónica (cuerpo, prenda de cuerpo, de cabeza y
   brote, que una prenda sube u oculta), dentro de la animación. Sale vestida
