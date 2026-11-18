@@ -130,6 +130,9 @@ Nori:
 de Nori (crema) sobre Nori no se ve: los ribetes blancos del gorro y del traje
 de Papá Noel. Ahí la imagen de control lo enseña y se retoca a mano.
 
+El arte de las prendas se descarga del servidor y se guarda en disco, con un
+manifiesto que dice cómo se pinta cada una: ver [arte-prendas.md](arte-prendas.md).
+
 ## Las herramientas
 
 Python 3 con Pillow y NumPy (y SciPy para separar y sacar):

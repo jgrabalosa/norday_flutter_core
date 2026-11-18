@@ -38,6 +38,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `ActualizacionObligatoriaScreen`; `vigilarAlVolver()`, llamado en `main()`,
   comprueba al volver a primer plano, pero no en la primera llegada de un
   arranque en frío, desde 0.55.0. Nunca bloquea por un fallo de red),
+  `ArtePrendasService` (el manifiesto y las imágenes del arte de las prendas,
+  descargados y guardados en disco; ver `docs/funcionamiento/arte-prendas.md`),
   y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
   máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
   avisos; ver los puntos de extensión).
