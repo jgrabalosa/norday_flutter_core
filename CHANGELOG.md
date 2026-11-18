@@ -43,6 +43,14 @@ está en `git log`.
   avatar ya no descodifican el PNG de 1024 × 1024 entero (4 MB por imagen):
   lo piden a su tamaño en pantalla. `MascotaAnimadaViva` deja un margen de
   1,25 para el estirón de la respiración y el squish.
+- **Seis Nori a todo color, sin escalones** (pedido de marketing, 18-nov): los
+  4 huevos y la cría triste y la dormida dejan de ser de paleta (256 colores)
+  y ya no tienen escalones de color en el cuerpo. **Los huevos, sin la sombra
+  pegada debajo** (decisión de Quim): ninguna otra fase la tenía y en los
+  fondos oscuros parecía una neblina. Su canónica y `geometria.json`,
+  regeneradas: la caja del cuerpo de los huevos acaba en y=853 (antes 891).
+  Pesan más (de unos 80 KB a 170-400 KB cada una, 1,4 MB en total),
+  comprimidas sin pérdida.
 
 ## 0.55.0 — 15-nov-2026
 
