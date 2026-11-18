@@ -86,6 +86,27 @@ void main() {
     });
   }
 
+  testWidgets('cambiar «reducir animaciones» con la pantalla abierta, ida y '
+      'vuelta, no rompe', (tester) async {
+    await montar(tester, codigo: 'TEMA_PROFUNDIDAD', nieve: true);
+    expect(enMovimiento(tester), isTrue);
+
+    await montar(
+      tester,
+      codigo: 'TEMA_PROFUNDIDAD',
+      nieve: true,
+      sinMovimiento: true,
+    );
+    expect(enMovimiento(tester), isFalse);
+    expect(tester.hasRunningAnimations, isFalse);
+
+    await montar(tester, codigo: 'TEMA_PROFUNDIDAD', nieve: true);
+    expect(tester.takeException(), isNull);
+    expect(enMovimiento(tester), isTrue);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
   test('las fechas de la nieve cruzan de año (1-dic al 6-ene)', () {
     final m = ManifiestoArte.fromJson({
       'version': 1,

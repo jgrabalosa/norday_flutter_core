@@ -96,7 +96,7 @@ class CoposCayendo extends StatefulWidget {
 }
 
 class _CoposCayendoState extends State<CoposCayendo>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   AnimationController? _caida;
 
   /// Para los tests: si hay un controlador moviendo los copos.
