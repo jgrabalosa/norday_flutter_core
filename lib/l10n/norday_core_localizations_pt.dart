@@ -611,6 +611,10 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get tiendaTuyo => 'Teu';
 
   @override
+  String get tiendaCompraRechazada =>
+      'Não foi possível comprar. Atualizámos a loja.';
+
+  @override
   String get tiendaProbar => 'Experimentar';
 
   @override

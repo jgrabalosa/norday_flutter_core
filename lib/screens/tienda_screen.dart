@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../models/precio_tienda.dart';
+import '../services/api_error.dart';
 import '../services/api_service_core.dart';
 import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
@@ -10,14 +13,46 @@ import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
+import '../theme/prendas.dart';
 import '../widgets/ayuda_campo.dart';
 import '../widgets/fondo_identidad.dart';
+import '../widgets/nori_vestida.dart';
 import '../widgets/preview_identidad_tienda.dart';
 import '../widgets/superficie_identidad.dart';
 
 class TiendaScreen extends StatefulWidget {
   final int usuarioId;
   const TiendaScreen({super.key, required this.usuarioId});
+
+  /// Seams de test: todo lo que la tienda pide al backend pasa por aquí (y por
+  /// los de `Equipamiento` al equipar). En producción, `ApiServiceCore`.
+  @visibleForTesting
+  static Future<int> Function(int) obtenerSaldo = ApiServiceCore.getSaldoPuntos;
+
+  @visibleForTesting
+  static Future<List<dynamic>> Function() obtenerCatalogo =
+      ApiServiceCore.getCatalogoProductos;
+
+  @visibleForTesting
+  static Future<List<dynamic>> Function(int) obtenerInventario =
+      ApiServiceCore.getInventarioProductos;
+
+  @visibleForTesting
+  static Future<List<String>> Function(int, int) comprar =
+      ApiServiceCore.comprarProducto;
+
+  /// Seam de test: la fecha del móvil, con la que se elige la oferta vigente.
+  @visibleForTesting
+  static DateTime Function() ahora = DateTime.now;
+
+  @visibleForTesting
+  static void reiniciarParaTest() {
+    obtenerSaldo = ApiServiceCore.getSaldoPuntos;
+    obtenerCatalogo = ApiServiceCore.getCatalogoProductos;
+    obtenerInventario = ApiServiceCore.getInventarioProductos;
+    comprar = ApiServiceCore.comprarProducto;
+    ahora = DateTime.now;
+  }
 
   @override
   State<TiendaScreen> createState() => _TiendaScreenState();
@@ -30,6 +65,19 @@ class _TiendaScreenState extends State<TiendaScreen> {
   // productoId -> {cantidad, equipado}
   Map<int, Map<String, dynamic>> _inventario = {};
   int? _procesando;
+
+  /// La Nori pequeña de cada prenda la lleva puesta ella sola: un notifier
+  /// fijo por prenda, para que `NoriVestida` no vuelva a pedir sus ficheros
+  /// en cada repintado.
+  final Map<String, ValueNotifier<Map<String, String>>> _soloPrenda = {};
+
+  @override
+  void dispose() {
+    for (final n in _soloPrenda.values) {
+      n.dispose();
+    }
+    super.dispose();
+  }
 
   /// Iconografía por categoría, en Lucide como todo el resto de la app. Antes
   /// eran emoji, que los pinta la fuente del sistema: cambian de dibujo, de
@@ -57,11 +105,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   Future<void> _cargarDatos() async {
     try {
-      final saldo = await ApiServiceCore.getSaldoPuntos(widget.usuarioId);
-      final catalogo = await ApiServiceCore.getCatalogoProductos();
-      final inventario = await ApiServiceCore.getInventarioProductos(
-        widget.usuarioId,
-      );
+      final saldo = await TiendaScreen.obtenerSaldo(widget.usuarioId);
+      final catalogo = await TiendaScreen.obtenerCatalogo();
+      final inventario = await TiendaScreen.obtenerInventario(widget.usuarioId);
 
       final mapaInventario = <int, Map<String, dynamic>>{};
       for (final up in inventario) {
@@ -90,11 +136,22 @@ class _TiendaScreenState extends State<TiendaScreen> {
     setState(() => _procesando = productoId);
     List<String> logros = const [];
     try {
-      logros = await ApiServiceCore.comprarProducto(
-        widget.usuarioId,
-        productoId,
-      );
+      logros = await TiendaScreen.comprar(widget.usuarioId, productoId);
       await _cargarDatos();
+    } on ApiException catch (e) {
+      if (e.codigoEstado == 409) {
+        // Fuera de temporada, hay que actualizar la app o ya es tuyo (otro
+        // móvil, un doble toque). No es un fallo de red: se dice con un texto
+        // propio (el del backend va en un solo idioma) y la tienda se pone al
+        // día. Cerca de medianoche el catálogo (UTC) y la compra (zona del
+        // usuario) pueden no coincidir.
+        if (mounted) {
+          _avisar(NordayCoreLocalizations.of(context)!.tiendaCompraRechazada);
+        }
+        await _cargarDatos();
+      } else {
+        _mostrarError(e);
+      }
     } catch (e) {
       _mostrarError(e);
     } finally {
@@ -122,6 +179,13 @@ class _TiendaScreenState extends State<TiendaScreen> {
         );
       } else if (categoria == 'Avatar') {
         await Equipamiento.equiparAvatar(widget.usuarioId, productoId, codigo);
+      } else if (sitiosPrenda.contains(categoria) && codigo != null) {
+        logros = await Equipamiento.equiparPrenda(
+          widget.usuarioId,
+          productoId,
+          codigo,
+          categoria,
+        );
       }
       await _cargarDatos();
     } catch (e) {
@@ -132,6 +196,11 @@ class _TiendaScreenState extends State<TiendaScreen> {
     // Fuera del try y tras recargar, igual que en _comprar: si falla la
     // recarga, el equipado sí ocurrió y su logro se celebra igual.
     if (mounted) await CelebracionService.mostrar(logros);
+  }
+
+  void _avisar(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
   }
 
   void _mostrarError(Object e) {
@@ -212,6 +281,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                             ],
                           ),
                         ),
+                        ..._seccionNori(l, t),
                         const SizedBox(height: 16),
                         Text(
                           l.tiendaCatalogo,
@@ -220,9 +290,10 @@ class _TiendaScreenState extends State<TiendaScreen> {
                           ).textTheme.headlineSmall?.copyWith(color: t.text),
                         ),
                         const SizedBox(height: 8),
-                        ..._catalogo.map(
-                          (producto) => _productoCard(l, producto, t),
-                        ),
+                        for (final producto in _catalogo)
+                          if (!esPrenda(producto as Map) &&
+                              _precioHoy(producto) != null)
+                            _productoCard(l, producto, t),
                       ],
                     ),
                   ),
@@ -249,6 +320,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final procesandoEste = _procesando == productoId;
     final identidad = codigo != null ? catalogoIdentidades[codigo] : null;
 
+    final precioHoy = _precioHoy(producto)!.precio;
     return SuperficieIdentidad(
       // Es un elemento de lista, no el protagonista de la pantalla: radio
       // secundario.
@@ -329,11 +401,8 @@ class _TiendaScreenState extends State<TiendaScreen> {
             children: [
               Text(
                 tipo == 'CONSUMIBLE' && cantidad > 0
-                    ? l.tiendaPrecioConCantidad(
-                        producto['precio'] as int,
-                        cantidad,
-                      )
-                    : l.tiendaPrecio(producto['precio'] as int),
+                    ? l.tiendaPrecioConCantidad(precioHoy, cantidad)
+                    : l.tiendaPrecio(precioHoy),
                 style: Theme.of(
                   context,
                 ).textTheme.labelMedium?.copyWith(color: t.textMuted),
@@ -491,6 +560,247 @@ class _TiendaScreenState extends State<TiendaScreen> {
     return ElevatedButton(
       onPressed: () => _comprar(productoId),
       child: Text(l.tiendaComprar),
+    );
+  }
+
+  /// El precio de hoy, con la fecha del móvil; `null` si hoy no se vende
+  /// (todas sus ofertas son de otros días).
+  PrecioTienda? _precioHoy(Map producto) =>
+      precioEnTienda(producto, TiendaScreen.ahora());
+
+  /// La sección «Nori» (Nori vestida, N-10): las prendas que se venden hoy,
+  /// agrupadas por colección en el orden del catálogo, y al final las que no
+  /// tienen. Una colección que este cliente no sabe nombrar va sin título,
+  /// nunca con el código crudo. Sin prendas a la venta, no sale.
+  List<Widget> _seccionNori(NordayCoreLocalizations l, TokensContextuales t) {
+    final grupos = <String?, List<Map>>{};
+    for (final producto in _catalogo) {
+      if (producto is! Map || !esPrenda(producto)) continue;
+      if (_precioHoy(producto) == null) continue;
+      final coleccion = producto['coleccion'];
+      grupos
+          .putIfAbsent(coleccion is String ? coleccion : null, () => [])
+          .add(producto);
+    }
+    if (grupos.isEmpty) return const [];
+    final sinColeccion = grupos.remove(null);
+    final texto = Theme.of(context).textTheme;
+    return [
+      const SizedBox(height: 16),
+      Text(
+        l.tiendaSeccionNori,
+        style: texto.headlineSmall?.copyWith(color: t.text),
+      ),
+      for (final MapEntry(key: codigo, value: prendas) in grupos.entries) ...[
+        const SizedBox(height: 8),
+        if (CatalogosCore.coleccion(context, codigo, '') case final nombre
+            when nombre.isNotEmpty) ...[
+          Text(nombre, style: texto.titleSmall?.copyWith(color: t.textMuted)),
+          const SizedBox(height: 8),
+        ],
+        for (final p in prendas) _prendaCard(l, p, t),
+      ],
+      if (sinColeccion != null) ...[
+        const SizedBox(height: 8),
+        for (final p in sinColeccion) _prendaCard(l, p, t),
+      ],
+    ];
+  }
+
+  ValueNotifier<Map<String, String>> _notifierSolo(
+    String sitio,
+    String codigo,
+  ) => _soloPrenda.putIfAbsent(
+    '$sitio|$codigo',
+    () => ValueNotifier(Map.unmodifiable({sitio: codigo})),
+  );
+
+  /// Una prenda: Nori pequeña que la lleva puesta, el nombre, el precio de hoy
+  /// («Gratis», «Hasta el…») o «Tuyo», y los botones «Probar» y comprar o
+  /// equipar.
+  Widget _prendaCard(
+    NordayCoreLocalizations l,
+    Map producto,
+    TokensContextuales t,
+  ) {
+    final productoId = producto['productoId'] as int;
+    final codigo = producto['codigo'] as String?;
+    final sitio = producto['categoria'] as String;
+    final nombre = CatalogosCore.producto(
+      context,
+      codigo,
+      producto['nombre'] as String? ?? '',
+    );
+    final info = _inventario[productoId];
+    final poseido = info != null;
+    final equipado = info?['equipado'] == true;
+    final precio = _precioHoy(producto)!;
+    final texto = Theme.of(context).textTheme;
+
+    final String detalle;
+    if (poseido) {
+      detalle = l.tiendaTuyo;
+    } else {
+      final cifra = precio.gratis
+          ? l.tiendaGratis
+          : l.tiendaPrecio(precio.precio);
+      final hasta = precio.hasta;
+      detalle = hasta == null
+          ? cifra
+          : '$cifra · ${l.tiendaHastaEl(_fechaCorta(hasta))}';
+    }
+
+    return SuperficieIdentidad(
+      key: ValueKey('tienda_prenda_$productoId'),
+      margen: const EdgeInsets.only(bottom: 8),
+      relleno: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 64,
+            height: 64,
+            child: codigo == null
+                ? null
+                : NoriVestida(
+                    fase: 'CRIA',
+                    estado: 'feliz',
+                    tamano: 64,
+                    prendas: _notifierSolo(sitio, codigo),
+                  ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(nombre, style: texto.titleMedium?.copyWith(color: t.text)),
+                const SizedBox(height: 4),
+                Text(
+                  detalle,
+                  style: texto.labelMedium?.copyWith(color: t.textMuted),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (codigo != null)
+                      TextButton(
+                        onPressed: () => _abrirProbar(nombre, sitio, codigo),
+                        child: Text(l.tiendaProbar),
+                      ),
+                    const Spacer(),
+                    if (equipado)
+                      Text(
+                        l.tiendaEquipado,
+                        style: texto.labelMedium?.copyWith(
+                          color: t.successText,
+                        ),
+                      )
+                    else
+                      _botonAccion(
+                        l,
+                        productoId,
+                        'EQUIPABLE',
+                        poseido,
+                        equipado,
+                        codigo,
+                        sitio,
+                        _procesando == productoId,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// La fecha corta en el idioma activo: «6 ene», «Jan 6», «6/01»…
+  String _fechaCorta(DateTime dia) => DateFormat.MMMd(
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format(dia);
+
+  /// «Probar» (decisión 13): Nori en grande con la prenda puesta en su sitio y
+  /// el resto de lo que lleva. Ni equipa ni compra: no llama al backend (la
+  /// imagen de la prenda sí puede bajarse del servidor del arte).
+  void _abrirProbar(String nombre, String sitio, String codigo) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _HojaProbar(nombre: nombre, sitio: sitio, codigo: codigo),
+    );
+  }
+}
+
+class _HojaProbar extends StatefulWidget {
+  final String nombre;
+  final String sitio;
+  final String codigo;
+
+  const _HojaProbar({
+    required this.nombre,
+    required this.sitio,
+    required this.codigo,
+  });
+
+  @override
+  State<_HojaProbar> createState() => _HojaProbarState();
+}
+
+class _HojaProbarState extends State<_HojaProbar> {
+  /// Lo que lleva ahora, con esta prenda en su sitio. Fijo mientras la hoja
+  /// está abierta.
+  late final ValueNotifier<Map<String, String>> _puesta = ValueNotifier(
+    Map.unmodifiable({
+      ...prendasEquipadasNotifier.value,
+      widget.sitio: widget.codigo,
+    }),
+  );
+
+  @override
+  void dispose() {
+    _puesta.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = NordayCoreLocalizations.of(context)!;
+    final lado = (MediaQuery.sizeOf(context).width * 0.6).clamp(120.0, 280.0);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.nombre,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: SizedBox(
+                width: lado,
+                height: lado,
+                child: NoriVestida(
+                  fase: 'CRIA',
+                  estado: 'feliz',
+                  tamano: lado,
+                  prendas: _puesta,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l.comunCerrar),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

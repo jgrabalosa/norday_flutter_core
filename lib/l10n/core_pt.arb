@@ -190,6 +190,7 @@
   "tiendaHastaEl": "Até {fecha}",
   "tiendaGratis": "Grátis",
   "tiendaTuyo": "Teu",
+  "tiendaCompraRechazada": "Não foi possível comprar. Atualizámos a loja.",
   "tiendaProbar": "Experimentar",
   "logroCatInicio": "Início",
   "logroCatConstancia": "Constância",

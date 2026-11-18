@@ -34,7 +34,8 @@ class Equipamiento {
   @visibleForTesting
   static Duration esperaReintento = const Duration(seconds: 15);
 
-  /// Seam de test: equipar en el backend. En producción, `equiparProducto`.
+  /// Seam de test: equipar en el backend (temas, avatares y prendas). En
+  /// producción, `equiparProducto`.
   @visibleForTesting
   static Future<List<String>> Function(int, int) equiparEnBackend =
       ApiServiceCore.equiparProducto;
@@ -108,7 +109,7 @@ class Equipamiento {
     int productoId,
     String? codigo,
   ) async {
-    final logros = await ApiServiceCore.equiparProducto(usuarioId, productoId);
+    final logros = await equiparEnBackend(usuarioId, productoId);
     aplicarIdentidadEquipada(codigo);
     await _guardarCopia(usuarioId, codigo);
     return logros;
@@ -121,13 +122,13 @@ class Equipamiento {
     String? codigo,
   ) async {
     // Un avatar nunca otorga logro: se descarta la lista a propósito.
-    await ApiServiceCore.equiparProducto(usuarioId, productoId);
+    await equiparEnBackend(usuarioId, productoId);
     aplicarAvatarEquipado(codigo);
   }
 
   /// Quita el avatar y vuelve al círculo con la inicial del nombre.
   static Future<void> desequiparAvatar(int usuarioId, int productoId) async {
-    await ApiServiceCore.desequiparProducto(usuarioId, productoId);
+    await desequiparEnBackend(usuarioId, productoId);
     aplicarAvatarEquipado(null);
   }
 

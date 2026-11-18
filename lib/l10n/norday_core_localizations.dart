@@ -1201,6 +1201,12 @@ abstract class NordayCoreLocalizations {
   /// **'Tuyo'**
   String get tiendaTuyo;
 
+  /// La compra se rechazó (409: fuera de temporada, hay que actualizar la app o ya es tuyo) y la tienda se ha recargado
+  ///
+  /// In es, this message translates to:
+  /// **'No se ha podido comprar. Hemos puesto la tienda al día.'**
+  String get tiendaCompraRechazada;
+
   /// Botón para ver una prenda puesta en Nori antes de comprarla
   ///
   /// In es, this message translates to:

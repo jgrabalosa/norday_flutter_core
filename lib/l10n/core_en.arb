@@ -190,6 +190,7 @@
   "tiendaHastaEl": "Until {fecha}",
   "tiendaGratis": "Free",
   "tiendaTuyo": "Yours",
+  "tiendaCompraRechazada": "Couldn't buy it. We've refreshed the shop.",
   "tiendaProbar": "Try on",
   "logroCatInicio": "Getting started",
   "logroCatConstancia": "Consistency",

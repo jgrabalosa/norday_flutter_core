@@ -371,6 +371,10 @@
   "@tiendaTuyo": {
     "description": "Etiqueta de un producto que el usuario ya tiene"
   },
+  "tiendaCompraRechazada": "No se ha podido comprar. Hemos puesto la tienda al día.",
+  "@tiendaCompraRechazada": {
+    "description": "La compra se rechazó (409: fuera de temporada, hay que actualizar la app o ya es tuyo) y la tienda se ha recargado"
+  },
   "tiendaProbar": "Probar",
   "@tiendaProbar": {
     "description": "Botón para ver una prenda puesta en Nori antes de comprarla"
