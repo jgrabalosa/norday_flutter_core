@@ -179,6 +179,57 @@ void main() {
       },
     );
 
+    // Todas las Nori de la app cambian a la vez (N-7): la primera vez que sale
+    // una prenda, varias piden la misma imagen a la vez.
+    Future<http.Response> despacio(http.Request _) async {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      return http.Response.bytes(bytes, 200);
+    }
+
+    test(
+      'dos peticiones a la vez: una sola descarga y las dos reciben el fichero',
+      () async {
+        responder = despacio;
+        final s = servicio();
+
+        final r = await Future.wait([s.imagen(ruta), s.imagen(ruta)]);
+
+        expect(r, everyElement(isNotNull));
+        expect(r[0]!.path, r[1]!.path);
+        expect(await r[0]!.readAsBytes(), bytes);
+        expect(llamadas, hasLength(1));
+      },
+    );
+
+    test(
+      'dos servicios a la vez con la misma caché: una sola descarga',
+      () async {
+        responder = despacio;
+
+        final r = await Future.wait([
+          servicio().imagen(ruta),
+          servicio().imagen(ruta),
+        ]);
+
+        expect(r, everyElement(isNotNull));
+        expect(llamadas, hasLength(1));
+      },
+    );
+
+    test('una descarga fallida no se queda atascada: la siguiente lo vuelve '
+        'a intentar', () async {
+      responder = (_) async => throw http.ClientException('sin red');
+      final s = servicio();
+      expect(await s.imagen(ruta), isNull);
+
+      responder = (_) async => http.Response.bytes(bytes, 200);
+      final b = await s.imagen(ruta);
+
+      expect(b, isNotNull);
+      expect(await b!.readAsBytes(), bytes);
+      expect(llamadas, hasLength(2));
+    });
+
     test('si la descarga falla, null y no queda fichero', () async {
       responder = (_) async => throw http.ClientException('sin red');
       expect(await servicio().imagen(ruta), isNull);

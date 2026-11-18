@@ -104,16 +104,40 @@ class ArtePrendasService {
     }
   }
 
+  /// Las descargas en marcha, por fichero de destino. Es estático porque cada
+  /// Nori puede tener su propio servicio y todas cambian a la vez: quien pide
+  /// una imagen que ya se está bajando espera a esa descarga en vez de lanzar
+  /// otra (con dos, la segunda se quedaba sin fichero, T-021).
+  static final Map<String, Future<File?>> _enMarcha = {};
+
   /// El fichero de [ruta] (relativa a `<servidor>/arte/`). Si ya está en la
   /// caché, se devuelve sin tocar la red; si no, se descarga y se guarda con
   /// su nombre. Si falla, o la ruta no es válida, `null`; nunca queda un
-  /// fichero a medias.
+  /// fichero a medias. Varias peticiones a la vez de la misma imagen
+  /// comparten una sola descarga.
   Future<File?> imagen(String ruta) async {
     if (!_rutaSegura(ruta)) return null;
+    final Directory carpeta;
+    try {
+      carpeta = await _carpetaCache();
+    } catch (_) {
+      return null;
+    }
+    final destino = File('${carpeta.path}/$ruta');
+    final enMarcha = _enMarcha[destino.path];
+    if (enMarcha != null) return enMarcha;
+    final descarga = _traer(ruta, destino);
+    _enMarcha[destino.path] = descarga;
+    try {
+      return await descarga;
+    } finally {
+      _enMarcha.remove(destino.path);
+    }
+  }
+
+  Future<File?> _traer(String ruta, File destino) async {
     File? temporal;
     try {
-      final carpeta = await _carpetaCache();
-      final destino = File('${carpeta.path}/$ruta');
       if (await destino.exists()) return destino;
 
       final r = await _cliente

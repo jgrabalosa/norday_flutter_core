@@ -92,6 +92,11 @@ validar al leerlo).
   renombra al nombre final, que dentro de una carpeta es atómico. Si algo falla
   se borra el `.part`. Así, que exista el fichero con su nombre significa que
   está entero.
+- **Una sola descarga por imagen a la vez**: todas las Nori de la app cambian
+  a la vez, así que la primera vez que sale una prenda varias piden la misma
+  imagen. Quien la pide mientras ya se está bajando espera a esa descarga,
+  aunque use otro `ArtePrendasService`. Antes, la segunda petición recibía
+  `null`.
 - Para siempre: no hay caducidad ni limpieza. Las imágenes viejas (huella
   antigua) quedan huérfanas; son pocas y pequeñas.
 - La ruta se valida porque el manifiesto viene de fuera: si trae `..`, empieza
