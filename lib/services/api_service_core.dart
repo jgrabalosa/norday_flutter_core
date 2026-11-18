@@ -797,6 +797,9 @@ class ApiServiceCore {
   /// [actualizarFcmToken]) si sigue siendo [fcmToken]: si la cuenta ya tiene
   /// el de otro móvil, el backend no lo toca. Lo usa el cierre de sesión. El
   /// token va en el cuerpo, nunca en la URL.
+  ///
+  /// No pasa por [verificar]: un 401 aquí (el JWT ya había caducado) avisaría
+  /// de sesión caducada justo cuando el usuario ha pedido salir.
   static Future<void> quitarFcmToken(int usuarioId, String fcmToken) async {
     final headers = {...await getHeaders(), ..._cabeceraApp};
     final response = await enviar(
@@ -806,6 +809,13 @@ class ApiServiceCore {
         body: jsonEncode({'fcmToken': fcmToken}),
       ),
     );
-    verificar(response, ok: const [204]);
+    if (response.statusCode == 204) return;
+    throw ApiException(
+      response.statusCode >= 500
+          ? TipoErrorApi.servidor
+          : TipoErrorApi.peticionInvalida,
+      codigoEstado: response.statusCode,
+      cuerpo: response.body,
+    );
   }
 }

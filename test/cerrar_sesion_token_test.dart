@@ -77,6 +77,20 @@ void main() {
     expect(quitados, [(7, 'tok1')]);
   });
 
+  test('al quitarlo aún está la sesión: la llamada lleva el JWT', () async {
+    SharedPreferences.setMockInitialValues(sesion7(tokenEnviado: 'tok1'));
+    FlutterSecureStorage.setMockInitialValues({'token': 'jwt-de-ana'});
+    String? jwtAlQuitar;
+    NotificacionesService.quitarToken = (id, token) async {
+      jwtAlQuitar = await ApiServiceCore.getToken();
+    };
+
+    await ApiServiceCore.logout();
+
+    expect(jwtAlQuitar, 'jwt-de-ana');
+    expect(await ApiServiceCore.getToken(), isNull);
+  });
+
   test('tras quitarlo, la clave del token enviado ya no está', () async {
     SharedPreferences.setMockInitialValues(sesion7(tokenEnviado: 'tok1'));
 
