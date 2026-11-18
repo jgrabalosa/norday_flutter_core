@@ -134,3 +134,44 @@ estilo de cada forma (en Dulce, a lápiz) y copos que caen por encima de la
 escena: un solo controlador y un solo pintor para todos, que se paran con
 «reducir animaciones» (la nieve quieta se queda). Sin nieve, el terrario es
 el de siempre, sin la capa ni el controlador en el árbol.
+
+## Cómo se publica (N-13)
+
+Con `tool/nori_canonica/publicar_arte.py`, desde las carpetas revisadas de
+cada prenda (los PNG `<prenda>_<fase>[_<estado>].png` de 1024 × 1024 y su
+`prenda.json`):
+
+```
+py tool/nori_canonica/publicar_arte.py CARPETA [CARPETA...] --salida SALIDA \
+    [--manifiesto EL_DEL_SERVIDOR.json] [--nieve 2026-11-20 2027-01-06 | --sin-nieve]
+```
+
+- Cada PNG pasa a WebP con el **alfa sin pérdida** (`alpha_quality=100`) y el
+  color a calidad 90. Se descodifica otra vez: si el alfa no sale idéntico,
+  no se publica. El informe da el tamaño y el error de color donde se ve
+  (alfa ≥ 128): con las 15 imágenes de la primera temporada, de 22 a 36 KB y
+  una media de ±2 a ±4 sobre 255.
+- El nombre lleva los 8 primeros caracteres del SHA-256 **de los píxeles**
+  (RGBA de 8 bits, por filas), no del fichero: el mismo dibujo guardado otra
+  vez da el mismo nombre; uno nuevo, otro. Como la app guarda las imágenes
+  por su nombre para siempre, cambiar un dibujo es publicarlo con otro nombre.
+- La prenda entra en el manifiesto por su código de producto
+  (`PRENDA_<prenda en mayúsculas>`); las demás no se tocan si se parte del
+  manifiesto que ya está en el servidor (`--manifiesto`). La nieve se pone,
+  se quita o se deja como estaba.
+- `SALIDA` tiene que estar vacía o no existir. Si algo no se puede publicar
+  (falta una fase, un nombre que no casa o en mayúsculas, otro tamaño, un PNG
+  o un JSON rotos, un `sitio`, `oculta` o `subidaBrote` que no valen, una
+  fecha mal escrita), no queda nada en ella: lo que se copia al servidor es
+  siempre una pasada entera. Los JSON se leen con o sin BOM.
+- **Sin `--manifiesto` se parte de cero** (y la herramienta lo avisa): el
+  manifiesto que se suba sustituye al del servidor, así que tiene que llevar
+  todas las prendas.
+- La huella es la del PNG, no la del WebP: si un día cambia la calidad o la
+  versión de libwebp, el mismo dibujo sale con el mismo nombre y otros bytes,
+  y los móviles se quedan con el que ya tienen. Para que cambie de verdad,
+  tiene que cambiar el dibujo.
+
+La carpeta `SALIDA/arte/` se copia al servidor: primero a staging, se mira en
+la app de prueba, y luego a producción (`encargos/arte-servidor.md`, §3, en
+el proyecto).
