@@ -109,3 +109,19 @@ la **fecha del móvil** (`ManifiestoArte.nieveActiva(hoy)`, solo la fecha, sin
 hora). La nieve es **solo visual**: no cambia nada del backend ni de la
 gamificación, y quien cambie la hora del móvil verá nieve cuando no toca.
 Sin `nieve` en el manifiesto, nunca hay.
+
+**Quién carga el manifiesto (T-026):** la pantalla de Nori (`MascotaScreen`),
+en `_cargarDatos`: al montarse y cada vez que su pestaña vuelve a estar
+activa (y al tirar para recargar). Lo pide **aparte, sin esperarlo**
+(la petición tiene hasta 15 s y `_cargarDatos` no puede tardar más por
+ella) y lo guarda en su estado cuando llega. Hasta entonces, el vacío: sin
+nieve. En `_escenario` decide con la fecha del móvil en cada `build`
+(`nieveActiva(DateTime.now())`), así que el 7-ene la nieve se va sola al
+repintar o al volver a la pestaña, sin temporizador de medianoche.
+
+`TerrarioIdentidad` **solo recibe el `bool`** (`nieve`): no llama a la red ni
+lee el manifiesto. Con nieve pinta un manto quieto sobre el suelo, con el
+estilo de cada forma (en Dulce, a lápiz) y copos que caen por encima de la
+escena: un solo controlador y un solo pintor para todos, que se paran con
+«reducir animaciones» (la nieve quieta se queda). Sin nieve, el terrario es
+el de siempre, sin la capa ni el controlador en el árbol.

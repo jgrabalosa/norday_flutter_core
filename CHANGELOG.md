@@ -7,6 +7,12 @@ está en `git log`.
 
 ### Nuevo
 
+- **El terrario nevado** (Nori vestida, N-11, T-026): `TerrarioIdentidad`
+  gana `nieve` (por defecto `false`): un manto quieto sobre el suelo en las
+  tres formas (a lápiz en Dulce) y copos que caen, que se paran con «reducir
+  animaciones». La pantalla de Nori carga el manifiesto del arte, sin
+  esperarlo, y pone la nieve entre sus fechas (la fecha del móvil). Sin
+  manifiesto en el servidor, no hay nieve.
 - **Nori canónica** (Nori vestida, N-1 y N-2): `assets/mascota/canonica/`,
   los 12 dibujos de Nori separados en cuerpo y brote, con su geometría
   (`docs/funcionamiento/nori-canonica.md`), y `tool/nori_canonica/`, el
