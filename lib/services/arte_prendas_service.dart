@@ -116,7 +116,9 @@ class ArtePrendasService {
       final destino = File('${carpeta.path}/$ruta');
       if (await destino.exists()) return destino;
 
-      final r = await _cliente.get(Uri.parse('$_urlArte/$ruta')).timeout(_espera);
+      final r = await _cliente
+          .get(Uri.parse('$_urlArte/$ruta'))
+          .timeout(_espera);
       if (r.statusCode != 200 || r.bodyBytes.isEmpty) return null;
 
       await destino.parent.create(recursive: true);

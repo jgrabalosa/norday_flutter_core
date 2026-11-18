@@ -57,8 +57,10 @@ void main() {
     test('un manifiesto bueno se lee entero y queda guardado', () async {
       final m = await servicio().cargarManifiesto();
 
-      expect(llamadas.single.toString(),
-          'https://servidor.test/arte/manifiesto-v1.json');
+      expect(
+        llamadas.single.toString(),
+        'https://servidor.test/arte/manifiesto-v1.json',
+      );
       expect(m.version, 1);
       expect(m.nieveDesde, DateTime(2026, 12, 1));
       expect(m.nieveHasta, DateTime(2027, 1, 6));
@@ -71,8 +73,10 @@ void main() {
       expect(p.imagenes, hasLength(3));
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString(ArtePrendasService.claveUltimoManifiesto),
-          isNotNull);
+      expect(
+        prefs.getString(ArtePrendasService.claveUltimoManifiesto),
+        isNotNull,
+      );
     });
 
     final fallos = <String, Future<http.Response> Function(http.Request)>{
@@ -117,13 +121,17 @@ void main() {
     ).prendas['PRENDA_GORRO_LANA']!;
 
     test('imagenPara: <fase>_<estado> si existe', () {
-      expect(prenda.imagenPara('cria', 'dormido'),
-          'prendas/gorro_lana_cria_dormido.3a4b5c6d.webp');
+      expect(
+        prenda.imagenPara('cria', 'dormido'),
+        'prendas/gorro_lana_cria_dormido.3a4b5c6d.webp',
+      );
     });
 
     test('imagenPara: cae a <fase>', () {
-      expect(prenda.imagenPara('cria', 'contento'),
-          'prendas/gorro_lana_cria.28e8ce75.webp');
+      expect(
+        prenda.imagenPara('cria', 'contento'),
+        'prendas/gorro_lana_cria.28e8ce75.webp',
+      );
     });
 
     test('imagenPara: sin imagen, null', () {
@@ -154,20 +162,22 @@ void main() {
     const ruta = 'prendas/gorro_lana_huevo.62733313.webp';
     final bytes = [1, 2, 3, 4];
 
-    test('la primera vez descarga y guarda; la segunda no llama a la red',
-        () async {
-      responder = (_) async => http.Response.bytes(bytes, 200);
-      final s = servicio();
+    test(
+      'la primera vez descarga y guarda; la segunda no llama a la red',
+      () async {
+        responder = (_) async => http.Response.bytes(bytes, 200);
+        final s = servicio();
 
-      final a = await s.imagen(ruta);
-      expect(a, isNotNull);
-      expect(await a!.readAsBytes(), bytes);
-      expect(llamadas.single.toString(), 'https://servidor.test/arte/$ruta');
+        final a = await s.imagen(ruta);
+        expect(a, isNotNull);
+        expect(await a!.readAsBytes(), bytes);
+        expect(llamadas.single.toString(), 'https://servidor.test/arte/$ruta');
 
-      final b = await s.imagen(ruta);
-      expect(b!.path, a.path);
-      expect(llamadas, hasLength(1));
-    });
+        final b = await s.imagen(ruta);
+        expect(b!.path, a.path);
+        expect(llamadas, hasLength(1));
+      },
+    );
 
     test('si la descarga falla, null y no queda fichero', () async {
       responder = (_) async => throw http.ClientException('sin red');
