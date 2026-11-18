@@ -37,6 +37,14 @@ class NotificacionesService {
   @visibleForTesting
   static Future<int?> Function() usuarioActual = _usuarioActualReal;
 
+  @visibleForTesting
+  static Future<void> Function(int, String) quitarToken =
+      ApiServiceCore.quitarFcmToken;
+
+  /// Lo más que espera el cierre de sesión a que el backend quite el token.
+  @visibleForTesting
+  static Duration topeQuitarToken = const Duration(seconds: 3);
+
   static StreamSubscription<String>? _suscripcion;
 
   @visibleForTesting
@@ -47,6 +55,8 @@ class NotificacionesService {
     cambiosDeToken = () => FirebaseMessaging.instance.onTokenRefresh;
     enviarToken = ApiServiceCore.actualizarFcmToken;
     usuarioActual = _usuarioActualReal;
+    quitarToken = ApiServiceCore.quitarFcmToken;
+    topeQuitarToken = const Duration(seconds: 3);
   }
 
   /// Si el permiso está concedido ahora mismo.
@@ -127,6 +137,35 @@ class NotificacionesService {
   ) async {
     await prefs.setString(_claveToken(usuarioId), token);
     await prefs.remove('$_prefijoClaveAntigua$usuarioId');
+  }
+
+  /// Al cerrar sesión, antes de borrar la sesión local (hace falta el JWT):
+  /// si hay un token apuntado como enviado para [usuarioId], pide al backend
+  /// que lo quite (solo lo hace si sigue siendo el de este móvil y esta app);
+  /// después borra lo apuntado y deja de escuchar las renovaciones.
+  ///
+  /// Nunca bloquea la salida: la llamada tiene un tope de [topeQuitarToken] y
+  /// sus fallos se tragan. Sin red, el token se queda en el backend hasta que
+  /// FCM lo dé de baja.
+  static Future<void> olvidarAlCerrarSesion(int usuarioId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_claveToken(usuarioId));
+      if (token != null) {
+        try {
+          await quitarToken(usuarioId, token).timeout(topeQuitarToken);
+        } catch (_) {
+          // Sin red o sin respuesta: se sale igual.
+        }
+      }
+      await prefs.remove(_claveToken(usuarioId));
+      await prefs.remove('$_prefijoClaveAntigua$usuarioId');
+    } catch (_) {
+      // Las preferencias fallando tampoco pueden impedir salir.
+    } finally {
+      await _suscripcion?.cancel();
+      _suscripcion = null;
+    }
   }
 
   /// Envía el token si no es el último enviado para ese usuario, o siempre si

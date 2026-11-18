@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/usuario.dart';
 import '../version_core.dart';
 import 'api_error.dart';
+import 'notificaciones_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 /// Motor: todo lo que no sabe de dominio — sesión, usuario, preferencias,
@@ -221,7 +222,16 @@ class ApiServiceCore {
     };
   }
 
+  /// Cerrar sesión: primero quita del backend el token de avisos de esta
+  /// app (aún hace falta el JWT; con tope y sin bloquear la salida, ver
+  /// [NotificacionesService.olvidarAlCerrarSesion]) y después borra la sesión
+  /// local. La sesión caducada y la cuenta eliminada no llaman al backend.
   static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final usuarioId = prefs.getInt('usuarioId');
+    if (usuarioId != null) {
+      await NotificacionesService.olvidarAlCerrarSesion(usuarioId);
+    }
     await _limpiarSesionLocal();
   }
 
@@ -781,5 +791,31 @@ class ApiServiceCore {
       ),
     );
     verificar(response);
+  }
+
+  /// Quita el token de avisos de esta app (misma cabecera `X-Norday-App` que
+  /// [actualizarFcmToken]) si sigue siendo [fcmToken]: si la cuenta ya tiene
+  /// el de otro móvil, el backend no lo toca. Lo usa el cierre de sesión. El
+  /// token va en el cuerpo, nunca en la URL.
+  ///
+  /// No pasa por [verificar]: un 401 aquí (el JWT ya había caducado) avisaría
+  /// de sesión caducada justo cuando el usuario ha pedido salir.
+  static Future<void> quitarFcmToken(int usuarioId, String fcmToken) async {
+    final headers = {...await getHeaders(), ..._cabeceraApp};
+    final response = await enviar(
+      () => cliente.post(
+        Uri.parse('$baseUrl/usuarios/$usuarioId/fcm-token/quitar'),
+        headers: headers,
+        body: jsonEncode({'fcmToken': fcmToken}),
+      ),
+    );
+    if (response.statusCode == 204) return;
+    throw ApiException(
+      response.statusCode >= 500
+          ? TipoErrorApi.servidor
+          : TipoErrorApi.peticionInvalida,
+      codigoEstado: response.statusCode,
+      cuerpo: response.body,
+    );
   }
 }

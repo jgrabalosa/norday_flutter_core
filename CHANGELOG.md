@@ -57,6 +57,14 @@ está en `git log`.
   envió su token antes de que el backend guardara uno por app (V24), sin
   `X-Norday-App`, lo vuelve a enviar una sola vez al actualizar la app, y su
   fila de `usuario_dispositivo` deja de faltar.
+- **Cerrar sesión quita el token de avisos de esta app** (T-004b):
+  `ApiServiceCore.logout()` pide al backend, antes de borrar la sesión, que
+  quite el token que `NotificacionesService` tiene apuntado como enviado
+  (`quitarFcmToken`, `POST /usuarios/{id}/fcm-token/quitar`, con la cabecera
+  de la app; solo lo quita si sigue siendo el de este móvil). Tope de 3 s y
+  sin bloquear la salida; deja de escuchar las renovaciones. La sesión
+  caducada y la cuenta eliminada no llaman al backend. Necesita el backend
+  con T-004a.
 
 ## 0.55.0 — 15-nov-2026
 
