@@ -51,6 +51,14 @@ void main() {
       DateTime(2026, 12, 20),
     )!;
     expect(antes.precio, 200);
+    // El orden de la lista no cuenta: manda la fecha de inicio.
+    expect(
+      precioEnTienda(
+        producto(ofertas: solapadas.reversed.toList()),
+        DateTime(2026, 12, 25),
+      )!.precio,
+      0,
+    );
   });
 
   test('sin ofertas, o con la lista vacía, el precio de siempre', () {
