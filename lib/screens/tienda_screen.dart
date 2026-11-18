@@ -716,7 +716,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
     );
   }
 
-  /// La fecha corta en el idioma activo: «6 ene», «Jan 6», «6/01»…
+  /// La fecha corta en el idioma activo: «6 ene», «Jan 6», «6 de jan.».
   String _fechaCorta(DateTime dia) => DateFormat.MMMd(
     Localizations.localeOf(context).toLanguageTag(),
   ).format(dia);

@@ -19,8 +19,9 @@ class PrecioTienda {
 ///
 /// - Sin `ofertas` (backend anterior a T-022, o producto sin ofertas): su
 ///   `precio` de siempre, sin fecha.
-/// - Con ofertas: la primera con `desde <= hoy <= hasta`. Si ninguna vale hoy
-///   (todas futuras o ya pasadas), no sale.
+/// - Con ofertas: la que vale hoy (`desde <= hoy <= hasta`); si se solapan,
+///   la de `desde` más reciente, como el backend. Si ninguna vale hoy (todas
+///   futuras o ya pasadas), no sale.
 ///
 /// Una oferta que no se entiende (fechas mal escritas) se ignora; si no se
 /// entiende ninguna, es como si no tuviera.
@@ -42,12 +43,14 @@ PrecioTienda? precioEnTienda(Map producto, DateTime ahora) {
     final precio = producto['precio'];
     return PrecioTienda(precio is num ? precio.toInt() : 0);
   }
+  // Si se solapan, manda la de `desde` más reciente: es la que cobra el
+  // backend (`ProductoService.vigente`).
+  ({DateTime desde, DateTime hasta, int precio})? vigente;
   for (final o in ofertas) {
-    if (!hoy.isBefore(o.desde) && !hoy.isAfter(o.hasta)) {
-      return PrecioTienda(o.precio, o.hasta);
-    }
+    if (hoy.isBefore(o.desde) || hoy.isAfter(o.hasta)) continue;
+    if (vigente == null || o.desde.isAfter(vigente.desde)) vigente = o;
   }
-  return null;
+  return vigente == null ? null : PrecioTienda(vigente.precio, vigente.hasta);
 }
 
 /// Si [producto] es una prenda de Nori: su `categoria` es un sitio de

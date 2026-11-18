@@ -26,9 +26,9 @@ void main() {
     'PRENDA_GORRO_NOEL': [
       ['Gorro de Papá Noel', 'Santa hat', 'Gorro de Pai Natal'],
       [
-        'Con borla. Tapa el brote, solo por unos días.',
-        'With a pompom. It hides the sprout, just for a few days.',
-        'Com pompom. Tapa o rebento, só por uns dias.',
+        'Con borla. Tapa el brote.',
+        'With a pompom. It hides the sprout.',
+        'Com pompom. Tapa o rebento.',
       ],
     ],
     'PRENDA_TRAJE_NOEL': [

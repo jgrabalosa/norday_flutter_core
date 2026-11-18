@@ -1126,7 +1126,7 @@ abstract class NordayCoreLocalizations {
   /// Descripción de la prenda PRENDA_GORRO_NOEL
   ///
   /// In es, this message translates to:
-  /// **'Con borla. Tapa el brote, solo por unos días.'**
+  /// **'Con borla. Tapa el brote.'**
   String get prodDescPrendaGorroNoel;
 
   /// Descripción de la prenda PRENDA_TRAJE_NOEL

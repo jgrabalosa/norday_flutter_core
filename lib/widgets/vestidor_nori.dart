@@ -239,8 +239,10 @@ class _VestidorNoriState extends State<VestidorNori> {
     );
   }
 
-  /// Una opción: «Nada» o una prenda. La puesta lleva el filo encendido y no
-  /// hace nada al tocarla.
+  /// Una opción: «Nada» o una prenda. La puesta lleva un borde propio (2 en
+  /// `primaryTrazo`, el mismo en las tres identidades: con un `filo`
+  /// explícito, `SuperficieIdentidad` no mira el neón) y no hace nada al
+  /// tocarla.
   Widget _opcion(
     BuildContext context, {
     required Key clave,
@@ -259,7 +261,6 @@ class _VestidorNoriState extends State<VestidorNori> {
       child: SuperficieIdentidad(
         relleno: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         filo: puesta ? BorderSide(color: t.primaryTrazo, width: 2) : null,
-        filoNeon: puesta ? FiloNeon.encendido : FiloNeon.fijo,
         onTap: puesta || !activa ? null : alTocar,
         child: Column(
           mainAxisSize: MainAxisSize.min,

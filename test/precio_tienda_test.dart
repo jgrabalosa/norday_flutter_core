@@ -35,6 +35,24 @@ void main() {
     );
   });
 
+  test('si se solapan, manda la de inicio más reciente, como el backend', () {
+    final solapadas = [
+      {'desde': '2026-12-01', 'hasta': '2027-01-06', 'precio': 200},
+      {'desde': '2026-12-24', 'hasta': '2026-12-26', 'precio': 0},
+    ];
+    final navidad = precioEnTienda(
+      producto(ofertas: solapadas),
+      DateTime(2026, 12, 25),
+    )!;
+    expect(navidad.precio, 0);
+    expect(navidad.hasta, DateTime(2026, 12, 26));
+    final antes = precioEnTienda(
+      producto(ofertas: solapadas),
+      DateTime(2026, 12, 20),
+    )!;
+    expect(antes.precio, 200);
+  });
+
   test('sin ofertas, o con la lista vacía, el precio de siempre', () {
     final sin = precioEnTienda(producto(), DateTime(2026, 12, 10))!;
     expect(sin.precio, 300);

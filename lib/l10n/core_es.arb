@@ -307,7 +307,7 @@
   "@prodDescPrendaBufanda": {
     "description": "Descripción de la prenda PRENDA_BUFANDA"
   },
-  "prodDescPrendaGorroNoel": "Con borla. Tapa el brote, solo por unos días.",
+  "prodDescPrendaGorroNoel": "Con borla. Tapa el brote.",
   "@prodDescPrendaGorroNoel": {
     "description": "Descripción de la prenda PRENDA_GORRO_NOEL"
   },

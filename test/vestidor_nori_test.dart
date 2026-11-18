@@ -202,6 +202,20 @@ void main() {
     expect(prendasEquipadasNotifier.value, {'Cabeza': 'PRENDA_GORRO_LANA'});
   });
 
+  testWidgets('si falla «Nada», sigue puesta y se avisa', (tester) async {
+    aplicarPrendasEquipadas(const {'Cabeza': 'PRENDA_GORRO_LANA'});
+    fallar = true;
+    await montar(tester, inventario: inventarioConPrendas);
+
+    await tester.tap(find.byKey(const ValueKey('vestidor_Cabeza_nada')));
+    await tester.pump();
+    await tester.pump();
+    expect(llamadas, ['desequipar 10']);
+    expect(prendasEquipadasNotifier.value, {'Cabeza': 'PRENDA_GORRO_LANA'});
+    expect(puesta(tester, 'vestidor_PRENDA_GORRO_LANA'), isTrue);
+    expect(find.byType(SnackBar), findsOneWidget);
+  });
+
   testWidgets('lo puesto cambia desde fuera: el vestidor lo sigue', (
     tester,
   ) async {

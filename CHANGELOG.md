@@ -16,7 +16,8 @@ está en `git log`.
     ahora avisa: «Se verá cuando Nori sea cría».
   - La tienda gana la sección «Nori»: las prendas a la venta hoy, por
     colección, con una Nori pequeña que la lleva puesta, el precio de la
-    oferta vigente («Gratis», «Hasta el 6 ene»), «Tuyo» y «Probar» (Nori en
+    oferta de hoy («Gratis», «Hasta el 6 ene»; si se solapan, la de inicio
+    más reciente, como el backend), «Tuyo» y «Probar» (Nori en
     grande con la prenda, sin llamar al backend). Sin `ofertas`, el precio de
     siempre; con todas en otros días, no sale (`precioEnTienda`,
     `models/precio_tienda.dart`).
@@ -24,6 +25,8 @@ está en `git log`.
     dice «No se ha podido comprar. Hemos puesto la tienda al día.»
     (`tiendaCompraRechazada`) y recarga la tienda.
   - Colección ya no enseña las prendas.
+  - La descripción del gorro de Papá Noel ya no dice «solo por unos días»:
+    se regala toda la Navidad y es tuyo para siempre (Quim, 18-nov).
   - `TiendaScreen` gana seams de test (`obtenerSaldo`, `obtenerCatalogo`,
     `obtenerInventario`, `comprar`, `ahora`), y `equiparTema`,
     `equiparAvatar` y `desequiparAvatar` pasan por los de `Equipamiento`

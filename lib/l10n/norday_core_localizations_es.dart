@@ -569,8 +569,7 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get prodDescPrendaBufanda => 'Calentita, a rayas y con flecos.';
 
   @override
-  String get prodDescPrendaGorroNoel =>
-      'Con borla. Tapa el brote, solo por unos días.';
+  String get prodDescPrendaGorroNoel => 'Con borla. Tapa el brote.';
 
   @override
   String get prodDescPrendaTrajeNoel =>

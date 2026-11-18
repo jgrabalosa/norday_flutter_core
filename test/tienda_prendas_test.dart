@@ -384,6 +384,22 @@ void main() {
       );
       expect(find.text('Fuera de temporada'), findsNothing);
       expect(backend, ['comprar 1', 'saldo', 'catalogo', 'inventario']);
+
+      // Y nada más: ningún aviso genérico en cola detrás de este. Se miran
+      // todos los avisos que salen en los siguientes 15 s.
+      final vistos = <String?>{};
+      for (var i = 0; i < 15; i++) {
+        vistos.addAll(
+          find
+              .byType(SnackBar)
+              .evaluate()
+              .map((e) => ((e.widget as SnackBar).content as Text).data),
+        );
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(vistos, {
+        'No se ha podido comprar. Hemos puesto la tienda al día.',
+      });
     });
 
     testWidgets('otro 4xx sigue siendo el error de la tienda, sin recargar', (
@@ -419,6 +435,29 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(backend, contains('comprar 21'));
+    });
+
+    testWidgets('un avatar que ya es tuyo se equipa como antes', (
+      tester,
+    ) async {
+      catalogo = [
+        {
+          'productoId': 30,
+          'codigo': 'AVATAR_ZORRO',
+          'nombre': 'Zorro',
+          'descripcion': '',
+          'tipo': 'EQUIPABLE',
+          'categoria': 'Avatar',
+          'precio': 500,
+        },
+      ];
+      inventario = [_inv(30)];
+      await montar(tester);
+      await tester.tap(find.text('Equipar'));
+      await tester.pump();
+      await tester.pump();
+      expect(backend, contains('equipar 30'));
+      expect(prendasEquipadasNotifier.value, isEmpty);
     });
 
     testWidgets('un tema que ya es tuyo se equipa como antes', (tester) async {
