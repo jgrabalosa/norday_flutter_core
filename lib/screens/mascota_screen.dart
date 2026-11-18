@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/mensajes_error.dart';
 import '../l10n/mensajes_mascota.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../models/manifiesto_arte.dart';
 import '../services/api_service_core.dart';
+import '../services/arte_prendas_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/mascota_assets.dart';
@@ -94,8 +98,23 @@ class _MascotaScreenState extends State<MascotaScreen> {
     if (!anterior.activa && widget.activa) _cargarDatos();
   }
 
-  Future<void> _cargarDatos() =>
-      Future.wait([_cargarMascota(), _cargarInventario()]);
+  /// El manifiesto del arte (la nieve de las fiestas). Hasta que llega, el
+  /// vacío: sin nieve.
+  ManifiestoArte _manifiesto = ManifiestoArte.vacio;
+
+  /// El manifiesto se pide aparte, sin esperarlo: puede tardar hasta 15 s y
+  /// `_cargarDatos` (y «tirar para recargar») no puede esperar por él.
+  /// `cargarManifiesto` no lanza: sin red, el último bueno o el vacío.
+  Future<void> _cargarDatos() {
+    unawaited(_cargarManifiesto());
+    return Future.wait([_cargarMascota(), _cargarInventario()]);
+  }
+
+  Future<void> _cargarManifiesto() async {
+    final manifiesto = await ArtePrendasService().cargarManifiesto();
+    if (!mounted) return;
+    setState(() => _manifiesto = manifiesto);
+  }
 
   Future<void> _cargarMascota() async {
     try {
@@ -398,7 +417,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
           HaloIdentidad(tamano: caja),
           Positioned(
             bottom: lado * 0.02,
-            child: TerrarioIdentidad(ancho: lado * 0.68),
+            // La nieve se decide con la fecha del móvil en cada build: el
+            // 7-ene se va sola al repintar, sin temporizador de medianoche.
+            child: TerrarioIdentidad(
+              ancho: lado * 0.68,
+              nieve: _manifiesto.nieveActiva(DateTime.now()),
+            ),
           ),
           AnilloIdentidad(tamano: caja, pct: pct),
           AnimatedSwitcher(

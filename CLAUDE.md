@@ -56,7 +56,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `widgets/` — 38 ficheros:
   - escena de mascota (8): `MascotaAnimadaViva`, `MiniMascota`,
     `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
-    pinte un PNG de Nori pasa por ella), halo, terrario, `AnilloIdentidad` (el aro de XP, que también usa el resumen del
+    pinte un PNG de Nori pasa por ella), halo, terrario (con `nieve`: manto
+    quieto y copos, que la pantalla de Nori pone entre las fechas del
+    manifiesto del arte), `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
   - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;

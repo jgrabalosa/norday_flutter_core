@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'lapiz.dart';
 
 /// El suelo que pisa la mascota. Sin él la ilustración flota en el vacío y la
 /// pantalla se lee como un icono grande; con él hay un sitio donde está.
@@ -12,10 +15,15 @@ import '../theme/identidades_paleta.dart';
 /// día hace falta más fidelidad se valorará un SVG, pero para distinguir las
 /// cuatro identidades esto sobra.
 ///
-/// Es estático a propósito — no anima nada. La mascota ya se mueve encima; un
-/// suelo que también respirase convertiría el conjunto en gelatina. Por eso
-/// este es el único de los cinco widgets nuevos que no mira `disableAnimations`:
-/// no tiene ninguna animación que apagar.
+/// El suelo es estático a propósito — no anima nada. La mascota ya se mueve
+/// encima; un suelo que también respirase convertiría el conjunto en gelatina.
+///
+/// Con [nieve] (las fiestas, Nori vestida N-11) lleva nieve quieta sobre el
+/// suelo, con el estilo de cada forma (en Dulce, a lápiz), y copos que caen
+/// por encima de la escena. Los copos son un solo pintor con un solo
+/// controlador, y se paran con «reducir animaciones». Sin [nieve], el
+/// terrario es exactamente el de siempre: ni la capa ni el controlador están
+/// en el árbol. Quién decide si hay nieve no es este widget: recibe el `bool`.
 ///
 /// Una sola versión por identidad: no varía con la fase de la mascota. Cruzar
 /// cuatro identidades por tres fases es otra vuelta, si compensa.
@@ -23,21 +31,339 @@ class TerrarioIdentidad extends StatelessWidget {
   /// Ancho disponible. El alto sale de aquí, con la proporción de cada forma.
   final double ancho;
 
-  const TerrarioIdentidad({super.key, required this.ancho});
+  /// Si lleva nieve: quieta sobre el suelo y copos cayendo.
+  final bool nieve;
+
+  const TerrarioIdentidad({super.key, required this.ancho, this.nieve = false});
 
   @override
   Widget build(BuildContext context) {
     final id = identidad(context);
     final t = tokens(context);
+    final alto = ancho * 0.24;
 
-    return SizedBox(
+    final suelo = SizedBox(
       width: ancho,
-      height: ancho * 0.24,
+      height: alto,
       child: CustomPaint(
         painter: _TerrarioPainter(forma: id.forma, tokens: t),
       ),
     );
+    if (!nieve) return suelo;
+
+    return SizedBox(
+      width: ancho,
+      height: alto,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          suelo,
+          Positioned.fill(
+            child: CustomPaint(
+              key: const ValueKey('terrario_nieve_quieta'),
+              painter: _NieveQuietaPainter(forma: id.forma, tokens: t),
+            ),
+          ),
+          // Los copos caen por encima de la escena: una caja tan ancha como
+          // el suelo y bastante más alta, que no recorta ni recibe toques.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: alto * 0.4,
+            height: ancho * 1.25,
+            child: IgnorePointer(
+              child: CoposCayendo(forma: id.forma, tokens: t),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+/// Los copos que caen sobre el terrario nevado. Un solo controlador y un solo
+/// pintor para todos (cuestan poco en móviles modestos). Con «reducir
+/// animaciones» se quedan quietos y no hay controlador.
+@visibleForTesting
+class CoposCayendo extends StatefulWidget {
+  final FormaIdentidad forma;
+  final TokensContextuales tokens;
+
+  const CoposCayendo({super.key, required this.forma, required this.tokens});
+
+  @override
+  State<CoposCayendo> createState() => _CoposCayendoState();
+}
+
+class _CoposCayendoState extends State<CoposCayendo>
+    with TickerProviderStateMixin {
+  AnimationController? _caida;
+
+  /// Para los tests: si hay un controlador moviendo los copos.
+  @visibleForTesting
+  bool get enMovimiento => _caida?.isAnimating ?? false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final quietos = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (quietos) {
+      _caida?.dispose();
+      _caida = null;
+    } else {
+      _caida ??= AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 9),
+      )..repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _caida?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _CoposPainter(
+        forma: widget.forma,
+        tokens: widget.tokens,
+        caida: _caida,
+      ),
+    );
+  }
+}
+
+/// Un copo: dónde empieza (de 0 a 1 en ancho y en alto), cuánto mide (0 a 1)
+/// y lo que se balancea. Fijos: la misma semilla da la misma nevada.
+class _Copo {
+  final double x;
+  final double y;
+  final double tamano;
+  final double vaiven;
+  final double velocidad;
+
+  const _Copo(this.x, this.y, this.tamano, this.vaiven, this.velocidad);
+}
+
+final List<_Copo> _copos = () {
+  final azar = Random(1201);
+  return List.generate(
+    22,
+    (_) => _Copo(
+      azar.nextDouble(),
+      azar.nextDouble(),
+      azar.nextDouble(),
+      azar.nextDouble() * 2 * pi,
+      0.7 + azar.nextDouble() * 0.6,
+    ),
+  );
+}();
+
+class _CoposPainter extends CustomPainter {
+  final FormaIdentidad forma;
+  final TokensContextuales tokens;
+  final Animation<double>? caida;
+
+  _CoposPainter({required this.forma, required this.tokens, this.caida})
+    : super(repaint: caida);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Quietos: un momento fijo de la caída, no todos arriba.
+    final t = caida?.value ?? 0.35;
+    for (final copo in _copos) {
+      final avance = (copo.y + t * copo.velocidad) % 1.0;
+      final y = avance * size.height;
+      final x =
+          copo.x * size.width +
+          sin(t * 2 * pi * copo.velocidad + copo.vaiven) * size.width * 0.02;
+      // Se desvanecen al llegar al suelo y al nacer: sin cortes bruscos.
+      final borde = min(avance, 1 - avance);
+      final alfa = (borde * 8).clamp(0.0, 1.0);
+      final centro = Offset(x, y);
+      switch (forma) {
+        case FormaIdentidad.glass:
+          canvas.drawCircle(
+            centro,
+            1.2 + copo.tamano * 1.8,
+            Paint()..color = Colors.white.withValues(alpha: 0.75 * alfa),
+          );
+        case FormaIdentidad.chamfer:
+          // Neotokyo+: copos de píxel, cuadrados, con el brillo del filo.
+          final lado = 1.6 + copo.tamano * 2.0;
+          canvas.drawRect(
+            Rect.fromCenter(center: centro, width: lado, height: lado),
+            Paint()
+              ..color = Color.lerp(
+                Colors.white,
+                tokens.primary,
+                0.25,
+              )!.withValues(alpha: 0.8 * alfa),
+          );
+        case FormaIdentidad.pill:
+          // Dulce: estrellitas a lápiz, del color de la tinta (el papel es
+          // claro: un copo blanco no se vería).
+          final r = 1.6 + copo.tamano * 2.2;
+          final pincel = Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 0.9
+            ..strokeCap = StrokeCap.round
+            ..color = tokens.primary.withValues(alpha: 0.55 * alfa);
+          for (var i = 0; i < 3; i++) {
+            final a = i * pi / 3 + copo.vaiven;
+            final d = Offset(cos(a) * r, sin(a) * r);
+            canvas.drawLine(centro - d, centro + d, pincel);
+          }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CoposPainter old) =>
+      old.forma != forma || old.tokens != tokens || old.caida != caida;
+}
+
+/// La nieve quieta sobre el suelo: un manto en la parte de arriba de cada
+/// forma, que deja ver el suelo por debajo.
+class _NieveQuietaPainter extends CustomPainter {
+  final FormaIdentidad forma;
+  final TokensContextuales tokens;
+
+  _NieveQuietaPainter({required this.forma, required this.tokens});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    switch (forma) {
+      case FormaIdentidad.glass:
+        _mantoCristal(canvas, size);
+      case FormaIdentidad.chamfer:
+        _mantoRejilla(canvas, size);
+      case FormaIdentidad.pill:
+        _mantoLapiz(canvas, size);
+    }
+  }
+
+  /// El borde de abajo del manto, ondulado: montoncitos de nieve.
+  Path _manto(
+    Size size, {
+    required double izquierda,
+    required double derecha,
+    required double arriba,
+    required double grosor,
+    int montones = 7,
+  }) {
+    final ancho = derecha - izquierda;
+    final path = Path()..moveTo(izquierda, arriba + grosor * 0.4);
+    path.quadraticBezierTo(
+      izquierda + ancho * 0.08,
+      arriba - grosor * 0.25,
+      izquierda + ancho * 0.18,
+      arriba,
+    );
+    path.lineTo(derecha - ancho * 0.18, arriba);
+    path.quadraticBezierTo(
+      derecha - ancho * 0.08,
+      arriba - grosor * 0.25,
+      derecha,
+      arriba + grosor * 0.4,
+    );
+    final paso = ancho / montones;
+    for (var i = montones; i > 0; i--) {
+      final x0 = izquierda + paso * i;
+      final x1 = izquierda + paso * (i - 1);
+      final caida = grosor * (i.isEven ? 1.0 : 0.7);
+      path.quadraticBezierTo(
+        (x0 + x1) / 2,
+        arriba + caida * 1.2,
+        x1,
+        arriba + grosor * 0.5,
+      );
+    }
+    path.close();
+    return path;
+  }
+
+  void _mantoCristal(Canvas canvas, Size size) {
+    final manto = _manto(
+      size,
+      izquierda: size.width * 0.12,
+      derecha: size.width * 0.88,
+      arriba: size.height * 0.18,
+      grosor: size.height * 0.22,
+    );
+    canvas.drawPath(
+      manto,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withValues(alpha: 0.92),
+            Colors.white.withValues(alpha: 0.55),
+          ],
+        ).createShader(Offset.zero & size),
+    );
+  }
+
+  void _mantoRejilla(Canvas canvas, Size size) {
+    final manto = _manto(
+      size,
+      izquierda: size.width * 0.20,
+      derecha: size.width * 0.80,
+      arriba: size.height * 0.16,
+      grosor: size.height * 0.18,
+      montones: 6,
+    );
+    canvas.drawPath(
+      manto,
+      Paint()..color = Colors.white.withValues(alpha: 0.82),
+    );
+    // El filo de la identidad también en la nieve.
+    canvas.drawPath(
+      manto,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = tokens.primary.withValues(alpha: 0.6),
+    );
+  }
+
+  void _mantoLapiz(Canvas canvas, Size size) {
+    final manto = _manto(
+      size,
+      izquierda: size.width * 0.12,
+      derecha: size.width * 0.88,
+      arriba: size.height * 0.24,
+      grosor: size.height * 0.2,
+    );
+    final semilla = semillaDe(size);
+    canvas.drawPath(
+      manto,
+      Paint()..color = Colors.white.withValues(alpha: 0.9),
+    );
+    pintarSombreado(
+      canvas,
+      manto,
+      color: tokens.primary,
+      alfa: 0.18,
+      separacion: 3.2,
+      semilla: semilla,
+    );
+    pintarTrazoLapiz(
+      canvas,
+      caminoTembloroso(manto, semilla: semilla),
+      color: tokens.primary,
+      grosor: 1.1,
+      semilla: semilla + 3,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_NieveQuietaPainter old) =>
+      old.forma != forma || old.tokens != tokens;
 }
 
 class _TerrarioPainter extends CustomPainter {
