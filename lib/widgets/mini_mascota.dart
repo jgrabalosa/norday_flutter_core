@@ -168,6 +168,7 @@ class _MiniMascotaState extends State<MiniMascota> {
               fase: _fase,
               estado: _estado,
               tamano: tamano * _proporcionIlustracion,
+              vestida: true,
             ),
           ],
         ),

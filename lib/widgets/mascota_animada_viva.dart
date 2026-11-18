@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mascota_assets.dart';
 import 'imagen_mascota.dart';
+import 'nori_vestida.dart';
 
 /// Motor: da vida a la ilustración de la mascota sin assets nuevos, sólo con
 /// animación nativa. Tres capas continuas superpuestas —respiración (escala),
@@ -34,6 +35,11 @@ class MascotaAnimadaViva extends StatefulWidget {
   /// háptica o sonido. El widget no decide nada de eso.
   final VoidCallback? onToque;
 
+  /// Si se pinta con lo que lleva puesto (`NoriVestida`, Nori vestida N-9),
+  /// dentro de la misma animación. En falso, el dibujo de siempre: el splash,
+  /// el login y el avatar no se visten (decisión 16).
+  final bool vestida;
+
   const MascotaAnimadaViva({
     super.key,
     this.fase,
@@ -41,6 +47,7 @@ class MascotaAnimadaViva extends StatefulWidget {
     required this.tamano,
     this.permiteToque = false,
     this.onToque,
+    this.vestida = false,
   });
 
   @override
@@ -246,11 +253,21 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
         );
       },
       // Descodificada a su tamaño, con margen para el pico de la animación.
-      child: ImagenMascota(
-        asset: imagen,
-        tamano: widget.tamano,
-        margen: _margenAnimacion,
-      ),
+      // Va en el `child`: se construye una vez y la animación solo la
+      // transforma. Vestida, igual (NoriVestida busca sus ficheros en su
+      // estado, no en cada frame).
+      child: widget.vestida
+          ? NoriVestida(
+              fase: widget.fase,
+              estado: widget.estado,
+              tamano: widget.tamano,
+              margen: _margenAnimacion,
+            )
+          : ImagenMascota(
+              asset: imagen,
+              tamano: widget.tamano,
+              margen: _margenAnimacion,
+            ),
     );
 
     if (!widget.permiteToque) return cuerpo;

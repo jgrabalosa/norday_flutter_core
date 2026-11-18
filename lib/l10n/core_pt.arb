@@ -255,5 +255,6 @@
   "sesionAvisoGraciaCuerpo": "Se não voltares em {segundos} s, perdes a sessão.",
   "sesionAvisoFinTitulo": "Sessão concluída",
   "sesionAvisoFinCuerpo": "Chegaste ao fim. Abre a app para ver o resultado.",
-  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Tempo cumprido} =1{Falta 1 minuto} other{Faltam {minutos} minutos}}"
+  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Tempo cumprido} =1{Falta 1 minuto} other{Faltam {minutos} minutos}}",
+  "noriLleva": "Veste: {prendas}"
 }

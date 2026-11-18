@@ -53,4 +53,31 @@ flutter:
     - assets/animations/
     - assets/sounds/
     - assets/mascota/
+    # Nori canónica (Nori vestida, N-9): solo el cuerpo y el brote de las 12,
+    # uno a uno. Las máscaras de la pantalla y geometria.json son de las
+    # herramientas y no entran en las apps.
+    - assets/mascota/canonica/Nori_huevo_sonriente_cuerpo.png
+    - assets/mascota/canonica/Nori_huevo_sonriente_brote.png
+    - assets/mascota/canonica/Nori_huevo_triste_cuerpo.png
+    - assets/mascota/canonica/Nori_huevo_triste_brote.png
+    - assets/mascota/canonica/Nori_huevo_dormido_cuerpo.png
+    - assets/mascota/canonica/Nori_huevo_dormido_brote.png
+    - assets/mascota/canonica/Nori_huevo_exultante_cuerpo.png
+    - assets/mascota/canonica/Nori_huevo_exultante_brote.png
+    - assets/mascota/canonica/Nori_cria_sonriente_cuerpo.png
+    - assets/mascota/canonica/Nori_cria_sonriente_brote.png
+    - assets/mascota/canonica/Nori_cria_triste_cuerpo.png
+    - assets/mascota/canonica/Nori_cria_triste_brote.png
+    - assets/mascota/canonica/Nori_cria_dormido_cuerpo.png
+    - assets/mascota/canonica/Nori_cria_dormido_brote.png
+    - assets/mascota/canonica/Nori_cria_exultante_cuerpo.png
+    - assets/mascota/canonica/Nori_cria_exultante_brote.png
+    - assets/mascota/canonica/Nori_adulto_sonriente_cuerpo.png
+    - assets/mascota/canonica/Nori_adulto_sonriente_brote.png
+    - assets/mascota/canonica/Nori_adulto_triste_cuerpo.png
+    - assets/mascota/canonica/Nori_adulto_triste_brote.png
+    - assets/mascota/canonica/Nori_adulto_dormido_cuerpo.png
+    - assets/mascota/canonica/Nori_adulto_dormido_brote.png
+    - assets/mascota/canonica/Nori_adulto_exultante_cuerpo.png
+    - assets/mascota/canonica/Nori_adulto_exultante_brote.png
     - assets/avatares/

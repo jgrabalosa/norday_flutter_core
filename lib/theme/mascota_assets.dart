@@ -24,14 +24,42 @@ const Set<String> _fasesConocidas = {'huevo', 'cria', 'adulto'};
 const String _fasePorDefecto = 'huevo';
 const String _estadoPorDefecto = 'triste';
 
+/// La fase (en minúscula) y el sufijo visual (`feliz → sonriente`,
+/// `dormida → dormido`…) de un par del backend, con la misma caída que
+/// [assetMascota]: una fase o un estado desconocidos caen al valor por
+/// defecto. Las claves del manifiesto del arte (`<fase>_<estado>`) usan este
+/// sufijo visual (`cria_dormido`), no el del backend.
+({String fase, String sufijo}) faseYSufijoMascota({
+  String? fase,
+  String? estado,
+}) {
+  final f = fase?.toLowerCase();
+  return (
+    fase: _fasesConocidas.contains(f) ? f! : _fasePorDefecto,
+    sufijo: _sufijoDeEstado[estado] ?? _sufijoDeEstado[_estadoPorDefecto]!,
+  );
+}
+
 /// Ruta del PNG para una fase y un estado. Siempre devuelve un asset que
 /// existe: una fase o un estado desconocidos caen al valor por defecto, así
 /// que quien la use no necesita respaldo de emoji ni `errorBuilder`.
 String assetMascota({String? fase, String? estado}) {
-  final f = fase?.toLowerCase();
-  final faseValida = _fasesConocidas.contains(f) ? f! : _fasePorDefecto;
-  final sufijo = _sufijoDeEstado[estado] ?? _sufijoDeEstado[_estadoPorDefecto]!;
-  return 'assets/mascota/Nori_${faseValida}_$sufijo.png';
+  final f = faseYSufijoMascota(fase: fase, estado: estado);
+  return 'assets/mascota/Nori_${f.fase}_${f.sufijo}.png';
+}
+
+/// El cuerpo de Nori sin el brote, en el lienzo de 1024 (Nori canónica, N-1):
+/// la capa de abajo de `NoriVestida`.
+String assetCuerpoMascota({String? fase, String? estado}) {
+  final f = faseYSufijoMascota(fase: fase, estado: estado);
+  return 'assets/mascota/canonica/Nori_${f.fase}_${f.sufijo}_cuerpo.png';
+}
+
+/// El brote de Nori solo, en el mismo lienzo: la capa de arriba de
+/// `NoriVestida`, que una prenda puede subir u ocultar.
+String assetBroteMascota({String? fase, String? estado}) {
+  final f = faseYSufijoMascota(fase: fase, estado: estado);
+  return 'assets/mascota/canonica/Nori_${f.fase}_${f.sufijo}_brote.png';
 }
 
 /// El ánimo que se pinta, sacado de la respuesta de la mascota. Lo manda

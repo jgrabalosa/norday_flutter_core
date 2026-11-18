@@ -833,4 +833,9 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String noriLleva(String prendas) {
+    return 'Veste: $prendas';
+  }
 }

@@ -1596,6 +1596,12 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'{minutos, plural, =0{Tiempo cumplido} =1{Queda 1 minuto} other{Quedan {minutos} minutos}}'**
   String aroCuentaAtrasEtiqueta(int minutos);
+
+  /// Lo que oye el lector de pantalla cuando Nori lleva prendas: sus nombres, separados por comas.
+  ///
+  /// In es, this message translates to:
+  /// **'Lleva: {prendas}'**
+  String noriLleva(String prendas);
 }
 
 class _NordayCoreLocalizationsDelegate

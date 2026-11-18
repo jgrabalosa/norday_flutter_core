@@ -7,6 +7,14 @@ está en `git log`.
 
 ### Nuevo
 
+- **Nori vestida** (N-9, T-027): `NoriVestida` pinta a Nori con lo que lleva
+  puesto, por capas sobre la canónica (cuerpo, prenda de cuerpo, de cabeza y
+  brote, que una prenda sube u oculta), dentro de la animación. Sale vestida
+  en la pantalla de Nori (también las miniaturas de las fases) y en la mini
+  Nori de Hoy; sin prendas, exactamente como antes. El lector oye «Lleva: …».
+  El manifiesto del arte pasa a ser uno para toda la app
+  (`manifiestoArteNotifier`), para la nieve y las prendas. Los 24 cuerpos y
+  brotes de la canónica entran en el `pubspec.yaml` (unos 3,5 MB más).
 - **El terrario nevado** (Nori vestida, N-11, T-026): `TerrarioIdentidad`
   gana `nieve` (por defecto `false`): un manto quieto sobre el suelo en las
   tres formas (a lápiz en Dulce) y copos que caen, que se paran con «reducir

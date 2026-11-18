@@ -499,5 +499,14 @@
         "example": "25"
       }
     }
+  },
+  "noriLleva": "Lleva: {prendas}",
+  "@noriLleva": {
+    "description": "Lo que oye el lector de pantalla cuando Nori lleva prendas: sus nombres, separados por comas.",
+    "placeholders": {
+      "prendas": {
+        "type": "String"
+      }
+    }
   }
 }
