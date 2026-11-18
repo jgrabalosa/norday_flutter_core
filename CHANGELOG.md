@@ -48,8 +48,8 @@ está en `git log`.
 - **Nori canónica** (Nori vestida, N-1 y N-2): `assets/mascota/canonica/`,
   los 12 dibujos de Nori separados en cuerpo y brote, con su geometría
   (`docs/funcionamiento/nori-canonica.md`), y `tool/nori_canonica/`, el
-  script que los separa y la hoja de revisión del arte. No se declaran aún
-  en el `pubspec.yaml`: las apps no cambian.
+  script que los separa y la hoja de revisión del arte. Las apps las usan
+  desde N-9 (ver «Nori vestida»).
 - **`ImagenMascota`** (`widgets/imagen_mascota.dart`) y
   `ladoOriginalMascota`: una ilustración de Nori descodificada a
   `tamaño × densidad × margen` píxeles, nunca más de 1024 (Nori vestida,
@@ -57,6 +57,17 @@ está en `git log`.
 - **La pantalla negra en el contrato:** `Nori_<fase>_<estado>_pantalla.png`
   y su caja (`pantalla`) en `geometria.json`. Ninguna prenda entra en ella;
   su borde puede tocar el canto (regla del arte del 16-nov).
+- **El arte de las prendas se descarga** (Nori vestida, N-8, T-021):
+  `ArtePrendasService` (`services/arte_prendas_service.dart`) y
+  `ManifiestoArte`/`PrendaArte` (`models/manifiesto_arte.dart`). El
+  manifiesto (`/arte/manifiesto-v1.json`) y las imágenes WebP se bajan del
+  servidor y se guardan en disco; sin red, el último manifiesto bueno, y si
+  no hay ninguno, Nori sin prendas. Nada lanza. Ver
+  `docs/funcionamiento/arte-prendas.md`.
+- **Textos de Nori vestida** (N-12, T-020), en es, en y pt: las cuatro
+  prendas y sus descripciones, las colecciones Invierno y Navidad
+  (`CatalogosCore.coleccion`), los sitios y los textos del vestidor y de la
+  tienda.
 - **`tool/nori_canonica/publicar_arte.py`** (Nori vestida, N-13): deja la
   carpeta `arte/` lista para el servidor: cada PNG de una prenda revisada en
   WebP (alfa sin pérdida, comprobado al descodificar; color a calidad 90),
@@ -109,6 +120,26 @@ está en `git log`.
   sin bloquear la salida; deja de escuchar las renovaciones. La sesión
   caducada y la cuenta eliminada no llaman al backend. Necesita el backend
   con T-004a.
+
+### Arreglado
+
+- **`BurbujaFlotante` ya no lanza en áreas pequeñas** (T-003a): el recorrido
+  de cada eje se protege antes de usarlo como límite de `clamp`, divisor o
+  tamaño. Eran los 11 cierres de Crashlytics al arrastrar a Nori en
+  pantallas bajas.
+
+### Compatibilidad
+
+- **Dependencia nueva: `path_provider: ^2.1.5`** (la caché del arte, T-021).
+  Las apps la reciben sola con `flutter pub upgrade norday_flutter_core`.
+- **Los 24 cuerpos y brotes de la canónica entran en el `pubspec.yaml`**:
+  unos 3,5 MB más en cada app.
+- Ninguna firma pública existente cambia. `MascotaAnimadaViva` gana
+  `vestida` (por defecto `false`) y `TerrarioIdentidad`, `nieve` (por
+  defecto `false`).
+- Necesita el backend con V28 a V30 (ofertas, una prenda por sitio y la
+  versión mínima del core) para que salgan las prendas; con uno anterior, la
+  tienda y Colección se ven como antes.
 
 ## 0.55.0 — 15-nov-2026
 
