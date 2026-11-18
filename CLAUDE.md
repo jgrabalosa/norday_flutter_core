@@ -31,7 +31,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   notificaciones y el registro del aviso en el backend: el login solo
   registra si el permiso ya está dado; la app lo pide en contexto. El
   registro es idempotente por usuario y token, escucha las renovaciones del
-  token y la app lo llama al arrancar con sesión y al volver a primer plano),
+  token y la app lo llama al arrancar con sesión y al volver a primer plano;
+  al cerrar sesión, `logout()` quita el token de esta app en el backend, con
+  tope de 3 s y sin bloquear la salida),
   `VersionMinimaService` (la versión mínima por app, `GET
   /api/version/{appId}`: la app pregunta en su splash con
   `hayQueActualizar()` y, si toca, `bloquear()` abre
