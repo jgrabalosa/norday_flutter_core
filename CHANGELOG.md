@@ -57,6 +57,12 @@ está en `git log`.
 - **La pantalla negra en el contrato:** `Nori_<fase>_<estado>_pantalla.png`
   y su caja (`pantalla`) en `geometria.json`. Ninguna prenda entra en ella;
   su borde puede tocar el canto (regla del arte del 16-nov).
+- **`tool/nori_canonica/publicar_arte.py`** (Nori vestida, N-13): deja la
+  carpeta `arte/` lista para el servidor: cada PNG de una prenda revisada en
+  WebP (alfa sin pérdida, comprobado al descodificar; color a calidad 90),
+  con la huella de sus píxeles en el nombre, y el manifiesto
+  `manifiesto-v1.json` con la prenda añadida (sin tocar las demás) y la
+  nieve, si se pide. Ver `docs/funcionamiento/arte-prendas.md`.
 - **`tool/nori_canonica/sacar_prenda.py`** (Nori vestida, M-8): saca la
   prenda de una imagen de IA, la alinea con el cuerpo canónico y deja el PNG
   final con un informe, una imagen de control y su `prenda.json`.

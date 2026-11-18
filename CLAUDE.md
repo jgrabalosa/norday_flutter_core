@@ -117,7 +117,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `tool/nori_canonica/` — scripts de Python: `separar_brote.py` (genera esa
   carpeta), `hoja_revision.py` (la hoja con la que se revisa el arte de Nori
   y de sus prendas, N-2) y `sacar_prenda.py` (saca la prenda de una imagen de
-  IA y la deja en el lienzo de Nori, M-8), con sus tests
+  IA y la deja en el lienzo de Nori, M-8) y `publicar_arte.py` (pasa las
+  prendas revisadas a WebP con el alfa sin pérdida y la huella de los
+  píxeles en el nombre, y escribe el manifiesto, N-13), con sus tests
   (`py -m unittest discover -s tool/nori_canonica -p "test_*.py"`).
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
