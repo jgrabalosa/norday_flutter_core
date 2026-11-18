@@ -87,6 +87,22 @@ class CatalogosCore {
     ),
   );
 
+  /// Nombre de una colección de temporada (`INVIERNO_2026`...). Misma caída
+  /// que [producto]: código desconocido o `null`, el nombre del backend.
+  static String coleccion(
+    BuildContext context,
+    String? codigo,
+    String nombreBackend,
+  ) => traducir(_colecciones(context), codigo, nombreBackend);
+
+  static Map<String, String> _colecciones(BuildContext context) {
+    final l = NordayCoreLocalizations.of(context)!;
+    return {
+      'INVIERNO_2026': l.coleccionInvierno,
+      'NAVIDAD_2026': l.coleccionNavidad,
+    };
+  }
+
   /// Busca primero en los logros del motor y luego en los que haya registrado
   /// la app. Si el código no está en ninguno de los dos, cae al nombre del
   /// backend.
@@ -186,6 +202,10 @@ class CatalogosCore {
       'AVATAR_PINGUINO': l.prodAvatarPinguino,
       'AVATAR_LEON': l.prodAvatarLeon,
       'COMIDA_BASICA': l.prodComidaBasica,
+      'PRENDA_GORRO_LANA': l.prodPrendaGorroLana,
+      'PRENDA_BUFANDA': l.prodPrendaBufanda,
+      'PRENDA_GORRO_NOEL': l.prodPrendaGorroNoel,
+      'PRENDA_TRAJE_NOEL': l.prodPrendaTrajeNoel,
     };
   }
 
@@ -207,6 +227,10 @@ class CatalogosCore {
       'AVATAR_PINGUINO': l.prodDescAvatarPinguino,
       'AVATAR_LEON': l.prodDescAvatarLeon,
       'COMIDA_BASICA': l.prodDescComidaBasica,
+      'PRENDA_GORRO_LANA': l.prodDescPrendaGorroLana,
+      'PRENDA_BUFANDA': l.prodDescPrendaBufanda,
+      'PRENDA_GORRO_NOEL': l.prodDescPrendaGorroNoel,
+      'PRENDA_TRAJE_NOEL': l.prodDescPrendaTrajeNoel,
     };
   }
 

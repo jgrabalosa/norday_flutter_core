@@ -283,6 +283,98 @@
   "prodDescAvatarPanda": "Avatar ilustrado de panda",
   "prodDescAvatarTortuga": "Avatar ilustrado de tortuga",
   "prodDescComidaBasica": "Alimenta a tu mascota y gana experiencia",
+  "prodPrendaGorroLana": "Gorro de lana",
+  "@prodPrendaGorroLana": {
+    "description": "Nombre de la prenda PRENDA_GORRO_LANA (Nori vestida)"
+  },
+  "prodPrendaBufanda": "Bufanda de rayas",
+  "@prodPrendaBufanda": {
+    "description": "Nombre de la prenda PRENDA_BUFANDA (Nori vestida)"
+  },
+  "prodPrendaGorroNoel": "Gorro de Papá Noel",
+  "@prodPrendaGorroNoel": {
+    "description": "Nombre de la prenda PRENDA_GORRO_NOEL (Nori vestida)"
+  },
+  "prodPrendaTrajeNoel": "Traje de Papá Noel",
+  "@prodPrendaTrajeNoel": {
+    "description": "Nombre de la prenda PRENDA_TRAJE_NOEL (Nori vestida)"
+  },
+  "prodDescPrendaGorroLana": "Para las mañanas frías. El brote sigue asomando.",
+  "@prodDescPrendaGorroLana": {
+    "description": "Descripción de la prenda PRENDA_GORRO_LANA"
+  },
+  "prodDescPrendaBufanda": "Calentita, a rayas y con flecos.",
+  "@prodDescPrendaBufanda": {
+    "description": "Descripción de la prenda PRENDA_BUFANDA"
+  },
+  "prodDescPrendaGorroNoel": "Con borla. Tapa el brote, solo por unos días.",
+  "@prodDescPrendaGorroNoel": {
+    "description": "Descripción de la prenda PRENDA_GORRO_NOEL"
+  },
+  "prodDescPrendaTrajeNoel": "Rojo, con cinturón y hebilla dorada. Se ve desde que Nori es cría.",
+  "@prodDescPrendaTrajeNoel": {
+    "description": "Descripción de la prenda PRENDA_TRAJE_NOEL"
+  },
+  "coleccionInvierno": "Invierno",
+  "@coleccionInvierno": {
+    "description": "Nombre de la colección INVIERNO_2026"
+  },
+  "coleccionNavidad": "Navidad",
+  "@coleccionNavidad": {
+    "description": "Nombre de la colección NAVIDAD_2026"
+  },
+  "mascotaSitioCabeza": "Cabeza",
+  "@mascotaSitioCabeza": {
+    "description": "Sitio de las prendas de Nori: la cabeza"
+  },
+  "mascotaSitioCuerpo": "Cuerpo",
+  "@mascotaSitioCuerpo": {
+    "description": "Sitio de las prendas de Nori: el cuerpo"
+  },
+  "vestidorTitulo": "Vestidor",
+  "@vestidorTitulo": {
+    "description": "Título del vestidor de Nori"
+  },
+  "vestidorNada": "Nada",
+  "@vestidorNada": {
+    "description": "Opción para quitar la prenda de un sitio"
+  },
+  "vestidorSeVeraCuando": "Se verá cuando Nori sea {fase}",
+  "@vestidorSeVeraCuando": {
+    "description": "Aviso de una prenda que aún no se ve en la fase actual de Nori",
+    "placeholders": {
+      "fase": {
+        "type": "String",
+        "description": "El nombre de la fase en minúsculas (mascotaFase…)"
+      }
+    }
+  },
+  "tiendaSeccionNori": "Nori",
+  "@tiendaSeccionNori": {
+    "description": "Sección de la tienda con las prendas de Nori"
+  },
+  "tiendaHastaEl": "Hasta el {fecha}",
+  "@tiendaHastaEl": {
+    "description": "Fin de una colección de temporada",
+    "placeholders": {
+      "fecha": {
+        "type": "String",
+        "description": "La fecha ya formateada por quien la pinta"
+      }
+    }
+  },
+  "tiendaGratis": "Gratis",
+  "@tiendaGratis": {
+    "description": "Etiqueta de una prenda sin coste en puntos"
+  },
+  "tiendaTuyo": "Tuyo",
+  "@tiendaTuyo": {
+    "description": "Etiqueta de un producto que el usuario ya tiene"
+  },
+  "tiendaProbar": "Probar",
+  "@tiendaProbar": {
+    "description": "Botón para ver una prenda puesta en Nori antes de comprarla"
+  },
   "logroCatInicio": "Inicio",
   "logroCatConstancia": "Constancia",
   "logroCatVolumen": "Volumen",

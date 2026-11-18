@@ -1087,6 +1087,126 @@ abstract class NordayCoreLocalizations {
   /// **'Alimenta a tu mascota y gana experiencia'**
   String get prodDescComidaBasica;
 
+  /// Nombre de la prenda PRENDA_GORRO_LANA (Nori vestida)
+  ///
+  /// In es, this message translates to:
+  /// **'Gorro de lana'**
+  String get prodPrendaGorroLana;
+
+  /// Nombre de la prenda PRENDA_BUFANDA (Nori vestida)
+  ///
+  /// In es, this message translates to:
+  /// **'Bufanda de rayas'**
+  String get prodPrendaBufanda;
+
+  /// Nombre de la prenda PRENDA_GORRO_NOEL (Nori vestida)
+  ///
+  /// In es, this message translates to:
+  /// **'Gorro de Papá Noel'**
+  String get prodPrendaGorroNoel;
+
+  /// Nombre de la prenda PRENDA_TRAJE_NOEL (Nori vestida)
+  ///
+  /// In es, this message translates to:
+  /// **'Traje de Papá Noel'**
+  String get prodPrendaTrajeNoel;
+
+  /// Descripción de la prenda PRENDA_GORRO_LANA
+  ///
+  /// In es, this message translates to:
+  /// **'Para las mañanas frías. El brote sigue asomando.'**
+  String get prodDescPrendaGorroLana;
+
+  /// Descripción de la prenda PRENDA_BUFANDA
+  ///
+  /// In es, this message translates to:
+  /// **'Calentita, a rayas y con flecos.'**
+  String get prodDescPrendaBufanda;
+
+  /// Descripción de la prenda PRENDA_GORRO_NOEL
+  ///
+  /// In es, this message translates to:
+  /// **'Con borla. Tapa el brote, solo por unos días.'**
+  String get prodDescPrendaGorroNoel;
+
+  /// Descripción de la prenda PRENDA_TRAJE_NOEL
+  ///
+  /// In es, this message translates to:
+  /// **'Rojo, con cinturón y hebilla dorada. Se ve desde que Nori es cría.'**
+  String get prodDescPrendaTrajeNoel;
+
+  /// Nombre de la colección INVIERNO_2026
+  ///
+  /// In es, this message translates to:
+  /// **'Invierno'**
+  String get coleccionInvierno;
+
+  /// Nombre de la colección NAVIDAD_2026
+  ///
+  /// In es, this message translates to:
+  /// **'Navidad'**
+  String get coleccionNavidad;
+
+  /// Sitio de las prendas de Nori: la cabeza
+  ///
+  /// In es, this message translates to:
+  /// **'Cabeza'**
+  String get mascotaSitioCabeza;
+
+  /// Sitio de las prendas de Nori: el cuerpo
+  ///
+  /// In es, this message translates to:
+  /// **'Cuerpo'**
+  String get mascotaSitioCuerpo;
+
+  /// Título del vestidor de Nori
+  ///
+  /// In es, this message translates to:
+  /// **'Vestidor'**
+  String get vestidorTitulo;
+
+  /// Opción para quitar la prenda de un sitio
+  ///
+  /// In es, this message translates to:
+  /// **'Nada'**
+  String get vestidorNada;
+
+  /// Aviso de una prenda que aún no se ve en la fase actual de Nori
+  ///
+  /// In es, this message translates to:
+  /// **'Se verá cuando Nori sea {fase}'**
+  String vestidorSeVeraCuando(String fase);
+
+  /// Sección de la tienda con las prendas de Nori
+  ///
+  /// In es, this message translates to:
+  /// **'Nori'**
+  String get tiendaSeccionNori;
+
+  /// Fin de una colección de temporada
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta el {fecha}'**
+  String tiendaHastaEl(String fecha);
+
+  /// Etiqueta de una prenda sin coste en puntos
+  ///
+  /// In es, this message translates to:
+  /// **'Gratis'**
+  String get tiendaGratis;
+
+  /// Etiqueta de un producto que el usuario ya tiene
+  ///
+  /// In es, this message translates to:
+  /// **'Tuyo'**
+  String get tiendaTuyo;
+
+  /// Botón para ver una prenda puesta en Nori antes de comprarla
+  ///
+  /// In es, this message translates to:
+  /// **'Probar'**
+  String get tiendaProbar;
+
   /// No description provided for @logroCatInicio.
   ///
   /// In es, this message translates to:
