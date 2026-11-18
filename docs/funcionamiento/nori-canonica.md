@@ -20,6 +20,17 @@ Los genera `tool/nori_canonica/separar_brote.py`. Solo se vuelve a lanzar si
 cambian los 12 originales. `--solo-pantallas` rehace solo las máscaras y su
 caja, sin tocar cuerpos ni brotes (así se añadieron, el 16-nov).
 
+**Los 12 originales no son todos iguales** (18-nov-2026): los 4 huevos y la
+cría triste y la dormida van a todo color; los otros 6, de paleta (256
+colores) desde el 7-sep. Las 6 a todo color las rehizo marketing con los
+originales de julio (del historial de `habitos_app_mobile`), colocados sobre
+los de antes al píxel; el huevo exultante, suavizado. **Los huevos ya no
+llevan sombra debajo:** al quitarla, el borde de abajo quedó dentado y
+oscuro (la sombra de contacto del dibujo), y se arregló solo en los 4
+últimos píxeles del contorno donde había sombra (alfa suavizado y el color
+del cuerpo de dentro). Las crías conservan el alfa al píxel. Si un día se
+quiere sombra, va aparte, no en el dibujo.
+
 **Aún no van en el `pubspec.yaml`:** `assets/mascota/` declara solo los
 ficheros de esa carpeta, no los de `canonica/`, así que hoy no entran en las
 apps. Se declaran con N-9 (`NoriVestida`), cuando se pinten. Hasta entonces la
