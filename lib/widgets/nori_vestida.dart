@@ -100,17 +100,19 @@ class _NoriVestidaState extends State<NoriVestida> {
     super.didUpdateWidget(anterior);
     final prendas = widget.prendas ?? prendasEquipadasNotifier;
     final manifiesto = widget.manifiesto ?? manifiestoArteNotifier;
+    var cambio =
+        anterior.fase != widget.fase || anterior.estado != widget.estado;
     if (!identical(prendas, _prendas)) {
       _prendas.removeListener(_alCambiar);
       _prendas = prendas..addListener(_alCambiar);
+      cambio = true;
     }
     if (!identical(manifiesto, _manifiesto)) {
       _manifiesto.removeListener(_alCambiar);
       _manifiesto = manifiesto..addListener(_alCambiar);
+      cambio = true;
     }
-    if (anterior.fase != widget.fase || anterior.estado != widget.estado) {
-      _actualizar();
-    }
+    if (cambio) _actualizar();
   }
 
   @override
@@ -167,7 +169,14 @@ class _NoriVestidaState extends State<NoriVestida> {
       } catch (_) {
         fichero = null;
       }
-      if (!mounted || fichero == null) return;
+      if (fichero == null) {
+        // Sin red o sin servidor: se puede volver a pedir en el próximo
+        // cambio (otro manifiesto, otra fase…). No hay bucle: `_actualizar`
+        // solo corre ante cambios.
+        _pedidas.remove(ruta);
+        return;
+      }
+      if (!mounted) return;
       _ficheros[ruta] = fichero;
       setState(_actualizar);
     }());

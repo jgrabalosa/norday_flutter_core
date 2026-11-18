@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/manifiesto_arte.dart';
@@ -33,7 +35,12 @@ Future<void> recargarManifiesto() {
   final enMarcha = _enMarcha;
   if (enMarcha != null) return enMarcha;
   _pedido = true;
-  final peticion = () async {
+  // `_enMarcha` se pone antes de arrancar: aunque crear el servicio lanzara
+  // en síncrono, el `finally` lo limpia después de ponerlo, y la siguiente
+  // recarga vuelve a pedir.
+  final hecho = Completer<void>();
+  _enMarcha = hecho.future;
+  () async {
     try {
       manifiestoArteNotifier.value = await servicioManifiesto()
           .cargarManifiesto();
@@ -41,10 +48,10 @@ Future<void> recargarManifiesto() {
       // cargarManifiesto no lanza; por si acaso, el manifiesto se queda.
     } finally {
       _enMarcha = null;
+      hecho.complete();
     }
   }();
-  _enMarcha = peticion;
-  return peticion;
+  return hecho.future;
 }
 
 /// Deja el estado como al arrancar. Para los tests.

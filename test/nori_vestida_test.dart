@@ -278,6 +278,38 @@ void main() {
     expect(capas(tester), ['cuerpo', 'prenda_Cuerpo', 'brote']);
   });
 
+  testWidgets('una imagen que no llegó se vuelve a pedir al cambiar el '
+      'manifiesto, y se pinta', (tester) async {
+    sinFichero.add('prendas/lana_cria.webp');
+    prendas.value = const {'Cabeza': 'PRENDA_GORRO_LANA'};
+    await montar(tester);
+    expect(capas(tester).single, startsWith('original:'));
+    expect(pedidas, ['prendas/lana_cria.webp']);
+
+    // Vuelve la red: el servidor ya la da y llega un manifiesto nuevo.
+    sinFichero.clear();
+    manifiesto.value = ManifiestoArte(
+      version: 2,
+      prendas: manifiestoBueno.prendas,
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(pedidas, ['prendas/lana_cria.webp', 'prendas/lana_cria.webp']);
+    expect(capas(tester), ['cuerpo', 'prenda_Cabeza', 'brote']);
+  });
+
+  testWidgets('con otro notifier de lo puesto, sin cambiar fase ni estado, '
+      'repinta', (tester) async {
+    await montar(tester);
+    expect(capas(tester).single, startsWith('original:'));
+
+    prendas = ValueNotifier(const {'Cabeza': 'PRENDA_GORRO_LANA'});
+    await montar(tester);
+
+    expect(capas(tester), ['cuerpo', 'prenda_Cabeza', 'brote']);
+  });
+
   testWidgets('al cambiar lo puesto o el manifiesto, repinta', (tester) async {
     await montar(tester);
     expect(capas(tester).single, startsWith('original:'));
@@ -474,6 +506,20 @@ void main() {
 
         await asegurarManifiesto();
         expect(pedidos, 2);
+      },
+    );
+
+    test(
+      'si crear el servicio lanza, la siguiente recarga vuelve a pedir',
+      () async {
+        final bueno = servicioManifiesto;
+        servicioManifiesto = () => throw StateError('sin servicio');
+        await recargarManifiesto();
+
+        respuesta.complete();
+        servicioManifiesto = bueno;
+        await recargarManifiesto();
+        expect(pedidos, 1);
       },
     );
   });
