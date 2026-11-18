@@ -256,16 +256,24 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
     final tamano = widget.areaSize;
     const margen = 12.0;
     final minY = (tamano.height * widget.minTopFraction) + margen;
-    final maxY = tamano.height - widget.size - margen;
+    final maxYBruto = tamano.height - widget.size - margen;
 
-    // El borde derecho útil se recorta con `margenDerecho`. El `max(1.0, …)`
-    // protege la división de más abajo: en un área absurdamente estrecha el
-    // recorrido saldría cero o negativo.
-    final maxX = tamano.width - widget.size - margen - widget.margenDerecho;
-    final recorridoX = max(1.0, maxX - margen);
+    // El borde derecho útil se recorta con `margenDerecho`.
+    final maxXBruto =
+        tamano.width - widget.size - margen - widget.margenDerecho;
+
+    // Los recorridos nunca son negativos: si en un eje no cabe, valen 0 y la
+    // burbuja se queda quieta en su posición mínima (`minY` / `margen`). Los
+    // límites de `clamp` salen de aquí (`minY + recorridoY`, `margen +
+    // recorridoX`), así que `min <= max` siempre; y quien divide por un
+    // recorrido lo comprueba antes.
+    final recorridoY = max(0.0, maxYBruto - minY);
+    final recorridoX = max(0.0, maxXBruto - margen);
+    final maxY = minY + recorridoY;
+    final maxX = margen + recorridoX;
 
     final left = _dx.clamp(0.0, 1.0) * recorridoX + margen;
-    final top = _dy.clamp(0.0, 1.0) * (maxY - minY) + minY;
+    final top = _dy.clamp(0.0, 1.0) * recorridoY + minY;
 
     // El área válida va de la esquina donde puede estar la burbuja más
     // arriba y más a la izquierda, hasta donde llega su borde opuesto en el
@@ -277,8 +285,8 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
         : Positioned(
             left: margen,
             top: minY,
-            width: (maxX + widget.size) - margen,
-            height: (maxY + widget.size) - minY,
+            width: recorridoX + widget.size,
+            height: recorridoY + widget.size,
             child: IgnorePointer(
               child: AnimatedOpacity(
                 opacity: _arrastrando ? 1.0 : 0.0,
@@ -351,8 +359,12 @@ class _BurbujaFlotanteState extends State<BurbujaFlotante>
                               minY,
                               maxY,
                             );
-                            _dx = (nuevoLeft - margen) / recorridoX;
-                            _dy = (nuevoTop - minY) / (maxY - minY);
+                            _dx = recorridoX > 0
+                                ? (nuevoLeft - margen) / recorridoX
+                                : 0.0;
+                            _dy = recorridoY > 0
+                                ? (nuevoTop - minY) / recorridoY
+                                : 0.0;
                           });
                         };
                         r.onEnd = (_) {
