@@ -6,10 +6,10 @@ dependencia Git.
 
 Consumidores hoy:
 
-- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`).
-- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`; mientras el tag no
-  exista, con `pubspec_overrides.yaml` local apuntando a
-  `../norday_flutter_core`.
+- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`); desde la
+  1.3.0, `v0.56.0`.
+- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`. Con ese core no ve
+  las prendas de Nori (el backend no se las da: versión mínima 0.56.0).
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
   `a873d8f`, del 12-ago-2026, anterior a `v0.1.0`. No recibe nada de lo que
   se ha hecho aquí desde entonces.
