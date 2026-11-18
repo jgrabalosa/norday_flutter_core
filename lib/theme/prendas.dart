@@ -6,6 +6,12 @@ import 'package:flutter/foundation.dart';
 /// sola prenda equipada por categoría. Un sitio nuevo se añade solo aquí.
 const List<String> sitiosPrenda = ['Cabeza', 'Cuerpo'];
 
+/// En qué orden se pintan las prendas sobre el cuerpo de Nori, de abajo
+/// arriba (decisión 7 de Nori vestida): el cuerpo canónico, la prenda de
+/// `Cuerpo`, la de `Cabeza` y, encima de todo, el brote. Un sitio nuevo de
+/// [sitiosPrenda] se añade también aquí, en su sitio.
+const List<String> ordenCapasPrenda = ['Cuerpo', 'Cabeza'];
+
 /// Lo que lleva puesto Nori: sitio → código de producto (`PRENDA_…`). Vacío
 /// si no lleva nada. Todas las Nori de la app lo escuchan, así que cambian a
 /// la vez al equipar.

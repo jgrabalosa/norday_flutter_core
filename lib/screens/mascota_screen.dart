@@ -7,7 +7,7 @@ import '../l10n/mensajes_mascota.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../models/manifiesto_arte.dart';
 import '../services/api_service_core.dart';
-import '../services/arte_prendas_service.dart';
+import '../services/manifiesto_compartido.dart';
 import '../theme/app_theme.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/mascota_assets.dart';
@@ -18,8 +18,8 @@ import '../widgets/burbuja_contexto.dart';
 import '../widgets/celebracion_nivel.dart';
 import '../widgets/fondo_identidad.dart';
 import '../widgets/halo_identidad.dart';
-import '../widgets/imagen_mascota.dart';
 import '../widgets/mascota_animada_viva.dart';
+import '../widgets/nori_vestida.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/superficie_identidad.dart';
 import '../widgets/terrario_identidad.dart';
@@ -98,22 +98,13 @@ class _MascotaScreenState extends State<MascotaScreen> {
     if (!anterior.activa && widget.activa) _cargarDatos();
   }
 
-  /// El manifiesto del arte (la nieve de las fiestas). Hasta que llega, el
-  /// vacío: sin nieve.
-  ManifiestoArte _manifiesto = ManifiestoArte.vacio;
-
-  /// El manifiesto se pide aparte, sin esperarlo: puede tardar hasta 15 s y
-  /// `_cargarDatos` (y «tirar para recargar») no puede esperar por él.
-  /// `cargarManifiesto` no lanza: sin red, el último bueno o el vacío.
+  /// El manifiesto del arte (la nieve y las prendas) es uno para toda la app
+  /// (`manifiestoArteNotifier`). Esta pantalla lo vuelve a pedir al cargar sus
+  /// datos, aparte y sin esperarlo: puede tardar hasta 15 s y `_cargarDatos`
+  /// (y «tirar para recargar») no puede esperar por él.
   Future<void> _cargarDatos() {
-    unawaited(_cargarManifiesto());
+    unawaited(recargarManifiesto());
     return Future.wait([_cargarMascota(), _cargarInventario()]);
-  }
-
-  Future<void> _cargarManifiesto() async {
-    final manifiesto = await ArtePrendasService().cargarManifiesto();
-    if (!mounted) return;
-    setState(() => _manifiesto = manifiesto);
   }
 
   Future<void> _cargarMascota() async {
@@ -373,8 +364,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
                               1,
                               0,
                             ]),
-                      child: ImagenMascota(
-                        asset: assetMascota(fase: fase, estado: _estado),
+                      child: NoriVestida(
+                        fase: fase,
+                        estado: _estado,
                         tamano: 48,
                       ),
                     ),
@@ -419,9 +411,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
             bottom: lado * 0.02,
             // La nieve se decide con la fecha del móvil en cada build: el
             // 7-ene se va sola al repintar, sin temporizador de medianoche.
-            child: TerrarioIdentidad(
-              ancho: lado * 0.68,
-              nieve: _manifiesto.nieveActiva(DateTime.now()),
+            child: ValueListenableBuilder<ManifiestoArte>(
+              valueListenable: manifiestoArteNotifier,
+              builder: (context, manifiesto, _) => TerrarioIdentidad(
+                ancho: lado * 0.68,
+                nieve: manifiesto.nieveActiva(DateTime.now()),
+              ),
             ),
           ),
           AnilloIdentidad(tamano: caja, pct: pct),
@@ -439,6 +434,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
               estado: _estado,
               tamano: lado,
               permiteToque: true,
+              vestida: true,
             ),
           ),
         ],

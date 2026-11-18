@@ -41,7 +41,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   comprueba al volver a primer plano, pero no en la primera llegada de un
   arranque en frío, desde 0.55.0. Nunca bloquea por un fallo de red),
   `ArtePrendasService` (el manifiesto y las imágenes del arte de las prendas,
-  descargados y guardados en disco; ver `docs/funcionamiento/arte-prendas.md`),
+  descargados y guardados en disco; ver `docs/funcionamiento/arte-prendas.md`)
+  y el manifiesto compartido (`manifiesto_compartido.dart`:
+  `manifiestoArteNotifier`, `asegurarManifiesto` y `recargarManifiesto`, uno
+  para la nieve y las prendas),
   y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
   máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
   avisos; ver los puntos de extensión).
@@ -54,7 +57,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   puesto, ver «Equipamiento») y `catalogoAvatares` (retirado, ver abajo).
 - `models/usuario.dart`.
 - `widgets/` — 38 ficheros:
-  - escena de mascota (8): `MascotaAnimadaViva`, `MiniMascota`,
+  - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
+    `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
+    `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
+    sin prendas, el dibujo de siempre; ver `nori-canonica.md`),
     `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
     pinte un PNG de Nori pasa por ella), halo, terrario (con `nieve`: manto
     quieto y copos, que la pantalla de Nori pone entre las fechas del
@@ -102,8 +108,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   `assets/mascota/canonica/` es Nori separada en cuerpo y brote, con su
   geometría y la máscara de la pantalla negra (Nori vestida, N-1): un
   contrato para el arte de las prendas,
-  en `docs/funcionamiento/nori-canonica.md`. Aún no se declara en el
-  `pubspec.yaml` (no entra en las apps hasta N-9).
+  en `docs/funcionamiento/nori-canonica.md`. Desde N-9 se declaran en el
+  `pubspec.yaml`, uno a uno, sus 24 cuerpos y brotes (no las máscaras ni
+  `geometria.json`, que son de las herramientas).
 - `tool/nori_canonica/` — scripts de Python: `separar_brote.py` (genera esa
   carpeta), `hoja_revision.py` (la hoja con la que se revisa el arte de Nori
   y de sus prendas, N-2) y `sacar_prenda.py` (saca la prenda de una imagen de
@@ -372,7 +379,7 @@ si cambia; todas las Nori de la app lo escuchan, así que cambian a la vez.
 - **Backend antiguo** (sin `categoria`) o un sitio que el core no conoce: no
   cuenta, sin errores. Si un sitio tuviera dos equipadas (no debería, N-5),
   gana la de `usuarioProductoId` más alto.
-- Pintarlas en Nori (las capas) es N-9; el vestidor y la tienda, N-10.
+- Pintarlas en Nori (las capas) es `NoriVestida` (N-9); el vestidor y la tienda, N-10.
 
 ## Identidad de marca
 

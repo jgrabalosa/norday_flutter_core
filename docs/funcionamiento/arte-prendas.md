@@ -110,13 +110,22 @@ hora). La nieve es **solo visual**: no cambia nada del backend ni de la
 gamificación, y quien cambie la hora del móvil verá nieve cuando no toca.
 Sin `nieve` en el manifiesto, nunca hay.
 
-**Quién carga el manifiesto (T-026):** la pantalla de Nori (`MascotaScreen`),
-en `_cargarDatos`: al montarse y cada vez que su pestaña vuelve a estar
-activa (y al tirar para recargar). Lo pide **aparte, sin esperarlo**
-(la petición tiene hasta 15 s y `_cargarDatos` no puede tardar más por
-ella) y lo guarda en su estado cuando llega. Hasta entonces, el vacío: sin
-nieve. En `_escenario` decide con la fecha del móvil en cada `build`
-(`nieveActiva(DateTime.now())`), así que el 7-ene la nieve se va sola al
+**El manifiesto, uno para toda la app (T-027):** la nieve y las prendas leen
+el mismo, `manifiestoArteNotifier` (`services/manifiesto_compartido.dart`),
+que empieza en el vacío. Dos funciones lo piden, y las dos comparten la
+petición en marcha (diez Nori a la vez, una sola petición):
+
+- `recargarManifiesto()` lo pide otra vez. Lo llama la pantalla de Nori
+  (`MascotaScreen`) en `_cargarDatos`: al montarse, cada vez que su pestaña
+  vuelve a estar activa y al tirar para recargar, **aparte, sin esperarlo**
+  (la petición tiene hasta 15 s y `_cargarDatos` no puede tardar más por
+  ella).
+- `asegurarManifiesto()` lo pide solo si nunca se ha pedido en este proceso.
+  Lo llama cada `NoriVestida` **con prendas puestas** al montarse (la mini
+  Nori de Hoy, que es la primera que se ve). Sin prendas no se pide nada.
+
+Hasta que llega, el vacío: sin nieve ni prendas. En `_escenario` decide con la fecha del móvil en cada `build`
+(`nieveActiva(DateTime.now())`, escuchando el notifier), así que el 7-ene la nieve se va sola al
 repintar o al volver a la pestaña, sin temporizador de medianoche.
 
 `TerrarioIdentidad` **solo recibe el `bool`** (`nieve`): no llama a la red ni

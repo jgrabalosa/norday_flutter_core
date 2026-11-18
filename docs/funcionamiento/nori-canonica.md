@@ -31,10 +31,39 @@ oscuro (la sombra de contacto del dibujo), y se arregló solo en los 4
 del cuerpo de dentro). Las crías conservan el alfa al píxel. Si un día se
 quiere sombra, va aparte, no en el dibujo.
 
-**Aún no van en el `pubspec.yaml`:** `assets/mascota/` declara solo los
-ficheros de esa carpeta, no los de `canonica/`, así que hoy no entran en las
-apps. Se declaran con N-9 (`NoriVestida`), cuando se pinten. Hasta entonces la
-app sigue pintando los 12 originales.
+**En el `pubspec.yaml`, desde N-9 (T-027), uno a uno:** los 24 `…_cuerpo.png`
+y `…_brote.png` (unos 3,5 MB). `assets/mascota/` declara solo los ficheros de
+esa carpeta, no los de `canonica/`; las máscaras `…_pantalla.png` y
+`geometria.json` son de las herramientas y no entran en las apps. Los 12
+originales siguen: los usan `NoriMarca`, el avatar y Nori sin prendas.
+
+## Cómo se montan las capas (`NoriVestida`, N-9)
+
+Sobre el mismo lienzo de 1024, de abajo arriba (`ordenCapasPrenda`, junto a
+`sitiosPrenda` en `theme/prendas.dart`): el **cuerpo** canónico, la prenda de
+`Cuerpo`, la de `Cabeza` y el **brote**. El sitio sale de la clave de
+`prendasEquipadasNotifier` (la `categoria` del backend), no del `sitio` del
+manifiesto.
+
+- Una prenda se pinta si su código está en el manifiesto, la fase está en sus
+  `fases`, `imagenPara(fase, sufijo)` da una ruta (primero `<fase>_<estado>`,
+  después `<fase>`, con el sufijo visual: `cria_dormido`) y el fichero ya ha
+  llegado. Si no, no se pinta, y su `oculta` y su `subidaBrote` no cuentan.
+- Si alguna pintada oculta `brote`, no hay capa de brote; si no, el brote sube
+  el máximo de `subidaBroteEn(fase)` de las pintadas, en píxeles del lienzo
+  (en pantalla, `subida × tamaño / 1024`).
+- **Sin prendas, o sin ninguna pintable, el `ImagenMascota` de siempre**, sin
+  pedir el manifiesto ni ningún fichero.
+- Cada capa se descodifica a su tamaño (`ImagenMascota.anchoDescodificado`);
+  las descargadas, con `Image.file` y `gaplessPlayback`.
+- Los ficheros se piden al cambiar las prendas, el manifiesto, la fase o el
+  estado, y se guardan en el estado: nunca en `build`, porque
+  `MascotaAnimadaViva` la lleva en el `child` de su `AnimatedBuilder`.
+- El lector oye «Lleva: …» con los nombres traducidos (`noriLleva`); un código
+  sin traducción no sale.
+- Sale vestida en la pantalla de Nori (la grande y las miniaturas del
+  selector de fases) y en la mini Nori de Hoy (`vestida: true`). El splash, el
+  login (`NoriMarca`) y el avatar, no (decisión 16).
 
 ## El contrato
 

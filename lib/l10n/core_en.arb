@@ -255,5 +255,6 @@
   "sesionAvisoGraciaCuerpo": "If you're not back in {segundos} s, you'll lose it.",
   "sesionAvisoFinTitulo": "Session complete",
   "sesionAvisoFinCuerpo": "You made it to the end. Open the app to see the result.",
-  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Time's up} =1{1 minute left} other{{minutos} minutes left}}"
+  "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Time's up} =1{1 minute left} other{{minutos} minutes left}}",
+  "noriLleva": "Wearing: {prendas}"
 }
