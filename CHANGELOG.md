@@ -3,6 +3,30 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## 0.57.0 — 19-nov-2026
+
+### Nuevo
+
+- **El letrero del día de Neotokyo+** (D-35): la figura del día de Neotokyo+,
+  como la constelación en Profundidad y el ramo en Dulce.
+  - Ocho letreros de neón, uno por número de hábitos (de 1 a 8): la luna, la
+    taza, el gato, el ramen, el torii, la ola, el koi y Nori. Cada hábito es
+    un tubo (`letreros.dart`, `catalogoLetreros`, `letreroPara`,
+    `nombreLetrero`; los dibujos se generan con
+    `tool/letreros_neotokyo/generar_dart.py`).
+  - De día, `CapaProgresoIdentidad` pinta en Neotokyo+ los tubos de los
+    hábitos hechos como cristal apagado (`CapaLetrero`, por delante del
+    contenido y con mezcla aditiva, como la constelación). El tubo nuevo
+    entra con un fundido.
+  - Al cerrar el día, en Hoy, los tubos se encienden uno a uno con el
+    parpadeo del neón (uno por tubo, por debajo de los tres destellos por
+    segundo de WCAG 2.3.1), en rosa, cian y amarillo, y el letrero entero
+    zumba. Después se queda encendido.
+  - `mostrarCierreDelDia` tiene ceremonia también en Neotokyo+: el velo, el
+    letrero que se enciende y, cuando termina
+    (`duracionEncendidoLetrero`), los tres textos con el nombre del letrero.
+  - Textos nuevos en es, en y pt: `letreroLuna` … `letreroNori`.
+
 ## 0.56.0 — 18-nov-2026
 
 ### Nuevo

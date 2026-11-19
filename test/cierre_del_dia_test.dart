@@ -10,6 +10,7 @@ import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/theme/progreso_dia.dart';
 import 'package:norday_flutter_core/widgets/cierre_del_dia.dart';
+import 'package:norday_flutter_core/widgets/letreros.dart';
 import 'package:norday_flutter_core/widgets/ramo_dulce.dart';
 
 /// El cierre del día para quien no lo ve: un lector de pantalla oye los tres
@@ -348,18 +349,51 @@ void main() {
     },
   );
 
-  testWidgets('en Neotokyo+ termina en el acto, sin ceremonia', (tester) async {
-    await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
-    var cerrado = false;
-    unawaited(
-      mostrarCierreDelDia(
-        titulo: 'T',
-        despedida: 'D',
-      ).then((_) => cerrado = true),
-    );
-    await tester.pump();
-    expect(cerrado, isTrue);
+  testWidgets(
+    'en Neotokyo+ hay ceremonia: el nombre del letrero, y los textos esperan '
+    'a que se encienda',
+    (tester) async {
+      final semantica = tester.ensureSemantics();
+      await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
+      var cerrado = false;
+      unawaited(
+        mostrarCierreDelDia(
+          titulo: 'T',
+          despedida: 'D',
+        ).then((_) => cerrado = true),
+      );
+      await tester.pump();
+      expect(cerrado, isFalse, reason: 'ya no termina en el acto');
+      expect(diaCerradoNotifier.value, isTrue);
 
-    await desmontar(tester);
-  });
+      final nodo = find.byWidgetPredicate(
+        (w) => w is Semantics && (w.properties.label ?? '').contains('El gato'),
+      );
+      expect(nodo, findsOneWidget);
+
+      // El letrero de 3 tarda duracionEncendidoLetrero(3) en encenderse, y
+      // los textos (2900 ms) empiezan después: a los 3000 ms no se cierra.
+      await tester.pump(const Duration(milliseconds: 3000));
+      tester.semantics.tap(
+        find.semantics.byPredicate((n) => n.label.contains('El gato')),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(cerrado, isFalse, reason: 'a los 3000 ms');
+
+      await tester.pump(
+        duracionEncendidoLetrero(3) + const Duration(milliseconds: 3000),
+      );
+      tester.semantics.tap(
+        find.semantics.byPredicate((n) => n.label.contains('El gato')),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump();
+      expect(cerrado, isTrue);
+
+      await desmontar(tester);
+      semantica.dispose();
+    },
+  );
 }

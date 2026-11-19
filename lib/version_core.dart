@@ -8,4 +8,4 @@
 ///
 /// **Al subir la versión del `pubspec.yaml`, esta también**: lo vigila
 /// `test/version_core_test.dart`.
-const String versionCore = '0.56.0';
+const String versionCore = '0.57.0';

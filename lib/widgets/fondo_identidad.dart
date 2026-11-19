@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import 'capa_constelacion.dart';
+import 'capa_letrero.dart';
 import 'fondo_burbujas.dart';
 import 'fondo_ciudad.dart';
 import 'fondo_estelar.dart';
@@ -46,9 +47,9 @@ class FondoIdentidad extends StatelessWidget {
 /// La capa que reacciona al progreso del día, POR DELANTE del contenido.
 ///
 /// Va aparte del fondo porque en Profundidad las tarjetas tapaban la
-/// constelación. Las otras tres tienen el mismo par: la ciudad de Neotokyo+
-/// enciende ventanas y Dulce acumula, y eso se dibuja con `ProgresoDia`, no
-/// con el fondo quieto.
+/// constelación. Neotokyo+ pinta aquí su letrero del día (D-35): los tubos de
+/// los hábitos hechos, de cristal, que se encienden al cerrar el día. Dulce,
+/// de momento, nada.
 ///
 /// Cada implementación pone su propio `IgnorePointer`: esta capa nunca debe
 /// robar los toques de lo que hay debajo.
@@ -69,6 +70,7 @@ class CapaProgresoIdentidad extends StatelessWidget {
           case FondoIdentidadTipo.cielo:
             return CapaConstelacion(tokens: id.tokens, enHoy: enHoy);
           case FondoIdentidadTipo.ciudad:
+            return CapaLetrero(tokens: id.tokens, enHoy: enHoy);
           case FondoIdentidadTipo.acumulacion:
             return const SizedBox.shrink();
         }
