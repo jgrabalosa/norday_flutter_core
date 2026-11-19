@@ -7,7 +7,7 @@ dependencia Git.
 Consumidores hoy:
 
 - `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`): hoy
-  `v0.55.0`; `v0.56.0` desde la 1.3.0.
+  `v0.56.0`; `v0.57.0` desde la 1.3.0+9 (el letrero de Neotokyo+).
 - `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`. Con ese core no ve
   las prendas de Nori (el backend no se las da: versión mínima 0.56.0).
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
@@ -58,7 +58,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 40 ficheros:
+- `widgets/` — 43 ficheros:
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
@@ -82,10 +82,12 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     del fondo y las del ritmo (`IndicadorNivel`) también van a lápiz.
   - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
     pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
-  - fondos y cierre del día (8): `FondoIdentidad` y `CapaProgresoIdentidad`
+  - fondos y cierre del día (11): `FondoIdentidad` y `CapaProgresoIdentidad`
     (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
-    burbujas—, el catálogo de constelaciones, su capa, el cierre del día y el
-    ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`);
+    burbujas—, el catálogo de constelaciones, su capa, el cierre del día, el
+    ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`) y el letrero del día
+    de Neotokyo+ (`letreros.dart` con sus datos generados en
+    `letreros_datos.dart`, y su capa, `CapaLetrero`; D-35);
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
   - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
@@ -121,6 +123,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   prendas revisadas a WebP con el alfa sin pérdida y la huella de los
   píxeles en el nombre, y escribe el manifiesto, N-13), con sus tests
   (`py -m unittest discover -s tool/nori_canonica -p "test_*.py"`).
+- `tool/letreros_neotokyo/` — `letreros.py` (los 8 letreros de Neotokyo+ en
+  PNG, para revisarlos; necesita Pillow y numpy) y `generar_dart.py`, que
+  escribe `lib/widgets/letreros_datos.dart` (y lo formatea con `dart`). Un
+  letrero se cambia ahí y se vuelve a generar, nunca a mano en el `.dart`.
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
 `Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de
@@ -187,8 +193,10 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces
    (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
-   hace algo en Profundidad (la constelación) y en Dulce (un ramo a lápiz, una
-   flor por hábito); en Neotokyo+ termina en el acto. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
+   hace algo en las tres: en Profundidad (la constelación), en Dulce (un ramo a
+   lápiz, una flor por hábito) y en Neotokyo+ (el letrero de neón, un tubo por
+   hábito, que enciende su capa; los textos esperan a
+   `duracionEncendidoLetrero`). Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el

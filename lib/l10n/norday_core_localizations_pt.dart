@@ -786,6 +786,30 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get ramoGrande => 'Grande ramo';
 
   @override
+  String get letreroLuna => 'A lua';
+
+  @override
+  String get letreroTaza => 'A chávena';
+
+  @override
+  String get letreroGato => 'O gato';
+
+  @override
+  String get letreroRamen => 'O ramen';
+
+  @override
+  String get letreroTorii => 'O torii';
+
+  @override
+  String get letreroOla => 'A onda';
+
+  @override
+  String get letreroKoi => 'O koi';
+
+  @override
+  String get letreroNori => 'Nori';
+
+  @override
   String get colAyudaEtiqueta => 'Ajuda sobre a coleção';
 
   @override

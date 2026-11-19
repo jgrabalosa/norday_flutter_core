@@ -1531,6 +1531,54 @@ abstract class NordayCoreLocalizations {
   /// **'Gran ramo'**
   String get ramoGrande;
 
+  /// No description provided for @letreroLuna.
+  ///
+  /// In es, this message translates to:
+  /// **'La luna'**
+  String get letreroLuna;
+
+  /// No description provided for @letreroTaza.
+  ///
+  /// In es, this message translates to:
+  /// **'La taza'**
+  String get letreroTaza;
+
+  /// No description provided for @letreroGato.
+  ///
+  /// In es, this message translates to:
+  /// **'El gato'**
+  String get letreroGato;
+
+  /// No description provided for @letreroRamen.
+  ///
+  /// In es, this message translates to:
+  /// **'El ramen'**
+  String get letreroRamen;
+
+  /// No description provided for @letreroTorii.
+  ///
+  /// In es, this message translates to:
+  /// **'El torii'**
+  String get letreroTorii;
+
+  /// No description provided for @letreroOla.
+  ///
+  /// In es, this message translates to:
+  /// **'La ola'**
+  String get letreroOla;
+
+  /// No description provided for @letreroKoi.
+  ///
+  /// In es, this message translates to:
+  /// **'El koi'**
+  String get letreroKoi;
+
+  /// No description provided for @letreroNori.
+  ///
+  /// In es, this message translates to:
+  /// **'Nori'**
+  String get letreroNori;
+
   /// No description provided for @colAyudaEtiqueta.
   ///
   /// In es, this message translates to:

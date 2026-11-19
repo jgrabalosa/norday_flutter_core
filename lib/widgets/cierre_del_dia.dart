@@ -11,18 +11,21 @@ import '../theme/identidades_paleta.dart';
 import '../theme/progreso_dia.dart';
 import 'capa_constelacion.dart';
 import 'constelaciones.dart';
+import 'letreros.dart';
 import 'ramo_dulce.dart';
 
 /// El cierre del día: al completar el último hábito, todo se oscurece y
 /// aparecen, en este orden, [titulo], el nombre de la figura del día y
-/// [despedida]. La figura es la constelación en Profundidad y un ramo a lápiz
-/// en Dulce, una flor por hábito. Un toque lo cierra, y el Future termina
-/// entonces.
+/// [despedida]. La figura es la constelación en Profundidad, un ramo a lápiz
+/// en Dulce (una flor por hábito) y el letrero de neón en Neotokyo+ (un tubo
+/// por hábito, D-35). Un toque lo cierra, y el Future termina entonces.
 ///
-/// Existe en Profundidad y en Dulce. En Neotokyo+, o si no hay nada que
-/// contar (ningún hábito del día), termina en el acto sin pintar nada: el día
-/// que se diseñe su cierre, se pone aquí. Los textos los pone la app, como el
-/// resto de textos que hablan de hábitos.
+/// La constelación y el letrero los pinta su capa (`CapaProgresoIdentidad`),
+/// que va por encima de esta: al marcar el día como cerrado se realzan o se
+/// encienden. En Neotokyo+ los textos esperan a que el letrero esté encendido
+/// ([duracionEncendidoLetrero]). Si no hay nada que contar (ningún hábito del
+/// día), termina en el acto. Los textos los pone la app, como el resto de
+/// textos que hablan de hábitos.
 ///
 /// Al empezar marca el día como cerrado ([marcarDiaCerrado]), así que al
 /// irse el velo queda ya el estado final: la figura realzada.
@@ -38,11 +41,6 @@ Future<void> mostrarCierreDelDia({
   required String titulo,
   required String despedida,
 }) {
-  final fondo = identidadEquipadaNotifier.value.fondo;
-  if (fondo != FondoIdentidadTipo.cielo &&
-      fondo != FondoIdentidadTipo.acumulacion) {
-    return Future.value();
-  }
   if (progresoDiaNotifier.value.total <= 0) return Future.value();
   if (_Cierre.capas == 0) return Future.value();
 
@@ -54,6 +52,13 @@ Future<void> mostrarCierreDelDia({
   marcarDiaCerrado(true);
   return peticion.hecho.future;
 }
+
+/// Si hay una ceremonia del cierre en curso. La capa del letrero de
+/// Neotokyo+ lo mira al ver el día cerrado: solo entonces se enciende tubo a
+/// tubo; si no (abrir la app con el día ya cerrado, volver a hoy en la tira),
+/// aparece con un fundido. [mostrarCierreDelDia] pone la petición antes de
+/// marcar el día como cerrado, así que quien escucha ese cambio ya la ve.
+bool get hayCierreDelDiaEnCurso => _Cierre.peticion.value != null;
 
 /// Cierra la ceremonia: nadie la pinta ya y quien la esperaba sigue.
 void _terminarCierre(_Peticion peticion) {
@@ -135,6 +140,10 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   /// textos.
   bool _enDulce = false;
 
+  /// Si es la de Neotokyo+: los textos esperan a que la capa encienda el
+  /// letrero. [_ramo] cuenta ese tiempo, aunque aquí no se pinte nada.
+  bool _enNeotokyo = false;
+
   /// Cuántas etapas tiene el ramo: una por flor (de 1 a 8) y, al final, el
   /// atado.
   int _etapas = 1;
@@ -177,9 +186,12 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     HapticFeedback.heavyImpact();
   }
 
-  /// En Dulce, los textos esperan a que el ramo esté formado.
+  /// En Dulce, los textos esperan a que el ramo esté formado; en Neotokyo+,
+  /// a que el letrero esté encendido.
   void _alTerminarRamo(AnimationStatus estado) {
-    if (estado == AnimationStatus.completed && _enDulce && !_sinMovimiento) {
+    if (estado == AnimationStatus.completed &&
+        (_enDulce || _enNeotokyo) &&
+        !_sinMovimiento) {
       _textos.forward(from: 0);
     }
   }
@@ -188,11 +200,15 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     if (!mounted || _Cierre.peticion.value == null) return;
     _cerrando = false;
     _vibro = false;
-    _enDulce =
-        identidadEquipadaNotifier.value.fondo == FondoIdentidadTipo.acumulacion;
+    final fondo = identidadEquipadaNotifier.value.fondo;
+    _enDulce = fondo == FondoIdentidadTipo.acumulacion;
+    _enNeotokyo = fondo == FondoIdentidadTipo.ciudad;
     _etapas = min(progresoDiaNotifier.value.total, 8) + 1;
-    // 500 ms de velo, y 500 ms por etapa.
-    _ramo.duration = Duration(milliseconds: 500 + 500 * _etapas);
+    // 500 ms de velo, y 500 ms por etapa. En Neotokyo+, lo que tarda el
+    // letrero en encenderse, que ya incluye el velo.
+    _ramo.duration = _enNeotokyo
+        ? duracionEncendidoLetrero(progresoDiaNotifier.value.total)
+        : Duration(milliseconds: 500 + 500 * _etapas);
     if (_sinMovimiento) {
       _vibro = true;
       HapticFeedback.heavyImpact();
@@ -201,7 +217,7 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
       _textos.value = 1;
     } else {
       _velo.forward();
-      if (_enDulce) {
+      if (_enDulce || _enNeotokyo) {
         _ramo.forward(from: 0);
       } else {
         _textos.forward(from: 0);
@@ -210,9 +226,12 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   }
 
   /// El nombre de la figura del día, en el idioma activo.
-  String _nombreFigura(NordayCoreLocalizations l) => _enDulce
-      ? nombreRamo(l, progresoDiaNotifier.value.total)
-      : nombreConstelacion(l, progresoDiaNotifier.value.total);
+  String _nombreFigura(NordayCoreLocalizations l) {
+    final total = progresoDiaNotifier.value.total;
+    if (_enDulce) return nombreRamo(l, total);
+    if (_enNeotokyo) return nombreLetrero(l, total);
+    return nombreConstelacion(l, total);
+  }
 
   /// El ramo en la etapa que toca. La parte entera de [p] es la etapa en
   /// curso y la fracción, lo que se ha abierto de la siguiente: la etapa

@@ -116,9 +116,9 @@ void limpiarProgresoDia() {
 /// del cierre ya vista.
 ///
 /// Va aparte de [progresoDiaNotifier] a propósito: sólo le importa a la
-/// constelación de Profundidad. Los fondos de las otras identidades —y
-/// `conocimiento_app_mobile`— escuchan el progreso y no tienen por qué
-/// repintarse cuando esto cambia. Lo decide la app, que es quien sabe
+/// constelación de Profundidad y al letrero de Neotokyo+ (que se encienden).
+/// Los fondos —y `conocimiento_app_mobile`— escuchan el progreso y no tienen
+/// por qué repintarse cuando esto cambia. Lo decide la app, que es quien sabe
 /// cuándo ha terminado la ceremonia; el core sólo lo pinta.
 final ValueNotifier<bool> diaCerradoNotifier = ValueNotifier<bool>(false);
 
