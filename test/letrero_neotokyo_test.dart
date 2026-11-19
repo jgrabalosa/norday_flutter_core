@@ -283,6 +283,49 @@ void main() {
     );
 
     testWidgets(
+      'con hoy cerrado, al pasar a otro día el letrero nuevo no se enciende',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        marcarDiaCerrado(true);
+        await montar(tester);
+        expect(pintor(tester).luz(0), 1);
+
+        // Como la app: primero el progreso del otro día, luego reabrir.
+        publicarProgresoDia(
+          hechos: 1,
+          total: 4,
+          fecha: dia.subtract(const Duration(days: 1)),
+        );
+        marcarDiaCerrado(false);
+        await tester.pump();
+        for (var k = 0; k < 6; k++) {
+          await tester.pump(const Duration(milliseconds: 50));
+          final p = pintor(tester);
+          expect(
+            [for (var i = 0; i < 4; i++) p.luz(i)],
+            everyElement(0),
+            reason: 'a los ${50 * (k + 1)} ms',
+          );
+        }
+      },
+    );
+
+    testWidgets(
+      'si cambia el número de hábitos y el día sigue cerrado, vuelve con '
+      'el fundido',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        marcarDiaCerrado(true);
+        await montar(tester);
+        publicarProgresoDia(hechos: 2, total: 2, fecha: dia);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 700));
+        final p = pintor(tester);
+        expect([p.luz(0), p.luz(1)], [1, 1]);
+      },
+    );
+
+    testWidgets(
       'cambiar de pestaña con el día cerrado no lo vuelve a encender',
       (tester) async {
         publicarProgresoDia(hechos: 3, total: 3, fecha: dia);

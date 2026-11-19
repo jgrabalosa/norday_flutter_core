@@ -20,9 +20,11 @@ import 'letreros.dart';
 ///   [duracionEncendidoLetrero] para sacar los textos. Después se queda
 ///   encendido, en Hoy.
 /// - **Con el día cerrado sin ceremonia** (abrir la app con el día ya
-///   cerrado, volver a hoy en la tira, cambiar de pestaña): el letrero
-///   aparece encendido con un fundido, sin volver a parpadear, como el realce
-///   de la constelación. Montada con el día ya cerrado, sale encendido.
+///   cerrado, volver a hoy en la tira): el letrero aparece encendido con un
+///   fundido, sin volver a parpadear, como el realce de la constelación.
+///   Montada con el día ya cerrado, o al volver a Hoy desde otra pestaña,
+///   sale encendido de golpe. Si cambia el letrero (otro día u otro número
+///   de hábitos), el encendido no se hereda.
 /// - **Al reabrir el día** (deshacer el último): se apaga en 400 ms, cada
 ///   tubo desde la luz que tuviera.
 ///
@@ -176,6 +178,7 @@ class _CapaLetreroState extends State<CapaLetrero>
       _progreso = nuevo;
       if (!mismoLetrero || _sinMovimiento) {
         _cancelarTodo();
+        if (!mismoLetrero) _letreroNuevo();
         return;
       }
       for (var i = anterior.completas; i < nuevo.completas; i++) {
@@ -187,6 +190,23 @@ class _CapaLetreroState extends State<CapaLetrero>
         _lanzar(_salidas, i, _duracionSalida);
       }
     });
+  }
+
+  /// Otro letrero (otro día u otro número de hábitos): el encendido no se
+  /// hereda. Se apaga de golpe y, si el día sigue cerrado, vuelve con el
+  /// fundido. La app publica el progreso antes de reabrir el día, así que
+  /// sin esto el letrero del otro día se vería encendido mientras se apaga.
+  void _letreroNuevo() {
+    _encendido.stop();
+    _uniforme = false;
+    _encendido.value = 0;
+    if (!_encender) return;
+    if (_sinMovimiento) {
+      _encendido.value = 1;
+    } else {
+      _empezarUniforme(entrando: true);
+      _encendido.animateTo(1, duration: _duracionFundido);
+    }
   }
 
   void _lanzar(Map<int, AnimationController> mapa, int i, Duration duracion) {
