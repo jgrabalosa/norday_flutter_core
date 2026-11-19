@@ -5,11 +5,14 @@ coordenadas 0..100, y se pasan a 0..1 simplificados con Ramer-Douglas-Peucker
 (tolerancia 0.12 sobre 100): a la vista, idénticos; en el fichero, muchos
 menos puntos.
 
-Uso, desde la raíz del core:
+Uso, desde la raíz del core (necesita Pillow y numpy, por letreros.py, y
+`dart` en el PATH para dejar el fichero formateado):
     python3 tool/letreros_neotokyo/generar_dart.py
 """
 import math
 import os
+import shutil
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -62,6 +65,12 @@ def main():
         lineas.append("  ),")
     lineas.append("};")
     open(destino, "w", encoding="utf-8").write("\n".join(lineas) + "\n")
+    # Formateado como el resto del código: sin esto, `dart format
+    # --set-exit-if-changed lib test` falla.
+    if shutil.which("dart"):
+        subprocess.run(["dart", "format", destino], check=True, capture_output=True)
+    else:
+        print("AVISO: sin `dart` en el PATH; formatea el fichero a mano")
     print(f"{destino}: {total_puntos} puntos")
 
 

@@ -53,6 +53,13 @@ Future<void> mostrarCierreDelDia({
   return peticion.hecho.future;
 }
 
+/// Si hay una ceremonia del cierre en curso. La capa del letrero de
+/// Neotokyo+ lo mira al ver el día cerrado: solo entonces se enciende tubo a
+/// tubo; si no (abrir la app con el día ya cerrado, volver a hoy en la tira),
+/// aparece con un fundido. [mostrarCierreDelDia] pone la petición antes de
+/// marcar el día como cerrado, así que quien escucha ese cambio ya la ve.
+bool get hayCierreDelDiaEnCurso => _Cierre.peticion.value != null;
+
 /// Cierra la ceremonia: nadie la pinta ya y quien la esperaba sigue.
 void _terminarCierre(_Peticion peticion) {
   if (_Cierre.peticion.value == peticion) _Cierre.peticion.value = null;

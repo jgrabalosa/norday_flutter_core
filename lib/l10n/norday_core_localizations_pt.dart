@@ -789,13 +789,13 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get letreroLuna => 'A lua';
 
   @override
-  String get letreroTaza => 'A xícara';
+  String get letreroTaza => 'A chávena';
 
   @override
   String get letreroGato => 'O gato';
 
   @override
-  String get letreroRamen => 'O lámen';
+  String get letreroRamen => 'O ramen';
 
   @override
   String get letreroTorii => 'O torii';

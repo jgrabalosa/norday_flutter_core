@@ -125,8 +125,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   (`py -m unittest discover -s tool/nori_canonica -p "test_*.py"`).
 - `tool/letreros_neotokyo/` — `letreros.py` (los 8 letreros de Neotokyo+ en
   PNG, para revisarlos; necesita Pillow y numpy) y `generar_dart.py`, que
-  escribe `lib/widgets/letreros_datos.dart`. Un letrero se cambia ahí y se
-  vuelve a generar, nunca a mano en el `.dart`.
+  escribe `lib/widgets/letreros_datos.dart` (y lo formatea con `dart`). Un
+  letrero se cambia ahí y se vuelve a generar, nunca a mano en el `.dart`.
 
 **En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
 `Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de

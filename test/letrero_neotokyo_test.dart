@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +9,7 @@ import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/theme/progreso_dia.dart';
 import 'package:norday_flutter_core/widgets/capa_constelacion.dart';
 import 'package:norday_flutter_core/widgets/capa_letrero.dart';
+import 'package:norday_flutter_core/widgets/cierre_del_dia.dart';
 import 'package:norday_flutter_core/widgets/fondo_identidad.dart';
 import 'package:norday_flutter_core/widgets/letreros.dart';
 
@@ -99,6 +102,10 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           key: ValueKey('$codigo$enHoy$sinMovimiento'),
+          localizationsDelegates:
+              NordayCoreLocalizations.localizationsDelegates,
+          supportedLocales: NordayCoreLocalizations.supportedLocales,
+          locale: const Locale('es'),
           theme: AppTheme.deTema(temaEquipadoNotifier.value),
           home: MediaQuery(
             data: MediaQueryData(disableAnimations: sinMovimiento),
@@ -107,6 +114,7 @@ void main() {
                 fit: StackFit.expand,
                 children: [
                   TextButton(onPressed: alTocar, child: const Text('debajo')),
+                  const CapaCierreDelDia(),
                   CapaProgresoIdentidad(enHoy: enHoy),
                 ],
               ),
@@ -176,24 +184,133 @@ void main() {
       expect(pintor(tester).cristal(1), 0);
     });
 
-    testWidgets('al cerrar el día en Hoy se enciende tubo a tubo y se queda', (
+    testWidgets(
+      'en la ceremonia del cierre se enciende tubo a tubo y se queda',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        await montar(tester);
+        var cerrado = false;
+        unawaited(
+          mostrarCierreDelDia(
+            titulo: 'T',
+            despedida: 'D',
+          ).then((_) => cerrado = true),
+        );
+        await tester.pump();
+
+        // Poco después del velo, el primero ya ha arrancado y el último no.
+        await tester.pump(const Duration(milliseconds: 700));
+        expect(pintor(tester).luz(0), greaterThan(0));
+        expect(pintor(tester).luz(2), 0);
+
+        await tester.pump(duracionEncendidoLetrero(3));
+        final p = pintor(tester);
+        expect([for (var i = 0; i < 3; i++) p.luz(i)], everyElement(1));
+        expect(p.encendido, 1);
+
+        // Al cerrar la ceremonia, el letrero se queda encendido.
+        await tester.pump(const Duration(seconds: 3));
+        await tester.tapAt(const Offset(200, 300));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(cerrado, isTrue);
+        expect(pintor(tester).encendido, 1);
+      },
+    );
+
+    testWidgets(
+      'con el día cerrado sin ceremonia (abrir la app, volver a hoy), '
+      'aparece con un fundido, sin parpadear',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        await montar(tester);
+        marcarDiaCerrado(true);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        final p = pintor(tester);
+        final luces = [for (var i = 0; i < 3; i++) p.luz(i)];
+        expect(luces.first, greaterThan(0));
+        expect(luces.first, lessThan(1));
+        expect(luces, everyElement(luces.first), reason: 'todos a la vez');
+
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(pintor(tester).encendido, 1);
+        expect(pintor(tester).luz(2), 1);
+      },
+    );
+
+    testWidgets('al reabrir el día (deshacer el último) se apaga entero', (
       tester,
     ) async {
       publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
-      await montar(tester);
       marcarDiaCerrado(true);
+      await montar(tester);
+      expect(pintor(tester).luz(2), 1);
+
+      publicarProgresoDia(hechos: 2, total: 3, fecha: dia);
+      marcarDiaCerrado(false);
       await tester.pump();
-
-      // Poco después del velo, el primero ya ha arrancado y el último no.
-      await tester.pump(const Duration(milliseconds: 700));
-      expect(pintor(tester).luz(0), greaterThan(0));
-      expect(pintor(tester).luz(2), 0);
-
-      await tester.pump(duracionEncendidoLetrero(3));
+      await tester.pump(const Duration(milliseconds: 200));
       final p = pintor(tester);
-      expect([for (var i = 0; i < 3; i++) p.luz(i)], everyElement(1));
-      expect(p.encendido, 1);
+      expect(p.luz(0), greaterThan(0));
+      expect(p.luz(0), lessThan(1));
+      expect(p.luz(1), p.luz(0), reason: 'todos a la vez');
+
+      await tester.pump(const Duration(milliseconds: 500));
+      expect([for (var i = 0; i < 3; i++) pintor(tester).luz(i)], [0, 0, 0]);
+      expect(pintor(tester).cristal(2), 0, reason: 'el tubo deshecho se va');
+      expect(pintor(tester).cristal(1), 1);
     });
+
+    testWidgets(
+      'si se reabre a media ignición, los tubos sin arrancar no aparecen',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        await montar(tester);
+        unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 700));
+        expect(pintor(tester).luz(2), 0);
+
+        marcarDiaCerrado(false);
+        await tester.pump();
+        for (var k = 0; k < 8; k++) {
+          await tester.pump(const Duration(milliseconds: 50));
+          expect(pintor(tester).luz(2), 0, reason: 'a los ${50 * (k + 1)} ms');
+        }
+        await tester.pump(const Duration(seconds: 6));
+      },
+    );
+
+    testWidgets(
+      'cambiar de pestaña con el día cerrado no lo vuelve a encender',
+      (tester) async {
+        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+        marcarDiaCerrado(true);
+        Widget app(bool enHoy) => MaterialApp(
+          theme: AppTheme.deTema(temaEquipadoNotifier.value),
+          home: Scaffold(
+            body: Stack(
+              fit: StackFit.expand,
+              children: [CapaProgresoIdentidad(enHoy: enHoy)],
+            ),
+          ),
+        );
+        aplicarIdentidadEquipada('TEMA_NEOTOKYO_PLUS');
+        await tester.pumpWidget(app(true));
+        await tester.pump();
+        expect(pintor(tester).encendido, 1);
+
+        await tester.pumpWidget(app(false));
+        await tester.pump();
+        expect(pintor(tester).encendido, 0);
+
+        await tester.pumpWidget(app(true));
+        await tester.pump();
+        expect(pintor(tester).encendido, 1, reason: 'de golpe, sin parpadeo');
+        expect(pintor(tester).luz(2), 1);
+      },
+    );
 
     testWidgets('fuera de Hoy, el día cerrado no lo enciende', (tester) async {
       publicarProgresoDia(hechos: 3, total: 3, fecha: dia);

@@ -47,10 +47,10 @@ String nombreLetrero(NordayCoreLocalizations l, int total) =>
 /// la ceremonia en oscurecer.
 const _esperaEncendido = 500;
 
-/// Cada cuánto se enciende el tubo siguiente. Con un solo parpadeo por tubo,
-/// salen como mucho dos destellos por segundo: por debajo de los tres de
-/// WCAG 2.3.1.
-const _pasoEncendido = 450;
+/// Cada cuánto se enciende el tubo siguiente. Con un solo parpadeo por tubo
+/// (una bajada) y 550 ms entre tubos, en un segundo caben como mucho dos
+/// bajadas: con margen bajo los tres destellos por segundo de WCAG 2.3.1.
+const _pasoEncendido = 550;
 
 /// Lo que dura el parpadeo de arranque de un tubo.
 const _parpadeoTubo = 350;

@@ -349,6 +349,27 @@ void main() {
     },
   );
 
+  testWidgets('en Neotokyo+, con «Quitar animaciones», todo de golpe', (
+    tester,
+  ) async {
+    await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS', sinMovimiento: true);
+    var cerrado = false;
+    unawaited(
+      mostrarCierreDelDia(
+        titulo: 'T',
+        despedida: 'D',
+      ).then((_) => cerrado = true),
+    );
+    await tester.pump();
+    // Sin animaciones los textos ya están: un toque cierra en el acto.
+    await tester.tapAt(const Offset(200, 300));
+    await tester.pump();
+    await tester.pump();
+    expect(cerrado, isTrue);
+
+    await desmontar(tester);
+  });
+
   testWidgets(
     'en Neotokyo+ hay ceremonia: el nombre del letrero, y los textos esperan '
     'a que se encienda',
