@@ -168,6 +168,19 @@ class TokensContextuales {
   /// Quien no lo declare se queda en `surface2`, que es como estaba.
   final Color aroVacio;
 
+  /// El aro del `CheckCircular` vacío (y su check insinuado, al 0.15), y el
+  /// check de muestra de la vista previa de la tienda.
+  ///
+  /// Existe aparte de [aroVacio] porque éste lo comparten otros: el contorno
+  /// del tema (`ColorScheme.outline`), las estrellas de valoración, el
+  /// indicador de nivel y los campos. Subirlo a otro color los cambiaría a
+  /// todos. En Profundidad las filas de Hoy van sin caja sobre el cielo y lo
+  /// que marca cada fila es el check, así que su aro va en amarillo (por
+  /// hacer) para pasar al verde (hecho).
+  ///
+  /// Quien no lo declare se queda en su [aroVacio], que es como estaba.
+  final Color aroCheck;
+
   /// La tinta que va ENCIMA de `primary` cuando `primary` es relleno: el texto
   /// de un botón lleno, el icono de un FAB.
   ///
@@ -221,6 +234,7 @@ class TokensContextuales {
     Color? surfaceAlta,
     Color? inactivo,
     Color? aroVacio,
+    Color? aroCheck,
     Color? tinta,
     Color? primaryTrazo,
     Color? fondoNota,
@@ -230,6 +244,7 @@ class TokensContextuales {
        surfaceAlta = surfaceAlta ?? surface,
        inactivo = inactivo ?? surface2,
        aroVacio = aroVacio ?? surface2,
+       aroCheck = aroCheck ?? aroVacio ?? surface2,
        tinta = tinta ?? Colors.white,
        primaryTrazo = primaryTrazo ?? primary,
        fondoNota = fondoNota ?? surface2;
@@ -266,6 +281,9 @@ const TokensContextuales tokensProfundidad = TokensContextuales(
   // rama de base propia (`_TrazoCheck.base`) ya calculaba al vuelo. 6.42 sobre
   // el cielo.
   aroVacio: Color(0xFF8D95A0),
+  // El amarillo de la racha y los puntos (decisión del 14-nov): 10.6 sobre
+  // `bg`. Es el aro del check vacío; `aroVacio` sigue en gris para el resto.
+  aroCheck: Color(0xFFFFB020),
   // 6.19 sobre el verde. El mismo valor que la landing.
   tinta: Color(0xFF04342C),
 );

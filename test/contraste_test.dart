@@ -77,6 +77,7 @@ void main() {
     for (final identidad in catalogoIdentidades.values) {
       final t = identidad.tokens;
       exigir(identidad.codigo, 'aroVacio', t.aroVacio, fondosDe(t), aaNoTexto);
+      exigir(identidad.codigo, 'aroCheck', t.aroCheck, fondosDe(t), aaNoTexto);
     }
   });
 

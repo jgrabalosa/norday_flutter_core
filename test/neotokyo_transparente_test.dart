@@ -332,10 +332,75 @@ void main() {
         pintadoDelCheck(tester),
         paints
           ..path(color: t.surface)
-          ..path(color: t.aroVacio)
-          ..path(color: t.aroVacio.withValues(alpha: 0.15)),
+          ..path(color: t.aroCheck)
+          ..path(color: t.aroCheck.withValues(alpha: 0.15)),
       );
     });
+
+    testWidgets('Profundidad, hecho: nada en aroCheck sobre el relleno', (
+      tester,
+    ) async {
+      aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
+      final t = temaEquipadoNotifier.value;
+      const verde = Color(0xFF27C76F);
+
+      await tester.pumpWidget(
+        montar(CheckCircular(hecho: true, onTap: () {}, color: verde)),
+      );
+      await tester.pump();
+
+      // El aro se pinta, pero ya en el color del relleno.
+      expect(
+        pintadoDelCheck(tester),
+        paints
+          ..path(color: t.surface)
+          ..path(color: verde)
+          ..path(color: t.aroCheck.withValues(alpha: 0.15)),
+      );
+      expect(
+        pintadoDelCheck(tester),
+        isNot(
+          paints..something(
+            (nombre, args) =>
+                nombre == #drawPath &&
+                (args[1] as Paint).style == PaintingStyle.stroke &&
+                (args[1] as Paint).color == t.aroCheck,
+          ),
+        ),
+      );
+    });
+
+    testWidgets(
+      'Profundidad: al completar, el aro va hacia el color del relleno',
+      (tester) async {
+        aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
+        final t = temaEquipadoNotifier.value;
+        const verde = Color(0xFF27C76F);
+
+        await tester.pumpWidget(
+          montar(CheckCircular(hecho: false, onTap: () {}, color: verde)),
+        );
+        await tester.pumpWidget(
+          montar(CheckCircular(hecho: true, onTap: () {}, color: verde)),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // A medio relleno el aro ya no es amarillo ni todavía verde: va de
+        // uno a otro con el relleno.
+        expect(
+          pintadoDelCheck(tester),
+          paints..something(
+            (nombre, args) =>
+                nombre == #drawPath &&
+                (args[1] as Paint).style == PaintingStyle.stroke &&
+                ((args[1] as Paint).strokeWidth - 3.4).abs() < 0.01 &&
+                (args[1] as Paint).color != t.aroCheck &&
+                (args[1] as Paint).color != verde,
+          ),
+        );
+      },
+    );
 
     testWidgets('Dulce no pinta base ni insinuado: sólo el aro', (
       tester,
