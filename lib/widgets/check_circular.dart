@@ -1,8 +1,11 @@
+import 'dart:math' show pi;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
+import 'check_vivo.dart';
 import 'lapiz.dart';
 
 /// Checkbox animado — EL gesto de la app.
@@ -15,6 +18,13 @@ import 'lapiz.dart';
 /// Neotokyo+. El gesto —el pop, el trazo, los tiempos— es el mismo en las
 /// cuatro: es la marca de la app y no se toca al cambiar de tema.
 class CheckCircular extends StatefulWidget {
+  /// Interruptor de «el check vivo» (T-018, experimento): si está a `true`,
+  /// los checks sin hacer y tocables reciben por turnos una vuelta por el aro
+  /// (ver `check_vivo.dart`). A `false`, el check se pinta y se comporta
+  /// exactamente como antes del experimento. No es un ajuste del usuario: se
+  /// cambia aquí o, en los tests, antes de montar.
+  static bool vivo = true;
+
   final bool hecho;
   final VoidCallback? onTap;
   final Color color;
@@ -51,8 +61,14 @@ class CheckCircular extends StatefulWidget {
 }
 
 class _CheckCircularState extends State<CheckCircular>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin
+    implements ParticipanteCheckVivo {
   late final AnimationController _controller;
+
+  /// La vuelta de «el check vivo»: 0-1 en [duracionVueltaCheck]. Parada, no
+  /// pinta nada.
+  late final AnimationController _vuelta;
+  bool _registrado = false;
   late final Animation<double> _relleno; // 0-1: el círculo se llena
   late final Animation<double> _pop; // escala con rebote
   late final Animation<double> _trazo; // 0-1: el check se dibuja
@@ -77,6 +93,7 @@ class _CheckCircularState extends State<CheckCircular>
       // y no merece el mismo recorrido.
       reverseDuration: const Duration(milliseconds: 320),
     );
+    _vuelta = AnimationController(vsync: this, duration: duracionVueltaCheck);
     _relleno = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
@@ -111,11 +128,55 @@ class _CheckCircularState extends State<CheckCircular>
     super.didChangeDependencies();
     _animacionesDesactivadas =
         MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    _sincronizarVivo();
+  }
+
+  /// Si este check merece turno: sin hacer, tocable, con el movimiento
+  /// permitido y el experimento encendido. Apunta o da de baja en el
+  /// coordinador según toque, y corta la vuelta si deja de merecerlo.
+  void _sincronizarVivo() {
+    final merece =
+        CheckCircular.vivo &&
+        !widget.hecho &&
+        widget.onTap != null &&
+        !_animacionesDesactivadas;
+    if (merece && !_registrado) {
+      _registrado = true;
+      CoordinadorCheckVivo.registrar(this);
+    } else if (!merece) {
+      if (_registrado) {
+        _registrado = false;
+        CoordinadorCheckVivo.baja(this);
+      }
+      _cortarVuelta();
+    }
+  }
+
+  void _cortarVuelta() {
+    if (_vuelta.isAnimating || _vuelta.value != 0) _vuelta.value = 0;
+  }
+
+  @override
+  Offset? get posicionGlobal {
+    final caja = context.findRenderObject();
+    if (caja is! RenderBox || !caja.attached || !caja.hasSize) return null;
+    return caja.localToGlobal(Offset.zero);
+  }
+
+  @override
+  void darVuelta() {
+    if (mounted) _vuelta.forward(from: 0);
+  }
+
+  void _alTocar() {
+    _cortarVuelta();
+    _accion?.call();
   }
 
   @override
   void didUpdateWidget(CheckCircular oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _sincronizarVivo();
     if (widget.hecho && !oldWidget.hecho) {
       // Acaba de completarse: animación completa, o el estado final de golpe.
       if (_animacionesDesactivadas) {
@@ -137,6 +198,8 @@ class _CheckCircularState extends State<CheckCircular>
 
   @override
   void dispose() {
+    if (_registrado) CoordinadorCheckVivo.baja(this);
+    _vuelta.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -152,18 +215,26 @@ class _CheckCircularState extends State<CheckCircular>
           ? (widget.etiquetaSemanticaDeshacer ?? widget.etiquetaSemantica)
           : widget.etiquetaSemantica,
       child: GestureDetector(
-        onTap: _accion,
+        onTap: _accion == null ? null : _alTocar,
         behavior: HitTestBehavior.opaque,
         child: Padding(
           // Amplía el área táctil sin agrandar el dibujo
           padding: const EdgeInsets.all(6),
           child: AnimatedBuilder(
-            animation: _controller,
+            animation: Listenable.merge([_controller, _vuelta]),
             builder: (context, _) {
               return Transform.scale(
                 scale: _pop.value,
                 child: CustomPaint(
                   size: Size.square(widget.tamano),
+                  foregroundPainter: _vuelta.isAnimating
+                      ? _VueltaPainter(
+                          progreso: _vuelta.value,
+                          color: t.streak,
+                          forma: identidad(context).forma,
+                          chaflan: identidad(context).chaflan,
+                        )
+                      : null,
                   painter: _CheckPainter(
                     relleno: _relleno.value,
                     trazo: _trazo.value,
@@ -229,6 +300,112 @@ const _checkGlass = _TrazoCheck(
 const _checkChamfer = _TrazoCheck(aro: 2.0, check: 0.10, base: true);
 const _checkPill = _TrazoCheck(aro: 3.0, check: 0.10);
 
+/// La figura del check en [forma], inscrita en un cuadrado de lado
+/// `radio * 2` centrado en [centro]; [escala] la encoge desde el centro. Con
+/// [desdeArriba] el contorno empieza en el centro del lado de arriba y va en
+/// el sentido de las agujas del reloj (lo que necesita la vuelta).
+Path _figuraDe(
+  FormaIdentidad forma,
+  double chaflan,
+  Offset centro,
+  double radio,
+  double escala, {
+  bool desdeArriba = false,
+}) {
+  final r = radio * escala;
+  if (forma != FormaIdentidad.chamfer) {
+    final rect = Rect.fromCircle(center: centro, radius: r);
+    // `addOval` empieza a las 3; el arco, donde se le diga (arriba = -90°).
+    return desdeArriba
+        ? (Path()..addArc(rect, -pi / 2, 2 * pi))
+        : (Path()..addOval(rect));
+  }
+  // Cuadrado con las cuatro esquinas cortadas, el mismo chaflán que la
+  // identidad usa en tarjetas, chips y burbujas.
+  final c = (chaflan * escala).clamp(0.0, r);
+  final path = Path();
+  if (desdeArriba) {
+    path
+      ..moveTo(centro.dx, centro.dy - r)
+      ..lineTo(centro.dx + r - c, centro.dy - r);
+  } else {
+    path
+      ..moveTo(centro.dx - r + c, centro.dy - r)
+      ..lineTo(centro.dx + r - c, centro.dy - r);
+  }
+  path
+    ..lineTo(centro.dx + r, centro.dy - r + c)
+    ..lineTo(centro.dx + r, centro.dy + r - c)
+    ..lineTo(centro.dx + r - c, centro.dy + r)
+    ..lineTo(centro.dx - r + c, centro.dy + r)
+    ..lineTo(centro.dx - r, centro.dy + r - c)
+    ..lineTo(centro.dx - r, centro.dy - r + c);
+  if (desdeArriba) path.lineTo(centro.dx - r + c, centro.dy - r);
+  return path..close();
+}
+
+/// El pintado de la vuelta de «el check vivo». El dibujo de cada identidad
+/// está en el `switch` de [paint]: T-018b solo tiene que sustituir las dos
+/// ramas provisionales por su función (reciben figura y progreso 0-1).
+class _VueltaPainter extends CustomPainter {
+  final double progreso;
+  final Color color;
+  final FormaIdentidad forma;
+  final double chaflan;
+
+  _VueltaPainter({
+    required this.progreso,
+    required this.color,
+    required this.forma,
+    required this.chaflan,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final aro = switch (forma) {
+      FormaIdentidad.glass => _checkGlass,
+      FormaIdentidad.chamfer => _checkChamfer,
+      FormaIdentidad.pill => _checkPill,
+    }.aro;
+    // El mismo radio que el aro: la vuelta no sale del área del check.
+    final figura = _figuraDe(
+      forma,
+      chaflan,
+      Offset(size.width / 2, size.height / 2),
+      size.width / 2 - aro / 2,
+      1.0,
+      desdeArriba: true,
+    );
+    switch (forma) {
+      case FormaIdentidad.glass:
+        pintarVueltaProfundidad(
+          canvas,
+          figura,
+          progreso,
+          color: color,
+          grosor: aro,
+        );
+      // Provisional hasta T-018b: el neón (Neotokyo+) y el lápiz (Dulce).
+      case FormaIdentidad.chamfer:
+      case FormaIdentidad.pill:
+        pintarVueltaProvisional(
+          canvas,
+          figura,
+          progreso,
+          color: color,
+          grosor: aro,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_VueltaPainter old) =>
+      old.progreso != progreso ||
+      old.color != color ||
+      old.forma != forma ||
+      old.chaflan != chaflan;
+}
+
 class _CheckPainter extends CustomPainter {
   final double relleno;
   final double trazo;
@@ -268,25 +445,8 @@ class _CheckPainter extends CustomPainter {
   /// La figura del check en esta identidad, inscrita en un cuadrado de lado
   /// `radio * 2` centrado en [centro]. [escala] la encoge desde el centro, que
   /// es como crece el relleno.
-  Path _figura(Offset centro, double radio, double escala) {
-    final r = radio * escala;
-    if (forma != FormaIdentidad.chamfer) {
-      return Path()..addOval(Rect.fromCircle(center: centro, radius: r));
-    }
-    // Cuadrado con las cuatro esquinas cortadas, el mismo chaflán que la
-    // identidad usa en tarjetas, chips y burbujas.
-    final c = (chaflan * escala).clamp(0.0, r);
-    return Path()
-      ..moveTo(centro.dx - r + c, centro.dy - r)
-      ..lineTo(centro.dx + r - c, centro.dy - r)
-      ..lineTo(centro.dx + r, centro.dy - r + c)
-      ..lineTo(centro.dx + r, centro.dy + r - c)
-      ..lineTo(centro.dx + r - c, centro.dy + r)
-      ..lineTo(centro.dx - r + c, centro.dy + r)
-      ..lineTo(centro.dx - r, centro.dy + r - c)
-      ..lineTo(centro.dx - r, centro.dy - r + c)
-      ..close();
-  }
+  Path _figura(Offset centro, double radio, double escala) =>
+      _figuraDe(forma, chaflan, centro, radio, escala);
 
   /// El trazo del check dibujado hasta [progreso] (0 nada, 1 entero): dos
   /// segmentos, bajada corta y subida larga.
