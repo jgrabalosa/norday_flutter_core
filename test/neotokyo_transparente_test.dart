@@ -387,18 +387,23 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
 
         // A medio relleno el aro ya no es amarillo ni todavía verde: va de
-        // uno a otro con el relleno.
+        // uno a otro con el relleno. El aro es el segundo trazo, tras la
+        // base (el orden de «Profundidad pinta base, aro e insinuado»): mirar
+        // cualquier trazo valdría también para el check blanco o el
+        // insinuado, que no son el aro.
+        final trazos = <Paint>[];
         expect(
           pintadoDelCheck(tester),
-          paints..something(
-            (nombre, args) =>
-                nombre == #drawPath &&
-                (args[1] as Paint).style == PaintingStyle.stroke &&
-                ((args[1] as Paint).strokeWidth - 3.4).abs() < 0.01 &&
-                (args[1] as Paint).color != t.aroCheck &&
-                (args[1] as Paint).color != verde,
-          ),
+          paints..everything((nombre, args) {
+            if (nombre == #drawPath) trazos.add(args[1] as Paint);
+            return true;
+          }),
         );
+        final aro = trazos[1];
+        expect(trazos[0].color.toARGB32(), t.surface.toARGB32());
+        expect(aro.style, PaintingStyle.stroke);
+        expect(aro.color.toARGB32(), isNot(t.aroCheck.toARGB32()));
+        expect(aro.color.toARGB32(), isNot(verde.toARGB32()));
       },
     );
 
