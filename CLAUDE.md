@@ -7,7 +7,8 @@ dependencia Git.
 Consumidores hoy:
 
 - `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`): hoy
-  `v0.56.0`; `v0.57.0` desde la 1.3.0+9 (el letrero de Neotokyo+).
+  `v0.57.0` (el letrero de Neotokyo+); `v0.58.0` desde la 1.3.0+10 (el aro
+  amarillo del check en Profundidad, T-017).
 - `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`. Con ese core no ve
   las prendas de Nori (el backend no se las da: versión mínima 0.56.0).
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
