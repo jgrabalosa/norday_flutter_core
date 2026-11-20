@@ -244,5 +244,69 @@ class PublicarArte(unittest.TestCase):
             pa.main([os.path.join(self.raiz, "no_existe"), "--salida", self.otra_salida("otra")]), 1)
 
 
+    # La Nori del login (T-036): el apartado `login` del manifiesto.
+
+    def tres_prendas(self):
+        return [self.prenda("gorro_noel", ["huevo", "cria", "adulto"], oculta=["brote"]),
+                self.prenda("traje_noel", ["cria", "adulto"], sitio="cuerpo", fases=("cria", "adulto")),
+                self.prenda("gorro_lana", ["huevo", "cria", "adulto"])]
+
+    def test_login_se_pone_con_el_codigo_de_producto_y_por_orden(self):
+        pa.publicar(self.tres_prendas(), self.salida, login=[
+            ["2027-01-08", "2027-02-28", "gorro_lana"],
+            ["2026-11-24", "2027-01-07", "gorro_noel", "PRENDA_TRAJE_NOEL"],
+        ])
+        self.assertEqual(self.manifiesto()["login"], [
+            {"desde": "2026-11-24", "hasta": "2027-01-07", "prendas": ["PRENDA_GORRO_NOEL", "PRENDA_TRAJE_NOEL"]},
+            {"desde": "2027-01-08", "hasta": "2027-02-28", "prendas": ["PRENDA_GORRO_LANA"]},
+        ])
+
+    def test_login_se_deja_o_se_quita(self):
+        carpetas = self.tres_prendas()
+        pa.publicar(carpetas, self.salida, login=[["2026-11-24", "2027-01-07", "gorro_noel"]])
+        previo = os.path.join(self.salida, "arte", "manifiesto-v1.json")
+        s2 = self.otra_salida("s2")
+        pa.publicar(carpetas, s2, manifiesto=previo)
+        self.assertEqual(self.manifiesto(s2)["login"],
+                         [{"desde": "2026-11-24", "hasta": "2027-01-07", "prendas": ["PRENDA_GORRO_NOEL"]}])
+        s3 = self.otra_salida("s3")
+        pa.publicar(carpetas, s3, manifiesto=previo, sin_login=True)
+        self.assertNotIn("login", self.manifiesto(s3))
+        s4 = self.otra_salida("s4")
+        pa.publicar(carpetas, s4)
+        self.assertNotIn("login", self.manifiesto(s4))
+
+    def test_login_que_no_vale_no_publica_nada(self):
+        carpetas = self.tres_prendas()
+        casos = {
+            "no esta": [["2026-11-24", "2027-01-07", "bufanda"]],
+            "dos en la cabeza": [["2026-11-24", "2027-01-07", "gorro_noel", "gorro_lana"]],
+            "al reves": [["2027-01-07", "2026-11-24", "gorro_noel"]],
+            "fecha mal": [["24-11-2026", "2027-01-07", "gorro_noel"]],
+            "se pisan": [["2026-11-24", "2027-01-07", "gorro_noel"], ["2027-01-07", "2027-02-28", "gorro_lana"]],
+            "codigo raro": [["2026-11-24", "2027-01-07", "Gorro-Noel"]],
+            "sin prenda": [["2026-11-24", "2027-01-07"]],
+        }
+        for i, (nombre, login) in enumerate(casos.items()):
+            with self.subTest(nombre):
+                salida = self.otra_salida(f"mal{i}")
+                with self.assertRaises(pa.ErrorArte):
+                    pa.publicar(carpetas, salida, login=login)
+                self.assertFalse(os.path.exists(os.path.join(salida, "arte")))
+
+    def test_login_desde_la_linea_de_comandos(self):
+        carpetas = self.tres_prendas()
+        self.assertEqual(pa.main(carpetas + ["--salida", self.salida,
+                                             "--login", "2026-11-24", "2027-01-07", "gorro_noel",
+                                             "--login", "2027-01-08", "2027-02-28", "gorro_lana"]), 0)
+        self.assertEqual([p["prendas"] for p in self.manifiesto()["login"]],
+                         [["PRENDA_GORRO_NOEL"], ["PRENDA_GORRO_LANA"]])
+        self.assertEqual(pa.main(carpetas + ["--salida", self.otra_salida("mal"),
+                                             "--login", "2026-11-24", "2027-01-07", "bufanda"]), 1)
+        with self.assertRaises(SystemExit):
+            pa.main(carpetas + ["--salida", self.otra_salida("x"), "--sin-login",
+                                "--login", "2026-11-24", "2027-01-07", "gorro_noel"])
+
+
 if __name__ == "__main__":
     unittest.main()

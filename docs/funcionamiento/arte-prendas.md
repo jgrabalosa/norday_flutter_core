@@ -18,6 +18,9 @@ Se sirve en `<servidor>/arte/manifiesto-v1.json`. `<servidor>` es
 {
   "version": 1,
   "nieve": { "desde": "2026-12-01", "hasta": "2027-01-06" },
+  "login": [
+    { "desde": "2026-11-24", "hasta": "2027-01-07", "prendas": ["PRENDA_GORRO_NOEL"] }
+  ],
   "prendas": {
     "PRENDA_GORRO_LANA": {
       "sitio": "cabeza",
@@ -136,6 +139,17 @@ escena: un solo controlador y un solo pintor para todos, que se paran con
 «reducir animaciones» (la nieve quieta se queda). Sin nieve, el terrario es
 el de siempre, sin la capa ni el controlador en el árbol.
 
+## La Nori del login (`login`, T-036)
+
+Opcional. Una lista de periodos, cada uno con `desde` y `hasta` (`AAAA-MM-DD`,
+ambos incluidos, como la nieve) y las `prendas` que lleva Nori en la pantalla
+de entrada esos días, **la misma para todos** (en el login no hay sesión, así
+que no se sabe qué lleva cada uno). Las prendas van por **código de
+producto**, como las claves de `prendas`, y todas están en el manifiesto;
+una por sitio y sin periodos que se pisen (lo comprueba `publicar_arte.py`).
+Así las fechas se cambian publicando el manifiesto, sin versión nueva de la
+app. **La app lo lee desde T-036**; hasta entonces, el apartado se ignora.
+
 ## Cómo se publica (N-13)
 
 Con `tool/nori_canonica/publicar_arte.py`, desde las carpetas revisadas de
@@ -144,7 +158,8 @@ cada prenda (los PNG `<prenda>_<fase>[_<estado>].png` de 1024 × 1024 y su
 
 ```
 py tool/nori_canonica/publicar_arte.py CARPETA [CARPETA...] --salida SALIDA \
-    [--manifiesto EL_DEL_SERVIDOR.json] [--nieve 2026-11-20 2027-01-06 | --sin-nieve]
+    [--manifiesto EL_DEL_SERVIDOR.json] [--nieve 2026-11-20 2027-01-06 | --sin-nieve] \
+    [--login 2026-11-24 2027-01-07 gorro_noel [--login ...] | --sin-login]
 ```
 
 - Cada PNG pasa a WebP con el **alfa sin pérdida** (`alpha_quality=100`) y el
@@ -160,6 +175,11 @@ py tool/nori_canonica/publicar_arte.py CARPETA [CARPETA...] --salida SALIDA \
   (`PRENDA_<prenda en mayúsculas>`); las demás no se tocan si se parte del
   manifiesto que ya está en el servidor (`--manifiesto`). La nieve se pone,
   se quita o se deja como estaba.
+- La Nori del login, igual: `--login DESDE HASTA PRENDA [PRENDA...]`, una vez
+  por periodo, la pone (la prenda, por su código corto o de producto; se
+  guarda como de producto); `--sin-login` la quita; sin ninguna de las dos se
+  deja como estaba. Una prenda que no está en el manifiesto, dos en el mismo
+  sitio o dos periodos que se pisan no publican nada.
 - `SALIDA` tiene que estar vacía o no existir. Si algo no se puede publicar
   (falta una fase, un nombre que no casa o en mayúsculas, otro tamaño, un PNG
   o un JSON rotos, un `sitio`, `oculta` o `subidaBrote` que no valen, una
