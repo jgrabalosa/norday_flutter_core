@@ -656,65 +656,94 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 56,
-                child: _tiraPaleta(
-                  id,
-                  colores,
-                  alto: 40,
-                  radio: id.radioSecundario,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  CatalogosCore.producto(context, codigo, producto['nombre']),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: t.text),
-                ),
-              ),
-              if (poseido && procesandoEste) ...[
-                const SizedBox(width: 8),
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ] else if (poseido && equipado) ...[
-                const SizedBox(width: 8),
-                _pastillaEquipado(l, t),
-              ],
-            ],
-          ),
-          // «Equipar» baja a su línea, como «Conseguir»: en la fila se
-          // apretaba con el nombre. Tiene el mismo alto que la copia de no
-          // poseído, así que la tarjeta no cambia de altura al poseerlo.
-          if (poseido && !equipado && !procesandoEste) ...[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: () => _equipar(productoId, codigo, 'Tema'),
-                child: Text(l.tiendaEquipar),
+          // Una sola fila: tira, nombre y, a la derecha, el botón (o la
+          // pastilla, o el indicador). Todo centrado en vertical.
+          _filaTema(
+            tira: SizedBox(
+              width: 56,
+              child: _tiraPaleta(
+                id,
+                colores,
+                alto: 40,
+                radio: id.radioSecundario,
               ),
             ),
-          ],
-          if (!poseido) ...[
-            const SizedBox(height: 8),
-            _copiaInvisible(conseguir),
-          ],
+            nombre: Text(
+              CatalogosCore.producto(context, codigo, producto['nombre']),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: t.text),
+            ),
+            derecha: (poseido && procesandoEste)
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : (poseido && equipado)
+                ? _pastillaEquipado(l, t)
+                : poseido
+                ? OutlinedButton(
+                    onPressed: () => _equipar(productoId, codigo, 'Tema'),
+                    child: Text(l.tiendaEquipar),
+                  )
+                : Opacity(
+                    opacity: 0,
+                    child: ExcludeSemantics(child: conseguir),
+                  ),
+          ),
         ],
       ),
     );
 
-    if (!poseido) return _envolverBloqueado(contenido, conseguir);
+    if (!poseido) {
+      return _envolverBloqueado(
+        contenido,
+        _filaTema(
+          tira: const SizedBox(width: 56),
+          nombre: const SizedBox.shrink(),
+          derecha: conseguir,
+        ),
+        centrado: true,
+      );
+    }
     return _margen(contenido);
   }
+
+  /// La fila de una identidad: tira, nombre y, a la derecha, el botón. El
+  /// botón nunca pasa de [_fraccionBotonTema] del hueco que dejan la tira y
+  /// los espacios: con letra grande su etiqueta pasa a dos líneas en vez de
+  /// desbordar la fila. La tarjeta bloqueada pinta con esta misma fila el
+  /// «Conseguir» real sobre la copia, así que los dos miden y caen igual.
+  Widget _filaTema({
+    required Widget tira,
+    required Widget nombre,
+    required Widget derecha,
+  }) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        final hueco = c.maxWidth - 56 - 12 - 8;
+        final tope = hueco.isFinite ? (hueco * _fraccionBotonTema) : 0.0;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            tira,
+            const SizedBox(width: 12),
+            Expanded(child: nombre),
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: tope < 0 ? 0 : tope),
+              child: derecha,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static const double _fraccionBotonTema = 0.65;
 
   Widget _pastillaEquipado(NordayCoreLocalizations l, TokensContextuales t) {
     return Container(
@@ -890,7 +919,16 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   /// va encima y fuera del filtro, en el hueco que la fila le reserva; en esa
   /// esquina el candado cede su sitio al boton. Tocar la tarjeta lleva también
   /// a la tienda, y el toque del boton gana al de la tarjeta: se abre una vez.
-  Widget _envolverBloqueado(Widget tarjeta, Widget conseguir) {
+  ///
+  /// Con [centrado] (las identidades) [conseguir] es la fila entera de
+  /// `_filaTema` con el boton real en su sitio, centrada en vertical dentro
+  /// del relleno de la caja; sin él (los consumibles), es el boton, en la
+  /// esquina inferior derecha.
+  Widget _envolverBloqueado(
+    Widget tarjeta,
+    Widget conseguir, {
+    bool centrado = false,
+  }) {
     return _margen(
       GestureDetector(
         onTap: _irATienda,
@@ -904,7 +942,15 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
               ),
             ),
             // Mismo sitio que la copia invisible: el relleno de la caja es 12.
-            Positioned(right: 12, bottom: 12, child: conseguir),
+            if (centrado)
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Align(alignment: Alignment.center, child: conseguir),
+                ),
+              )
+            else
+              Positioned(right: 12, bottom: 12, child: conseguir),
           ],
         ),
       ),
