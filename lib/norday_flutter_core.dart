@@ -56,7 +56,7 @@ export 'widgets/burbuja_flotante.dart';
 export 'widgets/campo_identidad.dart';
 export 'widgets/celebracion_nivel.dart';
 export 'widgets/check_circular.dart';
-export 'widgets/cierre_del_dia.dart';
+export 'widgets/cierre_del_dia.dart' hide cambiosCierreDelDia, veloCierreDelDia;
 export 'widgets/ramo_dulce.dart';
 export 'widgets/ramo_del_dia.dart';
 export 'widgets/letrero_del_dia.dart';

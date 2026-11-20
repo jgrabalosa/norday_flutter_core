@@ -3,6 +3,15 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## 0.59.1 — 20-nov-2026
+
+### Arreglado
+
+- **Neotokyo+, cierre del día:** el letrero de la lista ya no se enciende a
+  la vez que el grande de la ceremonia. Se veía doble a través del velo y
+  estropeaba la sorpresa. Ahora espera apagado y se enciende, todos los
+  tubos a la vez, al ritmo del velo que se va.
+
 ## 0.59.0 — 20-nov-2026
 
 ### Nuevo

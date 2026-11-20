@@ -18,8 +18,10 @@ import 'letreros.dart';
 /// - **De día:** cada hábito hecho deja su tubo como cristal apagado; al
 ///   marcar, el tubo entra con un fundido, y al desmarcar se va.
 /// - **En la ceremonia del cierre** el letrero grande lo pinta la ceremonia
-///   (`mostrarCierreDelDia`); este, debajo del velo, se enciende a la vez,
-///   tubo a tubo, y al irse el velo queda encendido en su sitio.
+///   (`mostrarCierreDelDia`); este, debajo del velo, espera apagado (si se
+///   encendiera a la vez, se vería doble a través del velo: Quim, 20-nov) y
+///   se enciende al irse el velo, todos los tubos a la vez y al ritmo del
+///   velo.
 /// - **Con el día cerrado sin ceremonia** (abrir la app con el día ya
 ///   cerrado, volver a hoy en la tira): aparece encendido con un fundido, sin
 ///   volver a parpadear. Montado con el día ya cerrado, sale encendido de
@@ -86,6 +88,28 @@ class _LetreroDelDiaState extends State<LetreroDelDia>
       value: _encender ? 1.0 : 0.0,
     );
     diaCerradoNotifier.addListener(_actualizarEncendido);
+    cambiosCierreDelDia.addListener(_alCambiarCierre);
+  }
+
+  /// Si el velo de la ceremonia en curso ya ha llegado arriba: desde ahí,
+  /// lo que baje es que se va.
+  bool _veloArriba = false;
+
+  void _alCambiarCierre() {
+    if (!hayCierreDelDiaEnCurso) {
+      _veloArriba = false;
+    } else if (veloCierreDelDia >= 1) {
+      _veloArriba = true;
+    }
+    setState(() {});
+  }
+
+  /// Cuánto se deja ver la luz, de 0 a 1: en la ceremonia, nada hasta que
+  /// el velo empieza a irse, y luego lo que se haya ido.
+  double get _luzVisible {
+    if (!hayCierreDelDiaEnCurso) return 1;
+    if (!_veloArriba) return 0;
+    return 1 - veloCierreDelDia;
   }
 
   @override
@@ -100,10 +124,10 @@ class _LetreroDelDiaState extends State<LetreroDelDia>
         _uniforme = false;
         _encendido.value = 1;
       } else if (hayCierreDelDiaEnCurso) {
-        // La ceremonia: tubo a tubo, con su parpadeo y el zumbido.
-        _uniforme = false;
-        _encendido.duration = duracionEncendidoLetrero(_progreso.total);
-        _encendido.forward(from: 0);
+        // La ceremonia: encendido ya, pero sin dar luz hasta que se vaya el
+        // velo ([_luzVisible]).
+        _empezarUniforme(entrando: true);
+        _encendido.value = 1;
       } else {
         // El día ya estaba cerrado: un fundido, todos a la vez.
         _empezarUniforme(entrando: true);
@@ -134,12 +158,14 @@ class _LetreroDelDiaState extends State<LetreroDelDia>
     uniforme: _uniforme,
     techo: _techo,
     escala: _escala,
+    luzVisible: _luzVisible,
   );
 
   @override
   void dispose() {
     progresoDiaNotifier.removeListener(_alCambiarProgreso);
     diaCerradoNotifier.removeListener(_actualizarEncendido);
+    cambiosCierreDelDia.removeListener(_alCambiarCierre);
     _cancelarTodo();
     _encendido.dispose();
     super.dispose();
@@ -241,6 +267,10 @@ class PintorLetreroDelDia extends CustomPainter {
   final List<double> techo;
   final double escala;
 
+  /// Cuánto se deja ver la luz, de 0 a 1 (en la ceremonia del cierre, el de
+  /// la lista espera debajo del velo).
+  final double luzVisible;
+
   const PintorLetreroDelDia(
     this.tokens,
     this.progreso, {
@@ -250,6 +280,7 @@ class PintorLetreroDelDia extends CustomPainter {
     this.uniforme = false,
     this.techo = const [],
     this.escala = 1,
+    this.luzVisible = 1,
   });
 
   /// Cuánto se ve el cristal del tubo [i], de 0 a 1.
@@ -265,12 +296,14 @@ class PintorLetreroDelDia extends CustomPainter {
 
   /// Cuánto brilla el tubo [i], de 0 a 1.
   double luz(int i) {
-    if (encendido <= 0) return 0;
+    if (encendido <= 0 || luzVisible <= 0) return 0;
     if (uniforme) {
       final t = i < techo.length ? techo[i] : 1.0;
-      return escala <= 0 ? 0 : (t * encendido / escala).clamp(0.0, 1.0);
+      return escala <= 0
+          ? 0
+          : (t * encendido / escala * luzVisible).clamp(0.0, 1.0);
     }
-    return luzTuboEnEncendido(i, progreso.total, encendido);
+    return luzTuboEnEncendido(i, progreso.total, encendido) * luzVisible;
   }
 
   @override
@@ -311,6 +344,7 @@ class PintorLetreroDelDia extends CustomPainter {
       old.encendido != encendido ||
       old.uniforme != uniforme ||
       old.escala != escala ||
+      old.luzVisible != luzVisible ||
       !listEquals(old.techo, techo) ||
       !_iguales(old.entradas, entradas) ||
       !_iguales(old.salidas, salidas);

@@ -216,7 +216,8 @@ void main() {
     });
 
     testWidgets(
-      'en la ceremonia del cierre se enciende tubo a tubo y se queda',
+      'en la ceremonia, el de la lista espera apagado y se enciende al irse '
+      'el velo (Quim, 20-nov: debajo del velo se veía doble)',
       (tester) async {
         publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
         await montar(tester);
@@ -229,25 +230,56 @@ void main() {
         );
         await tester.pump();
 
-        // Poco después del velo, el primero ya ha arrancado y el último no.
-        await tester.pump(const Duration(milliseconds: 700));
-        expect(pintor(tester).luz(0), greaterThan(0));
-        expect(pintor(tester).luz(2), 0);
-
+        // Mientras la ceremonia enciende el grande, este no da luz: solo
+        // su cristal apagado.
+        for (final ms in [100, 700, 1500]) {
+          await tester.pump(Duration(milliseconds: ms));
+          final p = pintor(tester);
+          expect(
+            [for (var i = 0; i < 3; i++) p.luz(i)],
+            everyElement(0),
+            reason: 'durante la ceremonia',
+          );
+          expect(p.cristal(2), 1);
+        }
         await tester.pump(duracionEncendidoLetrero(3));
-        final p = pintor(tester);
-        expect([for (var i = 0; i < 3; i++) p.luz(i)], everyElement(1));
-        expect(p.encendido, 1);
+        expect(
+          [for (var i = 0; i < 3; i++) pintor(tester).luz(i)],
+          everyElement(0),
+          reason: 'con el grande ya encendido',
+        );
 
-        // Al cerrar la ceremonia, el letrero se queda encendido.
+        // Al irse el velo se enciende, todos a la vez y con él.
         await tester.pump(const Duration(seconds: 3));
         await tester.tapAt(const Offset(200, 300));
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 600));
+        await tester.pump(const Duration(milliseconds: 250));
+        final medio = pintor(tester);
+        final luces = [for (var i = 0; i < 3; i++) medio.luz(i)];
+        expect(luces.first, greaterThan(0));
+        expect(luces.first, lessThan(1));
+        expect(luces, everyElement(luces.first), reason: 'todos a la vez');
+
+        await tester.pump(const Duration(milliseconds: 350));
         expect(cerrado, isTrue);
-        expect(pintor(tester).encendido, 1);
+        final p = pintor(tester);
+        expect([for (var i = 0; i < 3; i++) p.luz(i)], everyElement(1));
+        expect(p.encendido, 1);
       },
     );
+
+    testWidgets('con «reducir movimiento», en la ceremonia tampoco da luz y al '
+        'cerrarla sale encendido', (tester) async {
+      publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+      await montar(tester, sinMovimiento: true);
+      unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(pintor(tester).luz(0), 0);
+      await tester.tapAt(const Offset(200, 300));
+      await tester.pump();
+      expect(pintor(tester).luz(0), 1);
+    });
 
     testWidgets(
       'con el día cerrado sin ceremonia (abrir la app, volver a hoy), '
