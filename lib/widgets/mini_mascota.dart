@@ -104,6 +104,8 @@ class _MiniMascotaState extends State<MiniMascota> {
       final data = await ApiServiceCore.getMascota(widget.usuarioId);
       estado = animoDeMascota(data);
       fase = data['fase'];
+      // Para el avatar (T-032): solo con una lectura buena.
+      faseMascotaNotifier.value = fase;
     } catch (_) {
       // Si falla, se muestra igualmente con fase y estado por defecto
     }

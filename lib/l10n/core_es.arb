@@ -107,6 +107,10 @@
     }
   },
   "perfilTitulo": "Mi cuenta",
+  "perfilAvatarSemantica": "Tu Nori",
+  "@perfilAvatarSemantica": {
+    "description": "Lo que dice el lector de pantalla del avatar de arriba de Mi cuenta: la mascota del usuario, con su fase y sus prendas."
+  },
   "perfilActualizado": "Perfil actualizado ✅",
   "perfilErrorGuardar": "No se pudo guardar el perfil. Inténtalo de nuevo.",
   "perfilPassActualizada": "Contraseña actualizada ✅",

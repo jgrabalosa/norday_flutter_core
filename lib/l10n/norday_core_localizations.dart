@@ -439,6 +439,12 @@ abstract class NordayCoreLocalizations {
   /// **'Mi cuenta'**
   String get perfilTitulo;
 
+  /// Lo que dice el lector de pantalla del avatar de arriba de Mi cuenta: la mascota del usuario, con su fase y sus prendas.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu Nori'**
+  String get perfilAvatarSemantica;
+
   /// No description provided for @perfilActualizado.
   ///
   /// In es, this message translates to:
