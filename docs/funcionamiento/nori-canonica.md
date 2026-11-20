@@ -35,7 +35,8 @@ quiere sombra, va aparte, no en el dibujo.
 y `…_brote.png` (unos 3,5 MB). `assets/mascota/` declara solo los ficheros de
 esa carpeta, no los de `canonica/`; las máscaras `…_pantalla.png` y
 `geometria.json` son de las herramientas y no entran en las apps. Los 12
-originales siguen: los usan `NoriMarca`, el avatar y Nori sin prendas.
+originales siguen: los usan `NoriMarca` y Nori sin prendas (también la del
+avatar).
 
 ## Cómo se montan las capas (`NoriVestida`, N-9)
 
@@ -62,8 +63,11 @@ manifiesto.
 - El lector oye «Lleva: …» con los nombres traducidos (`noriLleva`); un código
   sin traducción no sale.
 - Sale vestida en la pantalla de Nori (la grande y las miniaturas del
-  selector de fases) y en la mini Nori de Hoy (`vestida: true`). El splash, el
-  login (`NoriMarca`) y el avatar, no (decisión 16).
+  selector de fases), en la mini Nori de Hoy (`vestida: true`) y, desde
+  T-032, en el avatar (`AvatarUsuario` sin avatar equipado: tu Nori, con la
+  fase de `faseMascotaNotifier` y siempre feliz; en Colección y en Mi
+  cuenta). El splash y el login (`NoriMarca`), no (decisión 16, que para el
+  avatar cambió T-032).
 
 ## El contrato
 

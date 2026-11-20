@@ -37,8 +37,8 @@ const Color fondoAvatar = Color(0x339CA3AF);
 
 final ValueNotifier<String?> avatarEquipadoNotifier = ValueNotifier(null);
 
-/// Aplica un avatar por su código de producto. `null` deja el círculo con la
-/// inicial del nombre, que es el estado por defecto.
+/// Aplica un avatar por su código de producto. `null` deja tu Nori, que es el
+/// estado por defecto.
 ///
 /// Sólo pinta: quién está equipado lo decide el backend, y quien lo cambia es
 /// `equiparAvatar` en equipamiento.dart. Antes esto escribía además en

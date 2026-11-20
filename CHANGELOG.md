@@ -3,6 +3,16 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Tu Nori como avatar** (T-032): sin avatar equipado, `AvatarUsuario` pinta
+  tu Nori, con su fase y lo que lleva puesto (`NoriVestida`, siempre feliz),
+  en vez de la cría fija. Sale en Colección y, nuevo, arriba de Mi cuenta
+  («Tu Nori» para el lector). La fase llega por `faseMascotaNotifier`, que
+  llenan `MiniMascota` y `MascotaScreen` y que se vacía al cerrar sesión.
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
