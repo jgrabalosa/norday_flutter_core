@@ -22,6 +22,9 @@ está en `git log`.
   el ramo entero a grafito, que se colorea y se ata en `duracionRamoCierre`
   (1,9 s), sin depender de cuántos hábitos hay.
 - Se exporta `nombreLetrero`, para que la app lo lea en voz alta.
+- Los sonidos, más bajos: el de completar baja 8 dB (estaba a -12 LUFS y
+  saturaba) y el de logro, 2,5 dB. Los dos quedan a unos -20 LUFS, con los
+  picos a -6 dBFS. Mismo formato (MP3, 256 kbps, 44,1 kHz).
 
 ## 0.58.0 — 20-nov-2026
 
