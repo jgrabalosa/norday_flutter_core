@@ -3,6 +3,29 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## 0.59.0 — 20-nov-2026
+
+### Nuevo
+
+- **El letrero de Neotokyo+ y el ramo de Dulce tienen su sitio en la lista de
+  Hoy** (D-41): `LetreroDelDia` y `RamoDelDia`, que monta la app al final de
+  su lista y que crecen ahí con cada hábito hecho. El ramo va a grafito
+  mientras el día está abierto (`RamoDulce.boceto`). Sustituye a T-030.
+
+### Cambiado
+
+- `CapaProgresoIdentidad` ya no pinta el letrero de Neotokyo+: se formaba
+  por encima de toda la pantalla, detrás de los hábitos. Solo la usa
+  Profundidad. `CapaLetrero` desaparece.
+- La ceremonia del cierre pinta la figura en grande: en Neotokyo+, el
+  letrero que se enciende tubo a tubo (`PintorLetreroCeremonia`); en Dulce,
+  el ramo entero a grafito, que se colorea y se ata en `duracionRamoCierre`
+  (1,9 s), sin depender de cuántos hábitos hay.
+- Se exporta `nombreLetrero`, para que la app lo lea en voz alta.
+- Los sonidos, más bajos: el de completar baja 8 dB (estaba a -12 LUFS y
+  saturaba) y el de logro, 2,5 dB. Los dos quedan a unos -20 LUFS, con los
+  picos a -6 dBFS. Mismo formato (MP3, 256 kbps, 44,1 kHz).
+
 ## 0.58.0 — 20-nov-2026
 
 ### Cambiado

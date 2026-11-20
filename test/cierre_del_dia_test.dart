@@ -327,16 +327,16 @@ void main() {
         contains('Ramillete'),
       );
 
-      // Con 3 flores y el atado, el ramo son 4 etapas de 500 ms más los 500
-      // de velo, y los textos empiezan cuando el ramo está formado: a los
-      // 3000 ms aún no se puede cerrar.
+      // El ramo tarda duracionRamoCierre (1900 ms: velo, coloreado y atado) y los
+      // textos (2900 ms) empiezan cuando está hecho: a los 3000 ms aún no se
+      // puede cerrar.
       await tester.pump(const Duration(milliseconds: 2000));
       tester.semantics.tap(nodoRamoSemantico());
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
       expect(cerrado, isFalse, reason: 'a los 3000 ms');
 
-      // Después de los 5400 ms, con el ramo y los textos ya dentro, sí.
+      // Después de los 4800 ms, con el ramo y los textos ya dentro, sí.
       await tester.pump(const Duration(milliseconds: 3000));
       tester.semantics.tap(nodoRamoSemantico());
       await tester.pump();
@@ -417,4 +417,107 @@ void main() {
       semantica.dispose();
     },
   );
+
+  group('D-41: la figura en grande', () {
+    List<RamoDulce> ramos(WidgetTester tester) =>
+        tester.widgetList<RamoDulce>(find.byType(RamoDulce)).toList();
+
+    testWidgets(
+      'en Dulce, empieza con todas las flores a grafito, se colorea y acaba '
+      'atado',
+      (tester) async {
+        await montar(tester, codigo: 'TEMA_DULCE');
+        unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        var r = ramos(tester);
+        expect(r, hasLength(1), reason: 'al empezar, solo el boceto');
+        expect(
+          (r.single.boceto, r.single.atado, r.single.flores),
+          (true, false, null),
+          reason: 'todas las flores (null), a grafito y sin atar',
+        );
+
+        // A media coloración: el boceto debajo y el de color entrando.
+        await tester.pump(const Duration(milliseconds: 850));
+        r = ramos(tester);
+        expect([for (final x in r) x.boceto], [true, false]);
+
+        await tester.pump(duracionRamoCierre);
+        r = ramos(tester);
+        expect(r, hasLength(1));
+        expect((r.single.boceto, r.single.atado), (false, true));
+      },
+    );
+
+    testWidgets('en Dulce, la ceremonia ya no depende de cuántos hábitos hay', (
+      tester,
+    ) async {
+      await montar(tester, codigo: 'TEMA_DULCE');
+      publicarProgresoDia(hechos: 8, total: 8, fecha: DateTime(2026, 10, 18));
+      unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+      await tester.pump();
+      await tester.pump(duracionRamoCierre);
+      final r = ramos(tester);
+      expect((r.single.boceto, r.single.atado), (false, true));
+    });
+
+    testWidgets(
+      'en Neotokyo+, la ceremonia pinta el letrero entero y lo enciende tubo '
+      'a tubo',
+      (tester) async {
+        await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
+        unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+        await tester.pump();
+        PintorLetreroCeremonia pintor() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .map((c) => c.painter)
+            .whereType<PintorLetreroCeremonia>()
+            .single;
+        expect(pintor().total, 3);
+        expect([for (var i = 0; i < 3; i++) pintor().luz(i)], everyElement(0));
+
+        await tester.pump(duracionEncendidoLetrero(3));
+        expect([for (var i = 0; i < 3; i++) pintor().luz(i)], everyElement(1));
+      },
+    );
+
+    testWidgets(
+      'en Neotokyo+, el letrero entra con el velo sumando luz siempre: sin '
+      'Opacity encima, que lo pintaría con mezcla normal hasta el final del '
+      'velo y daría un salto (revisión del 20-nov)',
+      (tester) async {
+        await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
+        unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 200));
+        final pintado = find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.painter is PintorLetreroCeremonia,
+        );
+        expect(
+          find.ancestor(of: pintado, matching: find.byType(Opacity)),
+          findsNothing,
+        );
+        final p =
+            tester.widget<CustomPaint>(pintado).painter!
+                as PintorLetreroCeremonia;
+        expect(p.alfa, inExclusiveRange(0, 1), reason: 'a media entrada');
+      },
+    );
+
+    testWidgets('en Profundidad no pinta ni ramo ni letrero', (tester) async {
+      await montar(tester);
+      unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1000));
+      expect(find.byType(RamoDulce), findsNothing);
+      expect(
+        tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .map((c) => c.painter)
+            .whereType<PintorLetreroCeremonia>(),
+        isEmpty,
+      );
+    });
+  });
 }

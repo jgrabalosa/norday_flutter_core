@@ -1685,8 +1685,12 @@ void dibujarRamoDulce(
   }
 }
 
-/// El ramo del cierre del día de Dulce. Mide [alto] de alto y alto·260/360
-/// de ancho. Se graba una vez en la caché del lápiz por cada combinación.
+/// El ramo del día de Dulce. Mide [alto] de alto y alto·260/360 de ancho.
+/// Se graba una vez en la caché del lápiz por cada combinación.
+///
+/// Con [boceto], el mismo ramo a grafito: todos los colores pasan a grises
+/// de su misma luz. Es como se ve mientras el día está abierto (D-41); la
+/// ceremonia del cierre lo colorea.
 class RamoDulce extends StatelessWidget {
   const RamoDulce({
     super.key,
@@ -1694,6 +1698,7 @@ class RamoDulce extends StatelessWidget {
     required this.alto,
     this.flores,
     this.atado = true,
+    this.boceto = false,
   });
 
   final int total;
@@ -1702,6 +1707,9 @@ class RamoDulce extends StatelessWidget {
   /// Cuántas flores se ven; null = todas.
   final int? flores;
   final bool atado;
+
+  /// A grafito, sin color.
+  final bool boceto;
 
   static const double ancho = 260, altoMarco = 360;
 
@@ -1714,34 +1722,64 @@ class RamoDulce extends StatelessWidget {
           total: total,
           flores: flores ?? total,
           atado: atado,
+          boceto: boceto,
         ),
       ),
     );
   }
 }
 
+/// El grafito: cada color pasa a su luz (luminancia de Rec. 709) entre el
+/// blanco y el gris del lápiz de Dulce (`0xFF5A5560`): el blanco sigue
+/// blanco, el negro queda en ese gris y lo demás, en medio. Así el papel del
+/// ramo no se tiñe y los trazos quedan a grafito.
+const List<double> _matrizGrafito = [
+  0.1376, 0.4628, 0.0467, 0, 90, //
+  0.1417, 0.4768, 0.0481, 0, 85, //
+  0.1326, 0.4459, 0.0450, 0, 96, //
+  0, 0, 0, 1, 0,
+];
+
 class _PintorRamo extends CustomPainter {
-  _PintorRamo({required this.total, required this.flores, required this.atado});
+  _PintorRamo({
+    required this.total,
+    required this.flores,
+    required this.atado,
+    required this.boceto,
+  });
 
   final int total;
   final int flores;
   final bool atado;
+  final bool boceto;
 
   @override
   void paint(Canvas canvas, Size size) {
-    pintarConCache(canvas, ('ramo', total.clamp(0, 8), flores, atado), size, (
-      c,
-    ) {
-      c.scale(size.height / RamoDulce.altoMarco);
-      dibujarRamoDulce(c, total, flores: flores, atado: atado);
-    }, desborde: 2);
+    pintarConCache(
+      canvas,
+      ('ramo', total.clamp(0, 8), flores, atado, boceto),
+      size,
+      (c) {
+        if (boceto) {
+          c.saveLayer(
+            null,
+            Paint()..colorFilter = const ColorFilter.matrix(_matrizGrafito),
+          );
+        }
+        c.scale(size.height / RamoDulce.altoMarco);
+        dibujarRamoDulce(c, total, flores: flores, atado: atado);
+        if (boceto) c.restore();
+      },
+      desborde: 2,
+    );
   }
 
   @override
   bool shouldRepaint(_PintorRamo anterior) =>
       anterior.total != total ||
       anterior.flores != flores ||
-      anterior.atado != atado;
+      anterior.atado != atado ||
+      anterior.boceto != boceto;
 }
 
 /// El nombre del ramo de [total] hábitos, en el idioma activo. De 8 en adelante, «Gran ramo».

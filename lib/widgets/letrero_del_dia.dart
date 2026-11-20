@@ -3,49 +3,46 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/progreso_dia.dart';
-import 'capa_constelacion.dart';
 import 'cierre_del_dia.dart';
 import 'letreros.dart';
 
-/// El letrero del día de Neotokyo+ (D-35), en su propia capa por ENCIMA del
-/// contenido, como la constelación de Profundidad.
+/// El letrero del día de Neotokyo+ (D-35) en su sitio de la lista de Hoy
+/// (D-41): un tubo por hábito hecho, que crece ahí durante el día. Antes iba
+/// en una capa por encima de toda la pantalla y se formaba detrás de los
+/// hábitos.
 ///
-/// NO se exporta en el barrel. La puerta es `CapaProgresoIdentidad`.
+/// Lee el progreso del día ([progresoDiaNotifier]) y si está cerrado
+/// ([diaCerradoNotifier]); no sabe qué se cuenta. Ocupa siempre [alto] y
+/// pinta el letrero en el cuadrado del centro.
 ///
 /// - **De día:** cada hábito hecho deja su tubo como cristal apagado; al
 ///   marcar, el tubo entra con un fundido, y al desmarcar se va.
-/// - **En la ceremonia del cierre** (`mostrarCierreDelDia`, que va por debajo
-///   de esta capa): los tubos se encienden uno a uno con el parpadeo del neón
-///   y el letrero entero zumba; la ceremonia espera a
-///   [duracionEncendidoLetrero] para sacar los textos. Después se queda
-///   encendido, en Hoy.
+/// - **En la ceremonia del cierre** el letrero grande lo pinta la ceremonia
+///   (`mostrarCierreDelDia`); este, debajo del velo, se enciende a la vez,
+///   tubo a tubo, y al irse el velo queda encendido en su sitio.
 /// - **Con el día cerrado sin ceremonia** (abrir la app con el día ya
-///   cerrado, volver a hoy en la tira): el letrero aparece encendido con un
-///   fundido, sin volver a parpadear, como el realce de la constelación.
-///   Montada con el día ya cerrado, o al volver a Hoy desde otra pestaña,
-///   sale encendido de golpe. Si cambia el letrero (otro día u otro número
-///   de hábitos), el encendido no se hereda.
+///   cerrado, volver a hoy en la tira): aparece encendido con un fundido, sin
+///   volver a parpadear. Montado con el día ya cerrado, sale encendido de
+///   golpe. Si cambia el letrero (otro día u otro número de hábitos), el
+///   encendido no se hereda.
 /// - **Al reabrir el día** (deshacer el último): se apaga en 400 ms, cada
 ///   tubo desde la luz que tuviera.
 ///
-/// Mismas reglas que la constelación: sólo se anima un cambio de `completas`
-/// del mismo día y con el mismo `total`; al montarse, al cambiar de día o de
-/// número de hábitos, el cristal aparece quieto. Pinta con mezcla aditiva y
-/// lleva [IgnorePointer].
-class CapaLetrero extends StatefulWidget {
-  /// Los colores de la identidad: la tríada de neón sale de aquí.
-  final TokensContextuales tokens;
+/// Sólo se anima un cambio de `completas` del mismo día y con el mismo
+/// `total`; al montarse, al cambiar de día o de número de hábitos, el cristal
+/// aparece quieto. Pinta con mezcla aditiva, no lleva semántica propia (la
+/// pone la app) y no recibe toques.
+class LetreroDelDia extends StatefulWidget {
+  /// Alto del sitio en la lista.
+  final double alto;
 
-  /// Si la capa está encima de Hoy. El letrero encendido sólo se pinta ahí.
-  final bool enHoy;
-
-  const CapaLetrero({super.key, required this.tokens, this.enHoy = false});
+  const LetreroDelDia({super.key, required this.alto});
 
   @override
-  State<CapaLetrero> createState() => _CapaLetreroState();
+  State<LetreroDelDia> createState() => _LetreroDelDiaState();
 }
 
-class _CapaLetreroState extends State<CapaLetrero>
+class _LetreroDelDiaState extends State<LetreroDelDia>
     with TickerProviderStateMixin {
   static const _duracionEntrada = Duration(milliseconds: 600);
   static const _duracionSalida = Duration(milliseconds: 400);
@@ -76,7 +73,7 @@ class _CapaLetreroState extends State<CapaLetrero>
   /// El valor del encendido al empezar a apagar (al entrar, 1).
   double _escala = 1;
 
-  bool get _encender => widget.enHoy && diaCerradoNotifier.value;
+  bool get _encender => diaCerradoNotifier.value;
 
   @override
   void initState() {
@@ -95,17 +92,6 @@ class _CapaLetreroState extends State<CapaLetrero>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _sinMovimiento = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-  }
-
-  @override
-  void didUpdateWidget(covariant CapaLetrero oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Cambiar de pestaña no es cerrar el día: el letrero aparece o se va
-    // sin volver a parpadear.
-    if (oldWidget.enHoy != widget.enHoy) {
-      _uniforme = false;
-      _encendido.value = _encender ? 1 : 0;
-    }
   }
 
   void _actualizarEncendido() {
@@ -139,8 +125,8 @@ class _CapaLetreroState extends State<CapaLetrero>
     _uniforme = true;
   }
 
-  PintorCapaLetrero _pintor() => PintorCapaLetrero(
-    widget.tokens,
+  PintorLetreroDelDia _pintor() => PintorLetreroDelDia(
+    tokens(context),
     _progreso,
     entradas: {for (final e in _entradas.entries) e.key: e.value.value},
     salidas: {for (final e in _salidas.entries) e.key: e.value.value},
@@ -220,18 +206,24 @@ class _CapaLetreroState extends State<CapaLetrero>
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: AnimatedBuilder(
-        animation: _encendido,
-        builder: (context, _) =>
-            CustomPaint(painter: _pintor(), size: Size.infinite),
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: widget.alto,
+          width: double.infinity,
+          child: AnimatedBuilder(
+            animation: _encendido,
+            builder: (context, _) =>
+                CustomPaint(painter: _pintor(), size: Size.infinite),
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Pinta la capa del letrero. Público para los tests: la capa no deja ver
-/// otra cosa que lo que pinta.
-class PintorCapaLetrero extends CustomPainter {
+/// Pinta el letrero en el cuadrado centrado de su caja. Público para los
+/// tests: el widget no deja ver otra cosa que lo que pinta.
+class PintorLetreroDelDia extends CustomPainter {
   final TokensContextuales tokens;
   final ProgresoDia progreso;
 
@@ -249,7 +241,7 @@ class PintorCapaLetrero extends CustomPainter {
   final List<double> techo;
   final double escala;
 
-  const PintorCapaLetrero(
+  const PintorLetreroDelDia(
     this.tokens,
     this.progreso, {
     required this.entradas,
@@ -285,18 +277,19 @@ class PintorCapaLetrero extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final letrero = letreroPara(progreso.total);
     if (letrero == null) return;
-    final cuadro = cuadroConstelacion(size);
+    final lado = size.shortestSide;
+    final cuadro = Rect.fromCenter(
+      center: size.center(Offset.zero),
+      width: lado,
+      height: lado,
+    );
 
-    // Igual que en Profundidad: con el día cerrado, lo de debajo se apaga un
-    // poco para que el letrero destaque. Fuera de la capa aditiva, que solo
-    // sabe sumar luz.
-    if (encendido > 0) {
-      canvas.drawRect(
-        Offset.zero & size,
-        Paint()..color = Colors.black.withValues(alpha: 0.25 * encendido),
-      );
-    }
-    canvas.saveLayer(Offset.zero & size, Paint()..blendMode = BlendMode.plus);
+    // La capa, más grande que el cuadro: si no, el halo de los tubos de los
+    // bordes se cortaría en recto.
+    canvas.saveLayer(
+      cuadro.inflate(lado * 0.2),
+      Paint()..blendMode = BlendMode.plus,
+    );
     pintarLetrero(
       canvas,
       cuadro,
@@ -310,7 +303,7 @@ class PintorCapaLetrero extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant PintorCapaLetrero old) =>
+  bool shouldRepaint(covariant PintorLetreroDelDia old) =>
       old.tokens.primary != tokens.primary ||
       old.tokens.streak != tokens.streak ||
       old.tokens.points != tokens.points ||
