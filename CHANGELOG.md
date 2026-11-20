@@ -3,6 +3,14 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambiado
+
+- Los sonidos, más bajos: el de completar baja 8 dB (estaba a -12 LUFS y
+  saturaba) y el de logro, 2,5 dB. Los dos quedan a unos -20 LUFS, con los
+  picos a -6 dBFS. Mismo formato (MP3, 256 kbps, 44,1 kHz).
+
 ## 0.58.0 — 20-nov-2026
 
 ### Cambiado
