@@ -231,6 +231,7 @@ class _CheckCircularState extends State<CheckCircular>
                       ? _VueltaPainter(
                           progreso: _vuelta.value,
                           color: t.streak,
+                          colorLapiz: t.text,
                           forma: identidad(context).forma,
                           chaflan: identidad(context).chaflan,
                         )
@@ -345,17 +346,19 @@ Path _figuraDe(
 }
 
 /// El pintado de la vuelta de «el check vivo». El dibujo de cada identidad
-/// está en el `switch` de [paint]: T-018b solo tiene que sustituir las dos
-/// ramas provisionales por su función (reciben figura y progreso 0-1).
+/// está en el `switch` de [paint]: [color] es el `streak` (Profundidad y
+/// Neotokyo+) y [colorLapiz] el `text` (Dulce).
 class _VueltaPainter extends CustomPainter {
   final double progreso;
   final Color color;
+  final Color colorLapiz;
   final FormaIdentidad forma;
   final double chaflan;
 
   _VueltaPainter({
     required this.progreso,
     required this.color,
+    required this.colorLapiz,
     required this.forma,
     required this.chaflan,
   });
@@ -385,15 +388,22 @@ class _VueltaPainter extends CustomPainter {
           color: color,
           grosor: aro,
         );
-      // Provisional hasta T-018b: el neón (Neotokyo+) y el lápiz (Dulce).
       case FormaIdentidad.chamfer:
-      case FormaIdentidad.pill:
-        pintarVueltaProvisional(
+        pintarVueltaNeotokyo(
           canvas,
           figura,
           progreso,
           color: color,
           grosor: aro,
+        );
+      case FormaIdentidad.pill:
+        pintarVueltaDulce(
+          canvas,
+          figura,
+          progreso,
+          color: colorLapiz,
+          grosor: aro,
+          semilla: semillaDe(size) + 29,
         );
     }
   }
@@ -402,6 +412,7 @@ class _VueltaPainter extends CustomPainter {
   bool shouldRepaint(_VueltaPainter old) =>
       old.progreso != progreso ||
       old.color != color ||
+      old.colorLapiz != colorLapiz ||
       old.forma != forma ||
       old.chaflan != chaflan;
 }
