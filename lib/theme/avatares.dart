@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
-import 'mascota_assets.dart';
-import '../widgets/imagen_mascota.dart';
+import 'mascota_refresh.dart';
+import '../models/manifiesto_arte.dart';
+import '../widgets/nori_vestida.dart';
 
 /// Info visual de un avatar: la imagen real (Noto Emoji, Apache 2.0 — ver
 /// assets/avatares/LICENCIA.txt). El PNG es transparente, asi que el color de
@@ -45,11 +49,24 @@ void aplicarAvatarEquipado(String? codigo) {
       (codigo != null && catalogoAvatares.containsKey(codigo)) ? codigo : null;
 }
 
-/// Círculo de avatar reutilizable: el avatar equipado, o Nori si no hay
+/// Círculo de avatar reutilizable: el avatar equipado, o tu Nori si no hay
 /// ninguno.
 class AvatarUsuario extends StatelessWidget {
   final double radius;
-  const AvatarUsuario({super.key, this.radius = 18});
+
+  /// Para los tests, como en [NoriVestida]: lo puesto, el manifiesto y de
+  /// dónde sale el fichero de una prenda. Por defecto, los de toda la app.
+  final ValueListenable<Map<String, String>>? prendas;
+  final ValueListenable<ManifiestoArte>? manifiesto;
+  final Future<File?> Function(String ruta)? imagenPrenda;
+
+  const AvatarUsuario({
+    super.key,
+    this.radius = 18,
+    this.prendas,
+    this.manifiesto,
+    this.imagenPrenda,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +80,23 @@ class AvatarUsuario extends StatelessWidget {
         // backgroundColor usa los colores de serie de Material— y al lado de
         // los avatares ilustrados se veía como un error.
         //
-        // Nori va FIJA, en fase cría: pintar la mascota real del usuario
-        // exigiría fase y estado, que este widget no tiene. Aquí es
-        // decoración, no estado.
+        // Es TU Nori (T-032): su fase (la elegida, de `faseMascotaNotifier`,
+        // que llenan quienes leen la mascota; sin saberla, la cría) y lo que
+        // lleva puesto. Siempre feliz: es una cara, no el ánimo del día.
         final lado = radius * 1.5;
-        // Nori, descodificada a su tamaño (N-3); un avatar retirado, como
-        // siempre.
+        // Nori vestida, descodificada a su tamaño (N-3); un avatar retirado,
+        // como siempre.
         final Widget imagen = info == null
-            ? ImagenMascota(
-                asset: assetMascota(fase: 'cria', estado: 'feliz'),
-                tamano: lado,
+            ? ValueListenableBuilder<String?>(
+                valueListenable: faseMascotaNotifier,
+                builder: (context, fase, _) => NoriVestida(
+                  fase: fase ?? 'CRIA',
+                  estado: 'feliz',
+                  tamano: lado,
+                  prendas: prendas,
+                  manifiesto: manifiesto,
+                  imagen: imagenPrenda,
+                ),
               )
             : Image.asset(
                 info.asset,
