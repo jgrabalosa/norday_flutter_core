@@ -2,8 +2,8 @@
 
 El arte de las prendas **no va dentro del core**: se descarga del servidor, en
 WebP, y se guarda en disco para siempre. Un manifiesto JSON dice, por prenda,
-cómo se pinta. Esto es el modelo y el servicio (T-021); ninguna pantalla lo usa
-todavía (lo usarán N-9, N-10 y N-11).
+cómo se pinta. Esto es el modelo y el servicio (T-021). Los usan `NoriVestida`
+(N-9), el vestidor y la pantalla de Nori (N-10).
 
 - Modelo: `lib/models/manifiesto_arte.dart` (`ManifiestoArte`, `PrendaArte`).
 - Servicio: `lib/services/arte_prendas_service.dart` (`ArtePrendasService`).
@@ -49,8 +49,9 @@ Se sirve en `<servidor>/arte/manifiesto-v1.json`. `<servidor>` es
 - `sitio`: `"cabeza"` o `"cuerpo"`, en minúscula, como en
   `hoja_revision.py`. Ojo: `sitiosPrenda` (`theme/prendas.dart`) usa la
   `categoria` del backend, con mayúscula inicial (`Cabeza`, `Cuerpo`). No son
-  la misma cadena: quien use el manifiesto junto a `sitiosPrenda` (N-9, N-10,
-  N-11) debe convertir entre ambas formas, o no encontrará ninguna prenda.
+  la misma cadena. Hoy nadie lee el `sitio` del manifiesto: `NoriVestida` toma
+  el sitio de `prendasEquipadasNotifier` (la `categoria`). Si algún día se
+  usa, hay que convertir entre las dos formas.
 - `subidaBrote` es opcional: píxeles del lienzo de 1024, por fase. Si falta una
   fase, 0 (`PrendaArte.subidaBroteEn`).
 - `oculta`: capas de Nori que la prenda tapa. Hoy solo puede traer `"brote"`.

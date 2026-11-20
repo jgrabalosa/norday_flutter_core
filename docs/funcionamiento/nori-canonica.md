@@ -108,11 +108,11 @@ Valores de hoy (x, y del anclaje y de lo alto de la cabeza):
 
 | Estado | Anclaje | Cabeza |
 |---|---|---|
-| huevo (los cuatro) | (511–514, 274–275) | y 263–264 |
-| cría (los cuatro) | (514–521, 234–235) | y 232–233 |
+| huevo (los cuatro) | (510–513, 274–276) | y 263–265 |
+| cría (los cuatro) | (515–522, 235) | y 232–233 |
 | adulto (los cuatro) | (510–513, 274–275) | y 272 |
 
-La cría dormida es la más desplazada (x 521): está sentada. Una prenda que
+La cría dormida es la más desplazada (x 522): está sentada. Una prenda que
 valga para toda la fase tiene que caber en ese juego; si no, lleva su imagen
 por estado (`<codigo>_<fase>_<estado>.png`, decisión 9).
 

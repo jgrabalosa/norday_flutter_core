@@ -117,7 +117,8 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
   (errores de red al idioma activo), `MensajesMascota` (fase, estado y
   frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
   ver los puntos de extensión).
-- `assets/` — animations, sounds, mascota y avatares (retirados).
+- `assets/` — animations (`confetti.json`, sin uso desde que
+  `CelebracionService` dejó Lottie), sounds, mascota y avatares (retirados).
   `assets/mascota/canonica/` es Nori separada en cuerpo y brote, con su
   geometría y la máscara de la pantalla negra (Nori vestida, N-1): un
   contrato para el arte de las prendas,
@@ -146,7 +147,7 @@ la app (ver los puntos de extensión de abajo), nunca al revés: el paquete
 no puede importar de la app.
 
 **Excepciones conocidas**, que se saltan la regla y están pendientes de
-limpiar (comprobadas contra el código el 15-nov-2026, v0.55.0):
+limpiar (comprobadas contra el código el 20-nov-2026, v0.59.1):
 
 - La vista previa de la tienda (`preview_identidad_tienda.dart`) pinta
   una pantalla «Hoy» de mentira con dos tarjetas de hábito y la pestaña
@@ -217,7 +218,8 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    backend filtra los catálogos. Vale `''` por defecto: sin él no se manda
    la cabecera y `VersionMinimaService` no pregunta. Cada app lo fija antes
    de `runApp` (`'habitos'`, `'conocimiento'`, `'enfoque'`…). La llevan los
-   dos catálogos y `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`): el
+   dos catálogos, `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`) y
+   `quitarFcmToken` (al cerrar sesión): el
    backend guarda un token por usuario y app, y sin cabecera lo cuenta como
    `habitos`. Una app desconocida para el backend da 400. El catálogo de
    productos y la compra llevan además `X-Norday-Core` con `versionCore`,
@@ -290,7 +292,7 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
 
 ## Assets: siempre con `package:`
 
-Todo `Image.asset`/`Lottie.asset` de un asset de este paquete lleva
+Todo `Image.asset` de un asset de este paquete lleva
 `package: 'norday_flutter_core'`. La excepción es la `rutaImagen` opcional de
 `SplashGenerico` — ahí no se pone, porque ese asset lo pasa **la app** y no es
 nuestro. Sin `rutaImagen`, el splash pinta a Nori (`NoriMarca`), que sí es
@@ -358,8 +360,9 @@ volvería amarillo.
 
 Hay tres notifiers y
 `aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
-identidad completa), `fuentesEquipadasNotifier` (sólo las dos familias, que es
-lo que `AppTheme.deTema` necesita sin poder importar el catálogo) y
+identidad completa), `fuentesEquipadasNotifier` (las familias, la escala de
+lectura, `nombresEnLectura` y la forma: lo que `AppTheme.deTema` necesita sin
+poder importar el catálogo) y
 `temaEquipadoNotifier` (sólo los colores, que es lo que escucha el
 `MaterialApp` de cada app y las pantallas aún sin migrar). El color va el
 último a propósito: es el que dispara el repintado, así que cuando salta, la
@@ -380,7 +383,7 @@ rompe la compilación justo en los sitios que hay que revisar. Todo lo que anime
 lee `MediaQuery.maybeDisableAnimationsOf`, como ya hacía `MascotaAnimadaViva`.
 
 **Una tarjeta o un campo nuevos no se escriben a mano**: `SuperficieIdentidad`
-y `CampoIdentidad` (`widgets/`) ya resuelven los cuatro tratamientos, y
+y `CampoIdentidad` (`widgets/`) ya resuelven los tres tratamientos, y
 `formaIdentidad`/`BordeChaflan` dan la figura para botones, recortes e
 insignias. En Neotokyo+ las secundarias son transparentes y el filo puede ir
 `fijo`, `latiendo` o `encendido` (`FiloNeon`). Un `Card` de Material en medio
@@ -388,22 +391,25 @@ de una pantalla achaflanada canta, y cuatro copias del mismo `switch` acaban
 divergiendo. Es el equivalente aquí de `identidad_ui.dart` en la app de
 hábitos.
 
-`Equipamiento.cargarDeUsuario(usuarioId)` **no se puede llamar en `main()`**:
-antes del login no hay ni `usuarioId` ni token. Va tras el login y tras el
-splash con sesión guardada, así que hasta que responde se ve el tema por
-defecto. Sigue sin ser fuente de verdad —manda siempre el backend—, pero se
-guarda por usuario la última identidad que el backend confirmó
-(`identidad_equipada_<usuarioId>`) y se aplica solo si falla la red al
-arrancar, con hasta 3 reintentos cada 15 s; no se borra al cerrar sesión.
+`Equipamiento.cargarDeUsuario(usuarioId)` y
+`Equipamiento.cargarDeUsuarioSiSePuede(usuarioId)` **no se pueden llamar en
+`main()`**: antes del login no hay ni `usuarioId` ni token. Van tras el login y
+tras el splash con sesión guardada, así que hasta que responde se ve el tema
+por defecto. Sigue sin ser fuente de verdad —manda siempre el backend—, pero
+las dos guardan por usuario la última identidad que el backend confirmó
+(`identidad_equipada_<usuarioId>`); no se borra al cerrar sesión.
+`cargarDeUsuario` deja subir el fallo de red. `cargarDeUsuarioSiSePuede` no:
+aplica esa copia y reintenta hasta 3 veces cada 15 s.
 
 ### Las prendas de Nori (Nori vestida, N-7)
 
 Lo que lleva puesto Nori sale del mismo inventario, sin campos nuevos en el
 backend: los productos equipados cuya `categoria` es un sitio de
 `sitiosPrenda` (`theme/prendas.dart`: hoy `Cabeza` y `Cuerpo`; un sitio nuevo
-se añade solo ahí). Se publica en `prendasEquipadasNotifier`, un mapa de sitio
-a código de producto que no se puede modificar desde fuera y que solo avisa
-si cambia; todas las Nori de la app lo escuchan, así que cambian a la vez.
+se añade ahí y en `ordenCapasPrenda`, en su lugar de la pila). Se publica en
+`prendasEquipadasNotifier`, un mapa de sitio a código de producto que no se
+puede modificar desde fuera y que solo avisa si cambia; todas las Nori de la
+app lo escuchan, así que cambian a la vez.
 
 - **Equipar y quitar:** `Equipamiento.equiparPrenda(usuarioId, productoId,
   codigo, sitio)` y `desequiparPrenda(usuarioId, productoId, sitio)`. Cambian
