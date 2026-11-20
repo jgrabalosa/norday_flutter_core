@@ -3,8 +3,9 @@
 Motor compartido del ecosistema Norday: red, sesión, temas y tokens de diseño,
 gamificación, mascota, onboarding y preferencias.
 
-Nada de lo que hay aquí sabe de un dominio concreto — ni de hábitos, ni de
-lecciones. Eso lo pone cada app encima.
+Casi nada de lo que hay aquí sabe de un dominio concreto (las excepciones
+conocidas, en `CLAUDE.md`) — ni de hábitos, ni de lecciones. Eso lo pone
+cada app encima.
 
 ## Uso
 

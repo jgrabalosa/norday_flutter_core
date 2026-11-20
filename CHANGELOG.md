@@ -17,8 +17,8 @@ está en `git log`.
 ### Nuevo
 
 - **El letrero de Neotokyo+ y el ramo de Dulce tienen su sitio en la lista de
-  Hoy** (D-41): `LetreroDelDia` y `RamoDelDia`, que monta la app al final de
-  su lista y que crecen ahí con cada hábito hecho. El ramo va a grafito
+  Hoy** (D-41): `LetreroDelDia` y `RamoDelDia`, que monta la app en su lista
+  de Hoy y que crecen ahí con cada hábito hecho. El ramo va a grafito
   mientras el día está abierto (`RamoDulce.boceto`). Sustituye a T-030.
 
 ### Cambiado
