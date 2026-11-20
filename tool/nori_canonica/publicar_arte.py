@@ -20,10 +20,18 @@ las de marketing: los PNG `<prenda>_<fase>[_<estado>].png` de 1024 x 1024 y su
      `--manifiesto`, se parte de ese (el que ya está en el servidor).
   4. La nieve (`--nieve DESDE HASTA`, fechas `AAAA-MM-DD`) se pone o se quita
      (`--sin-nieve`); sin ninguna de las dos, se deja la que había.
+  5. La Nori del login (T-036): `--login DESDE HASTA PRENDA [PRENDA...]`, una
+     vez por periodo, pone en el apartado `login` qué lleva puesto Nori en la
+     pantalla de entrada esos días, la misma para todos. La prenda se da por
+     su código corto (`gorro_noel`) o de producto (`PRENDA_GORRO_NOEL`) y se
+     guarda como de producto; tiene que estar en el manifiesto, una por sitio
+     y sin periodos que se pisen. `--sin-login` lo quita; sin ninguna de las
+     dos, se deja el que había.
 
 Uso, desde la raíz del paquete (Python 3 con Pillow y NumPy):
   py tool/nori_canonica/publicar_arte.py CARPETA [CARPETA...] --salida SALIDA
       [--manifiesto MANIFIESTO] [--nieve 2026-11-20 2027-01-06 | --sin-nieve]
+      [--login 2026-11-24 2027-01-07 gorro_noel [--login ...] | --sin-login]
 
 SALIDA tiene que estar vacía o no existir. Si algo no se puede publicar, no
 queda nada en ella. Sin `--manifiesto` se parte de cero: el manifiesto que se
@@ -193,7 +201,47 @@ def fecha(texto):
         raise ErrorArte(f"fecha no válida: {texto!r} (AAAA-MM-DD)") from e
 
 
-def publicar(carpetas, salida, manifiesto=None, nieve=None, sin_nieve=False):
+def codigo_producto(prenda):
+    """`gorro_noel` o `PRENDA_GORRO_NOEL` → `PRENDA_GORRO_NOEL`."""
+    if re.fullmatch(r"PRENDA_[A-Z0-9_]+", prenda):
+        return prenda
+    if re.fullmatch(r"[a-z][a-z0-9_]*", prenda):
+        return f"PRENDA_{prenda.upper()}"
+    raise ErrorArte(f"--login: {prenda!r} no es un código de prenda (gorro_noel o PRENDA_GORRO_NOEL)")
+
+
+def periodos_login(periodos, prendas_manifiesto):
+    """El apartado `login` a partir de `--login DESDE HASTA PRENDA...` (uno por
+    periodo), comprobado contra las prendas del manifiesto final. Ordenado por
+    fecha. Lanza `ErrorArte` si algo no vale: así no se publica a medias."""
+    salida = []
+    for periodo in periodos:
+        if len(periodo) < 3:
+            raise ErrorArte(f"--login necesita DESDE HASTA y al menos una prenda: {periodo!r}")
+        desde, hasta = fecha(periodo[0]), fecha(periodo[1])
+        if desde > hasta:
+            raise ErrorArte(f"--login: el periodo empieza ({desde}) después de acabar ({hasta})")
+        codigos = [codigo_producto(p) for p in periodo[2:]]
+        sitios = {}
+        for codigo in codigos:
+            entrada = prendas_manifiesto.get(codigo)
+            if not isinstance(entrada, dict):
+                raise ErrorArte(f"--login: {codigo} no está en el manifiesto")
+            sitio = entrada.get("sitio")
+            if sitio in sitios:
+                raise ErrorArte(f"--login: {sitios[sitio]} y {codigo} van las dos en «{sitio}» ({desde} a {hasta})")
+            sitios[sitio] = codigo
+        salida.append({"desde": desde, "hasta": hasta, "prendas": codigos})
+    salida.sort(key=lambda p: p["desde"])
+    for antes, despues in zip(salida, salida[1:]):
+        if despues["desde"] <= antes["hasta"]:
+            raise ErrorArte(f"--login: los periodos {antes['desde']}–{antes['hasta']} y "
+                            f"{despues['desde']}–{despues['hasta']} se pisan")
+    return salida
+
+
+def publicar(carpetas, salida, manifiesto=None, nieve=None, sin_nieve=False,
+             login=None, sin_login=False):
     """Hace todo y devuelve el informe por imagen. Si algo falla, lanza
     `ErrorArte` y no deja nada en la salida.
 
@@ -238,6 +286,11 @@ def publicar(carpetas, salida, manifiesto=None, nieve=None, sin_nieve=False):
                 informe[nombre] = inf
             datos["prendas"][f"PRENDA_{codigo.upper()}"] = entrada
 
+        if sin_login:
+            datos.pop("login", None)
+        elif login:
+            datos["login"] = periodos_login(login, datos["prendas"])
+
         ruta_manifiesto = os.path.join(destino, "manifiesto-v1.json")
         with open(ruta_manifiesto, "w", encoding="utf-8") as f:
             json.dump(datos, f, ensure_ascii=False, indent=2, sort_keys=True)
@@ -257,12 +310,17 @@ def main(argv=None):
     nieve = p.add_mutually_exclusive_group()
     nieve.add_argument("--nieve", nargs=2, metavar=("DESDE", "HASTA"))
     nieve.add_argument("--sin-nieve", action="store_true")
+    login = p.add_mutually_exclusive_group()
+    login.add_argument("--login", nargs="+", action="append", metavar="DESDE HASTA PRENDA",
+                       help="un periodo de la Nori del login: DESDE HASTA PRENDA [PRENDA...]")
+    login.add_argument("--sin-login", action="store_true")
     args = p.parse_args(argv)
     if not args.manifiesto:
         print("Ojo: sin --manifiesto se parte de cero. El que se suba sustituye al del "
               "servidor: tiene que llevar todas las prendas.", file=sys.stderr)
     try:
-        informe = publicar(args.carpetas, args.salida, args.manifiesto, args.nieve, args.sin_nieve)
+        informe = publicar(args.carpetas, args.salida, args.manifiesto, args.nieve, args.sin_nieve,
+                           args.login, args.sin_login)
     except ErrorArte as e:
         print(f"No se publica nada: {e}", file=sys.stderr)
         return 1
