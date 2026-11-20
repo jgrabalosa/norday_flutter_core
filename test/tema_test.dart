@@ -44,6 +44,19 @@ void main() {
     }
   });
 
+  test(
+    'en Profundidad el contorno del tema sigue en aroVacio, no en aroCheck',
+    () {
+      final t = temaEquipadoNotifier.value;
+      final esquema = temaDe('TEMA_PROFUNDIDAD').colorScheme;
+      final tp = catalogoIdentidades['TEMA_PROFUNDIDAD']!.tokens;
+      expect(esquema.outline, const Color(0xFF8D95A0));
+      expect(esquema.outline, tp.aroVacio);
+      expect(esquema.outline, isNot(tp.aroCheck));
+      expect(t.aroCheck, tp.aroCheck);
+    },
+  );
+
   test('ningún rol de la escala tipográfica sale sin el color del texto', () {
     for (final entrada in catalogoIdentidades.entries) {
       final t = entrada.value.tokens;

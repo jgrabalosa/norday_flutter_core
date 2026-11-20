@@ -3,6 +3,18 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambiado
+
+- **El aro del check vacío es amarillo en Profundidad** (`aroCheck`, nuevo
+  token de `TokensContextuales`): `#FFB020`, solo en Profundidad. Al
+  completar el check el aro se funde con el relleno, y también al deshacer,
+  para que no quede un borde amarillo alrededor del verde. Neotokyo+ y Dulce
+  no lo declaran y pintan el check igual que antes. `aroVacio` no cambia:
+  sigue siendo el contorno del tema, las estrellas de valoración, el
+  indicador de nivel y los campos.
+
 ## 0.57.0 — 19-nov-2026
 
 ### Nuevo

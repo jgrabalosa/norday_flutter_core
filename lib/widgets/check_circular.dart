@@ -168,7 +168,7 @@ class _CheckCircularState extends State<CheckCircular>
                     relleno: _relleno.value,
                     trazo: _trazo.value,
                     color: widget.color,
-                    colorAro: t.aroVacio,
+                    colorAro: t.aroCheck,
                     colorBase: t.surface,
                     // En Dulce el check va en el color del texto, no en blanco.
                     colorCheck: identidad(context).forma == FormaIdentidad.pill
@@ -234,9 +234,8 @@ class _CheckPainter extends CustomPainter {
   final double trazo;
   final Color color;
 
-  /// El aro del estado vacío, que viene del token `aroVacio` de la identidad.
-  /// Lo usan las identidades actuales: antes las que tenían tarjeta pintaban `surface2` aquí y
-  /// no se veía. Ver `TokensContextuales.aroVacio`.
+  /// El aro del estado vacío, que viene del token `aroCheck` de la identidad
+  /// (que sin declarar vale su `aroVacio`). Ver `TokensContextuales.aroCheck`.
   final Color colorAro;
 
   /// La base opaca, que impide que una estrella cruce el aro y lo parta. La
@@ -359,12 +358,19 @@ class _CheckPainter extends CustomPainter {
         semilla: semillaDe(size),
       );
     } else {
+      // Solo en Profundidad el aro se funde con el relleno: el trazo asoma
+      // medio grosor por fuera del relleno y, en amarillo, quedaría un borde
+      // alrededor del verde. Pasa al color del relleno a la vez que éste
+      // crece (y vuelve al deshacer), así que hecho acaba en `color`.
+      final colorDelAro = forma == FormaIdentidad.glass
+          ? Color.lerp(colorAro, color, relleno)!
+          : colorAro;
       canvas.drawPath(
         figura,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = t.aro
-          ..color = colorAro,
+          ..color = colorDelAro,
       );
     }
 

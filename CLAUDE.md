@@ -330,6 +330,18 @@ sigue con `activo = false`.
 esqueleto, pero Norday Habits no los usa y el backend los tiene inactivos.
 El avatar del usuario es Nori.
 
+**`aroCheck` y `aroVacio`** (`TokensContextuales`): `aroVacio` es el contorno
+de lo vacío en general (`ColorScheme.outline`, estrellas de valoración,
+`IndicadorNivel`, campos). `aroCheck` es solo el aro del `CheckCircular` vacío
+(y su check insinuado) y el check de muestra de la vista previa de la tienda;
+sin declarar vale su `aroVacio`. Solo Profundidad lo declara, en `#FFB020`
+(10,6:1 sobre `bg`): sus filas van sin caja sobre el cielo y el check tiene
+que leerse de un vistazo, amarillo (por hacer) a verde (hecho). Para no dejar
+un borde amarillo alrededor del verde, en Profundidad el aro pasa al color del
+relleno a medida que éste crece (y vuelve al deshacer); Neotokyo+ y Dulce
+pintan el check como siempre. No se cambió `aroVacio` porque todo lo demás se
+volvería amarillo.
+
 Hay tres notifiers y
 `aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
 identidad completa), `fuentesEquipadasNotifier` (sólo las dos familias, que es

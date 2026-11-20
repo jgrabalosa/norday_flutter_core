@@ -332,10 +332,80 @@ void main() {
         pintadoDelCheck(tester),
         paints
           ..path(color: t.surface)
-          ..path(color: t.aroVacio)
-          ..path(color: t.aroVacio.withValues(alpha: 0.15)),
+          ..path(color: t.aroCheck)
+          ..path(color: t.aroCheck.withValues(alpha: 0.15)),
       );
     });
+
+    testWidgets('Profundidad, hecho: nada en aroCheck sobre el relleno', (
+      tester,
+    ) async {
+      aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
+      final t = temaEquipadoNotifier.value;
+      const verde = Color(0xFF27C76F);
+
+      await tester.pumpWidget(
+        montar(CheckCircular(hecho: true, onTap: () {}, color: verde)),
+      );
+      await tester.pump();
+
+      // El aro se pinta, pero ya en el color del relleno.
+      expect(
+        pintadoDelCheck(tester),
+        paints
+          ..path(color: t.surface)
+          ..path(color: verde)
+          ..path(color: t.aroCheck.withValues(alpha: 0.15)),
+      );
+      expect(
+        pintadoDelCheck(tester),
+        isNot(
+          paints..something(
+            (nombre, args) =>
+                nombre == #drawPath &&
+                (args[1] as Paint).style == PaintingStyle.stroke &&
+                (args[1] as Paint).color == t.aroCheck,
+          ),
+        ),
+      );
+    });
+
+    testWidgets(
+      'Profundidad: al completar, el aro va hacia el color del relleno',
+      (tester) async {
+        aplicarIdentidadEquipada('TEMA_PROFUNDIDAD');
+        final t = temaEquipadoNotifier.value;
+        const verde = Color(0xFF27C76F);
+
+        await tester.pumpWidget(
+          montar(CheckCircular(hecho: false, onTap: () {}, color: verde)),
+        );
+        await tester.pumpWidget(
+          montar(CheckCircular(hecho: true, onTap: () {}, color: verde)),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // A medio relleno el aro ya no es amarillo ni todavía verde: va de
+        // uno a otro con el relleno. El aro es el segundo trazo, tras la
+        // base (el orden de «Profundidad pinta base, aro e insinuado»): mirar
+        // cualquier trazo valdría también para el check blanco o el
+        // insinuado, que no son el aro.
+        final trazos = <Paint>[];
+        expect(
+          pintadoDelCheck(tester),
+          paints..everything((nombre, args) {
+            if (nombre == #drawPath) trazos.add(args[1] as Paint);
+            return true;
+          }),
+        );
+        final aro = trazos[1];
+        expect(trazos[0].color.toARGB32(), t.surface.toARGB32());
+        expect(aro.style, PaintingStyle.stroke);
+        expect(aro.color.toARGB32(), isNot(t.aroCheck.toARGB32()));
+        expect(aro.color.toARGB32(), isNot(verde.toARGB32()));
+      },
+    );
 
     testWidgets('Dulce no pinta base ni insinuado: sólo el aro', (
       tester,

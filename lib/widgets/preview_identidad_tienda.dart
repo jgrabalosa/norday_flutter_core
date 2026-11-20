@@ -279,7 +279,7 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
       FormaIdentidad.glass => BoxDecoration(
         shape: BoxShape.circle,
         color: hecha ? p.primary : null,
-        border: hecha ? null : Border.all(color: p.aroVacio, width: 2),
+        border: hecha ? null : Border.all(color: p.aroCheck, width: 2),
       ),
       FormaIdentidad.chamfer => ShapeDecoration(
         color: hecha ? p.primary : null,
@@ -287,7 +287,7 @@ class MaquetaPreviewIdentidad extends StatelessWidget {
           chaflan: 5,
           side: hecha
               ? BorderSide.none
-              : BorderSide(color: p.aroVacio, width: 2),
+              : BorderSide(color: p.aroCheck, width: 2),
         ),
       ),
       FormaIdentidad.pill => BoxDecoration(
