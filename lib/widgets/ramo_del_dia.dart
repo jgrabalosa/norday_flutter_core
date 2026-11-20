@@ -48,8 +48,11 @@ class _RamoDelDiaState extends State<RamoDelDia>
   late ProgresoDia _progreso;
   late _Estado _estado;
 
-  /// El estado de antes mientras dura un fundido; null si no hay fundido.
-  _Estado? _previo;
+  /// El fundido en curso, de [_de] a [_a]; [_de] es null si no hay fundido.
+  /// Va aparte de [_estado] porque un fundido puede seguir hacia un estado
+  /// nuevo o volver atrás sin empezar de cero.
+  _Estado? _de;
+  late _Estado _a;
 
   /// Si el fundido añade (una flor, el color) o quita.
   bool _anade = true;
@@ -62,9 +65,12 @@ class _RamoDelDiaState extends State<RamoDelDia>
     super.initState();
     _progreso = progresoDiaNotifier.value;
     _estado = _leer();
+    _a = _estado;
     _fundido = AnimationController(vsync: this)
       ..addStatusListener((s) {
-        if (s == AnimationStatus.completed) setState(() => _previo = null);
+        if (s == AnimationStatus.completed || s == AnimationStatus.dismissed) {
+          setState(() => _de = null);
+        }
       });
     progresoDiaNotifier.addListener(_alCambiar);
     diaCerradoNotifier.addListener(_alCambiar);
@@ -117,13 +123,29 @@ class _RamoDelDiaState extends State<RamoDelDia>
       _estado = ahora;
       if (!animar) {
         _fundido.stop();
-        _previo = null;
+        _de = null;
+        _a = ahora;
         return;
       }
-      _anade =
+      final anade =
           ahora.flores > antes.flores ||
           (ahora.flores == antes.flores && ahora.cerrado);
-      _previo = antes;
+      final enCurso = _de != null && _fundido.isAnimating;
+      // Marcar y desmarcar enseguida: se deshace desde donde iba.
+      if (enCurso && ahora == _de) {
+        _fundido.reverse();
+        return;
+      }
+      // Otro paso en la misma dirección (deshacer el último con el día
+      // cerrado: primero se va la flor y luego el color): sigue desde donde
+      // iba hacia el estado nuevo, y lo de antes se va junto.
+      if (enCurso && anade == _anade) {
+        _a = ahora;
+        return;
+      }
+      _anade = anade;
+      _de = antes;
+      _a = ahora;
       _fundido.duration = _anade
           ? RamoDelDia.duracionEntrada
           : RamoDelDia.duracionSalida;
@@ -142,11 +164,11 @@ class _RamoDelDiaState extends State<RamoDelDia>
   @override
   Widget build(BuildContext context) {
     if (_progreso.total <= 0) return SizedBox(height: widget.alto);
-    final previo = _previo;
+    final de = _de;
     return SizedBox(
       height: widget.alto,
       child: Center(
-        child: previo == null
+        child: de == null
             ? _ramo(_estado)
             : AnimatedBuilder(
                 animation: _fundido,
@@ -158,13 +180,10 @@ class _RamoDelDiaState extends State<RamoDelDia>
                   return Stack(
                     alignment: Alignment.center,
                     children: _anade
-                        ? [
-                            _ramo(previo),
-                            Opacity(opacity: t, child: _ramo(_estado)),
-                          ]
+                        ? [_ramo(de), Opacity(opacity: t, child: _ramo(_a))]
                         : [
-                            _ramo(_estado),
-                            Opacity(opacity: 1 - t, child: _ramo(previo)),
+                            _ramo(_a),
+                            Opacity(opacity: 1 - t, child: _ramo(de)),
                           ],
                   );
                 },

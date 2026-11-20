@@ -387,19 +387,20 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
               child: Center(child: _ramoEnCurso(cuadro.height)),
             ),
           ),
-        // En Neotokyo+, el letrero de todos los tubos, que se enciende.
+        // En Neotokyo+, el letrero de todos los tubos, que se enciende. Entra
+        // con el velo por el propio pintor, no con una Opacity: dentro de una
+        // la luz se sumaría a su capa, no al velo, y al acabar el velo
+        // daría un salto de brillo.
         if (_enNeotokyo)
           Positioned.fromRect(
             rect: cuadro,
-            child: Opacity(
-              opacity: v,
-              child: CustomPaint(
-                size: cuadro.size,
-                painter: PintorLetreroCeremonia(
-                  t,
-                  progresoDiaNotifier.value.total,
-                  _ramo.value,
-                ),
+            child: CustomPaint(
+              size: cuadro.size,
+              painter: PintorLetreroCeremonia(
+                t,
+                progresoDiaNotifier.value.total,
+                _ramo.value,
+                alfa: v,
               ),
             ),
           ),
@@ -503,28 +504,42 @@ class VeloBarraCierreDelDia extends StatelessWidget {
 
 /// El letrero grande de la ceremonia en Neotokyo+: todos los tubos, que se
 /// encienden uno a uno según [encendido] (de 0 a 1 sobre
-/// [duracionEncendidoLetrero]), con el zumbido. Público para los tests.
+/// [duracionEncendidoLetrero]), con el zumbido, y entran con el velo
+/// ([alfa]). Público para los tests.
 class PintorLetreroCeremonia extends CustomPainter {
   final TokensContextuales tokens;
   final int total;
   final double encendido;
 
-  const PintorLetreroCeremonia(this.tokens, this.total, this.encendido);
+  /// Lo que lleva el velo, de 0 a 1: el cristal y la luz entran con él.
+  final double alfa;
+
+  const PintorLetreroCeremonia(
+    this.tokens,
+    this.total,
+    this.encendido, {
+    this.alfa = 1,
+  });
 
   /// Cuánto brilla el tubo [i], de 0 a 1.
-  double luz(int i) => luzTuboEnEncendido(i, total, encendido);
+  double luz(int i) => luzTuboEnEncendido(i, total, encendido) * alfa;
 
   @override
   void paint(Canvas canvas, Size size) {
     final letrero = letreroPara(total);
     if (letrero == null) return;
-    canvas.saveLayer(Offset.zero & size, Paint()..blendMode = BlendMode.plus);
+    // La capa, más grande que el cuadro: si no, el halo de los tubos de los
+    // bordes se cortaría en recto.
+    canvas.saveLayer(
+      (Offset.zero & size).inflate(size.shortestSide * 0.2),
+      Paint()..blendMode = BlendMode.plus,
+    );
     pintarLetrero(
       canvas,
       Offset.zero & size,
       letrero,
       tokens,
-      cristal: (_) => 1,
+      cristal: (_) => alfa,
       luz: luz,
       zumbido: zumbidoLetrero(total, encendido),
     );
@@ -535,6 +550,7 @@ class PintorLetreroCeremonia extends CustomPainter {
   bool shouldRepaint(covariant PintorLetreroCeremonia old) =>
       old.total != total ||
       old.encendido != encendido ||
+      old.alfa != alfa ||
       old.tokens.primary != tokens.primary ||
       old.tokens.streak != tokens.streak ||
       old.tokens.points != tokens.points;

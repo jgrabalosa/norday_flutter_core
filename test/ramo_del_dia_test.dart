@@ -228,4 +228,61 @@ void main() {
     await tester.pump();
     expect([for (final x in ramos(tester)) x.flores], [1, 2]);
   });
+
+  /// Cada capa pintada: (flores, cerrado) y su opacidad.
+  List<(int?, bool, double)> capas(WidgetTester tester) => [
+    for (final r in ramos(tester))
+      (
+        r.flores,
+        r.atado,
+        tester
+                .widgetList<Opacity>(
+                  find.ancestor(
+                    of: find.byWidget(r),
+                    matching: find.byType(Opacity),
+                  ),
+                )
+                .firstOrNull
+                ?.opacity ??
+            1.0,
+      ),
+  ];
+
+  testWidgets(
+    'al deshacer el último con el día cerrado, la flor y el color se van '
+    'juntos, sin saltos (revisión del 20-nov)',
+    (tester) async {
+      publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
+      marcarDiaCerrado(true);
+      await montar(tester);
+      // Como la app: primero el progreso, luego reabrir el día.
+      publicarProgresoDia(hechos: 2, total: 3, fecha: dia);
+      marcarDiaCerrado(false);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final c = capas(tester);
+      expect(c.map((x) => (x.$1, x.$2)), [(2, false), (3, true)]);
+      expect(c.last.$3, inExclusiveRange(0, 1), reason: 'la flor 3 se funde');
+    },
+  );
+
+  testWidgets('marcar y desmarcar enseguida vuelve atrás sin saltos', (
+    tester,
+  ) async {
+    publicarProgresoDia(hechos: 1, total: 4, fecha: dia);
+    await montar(tester);
+    publicarProgresoDia(hechos: 2, total: 4, fecha: dia);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final antes = capas(tester).last.$3;
+    publicarProgresoDia(hechos: 1, total: 4, fecha: dia);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    final despues = capas(tester).last.$3;
+    expect(capas(tester).last.$1, 2, reason: 'la flor 2 sigue saliendo');
+    expect(despues, lessThanOrEqualTo(antes), reason: 'no salta a 1');
+    expect(despues, greaterThan(0));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(estado(ramos(tester).single), (1, false, true));
+  });
 }

@@ -284,7 +284,12 @@ class PintorLetreroDelDia extends CustomPainter {
       height: lado,
     );
 
-    canvas.saveLayer(Offset.zero & size, Paint()..blendMode = BlendMode.plus);
+    // La capa, más grande que el cuadro: si no, el halo de los tubos de los
+    // bordes se cortaría en recto.
+    canvas.saveLayer(
+      cuadro.inflate(lado * 0.2),
+      Paint()..blendMode = BlendMode.plus,
+    );
     pintarLetrero(
       canvas,
       cuadro,

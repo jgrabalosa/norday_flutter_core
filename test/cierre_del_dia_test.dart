@@ -482,6 +482,29 @@ void main() {
       },
     );
 
+    testWidgets(
+      'en Neotokyo+, el letrero entra con el velo sumando luz siempre: sin '
+      'Opacity encima, que lo pintaría con mezcla normal hasta el final del '
+      'velo y daría un salto (revisión del 20-nov)',
+      (tester) async {
+        await montar(tester, codigo: 'TEMA_NEOTOKYO_PLUS');
+        unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 200));
+        final pintado = find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.painter is PintorLetreroCeremonia,
+        );
+        expect(
+          find.ancestor(of: pintado, matching: find.byType(Opacity)),
+          findsNothing,
+        );
+        final p =
+            tester.widget<CustomPaint>(pintado).painter!
+                as PintorLetreroCeremonia;
+        expect(p.alfa, inExclusiveRange(0, 1), reason: 'a media entrada');
+      },
+    );
+
     testWidgets('en Profundidad no pinta ni ramo ni letrero', (tester) async {
       await montar(tester);
       unawaited(mostrarCierreDelDia(titulo: 'T', despedida: 'D'));
