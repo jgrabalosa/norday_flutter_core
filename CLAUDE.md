@@ -7,9 +7,10 @@ dependencia Git.
 Consumidores hoy:
 
 - `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`):
-  `v0.59.0` desde la 1.3.0+11 (D-41: el letrero y el ramo del día en su
-  sitio de la lista de Hoy; los sonidos más bajos). Antes, `v0.58.0` (la
-  1.3.0+10, el aro amarillo del check en Profundidad, T-017).
+  `v0.59.1` desde la 1.3.0+11 (D-41: el letrero y el ramo del día en su
+  sitio de la lista de Hoy; los sonidos más bajos; el letrero de la lista
+  espera a que se vaya el velo del cierre). Antes, `v0.58.0` (la 1.3.0+10,
+  el aro amarillo del check en Profundidad, T-017).
 - `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`. Con ese core no ve
   las prendas de Nori (el backend no se las da: versión mínima 0.56.0).
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
@@ -206,8 +207,10 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    capa), en Dulce (el ramo de todas las flores, a grafito como en Hoy, que
    se colorea y se ata en `duracionRamoCierre`) y en Neotokyo+ (el letrero de
    neón, un tubo por hábito, que la ceremonia enciende en grande; los textos
-   esperan a `duracionEncendidoLetrero`). El ramo y el letrero de la lista
-   quedan debajo del velo y, al irse, ya están en su estado final. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
+   esperan a `duracionEncendidoLetrero`). El ramo de la lista queda
+   debajo del velo y, al irse, ya está en su estado final. El letrero de la
+   lista espera apagado mientras dura la ceremonia y se enciende al ritmo del
+   velo que se va (si no, se veía doble a través del velo: 20-nov-2026). Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el

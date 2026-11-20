@@ -65,12 +65,24 @@ Future<void> mostrarCierreDelDia({
 const Duration duracionRamoCierre = Duration(milliseconds: 1900);
 
 /// Si hay una ceremonia del cierre en curso. El letrero y el ramo de la lista
-/// lo miran al ver el día cerrado: con ceremonia, el letrero se enciende tubo
-/// a tubo y el ramo cambia de golpe (debajo del velo); sin ella (abrir la app
+/// lo miran al ver el día cerrado: con ceremonia, el letrero espera apagado y
+/// se enciende al irse el velo, y el ramo cambia de golpe (debajo del velo);
+/// sin ella (abrir la app
 /// con el día ya cerrado, volver a hoy en la tira), aparecen con un
 /// fundido. [mostrarCierreDelDia] pone la petición antes de
 /// marcar el día como cerrado, así que quien escucha ese cambio ya la ve.
 bool get hayCierreDelDiaEnCurso => _Cierre.peticion.value != null;
+
+/// Avisa cuando la ceremonia empieza, se mueve su velo o termina. Lo escucha
+/// el letrero de la lista, que espera apagado debajo del velo y se enciende
+/// al irse (si no, se veía doble: 20-nov-2026). No se exporta.
+final Listenable cambiosCierreDelDia = Listenable.merge([
+  _Cierre.peticion,
+  _Cierre.velo,
+]);
+
+/// El velo de la ceremonia, de 0 a 1. No se exporta.
+double get veloCierreDelDia => _Cierre.velo.value;
 
 /// Cierra la ceremonia: nadie la pinta ya y quien la esperaba sigue.
 void _terminarCierre(_Peticion peticion) {
