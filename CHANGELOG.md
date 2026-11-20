@@ -3,7 +3,7 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
-## Sin publicar
+## 0.59.0 — 20-nov-2026
 
 ### Nuevo
 
