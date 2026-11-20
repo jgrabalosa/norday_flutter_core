@@ -8,14 +8,14 @@ import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/theme/progreso_dia.dart';
 import 'package:norday_flutter_core/widgets/capa_constelacion.dart';
-import 'package:norday_flutter_core/widgets/capa_letrero.dart';
+import 'package:norday_flutter_core/widgets/letrero_del_dia.dart';
 import 'package:norday_flutter_core/widgets/cierre_del_dia.dart';
 import 'package:norday_flutter_core/widgets/fondo_identidad.dart';
 import 'package:norday_flutter_core/widgets/letreros.dart';
 
-/// El letrero del día de Neotokyo+ (D-35): el catálogo, sus nombres y la capa
-/// que lo pinta. Cómo se ve se comprueba en el móvil; aquí, qué se pinta y
-/// cuándo.
+/// El letrero del día de Neotokyo+ (D-35): el catálogo, sus nombres y el
+/// widget que lo pinta en su sitio de la lista de Hoy (D-41). Cómo se ve se
+/// comprueba en el móvil; aquí, qué se pinta y cuándo.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
@@ -90,18 +90,17 @@ void main() {
     });
   });
 
-  group('la capa', () {
+  group('el letrero en su sitio', () {
     Future<void> montar(
       WidgetTester tester, {
       String codigo = 'TEMA_NEOTOKYO_PLUS',
-      bool enHoy = true,
       bool sinMovimiento = false,
       VoidCallback? alTocar,
     }) async {
       aplicarIdentidadEquipada(codigo);
       await tester.pumpWidget(
         MaterialApp(
-          key: ValueKey('$codigo$enHoy$sinMovimiento'),
+          key: ValueKey('$codigo$sinMovimiento'),
           localizationsDelegates:
               NordayCoreLocalizations.localizationsDelegates,
           supportedLocales: NordayCoreLocalizations.supportedLocales,
@@ -115,7 +114,10 @@ void main() {
                 children: [
                   TextButton(onPressed: alTocar, child: const Text('debajo')),
                   const CapaCierreDelDia(),
-                  CapaProgresoIdentidad(enHoy: enHoy),
+                  const Align(
+                    alignment: Alignment.bottomCenter,
+                    child: LetreroDelDia(alto: 220),
+                  ),
                 ],
               ),
             ),
@@ -125,31 +127,60 @@ void main() {
       await tester.pump();
     }
 
-    PintorCapaLetrero pintor(WidgetTester tester) =>
+    PintorLetreroDelDia pintor(WidgetTester tester) =>
         tester
                 .widget<CustomPaint>(
                   find.descendant(
-                    of: find.byType(CapaLetrero),
+                    of: find.byType(LetreroDelDia),
                     matching: find.byType(CustomPaint),
                   ),
                 )
                 .painter!
-            as PintorCapaLetrero;
+            as PintorLetreroDelDia;
 
-    testWidgets('Neotokyo+ pinta el letrero; Profundidad, la constelación', (
+    testWidgets(
+      'la capa por encima de la pantalla ya no pinta el letrero (D-41): solo '
+      'la constelación de Profundidad',
+      (tester) async {
+        publicarProgresoDia(hechos: 1, total: 3, fecha: dia);
+        Future<void> capa(String codigo) async {
+          aplicarIdentidadEquipada(codigo);
+          await tester.pumpWidget(
+            MaterialApp(
+              key: ValueKey(codigo),
+              theme: AppTheme.deTema(temaEquipadoNotifier.value),
+              home: const Scaffold(
+                body: SizedBox.expand(
+                  child: CapaProgresoIdentidad(enHoy: true),
+                ),
+              ),
+            ),
+          );
+          await tester.pump();
+        }
+
+        await capa('TEMA_NEOTOKYO_PLUS');
+        expect(
+          find.descendant(
+            of: find.byType(CapaProgresoIdentidad),
+            matching: find.byType(CustomPaint),
+          ),
+          findsNothing,
+        );
+        expect(find.byType(LetreroDelDia), findsNothing);
+
+        await capa('TEMA_PROFUNDIDAD');
+        expect(find.byType(CapaConstelacion), findsOneWidget);
+      },
+    );
+
+    testWidgets('ocupa su alto y pinta en el cuadrado del centro', (
       tester,
     ) async {
       publicarProgresoDia(hechos: 1, total: 3, fecha: dia);
       await montar(tester);
-      expect(find.byType(CapaLetrero), findsOneWidget);
-      expect(find.byType(CapaConstelacion), findsNothing);
-
-      await montar(tester, codigo: 'TEMA_PROFUNDIDAD');
-      expect(find.byType(CapaLetrero), findsNothing);
-      expect(find.byType(CapaConstelacion), findsOneWidget);
-
-      await montar(tester, codigo: 'TEMA_DULCE');
-      expect(find.byType(CapaLetrero), findsNothing);
+      expect(tester.getSize(find.byType(LetreroDelDia)).height, 220);
+      expect(pintor(tester).cristal(0), 1);
     });
 
     testWidgets(
@@ -324,45 +355,6 @@ void main() {
         expect([p.luz(0), p.luz(1)], [1, 1]);
       },
     );
-
-    testWidgets(
-      'cambiar de pestaña con el día cerrado no lo vuelve a encender',
-      (tester) async {
-        publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
-        marcarDiaCerrado(true);
-        Widget app(bool enHoy) => MaterialApp(
-          theme: AppTheme.deTema(temaEquipadoNotifier.value),
-          home: Scaffold(
-            body: Stack(
-              fit: StackFit.expand,
-              children: [CapaProgresoIdentidad(enHoy: enHoy)],
-            ),
-          ),
-        );
-        aplicarIdentidadEquipada('TEMA_NEOTOKYO_PLUS');
-        await tester.pumpWidget(app(true));
-        await tester.pump();
-        expect(pintor(tester).encendido, 1);
-
-        await tester.pumpWidget(app(false));
-        await tester.pump();
-        expect(pintor(tester).encendido, 0);
-
-        await tester.pumpWidget(app(true));
-        await tester.pump();
-        expect(pintor(tester).encendido, 1, reason: 'de golpe, sin parpadeo');
-        expect(pintor(tester).luz(2), 1);
-      },
-    );
-
-    testWidgets('fuera de Hoy, el día cerrado no lo enciende', (tester) async {
-      publicarProgresoDia(hechos: 3, total: 3, fecha: dia);
-      await montar(tester, enHoy: false);
-      marcarDiaCerrado(true);
-      await tester.pump();
-      await tester.pump(duracionEncendidoLetrero(3));
-      expect(pintor(tester).encendido, 0);
-    });
 
     testWidgets('montada con el día ya cerrado, sale encendido sin parpadear', (
       tester,

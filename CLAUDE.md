@@ -59,7 +59,7 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 43 ficheros:
+- `widgets/` — 44 ficheros:
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
@@ -83,12 +83,17 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     del fondo y las del ritmo (`IndicadorNivel`) también van a lápiz.
   - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
     pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
-  - fondos y cierre del día (11): `FondoIdentidad` y `CapaProgresoIdentidad`
-    (las únicas puertas), los tres dibujos —cielo estelar, ciudad y
-    burbujas—, el catálogo de constelaciones, su capa, el cierre del día, el
-    ramo de Dulce del cierre (`RamoDulce`, `nombreRamo`) y el letrero del día
-    de Neotokyo+ (`letreros.dart` con sus datos generados en
-    `letreros_datos.dart`, y su capa, `CapaLetrero`; D-35);
+  - fondos y cierre del día (12): `FondoIdentidad` y `CapaProgresoIdentidad`
+    (las únicas puertas al fondo y a la capa de la constelación), los tres
+    dibujos —cielo estelar, ciudad y burbujas—, el catálogo de
+    constelaciones, su capa, el cierre del día, el ramo de Dulce
+    (`RamoDulce`, con `boceto` a grafito, y `nombreRamo`) y el letrero de
+    Neotokyo+ (`letreros.dart` con sus datos generados en
+    `letreros_datos.dart`; D-35). **El letrero y el ramo del día tienen su
+    sitio en la lista de Hoy** (D-41, 20-nov-2026): `LetreroDelDia` y
+    `RamoDelDia`, que monta la app y que crecen ahí con cada hábito hecho.
+    Antes el letrero iba en una capa por encima de la pantalla y se formaba
+    detrás de los hábitos;
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
     (el foco del recorrido guiado);
   - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
@@ -187,17 +192,21 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    ha elegido su identidad gratis en el onboarding.
 6. **El progreso del día**: la app publica cuántos hay y cuántos hechos con
    `publicarProgresoDia` (y `limpiarProgresoDia`), y monta
-   `CapaProgresoIdentidad` donde quiera la constelación. Puede pasar además
+   `CapaProgresoIdentidad` donde quiera la constelación (solo Profundidad la
+   usa) y, en su lista de Hoy, `LetreroDelDia` (Neotokyo+) y `RamoDelDia`
+   (Dulce), cada uno con su `alto` (D-41). Puede pasar además
    el `avance` del día, de 0 a 1 con lo hecho a medias; sin él vale
    `hechos / total`. El core no sabe qué se cuenta.
 7. **El cierre del día**: la app monta `CapaCierreDelDia` y llama a
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces
    (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
-   hace algo en las tres: en Profundidad (la constelación), en Dulce (un ramo a
-   lápiz, una flor por hábito) y en Neotokyo+ (el letrero de neón, un tubo por
-   hábito, que enciende su capa; los textos esperan a
-   `duracionEncendidoLetrero`). Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
+   hace algo en las tres: en Profundidad (la constelación, que realza su
+   capa), en Dulce (el ramo de todas las flores, a grafito como en Hoy, que
+   se colorea y se ata en `duracionRamoCierre`) y en Neotokyo+ (el letrero de
+   neón, un tubo por hábito, que la ceremonia enciende en grande; los textos
+   esperan a `duracionEncendidoLetrero`). El ramo y el letrero de la lista
+   quedan debajo del velo y, al irse, ya están en su estado final. Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
    splash pinta a Nori (`NoriMarca`).
 9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el

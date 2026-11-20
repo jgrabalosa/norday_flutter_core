@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../l10n/norday_core_localizations.dart';
+import '../theme/app_theme.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/progreso_dia.dart';
@@ -20,12 +20,18 @@ import 'ramo_dulce.dart';
 /// en Dulce (una flor por hábito) y el letrero de neón en Neotokyo+ (un tubo
 /// por hábito, D-35). Un toque lo cierra, y el Future termina entonces.
 ///
-/// La constelación y el letrero los pinta su capa (`CapaProgresoIdentidad`),
-/// que va por encima de esta: al marcar el día como cerrado se realzan o se
-/// encienden. En Neotokyo+ los textos esperan a que el letrero esté encendido
-/// ([duracionEncendidoLetrero]). Si no hay nada que contar (ningún hábito del
-/// día), termina en el acto. Los textos los pone la app, como el resto de
-/// textos que hablan de hábitos.
+/// La constelación la pinta su capa (`CapaProgresoIdentidad`), que va por
+/// encima de esta: al marcar el día como cerrado se realza. El ramo y el
+/// letrero viven en la lista de Hoy (D-41: `RamoDelDia` y `LetreroDelDia`),
+/// debajo del velo, así que la ceremonia los pinta en grande:
+/// - **Dulce:** el ramo de todas las flores, a grafito como se veía en Hoy,
+///   se colorea (900 ms) y se ata (500 ms);
+/// - **Neotokyo+:** el letrero se enciende tubo a tubo, con su parpadeo y el
+///   zumbido ([duracionEncendidoLetrero]).
+///
+/// En los dos, los textos esperan a que la figura esté hecha. Si no hay nada
+/// que contar (ningún hábito del día), termina en el acto. Los textos los
+/// pone la app, como el resto de textos que hablan de hábitos.
 ///
 /// Al empezar marca el día como cerrado ([marcarDiaCerrado]), así que al
 /// irse el velo queda ya el estado final: la figura realzada.
@@ -53,10 +59,16 @@ Future<void> mostrarCierreDelDia({
   return peticion.hecho.future;
 }
 
-/// Si hay una ceremonia del cierre en curso. La capa del letrero de
-/// Neotokyo+ lo mira al ver el día cerrado: solo entonces se enciende tubo a
-/// tubo; si no (abrir la app con el día ya cerrado, volver a hoy en la tira),
-/// aparece con un fundido. [mostrarCierreDelDia] pone la petición antes de
+/// Lo que tarda en Dulce el ramo de la ceremonia: 500 ms de velo con el
+/// boceto, 900 de coloreado y 500 de atado. No depende de cuántos hábitos
+/// hay: las flores ya salieron durante el día (D-41).
+const Duration duracionRamoCierre = Duration(milliseconds: 1900);
+
+/// Si hay una ceremonia del cierre en curso. El letrero y el ramo de la lista
+/// lo miran al ver el día cerrado: con ceremonia, el letrero se enciende tubo
+/// a tubo y el ramo cambia de golpe (debajo del velo); sin ella (abrir la app
+/// con el día ya cerrado, volver a hoy en la tira), aparecen con un
+/// fundido. [mostrarCierreDelDia] pone la petición antes de
 /// marcar el día como cerrado, así que quien escucha ese cambio ya la ve.
 bool get hayCierreDelDiaEnCurso => _Cierre.peticion.value != null;
 
@@ -130,8 +142,8 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   late final AnimationController _velo;
   late final AnimationController _textos;
 
-  /// El ramo de Dulce: se forma una flor por etapa. Su duración se fija al
-  /// empezar, según cuántos hábitos hay ([_etapas]).
+  /// La figura de Dulce o de Neotokyo+: el ramo que se colorea y se ata, o
+  /// el letrero que se enciende. Su duración se fija al empezar.
   late final AnimationController _ramo;
   bool _sinMovimiento = false;
   bool _cerrando = false;
@@ -140,13 +152,15 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
   /// textos.
   bool _enDulce = false;
 
-  /// Si es la de Neotokyo+: los textos esperan a que la capa encienda el
-  /// letrero. [_ramo] cuenta ese tiempo, aunque aquí no se pinte nada.
+  /// Si es la de Neotokyo+: el letrero se enciende antes que los textos.
   bool _enNeotokyo = false;
 
-  /// Cuántas etapas tiene el ramo: una por flor (de 1 a 8) y, al final, el
-  /// atado.
-  int _etapas = 1;
+  /// El ramo de Dulce en la ceremonia: 500 ms de velo, con el boceto ya
+  /// dentro; se colorea en [_colorear] y se ata en [_atar]. Suman
+  /// [duracionRamoCierre].
+  static const _esperaRamo = Duration(milliseconds: 500);
+  static const _colorear = Duration(milliseconds: 900);
+  static const _atar = Duration(milliseconds: 500);
 
   /// Si ya ha vibrado en esta ceremonia: una sola vez, al salir el nombre.
   bool _vibro = false;
@@ -203,12 +217,12 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     final fondo = identidadEquipadaNotifier.value.fondo;
     _enDulce = fondo == FondoIdentidadTipo.acumulacion;
     _enNeotokyo = fondo == FondoIdentidadTipo.ciudad;
-    _etapas = min(progresoDiaNotifier.value.total, 8) + 1;
-    // 500 ms de velo, y 500 ms por etapa. En Neotokyo+, lo que tarda el
-    // letrero en encenderse, que ya incluye el velo.
+    // En Dulce, ya no depende de cuántos hábitos hay: las flores salieron
+    // durante el día. En Neotokyo+, lo que tarda el letrero en encenderse,
+    // que ya incluye el velo.
     _ramo.duration = _enNeotokyo
         ? duracionEncendidoLetrero(progresoDiaNotifier.value.total)
-        : Duration(milliseconds: 500 + 500 * _etapas);
+        : duracionRamoCierre;
     if (_sinMovimiento) {
       _vibro = true;
       HapticFeedback.heavyImpact();
@@ -233,22 +247,35 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     return nombreConstelacion(l, total);
   }
 
-  /// El ramo en la etapa que toca. La parte entera de [p] es la etapa en
-  /// curso y la fracción, lo que se ha abierto de la siguiente: la etapa
-  /// `e` muestra `e` flores sin atar, y la última, todas con el atado.
+  /// El ramo en el momento que toca: todas las flores a grafito, como se
+  /// veía en Hoy; después se colorea y, al final, se ata. Cada paso entra
+  /// encima del anterior, así que lo que no cambia no parpadea.
   Widget _ramoEnCurso(double alto) {
-    // Las flores son las etapas menos la del atado.
-    final n = _etapas - 1;
-    final p = (_ramo.value * (1 + _etapas) - 1).clamp(0.0, _etapas.toDouble());
-    final k = p.floor();
-    final f = p - k;
-    Widget etapa(int e) =>
-        RamoDulce(total: n, alto: alto, flores: e <= n ? e : n, atado: e > n);
+    final total = progresoDiaNotifier.value.total;
+    final ms = _ramo.value * duracionRamoCierre.inMilliseconds;
+    final inicioColor = _esperaRamo.inMilliseconds;
+    final inicioAtado = inicioColor + _colorear.inMilliseconds;
+    final color = ((ms - inicioColor) / _colorear.inMilliseconds).clamp(
+      0.0,
+      1.0,
+    );
+    final atado = ((ms - inicioAtado) / _atar.inMilliseconds).clamp(0.0, 1.0);
+    Widget ramo({required bool boceto, required bool atado}) =>
+        RamoDulce(total: total, alto: alto, atado: atado, boceto: boceto);
     return Stack(
       alignment: Alignment.center,
       children: [
-        etapa(k),
-        if (k + 1 <= _etapas) Opacity(opacity: f, child: etapa(k + 1)),
+        if (color < 1) ramo(boceto: true, atado: false),
+        if (color > 0 && atado < 1)
+          Opacity(
+            opacity: color < 1 ? Curves.easeInOut.transform(color) : 1,
+            child: ramo(boceto: false, atado: false),
+          ),
+        if (atado > 0)
+          Opacity(
+            opacity: Curves.easeOut.transform(atado),
+            child: ramo(boceto: false, atado: true),
+          ),
       ],
     );
   }
@@ -351,13 +378,29 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     return Stack(
       children: [
         Positioned.fill(child: ColoredBox(color: _colorVelo(v))),
-        // En Dulce, el ramo ocupa el cuadro de la figura y se forma con el velo.
+        // En Dulce, el ramo ocupa el cuadro de la figura y entra con el velo.
         if (_enDulce)
           Positioned.fromRect(
             rect: cuadro,
             child: Opacity(
               opacity: v,
               child: Center(child: _ramoEnCurso(cuadro.height)),
+            ),
+          ),
+        // En Neotokyo+, el letrero de todos los tubos, que se enciende.
+        if (_enNeotokyo)
+          Positioned.fromRect(
+            rect: cuadro,
+            child: Opacity(
+              opacity: v,
+              child: CustomPaint(
+                size: cuadro.size,
+                painter: PintorLetreroCeremonia(
+                  t,
+                  progresoDiaNotifier.value.total,
+                  _ramo.value,
+                ),
+              ),
             ),
           ),
         // El título y el nombre, por encima del cuadro de la figura.
@@ -456,4 +499,43 @@ class VeloBarraCierreDelDia extends StatelessWidget {
       },
     );
   }
+}
+
+/// El letrero grande de la ceremonia en Neotokyo+: todos los tubos, que se
+/// encienden uno a uno según [encendido] (de 0 a 1 sobre
+/// [duracionEncendidoLetrero]), con el zumbido. Público para los tests.
+class PintorLetreroCeremonia extends CustomPainter {
+  final TokensContextuales tokens;
+  final int total;
+  final double encendido;
+
+  const PintorLetreroCeremonia(this.tokens, this.total, this.encendido);
+
+  /// Cuánto brilla el tubo [i], de 0 a 1.
+  double luz(int i) => luzTuboEnEncendido(i, total, encendido);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final letrero = letreroPara(total);
+    if (letrero == null) return;
+    canvas.saveLayer(Offset.zero & size, Paint()..blendMode = BlendMode.plus);
+    pintarLetrero(
+      canvas,
+      Offset.zero & size,
+      letrero,
+      tokens,
+      cristal: (_) => 1,
+      luz: luz,
+      zumbido: zumbidoLetrero(total, encendido),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant PintorLetreroCeremonia old) =>
+      old.total != total ||
+      old.encendido != encendido ||
+      old.tokens.primary != tokens.primary ||
+      old.tokens.streak != tokens.streak ||
+      old.tokens.points != tokens.points;
 }

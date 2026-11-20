@@ -72,4 +72,41 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'a grafito (D-41): el mismo dibujo, dentro de una capa que lo pasa a gris',
+    (tester) async {
+      usarCacheLapiz = false;
+      addTearDown(() => usarCacheLapiz = true);
+      Future<RenderObject> pintado(RamoDulce ramo) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: Center(child: ramo)),
+          ),
+        );
+        await tester.pump();
+        return tester.renderObject(
+          find.descendant(
+            of: find.byType(RamoDulce),
+            matching: find.byType(CustomPaint),
+          ),
+        );
+      }
+
+      bool capaGris(Symbol n, List<dynamic> a) =>
+          n == #saveLayer && (a[1] as Paint).colorFilter != null;
+
+      expect(
+        await pintado(const RamoDulce(total: 3, alto: 360, boceto: true)),
+        paints
+          ..something(capaGris)
+          ..something((n, a) => n == #drawLine)
+          ..restore(),
+      );
+      expect(
+        await pintado(const RamoDulce(total: 3, alto: 360)),
+        paints..everything((n, a) => !capaGris(n, a)),
+      );
+    },
+  );
 }
