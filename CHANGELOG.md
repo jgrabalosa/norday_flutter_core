@@ -3,6 +3,14 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Añadido
+
+- **Login:** en temporada, Nori lleva la prenda de la temporada (la misma
+  para todos), según el apartado `login` del manifiesto del arte. Sin red o
+  fuera de fechas, sale como siempre.
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
