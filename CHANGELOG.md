@@ -5,6 +5,15 @@ está en `git log`.
 
 ## Sin publicar
 
+### Nuevo
+
+- **El check vivo** (T-018, experimento): de vez en cuando, y de uno en uno,
+  algo da una vuelta de 1,6 s al aro de un check sin hacer. En Profundidad es
+  un cohete amarillo con estela; en Neotokyo+, un destello de neón cian que
+  recorre el aro; en Dulce, una punta de lápiz que repasa el círculo y se
+  borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
+  no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
+
 ### Arreglado
 
 - **Colección:** en la tarjeta de una identidad, el nombre y el botón
