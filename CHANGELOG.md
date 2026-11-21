@@ -3,6 +3,20 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Ayudas con rastro** (T-047): `AyudaCampo` acepta un `id` opcional y, con
+  él, abrir la nota registra `ayuda_abierta` (parámetro `ayuda`) en Analytics
+  vía `AnalyticsCore.ayudaAbierta`. Tienda y Colección ya pasan el suyo
+  (`tienda`, `coleccion`).
+
+### Cambiado
+
+- La ayuda de la tienda menciona la ropa de Nori: «Gasta aquí tus puntos:
+  comida para Nori, temas, ropa y más.» (en los tres idiomas).
+
 ## 0.60.0 — 21-nov-2026
 
 ### Nuevo

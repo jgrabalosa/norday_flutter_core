@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
 import 'burbuja_contexto.dart';
 
@@ -35,11 +37,17 @@ class AyudaCampo extends StatefulWidget {
   /// nota que abre es la misma.
   final bool superindice;
 
+  /// Identifica la ayuda en Analytics, en minúsculas y con guiones bajos.
+  /// Con él, abrir la nota registra `ayuda_abierta` (parámetro `ayuda`); sin
+  /// él no se registra nada. Solo cuenta al abrir, no al cerrar.
+  final String? id;
+
   const AyudaCampo({
     super.key,
     required this.texto,
     required this.etiquetaSemantica,
     this.superindice = false,
+    this.id,
   });
 
   @override
@@ -105,6 +113,9 @@ class _AyudaCampoState extends State<AyudaCampo>
     });
     _portal.show();
     _anim.forward();
+    // Sin `await`: `ayudaAbierta` no lanza y abrir la nota no espera a nadie.
+    final id = widget.id;
+    if (id != null) unawaited(AnalyticsCore.ayudaAbierta(id));
   }
 
   Future<void> _cerrar() async {

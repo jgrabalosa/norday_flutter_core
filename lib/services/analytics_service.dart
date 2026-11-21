@@ -16,6 +16,27 @@ class AnalyticsCore {
   /// abajo.
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  /// Lo que de verdad manda un evento a Firebase. Sustituible en tests, donde
+  /// Firebase no está inicializado.
+  @visibleForTesting
+  static Future<void> Function(String nombre, Map<String, Object> parametros)
+  enviarEvento = _enviarAFirebase;
+
+  static Future<void> _enviarAFirebase(
+    String nombre,
+    Map<String, Object> parametros,
+  ) => analytics.logEvent(name: nombre, parameters: parametros);
+
+  /// Se abrió la nota de un [AyudaCampo]. [id] identifica la ayuda, en
+  /// minúsculas y con guiones bajos (`tienda`, `coleccion`...).
+  static Future<void> ayudaAbierta(String id) async {
+    try {
+      await enviarEvento('ayuda_abierta', {'ayuda': id});
+    } catch (e) {
+      debugPrint('Analytics: no se registró ayuda_abierta: $e');
+    }
+  }
+
   static Future<void> registro(int usuarioId) async {
     try {
       await analytics.setUserId(id: usuarioId.toString());

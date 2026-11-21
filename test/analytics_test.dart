@@ -11,6 +11,23 @@ void main() {
     await expectLater(AnalyticsCore.login(1), completes);
   });
 
+  test('ayudaAbierta manda ayuda_abierta con el id', () async {
+    final enviados = <(String, Map<String, Object>)>[];
+    final original = AnalyticsCore.enviarEvento;
+    addTearDown(() => AnalyticsCore.enviarEvento = original);
+    AnalyticsCore.enviarEvento = (n, p) async => enviados.add((n, p));
+
+    await AnalyticsCore.ayudaAbierta('tienda');
+
+    expect(enviados, hasLength(1));
+    expect(enviados.single.$1, 'ayuda_abierta');
+    expect(enviados.single.$2, {'ayuda': 'tienda'});
+  });
+
+  test('ayudaAbierta no lanza aunque Firebase falle', () async {
+    await expectLater(AnalyticsCore.ayudaAbierta('tienda'), completes);
+  });
+
   test('registro no lanza aunque Firebase falle', () async {
     await expectLater(AnalyticsCore.registro(1), completes);
   });

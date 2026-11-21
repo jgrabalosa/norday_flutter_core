@@ -226,6 +226,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
           children: [
             Text(l.tiendaTitulo),
             AyudaCampo(
+              id: 'tienda',
               texto: l.tiendaAyuda,
               etiquetaSemantica: l.tiendaAyudaEtiqueta,
               superindice: true,

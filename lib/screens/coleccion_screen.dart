@@ -271,6 +271,7 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
           children: [
             Text(l.navColeccion),
             AyudaCampo(
+              id: 'coleccion',
               texto: l.colAyuda,
               etiquetaSemantica: l.colAyudaEtiqueta,
               superindice: true,
