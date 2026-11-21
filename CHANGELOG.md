@@ -7,6 +7,14 @@ está en `git log`.
 
 ### Nuevo
 
+- **Cierre del día, botón «Compartir» (T-041):** `mostrarCierreDelDia`
+  acepta `textoCompartir` y devuelve `ResultadoCierreDelDia` (`cerrado` o
+  `compartir`). Con texto, la ceremonia acaba con un botón centrado bajo la
+  despedida (a lápiz en Dulce, achaflanado en Neotokyo+), que no se puede
+  pulsar hasta que han entrado los textos, y con la acción «Compartir» para el
+  lector de pantalla. Sin él, todo igual. Nuevo `FiguraDelDia`: la figura del
+  día quieta y en su estado final, para la postal.
+
 - **Tu Nori como avatar** (T-032): sin avatar equipado, `AvatarUsuario` pinta
   tu Nori, con su fase y lo que lleva puesto (`NoriVestida`, siempre feliz),
   en vez de la cría fija. Sale en Colección y, nuevo, arriba de Mi cuenta
