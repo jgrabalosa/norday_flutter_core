@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../models/manifiesto_arte.dart';
 import '../theme/mascota_assets.dart';
 import 'imagen_mascota.dart';
 import 'nori_vestida.dart';
@@ -40,6 +43,14 @@ class MascotaAnimadaViva extends StatefulWidget {
   /// el login y el avatar no se visten (decisión 16).
   final bool vestida;
 
+  /// Solo con [vestida]: se pasan tal cual a [NoriVestida]. Con [prendas], Nori
+  /// lleva eso y no lo equipado (el login lo usa: ahí puede haber otra cuenta).
+  /// Sin ellos, lo de siempre. [manifiesto] e [imagen] son sobre todo para los
+  /// tests.
+  final ValueListenable<Map<String, String>>? prendas;
+  final ValueListenable<ManifiestoArte>? manifiesto;
+  final Future<File?> Function(String ruta)? imagen;
+
   const MascotaAnimadaViva({
     super.key,
     this.fase,
@@ -48,6 +59,9 @@ class MascotaAnimadaViva extends StatefulWidget {
     this.permiteToque = false,
     this.onToque,
     this.vestida = false,
+    this.prendas,
+    this.manifiesto,
+    this.imagen,
   });
 
   @override
@@ -262,6 +276,9 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
               estado: widget.estado,
               tamano: widget.tamano,
               margen: _margenAnimacion,
+              prendas: widget.prendas,
+              manifiesto: widget.manifiesto,
+              imagen: widget.imagen,
             )
           : ImagenMascota(
               asset: imagen,

@@ -77,7 +77,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     quieto y copos, que la pantalla de Nori pone entre las fechas del
     manifiesto del arte), `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
-  - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
+  - pantallas de entrada (3): `NoriMarca` (con `vestida: true`, solo en el
+    login, lleva la prenda de la temporada según el apartado `login` del
+    manifiesto del arte, `ManifiestoArte.prendasLogin`; nunca lo equipado de
+    nadie; el splash no se viste), `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
   - lenguaje a lápiz (1): `lapiz.dart`, con el trazo, las rayas y
     `BordeLapiz`, que es el lenguaje de Dulce. `BordeLapiz` admite relleno a
