@@ -3,6 +3,14 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Arreglado
+
+- **Colección:** en la tarjeta de una identidad, el nombre y el botón
+  («Equipar», «Conseguir» o «Equipado») van ahora en la misma fila y a la
+  misma altura, en vez de el botón en una línea aparte (T-037).
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
