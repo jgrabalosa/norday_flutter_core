@@ -61,7 +61,11 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 44 ficheros:
+- `widgets/` — 45 ficheros:
+  - figura del día (1): `FiguraDelDia`, la figura de la identidad equipada
+    quieta y en su estado final (constelación encendida, ramo atado o letrero
+    encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
+    postal del cierre (T-043, en la app);
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
@@ -209,7 +213,14 @@ lema del login, actualización obligatoria y borrado de cuenta salen de
    se colorea y se ata en `duracionRamoCierre`) y en Neotokyo+ (el letrero de
    neón, un tubo por hábito, que la ceremonia enciende en grande; los textos
    esperan a `duracionEncendidoLetrero`). El ramo de la lista queda
-   debajo del velo y, al irse, ya está en su estado final. El letrero de la
+   debajo del velo y, al irse, ya está en su estado final. **Compartir
+   (T-041):** `mostrarCierreDelDia` acepta `textoCompartir` (ya traducido) y
+   devuelve `Future<ResultadoCierreDelDia>` (`cerrado`, `compartir`). Con
+   texto sale un botón centrado bajo la despedida (a lápiz en Dulce,
+   achaflanado en Neotokyo+), con el mismo bloqueo que el toque de cerrar, y
+   el nodo del lector gana la acción «Compartir»; pulsarlo cierra y devuelve
+   `compartir`, cualquier otro cierre `cerrado`. Sin texto, todo como antes.
+   La app (T-043) hace la postal con `FiguraDelDia`. El letrero de la
    lista espera apagado mientras dura la ceremonia y se enciende al ritmo del
    velo que se va (si no, se veía doble a través del velo: 20-nov-2026). Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
 8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
