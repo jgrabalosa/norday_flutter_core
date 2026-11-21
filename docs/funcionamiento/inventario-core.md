@@ -36,6 +36,9 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
+  `faseMascotaNotifier` (la fase elegida de la mascota, nunca `faseReal`:
+  la llenan `MiniMascota` y `MascotaScreen` al leerla bien y al elegir otra,
+  la escucha `AvatarUsuario` y `ApiServiceCore` la vacía al cerrar sesión),
   `tonoError`, `progreso_dia.dart` (cuántos hay, cuántos hechos y cuánto se
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo), `prendas.dart` (los sitios de las prendas de Nori y lo que lleva
@@ -43,17 +46,27 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 44 ficheros:
+- `widgets/` — 45 ficheros:
+  - figura del día (1): `FiguraDelDia`, la figura de la identidad equipada
+    quieta y en su estado final (constelación encendida, ramo atado o letrero
+    encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
+    postal del cierre (T-043, en la app);
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
     sin prendas, el dibujo de siempre; ver `nori-canonica.md`),
     `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
-    pinte un PNG de Nori pasa por ella), halo, terrario (con `nieve`: manto
+    pinte un PNG de Nori pasa por ella; también `AvatarUsuario`, en
+    `theme/avatares.dart`, que sin avatar equipado pinta tu Nori vestida,
+    con la fase de `faseMascotaNotifier` —sin ella, la cría— y siempre
+    feliz: sale en Colección y arriba de Mi cuenta, T-032), halo, terrario (con `nieve`: manto
     quieto y copos, que la pantalla de Nori pone entre las fechas del
     manifiesto del arte), `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
-  - pantallas de entrada (3): `NoriMarca`, `WordmarkIdentidad` y `LogoGoogle`;
+  - pantallas de entrada (3): `NoriMarca` (con `vestida: true`, solo en el
+    login, lleva la prenda de la temporada según el apartado `login` del
+    manifiesto del arte, `ManifiestoArte.prendasLogin`; nunca lo equipado de
+    nadie; el splash no se viste), `WordmarkIdentidad` y `LogoGoogle`;
   - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
   - lenguaje a lápiz (1): `lapiz.dart`, con el trazo, las rayas y
     `BordeLapiz`, que es el lenguaje de Dulce. `BordeLapiz` admite relleno a

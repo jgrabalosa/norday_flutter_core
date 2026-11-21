@@ -188,6 +188,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get perfilTitulo => 'My account';
 
   @override
+  String get perfilAvatarSemantica => 'Your Nori';
+
+  @override
   String get perfilActualizado => 'Profile updated ✅';
 
   @override

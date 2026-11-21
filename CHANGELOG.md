@@ -3,6 +3,43 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## 0.60.0 — 21-nov-2026
+
+### Nuevo
+
+- **El check vivo** (T-018, experimento): de vez en cuando, y de uno en uno,
+  algo da una vuelta de 1,6 s al aro de un check sin hacer. En Profundidad es
+  un cohete amarillo con estela; en Neotokyo+, un destello de neón cian que
+  recorre el aro; en Dulce, una punta de lápiz que repasa el círculo y se
+  borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
+  no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
+- **Tu Nori como avatar** (T-032): sin avatar equipado, `AvatarUsuario` pinta
+  tu Nori, con su fase y lo que lleva puesto (`NoriVestida`, siempre feliz),
+  en vez de la cría fija. Sale en Colección y, nuevo, arriba de Mi cuenta
+  («Tu Nori» para el lector). La fase llega por `faseMascotaNotifier`, que
+  llenan `MiniMascota` y `MascotaScreen` y que se vacía al cerrar sesión.
+- **Cierre del día, botón «Compartir» (T-041):** `mostrarCierreDelDia`
+  acepta `textoCompartir` y devuelve `ResultadoCierreDelDia` (`cerrado` o
+  `compartir`). Con texto, la ceremonia acaba con un botón centrado bajo la
+  despedida (a lápiz en Dulce, achaflanado en Neotokyo+), que no se puede
+  pulsar hasta que han entrado los textos, y con la acción «Compartir» para el
+  lector de pantalla. Sin él, todo igual. Nuevo `FiguraDelDia`: la figura del
+  día quieta y en su estado final, para la postal.
+- **Login:** en temporada, Nori lleva la prenda de la temporada (la misma
+  para todos), según el apartado `login` del manifiesto del arte. Sin red o
+  fuera de fechas, sale como siempre.
+
+### Cambiado
+
+- **Neotokyo+, el letrero «La ola»:** el sol sube un poco (su centro, de 20 a
+  11 sobre 100) y ya no toca la cresta de la ola (Quim, 21-nov-2026).
+
+### Arreglado
+
+- **Colección:** en la tarjeta de una identidad, el nombre y el botón
+  («Equipar», «Conseguir» o «Equipado») van ahora en la misma fila y a la
+  misma altura, en vez de el botón en una línea aparte (T-037).
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado

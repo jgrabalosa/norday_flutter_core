@@ -63,6 +63,7 @@ export 'widgets/letrero_del_dia.dart';
 export 'widgets/letreros.dart' show nombreLetrero;
 export 'widgets/coach_mark.dart';
 export 'widgets/estrella_valoracion.dart';
+export 'widgets/figura_del_dia.dart';
 export 'widgets/fondo_identidad.dart';
 export 'widgets/grano_papel.dart';
 export 'widgets/halo_identidad.dart';

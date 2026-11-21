@@ -128,7 +128,7 @@ def ola():
     mar1 = onda(6, 94, 82, 1.6, 5)
     mar2 = onda(12, 88, 88, 1.6, 4.5)
     mar3 = onda(20, 80, 94, 1.6, 3.5)
-    sol = arco(84, 20, 8, 0, 360, 48)
+    sol = arco(84, 11, 8, 0, 360, 48)
     return [grande, pequena, mar1, mar2, mar3, sol]
 
 

@@ -6,7 +6,7 @@ dependencia Git.
 
 Consumidores hoy (detalle en `docs/funcionamiento/consumidores.md`):
 
-- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`), hoy `v0.59.1`.
+- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`), hoy `v0.60.0`.
 - `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`; no ve las prendas de Nori.
 - `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit `a873d8f`
   (12-ago-2026, anterior a `v0.1.0`); no recibe nada de lo hecho desde entonces.
