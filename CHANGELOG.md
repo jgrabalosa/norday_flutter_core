@@ -11,6 +11,21 @@ está en `git log`.
   para todos), según el apartado `login` del manifiesto del arte. Sin red o
   fuera de fechas, sale como siempre.
 
+### Nuevo
+
+- **El check vivo** (T-018, experimento): de vez en cuando, y de uno en uno,
+  algo da una vuelta de 1,6 s al aro de un check sin hacer. En Profundidad es
+  un cohete amarillo con estela; en Neotokyo+, un destello de neón cian que
+  recorre el aro; en Dulce, una punta de lápiz que repasa el círculo y se
+  borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
+  no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
+
+### Arreglado
+
+- **Colección:** en la tarjeta de una identidad, el nombre y el botón
+  («Equipar», «Conseguir» o «Equipado») van ahora en la misma fila y a la
+  misma altura, en vez de el botón en una línea aparte (T-037).
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
