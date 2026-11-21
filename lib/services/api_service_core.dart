@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/usuario.dart';
+import '../theme/mascota_refresh.dart';
 import '../version_core.dart';
 import 'api_error.dart';
 import 'notificaciones_service.dart';
@@ -314,6 +315,10 @@ class ApiServiceCore {
     bool revocarGoogle = false,
     bool cerrarGoogle = true,
   }) async {
+    // La fase del avatar es de esta cuenta (T-032). Lo primero, antes del
+    // `return` de Google y de cualquier `await` que pueda fallar: la cuenta
+    // siguiente del mismo móvil no puede ver esta Nori.
+    faseMascotaNotifier.value = null;
     final prefs = await SharedPreferences.getInstance();
     final eraGoogle = prefs.getString('proveedorAuth') == 'GOOGLE';
     for (final clave in _clavesSesion) {

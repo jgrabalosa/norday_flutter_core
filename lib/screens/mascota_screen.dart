@@ -116,6 +116,8 @@ class _MascotaScreenState extends State<MascotaScreen> {
   Future<void> _cargarMascota() async {
     try {
       final data = await ApiServiceCore.getMascota(widget.usuarioId);
+      // Para el avatar (T-032): la elegida, aunque la pantalla ya no esté.
+      faseMascotaNotifier.value = data['fase'];
       if (!mounted) return;
       setState(() {
         _nombre = data['nombre'] ?? '';
@@ -300,6 +302,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
     // Optimista, como el nombre: la imagen cambia con el dedo y se revierte
     // si el servidor dice que no.
     setState(() => _fase = fase);
+    faseMascotaNotifier.value = fase;
     try {
       await ApiServiceCore.elegirFaseMascota(widget.usuarioId, fase);
       // La mini vive fuera de esta pantalla y, al ser una pestaña y no una
@@ -307,6 +310,8 @@ class _MascotaScreenState extends State<MascotaScreen> {
       // que ya usa el dashboard al completar un hábito.
       solicitarRefrescoMascota();
     } catch (e) {
+      // El avatar vuelve a la de antes aunque la pantalla ya no esté.
+      faseMascotaNotifier.value = anterior;
       if (!mounted) return;
       setState(() => _fase = anterior);
       ScaffoldMessenger.of(
