@@ -47,6 +47,18 @@ void main() {
       },
     );
 
+    test('en «La ola», el sol queda por encima de la cresta, sin tocarla '
+        '(Quim, 21-nov)', () {
+      final tubos = catalogoLetreros[6]!.tubos;
+      final olaGrande = tubos.first;
+      final sol = tubos.last;
+      final crestaMasAlta = olaGrande
+          .map((p) => p.dy)
+          .reduce((a, b) => a < b ? a : b);
+      final solMasBajo = sol.map((p) => p.dy).reduce((a, b) => a > b ? a : b);
+      expect(solMasBajo, lessThan(crestaMasAlta));
+    });
+
     test('sin hábitos no hay letrero; de 8 en adelante, el de 8', () {
       expect(letreroPara(0), isNull);
       expect(letreroPara(3), same(catalogoLetreros[3]));

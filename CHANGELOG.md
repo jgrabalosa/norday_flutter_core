@@ -3,6 +3,13 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambiado
+
+- **Neotokyo+, el letrero «La ola»:** el sol sube un poco (su centro, de 20 a
+  11 sobre 100) y ya no toca la cresta de la ola (Quim, 21-nov-2026).
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
