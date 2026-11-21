@@ -5,6 +5,11 @@ está en `git log`.
 
 ## Sin publicar
 
+### Cambiado
+
+- **Neotokyo+, el letrero «La ola»:** el sol sube un poco (su centro, de 20 a
+  11 sobre 100) y ya no toca la cresta de la ola (Quim, 21-nov-2026).
+
 ### Nuevo
 
 - **Cierre del día, botón «Compartir» (T-041):** `mostrarCierreDelDia`
