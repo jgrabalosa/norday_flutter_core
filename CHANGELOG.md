@@ -3,6 +3,17 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Interruptor «Avisos de Norday»** (T-014c): en Perfil, para apagar los
+  avisos de la app (como mucho dos a la semana). Solo sale si la app pasa
+  `mostrarAvisosApp: true` a `PerfilScreen` (o a `SelectorPreferencias`) y el
+  backend devuelve `avisosApp`; Focus no lo ve. Si el guardado falla, el
+  interruptor vuelve a como estaba y se avisa. `actualizarPreferencias`
+  acepta `avisosApp`.
+
 ## 0.60.0 — 21-nov-2026
 
 ### Nuevo

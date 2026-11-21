@@ -271,6 +271,24 @@ abstract class NordayCoreLocalizations {
   /// **'Sonido'**
   String get sonido;
 
+  /// No description provided for @avisosApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisos de Norday'**
+  String get avisosApp;
+
+  /// No description provided for @avisosAppAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Como mucho dos a la semana: cuando llevas días sin pasar o una semana se queda a medias. Tus recordatorios no cambian.'**
+  String get avisosAppAyuda;
+
+  /// No description provided for @avisosAppErrorGuardar.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar el cambio. Prueba de nuevo.'**
+  String get avisosAppErrorGuardar;
+
   /// No description provided for @cambiarZona.
   ///
   /// In es, this message translates to:
