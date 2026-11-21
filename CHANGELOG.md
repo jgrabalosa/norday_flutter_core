@@ -18,6 +18,11 @@ está en `git log`.
   recorre el aro; en Dulce, una punta de lápiz que repasa el círculo y se
   borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
   no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
+### Añadido
+
+- **Login:** en temporada, Nori lleva la prenda de la temporada (la misma
+  para todos), según el apartado `login` del manifiesto del arte. Sin red o
+  fuera de fechas, sale como siempre.
 
 ## 0.59.1 — 20-nov-2026
 
