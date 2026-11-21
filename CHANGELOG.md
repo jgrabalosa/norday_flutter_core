@@ -5,6 +5,12 @@ está en `git log`.
 
 ## Sin publicar
 
+### Añadido
+
+- **Login:** en temporada, Nori lleva la prenda de la temporada (la misma
+  para todos), según el apartado `login` del manifiesto del arte. Sin red o
+  fuera de fechas, sale como siempre.
+
 ### Nuevo
 
 - **El check vivo** (T-018, experimento): de vez en cuando, y de uno en uno,

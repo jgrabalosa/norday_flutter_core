@@ -52,9 +52,10 @@ Se sirve en `<servidor>/arte/manifiesto-v1.json`. `<servidor>` es
 - `sitio`: `"cabeza"` o `"cuerpo"`, en minúscula, como en
   `hoja_revision.py`. Ojo: `sitiosPrenda` (`theme/prendas.dart`) usa la
   `categoria` del backend, con mayúscula inicial (`Cabeza`, `Cuerpo`). No son
-  la misma cadena. Hoy nadie lee el `sitio` del manifiesto: `NoriVestida` toma
-  el sitio de `prendasEquipadasNotifier` (la `categoria`). Si algún día se
-  usa, hay que convertir entre las dos formas.
+  la misma cadena. `NoriVestida` toma el sitio de `prendasEquipadasNotifier`
+  (la `categoria`); solo `ManifiestoArte.prendasLogin` lee el `sitio` del
+  manifiesto y lo convierte a la forma de `sitiosPrenda`. Un sitio que no esté
+  ahí no cuenta.
 - `subidaBrote` es opcional: píxeles del lienzo de 1024, por fase. Si falta una
   fase, 0 (`PrendaArte.subidaBroteEn`).
 - `oculta`: capas de Nori que la prenda tapa. Hoy solo puede traer `"brote"`.
@@ -148,7 +149,26 @@ que no se sabe qué lleva cada uno). Las prendas van por **código de
 producto**, como las claves de `prendas`, y todas están en el manifiesto;
 una por sitio y sin periodos que se pisen (lo comprueba `publicar_arte.py`).
 Así las fechas se cambian publicando el manifiesto, sin versión nueva de la
-app. **La app lo lee desde T-036**; hasta entonces, el apartado se ignora.
+app.
+
+Cómo lo lee el core:
+
+- `ManifiestoArte.login` es la lista de periodos (`PeriodoLogin`); uno con
+  fechas raras o `desde` después de `hasta` se ignora.
+- `ManifiestoArte.prendasLogin(hoy)` da sitio → código (`Cabeza`, `Cuerpo`,
+  como `sitiosPrenda`), con las prendas de los periodos que incluyen la fecha
+  de `hoy` (sin hora), solo las que están en `prendas` y cuyo `sitio` conoce
+  `sitiosPrenda`. Sin el apartado, fuera de fechas o con datos raros, vacío.
+- `NoriMarca(vestida: true)` (solo `LoginScreen`) pinta a Nori en huevo y
+  contenta con ese mapa, que recalcula cuando llega un manifiesto nuevo. Lo
+  pasa a `NoriVestida` por su parámetro `prendas`, a través de
+  `MascotaAnimadaViva.prendas`: **nunca** `prendasEquipadasNotifier`, porque
+  en el login puede haber otra cuenta. La prenda que no se ve en el huevo (el
+  traje) no sale.
+- `LoginScreen` llama a `asegurarManifiesto()` al abrirse, sin esperarlo. Sin
+  red, sin manifiesto o sin el fichero bajado, Nori sale sin vestir, sin
+  errores.
+- El splash (`SplashGenerico`) no se viste.
 
 ## Cómo se publica (N-13)
 
