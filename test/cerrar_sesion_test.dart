@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:norday_flutter_core/services/api_service_core.dart';
+import 'package:norday_flutter_core/theme/mascota_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -34,5 +35,20 @@ void main() {
     expect(prefs.getBool('recorridoHecho'), isTrue);
     expect(prefs.getString('idioma'), 'pt');
     expect(await ApiServiceCore.getUsuarioLocal(), isNull);
+  });
+
+  test('logout olvida la fase de la Nori del avatar (T-032)', () async {
+    SharedPreferences.setMockInitialValues({
+      'usuarioId': 7,
+      'proveedorAuth': 'LOCAL',
+    });
+    FlutterSecureStorage.setMockInitialValues({});
+    faseMascotaNotifier.value = 'ADULTO';
+    addTearDown(() => faseMascotaNotifier.value = null);
+
+    await ApiServiceCore.logout();
+
+    // Si no, la cuenta siguiente del mismo móvil vería esta Nori.
+    expect(faseMascotaNotifier.value, isNull);
   });
 }

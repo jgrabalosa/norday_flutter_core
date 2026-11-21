@@ -54,6 +54,9 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
+  `faseMascotaNotifier` (la fase elegida de la mascota, nunca `faseReal`:
+  la llenan `MiniMascota` y `MascotaScreen` al leerla bien y al elegir otra,
+  la escucha `AvatarUsuario` y `ApiServiceCore` la vacía al cerrar sesión),
   `tonoError`, `progreso_dia.dart` (cuántos hay, cuántos hechos y cuánto se
   lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
   fondo), `prendas.dart` (los sitios de las prendas de Nori y lo que lleva
@@ -67,7 +70,10 @@ La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
     sin prendas, el dibujo de siempre; ver `nori-canonica.md`),
     `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
-    pinte un PNG de Nori pasa por ella), halo, terrario (con `nieve`: manto
+    pinte un PNG de Nori pasa por ella; también `AvatarUsuario`, en
+    `theme/avatares.dart`, que sin avatar equipado pinta tu Nori vestida,
+    con la fase de `faseMascotaNotifier` —sin ella, la cría— y siempre
+    feliz: sale en Colección y arriba de Mi cuenta, T-032), halo, terrario (con `nieve`: manto
     quieto y copos, que la pantalla de Nori pone entre las fechas del
     manifiesto del arte), `AnilloIdentidad` (el aro de XP, que también usa el resumen del
     día), `BurbujaContexto` y `CelebracionNivel`;
