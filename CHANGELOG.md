@@ -30,6 +30,15 @@ está en `git log`.
   en vez de la cría fija. Sale en Colección y, nuevo, arriba de Mi cuenta
   («Tu Nori» para el lector). La fase llega por `faseMascotaNotifier`, que
   llenan `MiniMascota` y `MascotaScreen` y que se vacía al cerrar sesión.
+### Nuevo
+
+- **Cierre del día, botón «Compartir» (T-041):** `mostrarCierreDelDia`
+  acepta `textoCompartir` y devuelve `ResultadoCierreDelDia` (`cerrado` o
+  `compartir`). Con texto, la ceremonia acaba con un botón centrado bajo la
+  despedida (a lápiz en Dulce, achaflanado en Neotokyo+), que no se puede
+  pulsar hasta que han entrado los textos, y con la acción «Compartir» para el
+  lector de pantalla. Sin él, todo igual. Nuevo `FiguraDelDia`: la figura del
+  día quieta y en su estado final, para la postal.
 
 ## 0.59.1 — 20-nov-2026
 

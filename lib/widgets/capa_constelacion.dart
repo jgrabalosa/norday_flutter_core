@@ -11,7 +11,7 @@ import 'constelaciones.dart';
 /// contenido.
 ///
 /// NO se exporta en el barrel. La puerta es `CapaProgresoIdentidad`. Pinta con
-/// mezcla aditiva (ver [_CapaConstelacionPainter]) y lleva [IgnorePointer]
+/// mezcla aditiva (ver [PintorConstelacion]) y lleva [IgnorePointer]
 /// dentro, imprescindible para que la capa no se coma los toques de lo que hay
 /// debajo.
 ///
@@ -165,7 +165,7 @@ class _CapaConstelacionState extends State<CapaConstelacion>
       child: AnimatedBuilder(
         animation: _realce,
         builder: (context, _) => CustomPaint(
-          painter: _CapaConstelacionPainter(
+          painter: PintorConstelacion(
             widget.tokens,
             _progreso,
             vuelos: {for (final e in _vuelos.entries) e.key: e.value.value},
@@ -179,7 +179,9 @@ class _CapaConstelacionState extends State<CapaConstelacion>
   }
 }
 
-class _CapaConstelacionPainter extends CustomPainter {
+/// Lo que pinta la constelación: la capa del día y, quieta y entera,
+/// `FiguraDelDia`. No se exporta en el barrel.
+class PintorConstelacion extends CustomPainter {
   /// Los tokens de la identidad equipada, pasados por el widget: el painter
   /// no lee ningún notifier global.
   final TokensContextuales tokens;
@@ -197,12 +199,22 @@ class _CapaConstelacionPainter extends CustomPainter {
   /// El realce del día cerrado, de 0 a 1.
   final double realce;
 
-  const _CapaConstelacionPainter(
+  /// Si el realce también oscurece lo de debajo. La figura suelta
+  /// (`FiguraDelDia`) no tiene nada debajo que apagar.
+  final bool velo;
+
+  /// Dónde va la figura dentro de la capa. Por defecto, la banda central
+  /// ([cuadroConstelacion]); la figura suelta ocupa todo su tamaño.
+  final Rect Function(Size) cuadro;
+
+  const PintorConstelacion(
     this.tokens,
     this.progreso, {
     required this.vuelos,
     required this.apagados,
     required this.realce,
+    this.velo = true,
+    this.cuadro = cuadroConstelacion,
   });
 
   /// La constelación ocupa la banda central de la pantalla, no la parte
@@ -214,10 +226,10 @@ class _CapaConstelacionPainter extends CustomPainter {
     final figura = constelacionPara(progreso.total);
     if (figura == null) return;
 
-    final cuadro = cuadroConstelacion(size);
+    final marco = cuadro(size);
     Offset situar(Offset p) => Offset(
-      cuadro.left + p.dx * cuadro.width,
-      cuadro.top + p.dy * cuadro.height,
+      marco.left + p.dx * marco.width,
+      marco.top + p.dy * marco.height,
     );
 
     final encendidas = progreso.completas.clamp(0, figura.puntos.length);
@@ -245,7 +257,7 @@ class _CapaConstelacionPainter extends CustomPainter {
     // El día cerrado, en Hoy: un velo que apaga un poco lo de debajo para
     // que la figura terminada destaque. Va fuera de la capa aditiva porque
     // tiene que oscurecer, y la mezcla aditiva sólo sabe sumar luz.
-    if (realce > 0) {
+    if (velo && realce > 0) {
       canvas.drawRect(
         Offset.zero & size,
         Paint()..color = Colors.black.withValues(alpha: 0.25 * realce),
@@ -480,11 +492,12 @@ class _CapaConstelacionPainter extends CustomPainter {
   // define `operator ==`, así que ese campo se compara por valor, y los
   // mapas de animación entrada a entrada.
   @override
-  bool shouldRepaint(covariant _CapaConstelacionPainter oldDelegate) =>
+  bool shouldRepaint(covariant PintorConstelacion oldDelegate) =>
       oldDelegate.tokens.primary != tokens.primary ||
       oldDelegate.tokens.streak != tokens.streak ||
       oldDelegate.progreso != progreso ||
       oldDelegate.realce != realce ||
+      oldDelegate.velo != velo ||
       !_mismosAvances(oldDelegate.vuelos, vuelos) ||
       !_mismosAvances(oldDelegate.apagados, apagados);
 
