@@ -1662,6 +1662,42 @@ abstract class NordayCoreLocalizations {
   /// In es, this message translates to:
   /// **'Lleva: {prendas}'**
   String noriLleva(String prendas);
+
+  /// Widget de Nori: texto cuando aún no hay nada hecho hoy.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza cuando quieras'**
+  String get widgetNoriEmpieza;
+
+  /// Widget de Nori: texto cuando no hay sesión.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para ver tu día'**
+  String get widgetNoriSinSesion;
+
+  /// Widget de Nori: texto cuando el progreso de hoy está completo.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Todo hecho por hoy!'**
+  String get widgetNoriTodoHecho;
+
+  /// Widget de Nori: progreso de hoy. El core lo guarda con los marcadores {hechos} y {total} sin sustituir; el widget nativo pone las cifras.
+  ///
+  /// In es, this message translates to:
+  /// **'{hechos} de {total} hoy'**
+  String widgetNoriProgreso(String hechos, String total);
+
+  /// Widget de Nori: progreso de hoy en el tamaño pequeño. Mismos marcadores que widgetNoriProgreso.
+  ///
+  /// In es, this message translates to:
+  /// **'{hechos} de {total}'**
+  String widgetNoriProgresoCorto(String hechos, String total);
+
+  /// Widget de Nori: descripción para el lector de pantalla. El core lo guarda con {frase}, {hechos} y {total} sin sustituir; el widget nativo los rellena.
+  ///
+  /// In es, this message translates to:
+  /// **'Nori, {frase}. {hechos} de {total} hoy. Toca para abrir Norday.'**
+  String widgetNoriAccesible(String frase, String hechos, String total);
 }
 
 class _NordayCoreLocalizationsDelegate
