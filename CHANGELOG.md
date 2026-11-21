@@ -23,6 +23,13 @@ está en `git log`.
 - **Login:** en temporada, Nori lleva la prenda de la temporada (la misma
   para todos), según el apartado `login` del manifiesto del arte. Sin red o
   fuera de fechas, sale como siempre.
+### Nuevo
+
+- **Tu Nori como avatar** (T-032): sin avatar equipado, `AvatarUsuario` pinta
+  tu Nori, con su fase y lo que lleva puesto (`NoriVestida`, siempre feliz),
+  en vez de la cría fija. Sale en Colección y, nuevo, arriba de Mi cuenta
+  («Tu Nori» para el lector). La fase llega por `faseMascotaNotifier`, que
+  llenan `MiniMascota` y `MascotaScreen` y que se vacía al cerrar sesión.
 
 ## 0.59.1 — 20-nov-2026
 

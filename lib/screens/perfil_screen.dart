@@ -5,6 +5,7 @@ import '../l10n/textos_app.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../services/api_service_core.dart';
 import '../theme/app_theme.dart';
+import '../theme/avatares.dart';
 import '../theme/identidad_paleta.dart';
 import '../theme/identidades_paleta.dart';
 import '../theme/tono_error.dart';
@@ -257,6 +258,16 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Tu Nori, con su fase y lo que lleva puesto (T-032).
+                        // Sin texto: el nombre ya está en la tarjeta de abajo.
+                        Center(
+                          child: Semantics(
+                            label: l.perfilAvatarSemantica,
+                            image: true,
+                            child: const AvatarUsuario(radius: 32),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         SelectorPreferencias(usuarioId: widget.usuarioId),
                         const SizedBox(height: 12),
                         _tarjetaDatos(l, t, id),

@@ -16,3 +16,14 @@ final ValueNotifier<int> refrescoMascotaNotifier = ValueNotifier(0);
 void solicitarRefrescoMascota() {
   refrescoMascotaNotifier.value++;
 }
+
+/// La fase de la mascota del usuario (`HUEVO`, `CRIA`, `ADULTO`), tal y como
+/// la manda el backend en `fase`: la elegida, nunca `faseReal`. `null` si aún
+/// no se sabe (antes de leer la mascota, o tras cerrar sesión).
+///
+/// La llenan quienes leen la mascota —`MiniMascota` y `MascotaScreen`, cada
+/// vez que la leen bien, y `MascotaScreen` al elegir otra fase— y la escucha
+/// `AvatarUsuario`, que no lee la mascota (T-032). `ApiServiceCore` la vacía
+/// al borrar la sesión local: si no, la cuenta siguiente del mismo móvil
+/// vería la Nori de la anterior.
+final ValueNotifier<String?> faseMascotaNotifier = ValueNotifier(null);
