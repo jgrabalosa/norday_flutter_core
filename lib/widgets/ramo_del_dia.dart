@@ -144,12 +144,14 @@ class _RamoDelDiaState extends State<RamoDelDia>
         return;
       }
       _anade = anade;
-      _de = antes;
-      _a = ahora;
       _fundido.duration = _anade
           ? RamoDelDia.duracionEntrada
           : RamoDelDia.duracionSalida;
+      // forward(from: 0) avisa «dismissed» al ponerse a 0 y el oyente borra
+      // _de: por eso _de y _a van después.
       _fundido.forward(from: 0);
+      _de = antes;
+      _a = ahora;
     });
   }
 

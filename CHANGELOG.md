@@ -3,6 +3,13 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Arreglado
+
+- **Ramo de Dulce: cada flor nueva entra con fundido** (T-046). Hasta ahora
+  solo la primera de la sesión se fundía; las siguientes aparecían de golpe.
+
 ## 0.60.0 — 21-nov-2026
 
 ### Nuevo

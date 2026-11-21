@@ -266,6 +266,25 @@ void main() {
     },
   );
 
+  testWidgets('la segunda flor también entra con fundido (T-046)', (
+    tester,
+  ) async {
+    publicarProgresoDia(hechos: 0, total: 4, fecha: dia);
+    await montar(tester);
+    publicarProgresoDia(hechos: 1, total: 4, fecha: dia);
+    await tester.pump();
+    // El primer fundido (600 ms) acaba del todo.
+    await tester.pump(const Duration(milliseconds: 700));
+    publicarProgresoDia(hechos: 2, total: 4, fecha: dia);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final c = capas(tester);
+    expect(c, hasLength(2), reason: 'la flor 1 y la 2 entrando');
+    expect(c.map((x) => x.$1), [1, 2]);
+    expect(c.first.$3, 1.0);
+    expect(c.last.$3, inExclusiveRange(0, 1), reason: 'la flor 2 se funde');
+  });
+
   testWidgets('marcar y desmarcar enseguida vuelve atrás sin saltos', (
     tester,
   ) async {
