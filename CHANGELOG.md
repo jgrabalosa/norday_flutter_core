@@ -7,11 +7,11 @@ está en `git log`.
 
 ### Nuevo
 
-- **El check vivo** (T-018, experimento; primera parte): de vez en cuando, y
-  de uno en uno, algo da una vuelta de 1,6 s al aro de un check sin hacer.
-  En Profundidad es un cohete amarillo con estela. En Neotokyo+ y Dulce, un
-  punto amarillo provisional hasta que llegue su dibujo (T-018b). Tocar el
-  check corta la vuelta y completa como siempre. Con «reducir animaciones»
+- **El check vivo** (T-018, experimento): de vez en cuando, y de uno en uno,
+  algo da una vuelta de 1,6 s al aro de un check sin hacer. En Profundidad es
+  un cohete amarillo con estela; en Neotokyo+, un destello de neón cian que
+  recorre el aro; en Dulce, una punta de lápiz que repasa el círculo y se
+  borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
   no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
 
 ## 0.59.1 — 20-nov-2026

@@ -196,6 +196,75 @@ void main() {
     // Si quedara un Timer, flutter test falla al terminar este test.
   });
 
+  /// Lleva un check de [codigo] a mitad de su vuelta y devuelve lo pintado.
+  Future<RenderObject> aMitadDeVuelta(
+    WidgetTester tester,
+    String codigo,
+  ) async {
+    aplicarIdentidadEquipada(codigo);
+    await tester.pumpWidget(montar(columna([check(0)])));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 8));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(dandoVuelta(tester), [0]);
+    return tester.renderObject(
+      find
+          .descendant(
+            of: find.byType(CheckCircular),
+            matching: find.byType(CustomPaint),
+          )
+          .first,
+    );
+  }
+
+  testWidgets('Neotokyo+: la vuelta es un tramo de luz cian con brillo', (
+    tester,
+  ) async {
+    final pintado = await aMitadDeVuelta(tester, 'TEMA_NEOTOKYO_PLUS');
+    final streak = temaEquipadoNotifier.value.streak;
+    expect(tester.takeException(), isNull);
+    expect(
+      pintado,
+      paints..something((nombre, args) {
+        if (nombre != #drawPath) return false;
+        final p = args[1] as Paint;
+        return p.maskFilter != null && p.color.toARGB32() != 0
+            ? p.color.withValues(alpha: 1).toARGB32() == streak.toARGB32()
+            : false;
+      }),
+    );
+  });
+
+  testWidgets('Dulce: la vuelta es un trazo a lápiz sin ningún resplandor', (
+    tester,
+  ) async {
+    final pintado = await aMitadDeVuelta(tester, 'TEMA_DULCE');
+    final texto = temaEquipadoNotifier.value.text;
+    expect(tester.takeException(), isNull);
+    // Ni difuminado ni sombras.
+    expect(
+      pintado,
+      paints..everything((nombre, args) {
+        if (nombre == #drawShadow) return false;
+        if (nombre == #drawPath || nombre == #drawLine) {
+          final p = args.last is Paint ? args.last as Paint : args[1] as Paint;
+          return p.maskFilter == null;
+        }
+        return true;
+      }),
+    );
+    // Y sí hay trazo en el color del texto.
+    expect(
+      pintado,
+      paints..something((nombre, args) {
+        final p = args.whereType<Paint>().firstOrNull;
+        return p != null &&
+            p.color.withValues(alpha: 1).toARGB32() == texto.toARGB32();
+      }),
+    );
+  });
+
   testWidgets('la vuelta pinta en las tres identidades sin salirse', (
     tester,
   ) async {

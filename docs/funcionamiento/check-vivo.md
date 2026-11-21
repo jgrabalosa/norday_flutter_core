@@ -42,9 +42,16 @@ de siempre.
 inicio arriba, sentido horario), el progreso 0-1, el color (`streak`) y el
 grosor del aro.
 
-- Profundidad: `pintarVueltaProfundidad`, un cohete con estela y brillo.
-- Neotokyo+ y Dulce: `pintarVueltaProvisional`, un punto en `streak` sin
-  brillo, **provisional hasta T-018b**, que sustituye esas dos ramas.
+- **Profundidad** — `pintarVueltaProfundidad`: un cohete amarillo (`streak`)
+  del tamaño del aro, orientado hacia donde avanza, con estela y brillo suave.
+- **Neotokyo+** — `pintarVueltaNeotokyo`: un destello de neón, como un letrero
+  que se enciende. Un tramo de luz de un cuarto del aro, en el cian de la
+  identidad (`streak`), con halo difuso, tubo y núcleo claro. Se enciende al
+  salir y se apaga al llegar.
+- **Dulce** — `pintarVueltaDulce`: una punta de lápiz que repasa el aro. Un
+  trazo `pintarTrazoLapiz` en el color de `text` se va dibujando desde arriba
+  durante el 85 % de la vuelta y se borra suave en el resto. **Sin brillo**
+  (no hay resplandor en Dulce) y nada de flores ni jardín.
 
 ## Apagarlo
 

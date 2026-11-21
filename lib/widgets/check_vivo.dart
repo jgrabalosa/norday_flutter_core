@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 
+import 'lapiz.dart';
+
 /// «El check vivo» (T-018, experimento): de vez en cuando algo da una vuelta
 /// al aro de un [CheckCircular] sin hacer. Aquí vive la mecánica que no
 /// depende de la identidad: el coordinador de turnos y el dibujo de la vuelta
@@ -172,9 +174,14 @@ void pintarVueltaProfundidad(
   canvas.restore();
 }
 
-/// Marcador provisional para Neotokyo+ y Dulce, hasta T-018b: un punto en
-/// `streak` (sin brillo) que recorre la figura.
-void pintarVueltaProvisional(
+/// Neotokyo+: un destello de neón, un tramo corto de luz (un cuarto del aro)
+/// que recorre la figura como cuando se enciende un letrero. Tiene un halo
+/// difuso debajo y un tubo fino y claro en el centro; la luz se enciende al
+/// salir y se apaga al llegar.
+///
+/// [figura] es el aro (empieza arriba, sentido horario), [progreso] va de 0
+/// a 1, [grosor] es el del aro y [color] el `streak` de la identidad.
+void pintarVueltaNeotokyo(
   Canvas canvas,
   Path figura,
   double progreso, {
@@ -184,11 +191,71 @@ void pintarVueltaProvisional(
   final metrica = _recorrido(figura);
   if (metrica == null) return;
   final p = progreso.clamp(0.0, 1.0);
-  final punto = metrica.getTangentForOffset(metrica.length * p);
-  if (punto == null) return;
-  canvas.drawCircle(
-    punto.position,
-    grosor * 0.7,
-    Paint()..color = color.withValues(alpha: _alfaDeVuelta(p)),
+  final alfa = _alfaDeVuelta(p);
+  final cabeza = metrica.length * p;
+  final cola = math.max(0.0, cabeza - metrica.length * 0.25);
+  if (cabeza <= cola) return;
+  final tramo = metrica.extractPath(cola, cabeza);
+  // Halo de neón.
+  canvas.drawPath(
+    tramo,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.butt
+      ..strokeWidth = grosor * 1.6
+      ..color = color.withValues(alpha: 0.6 * alfa)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, grosor * 1.2),
+  );
+  // Tubo: el color del cian y, dentro, un núcleo casi blanco.
+  canvas.drawPath(
+    tramo,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.butt
+      ..strokeWidth = grosor
+      ..color = color.withValues(alpha: alfa),
+  );
+  canvas.drawPath(
+    tramo,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.butt
+      ..strokeWidth = grosor * 0.4
+      ..color = Color.lerp(
+        color,
+        const Color(0xFFFFFFFF),
+        0.7,
+      )!.withValues(alpha: alfa),
+  );
+}
+
+/// Dulce: una punta de lápiz que repasa el aro. El trazo (`pintarTrazoLapiz`,
+/// en [color], el del texto) se va dibujando desde arriba durante el 85 % de la
+/// vuelta y se borra suave en el resto. Sin brillo: en Dulce no hay resplandor.
+void pintarVueltaDulce(
+  Canvas canvas,
+  Path figura,
+  double progreso, {
+  required Color color,
+  required double grosor,
+  required int semilla,
+}) {
+  final metrica = _recorrido(figura);
+  if (metrica == null) return;
+  const finDelTrazo = 0.85;
+  final p = progreso.clamp(0.0, 1.0);
+  final hecho = math.min(1.0, p / finDelTrazo);
+  final borrado = p <= finDelTrazo
+      ? 1.0
+      : 1 - (p - finDelTrazo) / (1 - finDelTrazo);
+  // Un tramo casi nulo no se pinta: no hay lápiz que apoyar todavía.
+  final largo = metrica.length * hecho;
+  if (largo < 1.0 || borrado <= 0) return;
+  pintarTrazoLapiz(
+    canvas,
+    metrica.extractPath(0, largo),
+    color: color.withValues(alpha: 0.75 * borrado),
+    grosor: grosor * 0.8,
+    semilla: semilla,
   );
 }
