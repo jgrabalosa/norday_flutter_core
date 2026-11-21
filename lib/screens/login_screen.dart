@@ -13,6 +13,7 @@ import '../services/api_service_core.dart';
 import '../services/api_error.dart';
 import '../services/analytics_service.dart';
 import '../services/idioma_service.dart';
+import '../services/manifiesto_compartido.dart';
 import '../services/zona_service.dart';
 import '../services/notificaciones_service.dart';
 import '../services/origen_instalacion_service.dart';
@@ -57,6 +58,14 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   String? _error;
   bool _avisoCaducidadPuesto = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // La Nori de la temporada: el manifiesto se pide sin esperarlo. Sin red,
+    // Nori sale como siempre.
+    unawaited(asegurarManifiesto());
+  }
 
   @override
   void didChangeDependencies() {
@@ -356,7 +365,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _cabecera(TokensContextuales t, NordayCoreLocalizations l) {
     return Column(
       children: [
-        const NoriMarca(tamano: _ladoNori, intensidadHalo: 0.7),
+        const NoriMarca(tamano: _ladoNori, intensidadHalo: 0.7, vestida: true),
         const SizedBox(height: 8),
         WordmarkIdentidad(
           texto: TextosApp.nombreDe(context),

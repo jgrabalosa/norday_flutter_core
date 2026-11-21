@@ -1,3 +1,5 @@
+import '../theme/prendas.dart';
+
 /// El manifiesto del arte de las prendas de Nori: por prenda, cómo se pinta.
 /// Ver `docs/funcionamiento/arte-prendas.md`.
 ///
@@ -9,6 +11,10 @@ class ManifiestoArte {
   final DateTime? nieveDesde;
   final DateTime? nieveHasta;
 
+  /// Los periodos en que la Nori del login lleva prendas (T-036). Vacía si el
+  /// manifiesto no trae el apartado `login`.
+  final List<PeriodoLogin> login;
+
   /// Por código de producto del backend.
   final Map<String, PrendaArte> prendas;
 
@@ -16,6 +22,7 @@ class ManifiestoArte {
     required this.version,
     this.nieveDesde,
     this.nieveHasta,
+    this.login = const [],
     this.prendas = const {},
   });
 
@@ -41,10 +48,31 @@ class ManifiestoArte {
         }
       });
     }
+    final periodos = <PeriodoLogin>[];
+    final crudos = json['login'];
+    if (crudos is List) {
+      for (final crudo in crudos) {
+        if (crudo is! Map) continue;
+        final d = _fecha(crudo['desde']);
+        final h = _fecha(crudo['hasta']);
+        if (d == null || h == null || d.isAfter(h)) continue;
+        final codigos = crudo['prendas'];
+        periodos.add(
+          PeriodoLogin(
+            desde: d,
+            hasta: h,
+            prendas: codigos is List
+                ? List.unmodifiable(codigos.whereType<String>())
+                : const [],
+          ),
+        );
+      }
+    }
     return ManifiestoArte(
       version: json['version'] is int ? json['version'] as int : 0,
       nieveDesde: desde,
       nieveHasta: hasta,
+      login: List.unmodifiable(periodos),
       prendas: Map.unmodifiable(prendas),
     );
   }
@@ -59,6 +87,31 @@ class ManifiestoArte {
     return !dia.isBefore(desde) && !dia.isAfter(hasta);
   }
 
+  /// Lo que lleva la Nori del login en [hoy]: sitio → código de producto, con
+  /// el sitio como en `sitiosPrenda` (`Cabeza`, `Cuerpo`), que es lo que lee
+  /// `NoriVestida`. Solo cuentan los periodos que incluyen la fecha de [hoy]
+  /// (ambos días incluidos), las prendas que están en [prendas] y cuyo `sitio`
+  /// es uno de `sitiosPrenda`. Si dos caen en el mismo sitio, gana la primera.
+  /// Sin el apartado o fuera de fechas, vacío.
+  Map<String, String> prendasLogin(DateTime hoy) {
+    final dia = DateTime(hoy.year, hoy.month, hoy.day);
+    final resultado = <String, String>{};
+    for (final periodo in login) {
+      if (dia.isBefore(periodo.desde) || dia.isAfter(periodo.hasta)) continue;
+      for (final codigo in periodo.prendas) {
+        final prenda = prendas[codigo];
+        if (prenda == null) continue;
+        final sitio = sitiosPrenda.firstWhere(
+          (s) => s.toLowerCase() == prenda.sitio.toLowerCase(),
+          orElse: () => '',
+        );
+        if (sitio.isEmpty) continue;
+        resultado.putIfAbsent(sitio, () => codigo);
+      }
+    }
+    return Map.unmodifiable(resultado);
+  }
+
   static DateTime? _fecha(Object? valor) {
     if (valor is! String) return null;
     final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(valor);
@@ -69,6 +122,20 @@ class ManifiestoArte {
       int.parse(m.group(3)!),
     );
   }
+}
+
+/// Un periodo de la Nori del login: entre [desde] y [hasta], ambos incluidos,
+/// lleva las [prendas] (códigos de producto).
+class PeriodoLogin {
+  final DateTime desde;
+  final DateTime hasta;
+  final List<String> prendas;
+
+  const PeriodoLogin({
+    required this.desde,
+    required this.hasta,
+    this.prendas = const [],
+  });
 }
 
 /// Cómo se pinta una prenda.
