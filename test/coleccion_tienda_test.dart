@@ -403,6 +403,79 @@ void main() {
     });
   });
 
+  group('Tema: nombre y botón en la misma fila', () {
+    testWidgets('«Equipar» a la derecha del nombre y a su altura', (
+      tester,
+    ) async {
+      await montar(tester, catalogo: [_temaDulce], inventario: [_inv(21)]);
+      final nombre = tester.getRect(find.text('Dulce').first);
+      final boton = tester.getRect(
+        find.widgetWithText(OutlinedButton, 'Equipar'),
+      );
+      expect(boton.center.dy, closeTo(nombre.center.dy, 1));
+      expect(boton.left, greaterThanOrEqualTo(nombre.right));
+    });
+
+    testWidgets('«Conseguir» a la derecha del nombre y a su altura', (
+      tester,
+    ) async {
+      await montar(tester, catalogo: [_temaNeotokyo], inventario: []);
+      final nombre = tester.getRect(find.text('Neotokyo+').first);
+      final botones = find.widgetWithText(OutlinedButton, 'Conseguir');
+      expect(botones, findsNWidgets(2), reason: 'copia + real');
+      for (var i = 0; i < 2; i++) {
+        final boton = tester.getRect(botones.at(i));
+        expect(boton.center.dy, closeTo(nombre.center.dy, 1));
+        expect(boton.left, greaterThanOrEqualTo(nombre.right));
+      }
+    });
+
+    testWidgets('la tarjeta mide igual sin equipar, equipada y no poseída', (
+      tester,
+    ) async {
+      Future<double> alto(List<dynamic> inventario) async {
+        await montar(tester, catalogo: [_temaDulce], inventario: inventario);
+        final tarjeta = find
+            .ancestor(
+              of: find.text('Dulce'),
+              matching: find.byType(SuperficieIdentidad),
+            )
+            .first;
+        return tester.getSize(tarjeta).height;
+      }
+
+      final sinEquipar = await alto([_inv(21)]);
+      final equipada = await alto([_inv(21, equipado: true)]);
+      final noPoseida = await alto([]);
+      expect(equipada, closeTo(sinEquipar, 0.5));
+      expect(noPoseida, closeTo(sinEquipar, 0.5));
+    });
+
+    for (final codigo in [
+      'TEMA_PROFUNDIDAD',
+      'TEMA_NEOTOKYO_PLUS',
+      'TEMA_DULCE',
+    ]) {
+      testWidgets('$codigo, 320 dp, letra 1,3×: sin overflow', (tester) async {
+        aplicarIdentidadEquipada(codigo);
+        for (final inventario in [
+          <dynamic>[],
+          [_inv(21)],
+          [_inv(21, equipado: true)],
+        ]) {
+          await montar(
+            tester,
+            catalogo: [_temaDulce],
+            inventario: inventario,
+            textScale: 1.3,
+            tamano: const Size(320, 640),
+          );
+          expect(tester.takeException(), isNull);
+        }
+      });
+    }
+  });
+
   group('Tema en propiedad', () {
     testWidgets(
       'no equipado, 320 px, texto 1,5, Dulce: sin overflow y «Equipar» tocable',

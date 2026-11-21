@@ -14,6 +14,12 @@ está en `git log`.
   borra. Tocar el check corta la vuelta y completa como siempre. Con «reducir animaciones»
   no hay vuelta. Se apaga con `CheckCircular.vivo = false`.
 
+### Arreglado
+
+- **Colección:** en la tarjeta de una identidad, el nombre y el botón
+  («Equipar», «Conseguir» o «Equipado») van ahora en la misma fila y a la
+  misma altura, en vez de el botón en una línea aparte (T-037).
+
 ## 0.59.1 — 20-nov-2026
 
 ### Arreglado
