@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,6 +14,7 @@ import 'capa_constelacion.dart';
 import 'constelaciones.dart';
 import 'letreros.dart';
 import 'ramo_dulce.dart';
+import 'superficie_identidad.dart';
 
 /// El cierre del día: al completar el último hábito, todo se oscurece y
 /// aparecen, en este orden, [titulo], el nombre de la figura del día y
@@ -43,20 +45,39 @@ import 'ramo_dulce.dart';
 ///
 /// Necesita que la app tenga montada una [CapaCierreDelDia]; si no, no
 /// espera a nadie y termina en el acto.
-Future<void> mostrarCierreDelDia({
+///
+/// Con [textoCompartir] (ya traducido, p. ej. «Compartir»), la ceremonia acaba
+/// con un botón centrado bajo la despedida. Entra con ella y no se puede
+/// pulsar antes (el mismo bloqueo que el toque de cerrar). Pulsarlo (o la
+/// acción «Compartir» del lector de pantalla) cierra la ceremonia y el Future
+/// termina en [ResultadoCierreDelDia.compartir]; cualquier otro cierre, en
+/// [ResultadoCierreDelDia.cerrado]. Sin [textoCompartir], no hay botón.
+Future<ResultadoCierreDelDia> mostrarCierreDelDia({
   required String titulo,
   required String despedida,
+  String? textoCompartir,
 }) {
-  if (progresoDiaNotifier.value.total <= 0) return Future.value();
-  if (_Cierre.capas == 0) return Future.value();
+  if (progresoDiaNotifier.value.total <= 0) {
+    return Future.value(ResultadoCierreDelDia.cerrado);
+  }
+  if (_Cierre.capas == 0) return Future.value(ResultadoCierreDelDia.cerrado);
 
   final enCurso = _Cierre.peticion.value;
   if (enCurso != null) return enCurso.hecho.future;
 
-  final peticion = _Peticion(titulo, despedida);
+  final peticion = _Peticion(titulo, despedida, textoCompartir);
   _Cierre.peticion.value = peticion;
   marcarDiaCerrado(true);
   return peticion.hecho.future;
+}
+
+/// Cómo acabó la ceremonia del cierre del día.
+enum ResultadoCierreDelDia {
+  /// Se cerró con un toque (o no llegó a haber ceremonia).
+  cerrado,
+
+  /// Se pulsó «Compartir».
+  compartir,
 }
 
 /// Lo que tarda en Dulce el ramo de la ceremonia: 500 ms de velo con el
@@ -85,18 +106,23 @@ final Listenable cambiosCierreDelDia = Listenable.merge([
 double get veloCierreDelDia => _Cierre.velo.value;
 
 /// Cierra la ceremonia: nadie la pinta ya y quien la esperaba sigue.
-void _terminarCierre(_Peticion peticion) {
+void _terminarCierre(
+  _Peticion peticion, [
+  ResultadoCierreDelDia resultado = ResultadoCierreDelDia.cerrado,
+]) {
   if (_Cierre.peticion.value == peticion) _Cierre.peticion.value = null;
   _Cierre.velo.value = 0;
-  if (!peticion.hecho.isCompleted) peticion.hecho.complete();
+  if (!peticion.hecho.isCompleted) peticion.hecho.complete(resultado);
 }
 
 class _Peticion {
   final String titulo;
   final String despedida;
-  final Completer<void> hecho = Completer<void>();
+  final String? textoCompartir;
+  final Completer<ResultadoCierreDelDia> hecho =
+      Completer<ResultadoCierreDelDia>();
 
-  _Peticion(this.titulo, this.despedida);
+  _Peticion(this.titulo, this.despedida, this.textoCompartir);
 }
 
 /// El velo, con [v] de 0 a 1. Profundidad lo oscurece; Dulce, con su papel
@@ -292,7 +318,9 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     );
   }
 
-  Future<void> _alTocar() async {
+  Future<void> _alTocar([
+    ResultadoCierreDelDia resultado = ResultadoCierreDelDia.cerrado,
+  ]) async {
     final peticion = _Cierre.peticion.value;
     if (peticion == null || _cerrando || !_textos.isCompleted) return;
     _cerrando = true;
@@ -301,8 +329,11 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
     } else {
       await _velo.reverse();
     }
-    _terminarCierre(peticion);
+    _terminarCierre(peticion, resultado);
   }
+
+  /// El botón «Compartir»: cierra igual que un toque, con otro resultado.
+  Future<void> _alCompartir() => _alTocar(ResultadoCierreDelDia.compartir);
 
   @override
   void dispose() {
@@ -341,6 +372,12 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
               '${peticion.despedida}',
           onTap: () => _alTocar(),
           onTapHint: l.comunCerrar,
+          customSemanticsActions: peticion.textoCompartir == null
+              ? null
+              : {
+                  CustomSemanticsAction(label: peticion.textoCompartir!):
+                      _alCompartir,
+                },
           child: ExcludeSemantics(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -353,6 +390,34 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
           ),
         );
       },
+    );
+  }
+
+  /// El botón de la identidad: a lápiz en Dulce, achaflanado en Neotokyo+ y
+  /// redondeado en Profundidad. No hace nada hasta que los textos han entrado.
+  Widget _botonCompartir(IdentidadPaleta id, String texto) {
+    final t = id.tokens;
+    final pill = id.forma == FormaIdentidad.pill;
+    return ElevatedButton(
+      onPressed: () {
+        if (_textos.isCompleted) _alCompartir();
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: t.primary,
+        foregroundColor: t.tinta,
+        // Las tres formas de la identidad son OutlinedBorder.
+        shape:
+            formaIdentidad(
+                  id,
+                  radio: pill ? 999 : AppRadius.sm,
+                  lado: pill
+                      ? BorderSide(color: t.primaryTrazo, width: 1.4)
+                      : BorderSide.none,
+                )
+                as OutlinedBorder,
+        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+      child: Text(texto),
     );
   }
 
@@ -444,17 +509,26 @@ class _CapaCierreDelDiaState extends State<CapaCierreDelDia>
             ],
           ),
         ),
-        // La despedida, por debajo.
+        // La despedida, por debajo, y con ella el botón de compartir.
         Positioned(
           left: 24,
           right: 24,
           top: cuadro.bottom + 16,
           child: Opacity(
             opacity: alfa(_tramoDespedida),
-            child: Text(
-              peticion.despedida,
-              textAlign: TextAlign.center,
-              style: estiloDespedida,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  peticion.despedida,
+                  textAlign: TextAlign.center,
+                  style: estiloDespedida,
+                ),
+                if (peticion.textoCompartir != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _botonCompartir(id, peticion.textoCompartir!),
+                ],
+              ],
             ),
           ),
         ),
