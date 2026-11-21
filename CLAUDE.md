@@ -4,311 +4,77 @@ Paquete Flutter compartido del ecosistema Norday. **No es una app**: no tiene
 `main.dart` ni `MaterialApp`. Lo consumen las apps del ecosistema como
 dependencia Git.
 
-Consumidores hoy:
+Consumidores hoy (detalle en `docs/funcionamiento/consumidores.md`):
 
-- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`):
-  `v0.59.1` desde la 1.3.0+11 (D-41: el letrero y el ramo del día en su
-  sitio de la lista de Hoy; los sonidos más bajos; el letrero de la lista
-  espera a que se vaya el velo del cierre). Antes, `v0.58.0` (la 1.3.0+10,
-  el aro amarillo del check en Profundidad, T-017).
-- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`. Con ese core no ve
-  las prendas de Nori (el backend no se las da: versión mínima 0.56.0).
-- `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit
-  `a873d8f`, del 12-ago-2026, anterior a `v0.1.0`. No recibe nada de lo que
-  se ha hecho aquí desde entonces.
+- `habitos_app_mobile` (Norday Habits) — por tag (`ref: vX.Y.Z`), hoy `v0.60.0`.
+- `enfoque_app_mobile` (Norday Focus) — `ref: v0.55.0`; no ve las prendas de Nori.
+- `conocimiento_app_mobile` (Norday Conocimiento) — fijado al commit `a873d8f`
+  (12-ago-2026, anterior a `v0.1.0`); no recibe nada de lo hecho desde entonces.
 
-## Qué vive aquí y qué vive en cada app
+## Antes de tocar…, lee…
 
-La regla es la de siempre: **Motor** (genérico, reutilizable) aquí;
-**Disparadores** (lo que sabe del dominio) en la app.
+Este fichero solo lleva lo que vale en cada sesión. El resto está en `docs/`:
 
-**Aquí (motor):**
+- Antes de **añadir o mover un widget, servicio, modelo, pantalla o script**
+  (o para saber qué hay y dónde), lee `docs/funcionamiento/inventario-core.md`.
+- Antes de **meter en el core algo que huela a dominio** (hábitos, logros,
+  textos de una app), lee `docs/funcionamiento/excepciones-motor-disparadores.md`.
+- Antes de tocar **cualquier punto por el que la app enchufa algo**
+  (`destinoTrasLogin`, `CatalogosCore.registrar…`, `nordayNavigatorKey`,
+  `ayudaAnimo`/`ayudaXp`, `alElegir`, progreso y cierre del día,
+  `SplashGenerico.rutaImagen`, `ApiServiceCore.appId`, `NORDAY_API_URL`,
+  `TextosApp`), lee `docs/funcionamiento/puntos-de-extension.md`.
+- Antes de tocar `services/sesion_concentracion.dart`,
+  `services/motor_sesion.dart` o `widgets/aro_cuenta_atras.dart`, lee
+  `docs/funcionamiento/sesion-concentracion.md`.
+- Antes de tocar **temas, identidades, `Equipamiento`, `TextTheme`, `aroCheck`
+  o los notifiers de tema**, lee `docs/funcionamiento/identidades-y-equipamiento.md`.
+- Antes de tocar **`theme/prendas.dart`, `NoriVestida`, `VestidorNori`, la
+  sección «Nori» de la tienda o `equiparPrenda`**, lee
+  `docs/funcionamiento/prendas-de-nori.md` (y `arte-prendas.md` y
+  `nori-canonica.md` para el arte).
+- Antes de **tocar nombre, símbolo, tipografía, paleta o iconos de marca**, lee
+  `docs/funcionamiento/marca.md`.
+- Antes de **subir de versión, taguear o hacer que una app apunte al core**, lee
+  `docs/procedimientos/publicar-version.md`.
+- Antes de **escribir tests de Flutter** (Firebase, temas, tickers, semántica,
+  `clamp`, gen-l10n), lee `docs/lecciones/flutter-y-tests.md`.
+- Antes de **dar cifras de verificación, usar rutas entre repos o trabajar con
+  prompts largos**, lee `docs/lecciones/metodo-de-trabajo.md`.
 
-- `services/` — `ApiServiceCore` (sesión, usuario, preferencias, gamificación,
-  tienda, mascota, notificaciones), `ApiException`/`TipoErrorApi`,
-  `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
-  `IdiomaService`, `ZonaService`, `OrigenInstalacionService` (install referrer
-  de Play, enviado una vez por dispositivo tras el primer login) y
-  `RecorridoService` (si el recorrido guiado
-  ya se hizo; sólo un sí o un no) y `NotificacionesService` (el permiso de
-  notificaciones y el registro del aviso en el backend: el login solo
-  registra si el permiso ya está dado; la app lo pide en contexto. El
-  registro es idempotente por usuario y token, escucha las renovaciones del
-  token y la app lo llama al arrancar con sesión y al volver a primer plano;
-  al cerrar sesión, `logout()` quita el token de esta app en el backend, con
-  tope de 3 s y sin bloquear la salida),
-  `VersionMinimaService` (la versión mínima por app, `GET
-  /api/version/{appId}`: la app pregunta en su splash con
-  `hayQueActualizar()` y, si toca, `bloquear()` abre
-  `ActualizacionObligatoriaScreen`; `vigilarAlVolver()`, llamado en `main()`,
-  comprueba al volver a primer plano, pero no en la primera llegada de un
-  arranque en frío, desde 0.55.0. Nunca bloquea por un fallo de red),
-  `ArtePrendasService` (el manifiesto y las imágenes del arte de las prendas,
-  descargados y guardados en disco; ver `docs/funcionamiento/arte-prendas.md`)
-  y el manifiesto compartido (`manifiesto_compartido.dart`:
-  `manifiestoArteNotifier`, `asegurarManifiesto` y `recargarManifiesto`, uno
-  para la nieve y las prendas),
-  y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
-  máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
-  avisos; ver los puntos de extensión).
-- `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
-  `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
-  `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
-  `faseMascotaNotifier` (la fase elegida de la mascota, nunca `faseReal`:
-  la llenan `MiniMascota` y `MascotaScreen` al leerla bien y al elegir otra,
-  la escucha `AvatarUsuario` y `ApiServiceCore` la vacía al cerrar sesión),
-  `tonoError`, `progreso_dia.dart` (cuántos hay, cuántos hechos y cuánto se
-  lleva del día con lo hecho a medias, sin decir cuáles: de ahí dibuja el
-  fondo), `prendas.dart` (los sitios de las prendas de Nori y lo que lleva
-  puesto, ver «Equipamiento») y `catalogoAvatares` (retirado, ver abajo).
-- `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
-  (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
-  `esPrenda`).
-- `widgets/` — 45 ficheros:
-  - figura del día (1): `FiguraDelDia`, la figura de la identidad equipada
-    quieta y en su estado final (constelación encendida, ramo atado o letrero
-    encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
-    postal del cierre (T-043, en la app);
-  - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
-    `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
-    `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
-    sin prendas, el dibujo de siempre; ver `nori-canonica.md`),
-    `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
-    pinte un PNG de Nori pasa por ella; también `AvatarUsuario`, en
-    `theme/avatares.dart`, que sin avatar equipado pinta tu Nori vestida,
-    con la fase de `faseMascotaNotifier` —sin ella, la cría— y siempre
-    feliz: sale en Colección y arriba de Mi cuenta, T-032), halo, terrario (con `nieve`: manto
-    quieto y copos, que la pantalla de Nori pone entre las fechas del
-    manifiesto del arte), `AnilloIdentidad` (el aro de XP, que también usa el resumen del
-    día), `BurbujaContexto` y `CelebracionNivel`;
-  - pantallas de entrada (3): `NoriMarca` (con `vestida: true`, solo en el
-    login, lleva la prenda de la temporada según el apartado `login` del
-    manifiesto del arte, `ManifiestoArte.prendasLogin`; nunca lo equipado de
-    nadie; el splash no se viste), `WordmarkIdentidad` y `LogoGoogle`;
-  - superficies (2): `SuperficieIdentidad` y `CampoIdentidad`;
-  - lenguaje a lápiz (1): `lapiz.dart`, con el trazo, las rayas y
-    `BordeLapiz`, que es el lenguaje de Dulce. `BordeLapiz` admite relleno a
-    rayas, solo donde se pinta detrás del contenido. En Dulce, botones,
-    diálogos, tarjetas, hojas y campos van a lápiz (la forma llega a
-    `AppTheme.deTema` por `FuentesIdentidad.forma`). El trazo lleva presión y
-    grano, y el sombreado (`pintarSombreado`) una intensidad por punto. Lo que
-    se repite se graba una vez en una caché (`pintarConCache`): imágenes a
-    la densidad de la pantalla, con su desborde y como mucho 12 millones de
-    píxeles. El anillo de Nori, en Dulce, también va a lápiz. Las burbujas
-    del fondo y las del ritmo (`IndicadorNivel`) también van a lápiz.
-  - papel (1): `grano_papel.dart`, el grano de Dulce, encima de toda la
-    pantalla. No recibe toques ni semántica; la app lo monta en Dulce;
-  - fondos y cierre del día (12): `FondoIdentidad` y `CapaProgresoIdentidad`
-    (las únicas puertas al fondo y a la capa de la constelación), los tres
-    dibujos —cielo estelar, ciudad y burbujas—, el catálogo de
-    constelaciones, su capa, el cierre del día, el ramo de Dulce
-    (`RamoDulce`, con `boceto` a grafito, y `nombreRamo`) y el letrero de
-    Neotokyo+ (`letreros.dart` con sus datos generados en
-    `letreros_datos.dart`; D-35). **El letrero y el ramo del día tienen su
-    sitio en la lista de Hoy** (D-41, 20-nov-2026): `LetreroDelDia` y
-    `RamoDelDia`, que monta la app y que crecen ahí con cada hábito hecho.
-    Antes el letrero iba en una capa por encima de la pantalla y se formaba
-    detrás de los hábitos;
-  - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
-    (el foco del recorrido guiado);
-  - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
-    `AnilloIdentidad`, que se vacía con el tiempo;
-  - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
-    splash, hoja de valoración, selector de idioma y zona,
-    `EstrellaValoracion` (la estrella de la valoración: a lápiz en Dulce),
-    `BurbujaFlotante` (arrastre que gana al pager) e
-    `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
-    estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
-    Dulce);
-  - tienda y vestidor (2): la vista previa de una identidad y
-    `VestidorNori` (ver «Las prendas de Nori»);
-  - retirado (1): `SelectorAvatarGratis`.
-- `screens/` — 9 pantallas: login, recuperación, elección de identidad
-  (onboarding), tienda, mascota, logros, colección, perfil y actualización
-  obligatoria (`ActualizacionObligatoriaScreen`).
-- `l10n/` — `NordayCoreLocalizations`, `CatalogosCore`, `MensajesError`
-  (errores de red al idioma activo), `MensajesMascota` (fase, estado y
-  frase de la mascota) y `TextosApp` (los textos que dependen de qué app es;
-  ver los puntos de extensión).
-- `assets/` — animations (`confetti.json`, sin uso desde que
-  `CelebracionService` dejó Lottie), sounds, mascota y avatares (retirados).
-  `assets/mascota/canonica/` es Nori separada en cuerpo y brote, con su
-  geometría y la máscara de la pantalla negra (Nori vestida, N-1): un
-  contrato para el arte de las prendas,
-  en `docs/funcionamiento/nori-canonica.md`. Desde N-9 se declaran en el
-  `pubspec.yaml`, uno a uno, sus 24 cuerpos y brotes (no las máscaras ni
-  `geometria.json`, que son de las herramientas).
-- `tool/nori_canonica/` — scripts de Python: `separar_brote.py` (genera esa
-  carpeta), `hoja_revision.py` (la hoja con la que se revisa el arte de Nori
-  y de sus prendas, N-2) y `sacar_prenda.py` (saca la prenda de una imagen de
-  IA y la deja en el lienzo de Nori, M-8) y `publicar_arte.py` (pasa las
-  prendas revisadas a WebP con el alfa sin pérdida y la huella de los
-  píxeles en el nombre, y escribe el manifiesto, N-13), con sus tests
-  (`py -m unittest discover -s tool/nori_canonica -p "test_*.py"`).
-- `tool/letreros_neotokyo/` — `letreros.py` (los 8 letreros de Neotokyo+ en
-  PNG, para revisarlos; necesita Pillow y numpy) y `generar_dart.py`, que
-  escribe `lib/widgets/letreros_datos.dart` (y lo formatea con `dart`). Un
-  letrero se cambia ahí y se vuelve a generar, nunca a mano en el `.dart`.
+## Motor vs Disparadores
 
-**En la app (disparadores):** `ApiServiceHabitos`, `AnalyticsHabitos`,
-`Habito`, `HomeShell`, dashboard, hábitos, detalle de hábito, alta/edición de
-hábito, `Catalogos` (categorías y logros de hábito), y `assets/branding/`.
+**Motor** (genérico, reutilizable) aquí; **Disparadores** (lo que sabe del
+dominio) en la app. Aquí: `services/`, `theme/`, `models/`, `widgets/`,
+`screens/`, `l10n/`, `assets/` y `tool/` (inventario en `inventario-core.md`).
+En la app: `ApiServiceHabitos`, `AnalyticsHabitos`, `Habito`, `HomeShell`,
+dashboard, hábitos, `Catalogos` de dominio y `assets/branding/`.
 
 **Ningún widget ni servicio de aquí puede conocer conceptos de dominio** como
 "hábito". Si hace falta que el motor pinte algo que sí lo es, se enchufa desde
-la app (ver los puntos de extensión de abajo), nunca al revés: el paquete
-no puede importar de la app.
+la app (puntos de extensión), nunca al revés: el paquete no puede importar de
+la app. Las excepciones que hoy se la saltan están en
+`excepciones-motor-disparadores.md`.
 
-**Excepciones conocidas**, que se saltan la regla y están pendientes de
-limpiar (comprobadas contra el código el 20-nov-2026, v0.59.1):
+## Compilar y probar
 
-- La vista previa de la tienda (`preview_identidad_tienda.dart`) pinta
-  una pantalla «Hoy» de mentira con dos tarjetas de hábito y la pestaña
-  «Hábitos», con textos del core: `plantillaBeberAgua`,
-  `tiendaPreviewHabito2` y `tiendaPreviewNavHabitos` (más `navHoy` y
-  `tiendaPreviewNavPerfil`, que son neutros). La ve cualquier app que abra la
-  tienda o la elección de identidad. Limpiarla es rediseñar la maqueta, no
-  cambiar textos: queda para cuando una segunda app la enseñe.
-- `logroDescPrimerosPasos` («Completa tu primer hábito») es la descripción
-  de un logro genérico del core, y `CatalogosCore` da prioridad a la del core
-  sobre la que registre la app.
-- `prodDescEscudoRacha` habla de hábitos, pero el producto está retirado
-  (24-ago-2026) y el backend no lo manda.
+- `flutter analyze` y `flutter test` en verde antes de cada commit.
+- Tras editar un `.arb`: `flutter gen-l10n` (analyze no regenera) y commit de lo
+  generado.
+- Scripts de Python: `py -m unittest discover -s tool/nori_canonica -p "test_*.py"`.
+- Un test nuevo debe fallar contra el código sin arreglar; si pasa, no
+  demuestra nada: parar.
+- Un cambio aquí afecta a todas las apps: antes de tocar una firma pública,
+  comprobar quién la usa.
 
-Ya no son excepciones: `ApiServiceCore.appId` vale `''` por defecto (sin
-app, no se manda `X-Norday-App`; cada app lo fija antes de `runApp`), y
-`constelacionPara`/`nombreConstelacion` reciben un `total` neutro. Nombre,
-lema del login, actualización obligatoria y borrado de cuenta salen de
-`TextosApp` desde v0.55.0.
+## Git
 
-## Los puntos de extensión
-
-1. **`LoginScreen.destinoTrasLogin`** y **`PerfilScreen.destinoTrasLogin`** —
-   `Widget Function(BuildContext, bool mostrarOnboarding)`. El paquete no sabe
-   cuál es la pantalla principal de cada app.
-2. **`CatalogosCore.registrarLogrosDeDominio`** — la app le pasa sus logros
-   (nombres y descripciones) al arrancar. Aquí sólo viven los que no saben
-   de dominio: `BIENVENIDO`, `PRIMEROS_PASOS`, `LOGIN_GOOGLE`, los tres de
-   identidad (`IDENTIDAD_PROFUNDIDAD`, `IDENTIDAD_NEOTOKYO_PLUS`,
-   `IDENTIDAD_DULCE`), los dos de la mascota (`MASCOTA_CRIA`,
-   `MASCOTA_ADULTO`) e `INTERACCION_RESENA` (retirado el 24-ago-2026).
-   **`CatalogosCore.registrarProductosDeDominio`** hace lo mismo con los
-   productos propios de una app: `nombres`, `descripciones` y `usos`. `usos`
-   es para un consumible que no se gasta desde Colección sino desde una
-   pantalla de la app: Colección enseña ese texto en vez del botón «Usar»
-   (`CatalogosCore.productoUso`). Norday Habits registra así la pausa
-   (`PAUSA_HABITO`). Si el core traduce el mismo código, manda el core.
-3. **`nordayNavigatorKey`** (`navegacion.dart`) — cada app se lo pasa a su
-   `MaterialApp` en vez de declarar el suyo. Lo usa `CelebracionService`, que
-   puede dispararse desde cualquier sitio.
-4. **`MascotaScreen.ayudaAnimo`** y **`MascotaScreen.ayudaXp`** — `Widget?`.
-   El core deja el hueco de la ayuda y la app pone el texto, porque explicar
-   por qué Nori está como está o de dónde sale la XP es hablar del dominio.
-5. **`EleccionIdentidadScreen.alElegir`** — qué hace la app cuando el usuario
-   ha elegido su identidad gratis en el onboarding.
-6. **El progreso del día**: la app publica cuántos hay y cuántos hechos con
-   `publicarProgresoDia` (y `limpiarProgresoDia`), y monta
-   `CapaProgresoIdentidad` donde quiera la constelación (solo Profundidad la
-   usa) y, en su lista de Hoy, `LetreroDelDia` (Neotokyo+) y `RamoDelDia`
-   (Dulce), cada uno con su `alto` (D-41). Puede pasar además
-   el `avance` del día, de 0 a 1 con lo hecho a medias; sin él vale
-   `hechos / total`. El core no sabe qué se cuenta.
-7. **El cierre del día**: la app monta `CapaCierreDelDia` y llama a
-   `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
-   cuando se completa lo último del día. La app decide cuándo y cuántas veces
-   (Norday Habits: una vez al día por usuario, nunca en el onboarding). Hoy
-   hace algo en las tres: en Profundidad (la constelación, que realza su
-   capa), en Dulce (el ramo de todas las flores, a grafito como en Hoy, que
-   se colorea y se ata en `duracionRamoCierre`) y en Neotokyo+ (el letrero de
-   neón, un tubo por hábito, que la ceremonia enciende en grande; los textos
-   esperan a `duracionEncendidoLetrero`). El ramo de la lista queda
-   debajo del velo y, al irse, ya está en su estado final. **Compartir
-   (T-041):** `mostrarCierreDelDia` acepta `textoCompartir` (ya traducido) y
-   devuelve `Future<ResultadoCierreDelDia>` (`cerrado`, `compartir`). Con
-   texto sale un botón centrado bajo la despedida (a lápiz en Dulce,
-   achaflanado en Neotokyo+), con el mismo bloqueo que el toque de cerrar, y
-   el nodo del lector gana la acción «Compartir»; pulsarlo cierra y devuelve
-   `compartir`, cualquier otro cierre `cerrado`. Sin texto, todo como antes.
-   La app (T-043) hace la postal con `FiguraDelDia`. El letrero de la
-   lista espera apagado mientras dura la ceremonia y se enciende al ritmo del
-   velo que se va (si no, se veía doble a través del velo: 20-nov-2026). Lleva lector de pantalla (los tres textos y la acción Cerrar) y vibra al salir el nombre de la constelación. La app envuelve las páginas y la barra con `OcultoAlLectorDuranteCierre` para que el lector no llegue a lo de debajo durante la ceremonia.
-8. **`SplashGenerico.rutaImagen`** — el símbolo de cada app. Sin él, el
-   splash pinta a Nori (`NoriMarca`).
-9. **`ApiServiceCore.appId`** — la cabecera `X-Norday-App` con la que el
-   backend filtra los catálogos. Vale `''` por defecto: sin él no se manda
-   la cabecera y `VersionMinimaService` no pregunta. Cada app lo fija antes
-   de `runApp` (`'habitos'`, `'conocimiento'`, `'enfoque'`…). La llevan los
-   dos catálogos, `actualizarFcmToken` (`PUT /usuarios/{id}/fcm-token`) y
-   `quitarFcmToken` (al cerrar sesión): el
-   backend guarda un token por usuario y app, y sin cabecera lo cuenta como
-   `habitos`. Una app desconocida para el backend da 400. El catálogo de
-   productos y la compra llevan además `X-Norday-Core` con `versionCore`,
-   que no depende de la app (ver «Publicar una versión»).
-10. **`NORDAY_API_URL`** — la URL del backend, como constante de compilación:
-   `--dart-define=NORDAY_API_URL=<url>`. Sin ella, `ApiServiceCore.baseUrl`
-   es producción (`https://api.norday.app/api`). Sigue siendo `const`: las
-   apps la copian en las suyas (Norday Habits, en `ApiServiceHabitos`).
-11. **`TextosApp`** (`l10n/textos_app.dart`) — los textos que dependen de qué
-   app es, como `String Function(BuildContext)` ya traducidos: `nombre`
-   (wordmark del login), `lemaLogin`, `actualizacionObligatoria` (cuerpo de
-   `ActualizacionObligatoriaScreen`) y `eliminarCuenta` (primera
-   confirmación de `PerfilScreen`). La app llama a `TextosApp.registrar(...)`
-   en `main()`, antes de `runApp`; registrar sustituye los cuatro, y lo que
-   quede a `null` cae en la caída neutra del core (`appTitulo` «Norday»,
-   `loginTagline`, `actualizacionTexto`, `perfilEliminarCuerpo`), que no
-   nombra ningún dominio. El core lee con `TextosApp.nombreDe(context)` y
-   sus hermanos, nunca la clave directamente. El título de la tarea
-   (`onGenerateTitle`) es de cada app: no lo pinta el core.
-12. **La sesión con bloqueo suave** (`services/sesion_concentracion.dart`,
-   `services/motor_sesion.dart`, `widgets/aro_cuenta_atras.dart`). El core
-   lleva la lógica; la app pone lo que es de plataforma o de dominio:
-   - `FuenteReloj` (`Future<int> monotonicoMs()`, `DateTime ahoraUtc()`):
-     el monótono es `SystemClock.elapsedRealtime` por un canal nativo de la
-     app. Un `Stopwatch` de Dart no sirve: muere con el proceso.
-   - `FuentePantalla` (`Future<bool> encendidaYDesbloqueada()`):
-     `PowerManager.isInteractive && !KeyguardManager.isKeyguardLocked`.
-   - `AvisosSesion` (`avisarGracia`, `cancelarGracia`, `programarFin`,
-     `cancelarFin`), idempotentes y sin alarmas exactas. Al salir: aviso de
-     gracia (la app lo hace caducar a `quedan`, `timeoutAfter`) y fuera el
-     de fin; al volver a tiempo, fuera el de gracia y otra vez el de fin.
-     Sin implementación, `AvisosSesionNulos`.
-
-   **Decisión (15-nov-2026): los avisos de la sesión van por `AvisosSesion`,
-   que implementa cada app, y no por `NotificacionesService` ni por una
-   dependencia del core.** `NotificacionesService` es el permiso y el token
-   de push del backend, no notificaciones locales. Y
-   `flutter_local_notifications` obliga a activar el desugaring en el Gradle
-   de la app aunque no se programe nada («even if they don't use scheduled
-   notifications», README de la 23.0.2): en el core rompería el build
-   Android de Norday Habits, que no lo tiene. El permiso
-   `POST_NOTIFICATIONS` sí se pide con `NotificacionesService`.
-   - `datosApp` (`Map` serializable): lo que la app quiera guardar con la
-     sesión (a qué va dedicada). El core no lo mira.
-
-   Reglas: gracia de 10 s y mínimo de 10 min (`ReglasSesion`, con los bordes
-   dentro); terminar antes del mínimo da `descartada` (no se envía);
-   rendirse o volver tarde, `perdida`; minutos = enteros hacia abajo y solo
-   si cuenta. Sale de la app solo un `paused` con dos consultas de pantalla
-   (al llegar y a los 400 ms) que digan encendida y desbloqueada; `inactive`
-   y `hidden` nunca. Tras la primera consulta positiva se guarda una marca
-   provisional (`salidaPendienteMonoMs`): si el proceso muere antes de la
-   segunda, al recomponer cuenta como salida desde la marca. `detached` con
-   la pantalla encendida sale sin esperar a la segunda consulta.
-   Bloquear, desbloquear y abrir otra app puede no pasar por `resumed`: en
-   `paused` con la sesión corriendo se consulta la pantalla cada 2 s, y la
-   app llama a `MotorSesion.avisarDesbloqueo()` desde un receptor nativo de
-   `ACTION_USER_PRESENT`. **Limitación:** Android puede congelar o matar la
-   app en segundo plano y entonces nada de eso corre; sin servicio en primer
-   plano no hay garantía completa. La meta alcanzada dentro de la gracia da `completada`.
-   Reinicio del móvil (monótono por debajo del inicio, o el instante de
-   arranque desplazado más de 5 min, que también salta con un cambio manual
-   de hora con el proceso muerto) → `perdida`. `inactive` cuenta como
-   delante para la cuenta atrás. `SesionConcentracion.versionFormato` es la
-   1: para cambiar el formato se sube y se añade la migración en `_migrar`,
-   sin descartar sesiones acabadas sin enviar. Cada transición se guarda
-   en `SharedPreferences` (`sesion_concentracion_actual`); una sesión
-   acabada se queda guardada hasta que la app la recoge y llama a
-   `MotorSesion.cerrar()`. Una sola sesión a la vez.
+- `git --no-pager` en `diff` y `log` (abren paginador).
+- `git diff HEAD~1` incluye lo no commiteado; para ver solo el commit,
+  `git diff HEAD~1 HEAD`.
+- Antes de `git tag`, `git --no-pager log -1`. Un cambio no llega a las apps
+  solo: merge, tag y luego la app apunta al tag (ver `publicar-version.md`).
+- Un solo agente por repo a la vez.
 
 ## Assets: siempre con `package:`
 
@@ -337,145 +103,30 @@ Los catálogos llegan del backend con `codigo` y se traducen con
 viene a `null`— se muestra el nombre que manda el backend. Nunca un código
 crudo.
 
-## Equipamiento
+## Reglas de UI e identidad (cada cambio de pantalla)
 
-La fuente de verdad es el backend, no el dispositivo: se lee con
-`getInventarioProductos()` y se casa el `codigo` del producto contra
-`catalogoIdentidades`. Ningún `productoId` está cableado en el cliente.
-
-Un tema no es sólo color: `catalogoIdentidades` (`theme/identidades_paleta.dart`)
-tiene tres identidades, y cada una lleva además tipografía, radios, forma de
-superficie, fondo y ritmo de animación (`IdentidadPaleta`, en
-`theme/identidad_paleta.dart`):
-
-| Identidad | Código | Títulos | Cuerpo | Forma | Fondo |
-|---|---|---|---|---|---|
-| Profundidad | `TEMA_PROFUNDIDAD` | Space Grotesk | Manrope | `glass` | cielo estelar, con constelación |
-| Neotokyo+ | `TEMA_NEOTOKYO_PLUS` | Chakra Petch | IBM Plex Sans | `chamfer` | ciudad |
-| Dulce | `TEMA_DULCE` | Quicksand | Caveat | `pill` a lápiz | papel claro (y burbujas) |
-
-Dulce escribe en Caveat, agrandada un 25 % (`escalaLectura`), y sus nombres de
-ítem van también en Caveat (`nombresEnLectura`). Los titulares, en Quicksand.
-
-**Son tres.** Alba se eliminó del cliente el 8-oct-2026: ya no está en el
-catálogo ni existe `FormaIdentidad.hairline`. En el backend, `TEMA_ALBA`
-sigue con `activo = false`.
-
-**Avatares retirados** desde el 15-sep-2026. `catalogoAvatares`,
-`SelectorAvatarGratis`, `assets/avatares/` y sus textos siguen aquí como
-esqueleto, pero Norday Habits no los usa y el backend los tiene inactivos.
-El avatar del usuario es Nori.
-
-**`aroCheck` y `aroVacio`** (`TokensContextuales`): `aroVacio` es el contorno
-de lo vacío en general (`ColorScheme.outline`, estrellas de valoración,
-`IndicadorNivel`, campos). `aroCheck` es solo el aro del `CheckCircular` vacío
-(y su check insinuado) y el check de muestra de la vista previa de la tienda;
-sin declarar vale su `aroVacio`. Solo Profundidad lo declara, en `#FFB020`
-(10,6:1 sobre `bg`): sus filas van sin caja sobre el cielo y el check tiene
-que leerse de un vistazo, amarillo (por hacer) a verde (hecho). Para no dejar
-un borde amarillo alrededor del verde, en Profundidad el aro pasa al color del
-relleno a medida que éste crece (y vuelve al deshacer); Neotokyo+ y Dulce
-pintan el check como siempre. No se cambió `aroVacio` porque todo lo demás se
-volvería amarillo.
-
-Hay tres notifiers y
-`aplicarIdentidadEquipada` mueve los tres: `identidadEquipadaNotifier` (la
-identidad completa), `fuentesEquipadasNotifier` (las familias, la escala de
-lectura, `nombresEnLectura` y la forma: lo que `AppTheme.deTema` necesita sin
-poder importar el catálogo) y
-`temaEquipadoNotifier` (sólo los colores, que es lo que escucha el
-`MaterialApp` de cada app y las pantallas aún sin migrar). El color va el
-último a propósito: es el que dispara el repintado, así que cuando salta, la
-letra ya está puesta.
-
-El `TextTheme` sale de la identidad equipada: `display*`/`headline*`/`title*`
-en `fontDisplay`, `body*`/`label*` en `fontBody`. `fontAcento` no entra en ese
-mapeo —se invoca a mano en el único detalle que la usa—, y **las mayúsculas,
-el tracking y la itálica tampoco**: eso lo aplica cada pantalla donde tiene
-sentido. En el tema global, Neotokyo+ pondría en mayúsculas hasta el cuerpo de
-un artículo.
-
-Quien pinta según la identidad no mira el `codigo` sino
-`IdentidadPaleta.forma`: los cinco widgets de la escena de mascota resuelven su
-tratamiento con un `switch` exhaustivo sobre `FormaIdentidad`. Una identidad
-nueva declara su forma y hereda halo, terrario, aro y burbuja; una forma nueva
-rompe la compilación justo en los sitios que hay que revisar. Todo lo que anime
-lee `MediaQuery.maybeDisableAnimationsOf`, como ya hacía `MascotaAnimadaViva`.
-
-**Una tarjeta o un campo nuevos no se escriben a mano**: `SuperficieIdentidad`
-y `CampoIdentidad` (`widgets/`) ya resuelven los tres tratamientos, y
-`formaIdentidad`/`BordeChaflan` dan la figura para botones, recortes e
-insignias. En Neotokyo+ las secundarias son transparentes y el filo puede ir
-`fijo`, `latiendo` o `encendido` (`FiloNeon`). Un `Card` de Material en medio
-de una pantalla achaflanada canta, y cuatro copias del mismo `switch` acaban
-divergiendo. Es el equivalente aquí de `identidad_ui.dart` en la app de
-hábitos.
-
-`Equipamiento.cargarDeUsuario(usuarioId)` y
-`Equipamiento.cargarDeUsuarioSiSePuede(usuarioId)` **no se pueden llamar en
-`main()`**: antes del login no hay ni `usuarioId` ni token. Van tras el login y
-tras el splash con sesión guardada, así que hasta que responde se ve el tema
-por defecto. Sigue sin ser fuente de verdad —manda siempre el backend—, pero
-las dos guardan por usuario la última identidad que el backend confirmó
-(`identidad_equipada_<usuarioId>`); no se borra al cerrar sesión.
-`cargarDeUsuario` deja subir el fallo de red. `cargarDeUsuarioSiSePuede` no:
-aplica esa copia y reintenta hasta 3 veces cada 15 s.
-
-### Las prendas de Nori (Nori vestida, N-7)
-
-Lo que lleva puesto Nori sale del mismo inventario, sin campos nuevos en el
-backend: los productos equipados cuya `categoria` es un sitio de
-`sitiosPrenda` (`theme/prendas.dart`: hoy `Cabeza` y `Cuerpo`; un sitio nuevo
-se añade ahí y en `ordenCapasPrenda`, en su lugar de la pila). Se publica en
-`prendasEquipadasNotifier`, un mapa de sitio a código de producto que no se
-puede modificar desde fuera y que solo avisa si cambia; todas las Nori de la
-app lo escuchan, así que cambian a la vez.
-
-- **Equipar y quitar:** `Equipamiento.equiparPrenda(usuarioId, productoId,
-  codigo, sitio)` y `desequiparPrenda(usuarioId, productoId, sitio)`. Cambian
-  el notifier **solo si el backend contesta bien**; si falla, el error sube y
-  no cambia nada. Otra prenda en el mismo sitio sustituye a la anterior (el
-  backend deja una equipada por categoría). Un sitio que no existe se rechaza
-  sin llamar al backend.
-- **Sin red:** copia por usuario (`prendas_equipadas_<usuarioId>`, JSON), que
-  se aplica solo si falla la red al arrancar y se corrige al leer el
-  inventario. **A diferencia de la identidad, sin copia Nori se queda sin
-  prendas**: lo que llevara puesto podría ser de otra cuenta del mismo móvil.
-- **Backend antiguo** (sin `categoria`) o un sitio que el core no conoce: no
-  cuenta, sin errores. Si un sitio tuviera dos equipadas (no debería, N-5),
-  gana la de `usuarioProductoId` más alto.
-- Pintarlas en Nori (las capas) es `NoriVestida` (N-9).
-- **Dónde se ponen y se compran (N-10):** el vestidor (`VestidorNori`), en la
-  pantalla de Nori, debajo del selector de fases, y la sección «Nori» de la
-  tienda. **Las prendas no van en Colección** (se filtran antes de agrupar) y
-  **el vestidor nunca las busca en el catálogo**: sale del inventario que la
-  pantalla ya pide, porque al acabar la temporada la prenda deja de venderse
-  pero sigue siendo tuya. La tienda enseña el precio de la oferta de hoy
-  (`precioEnTienda`, con la fecha del móvil) y no enseña lo que hoy no se
-  vende; «Probar» no llama al backend. Un 409 al comprar se dice con un texto
-  propio (`tiendaCompraRechazada`), nunca con el del backend, y recarga.
-
-## Identidad de marca
-
-- **Nombre**: **Norday** es la marca del ecosistema y la caída del core. El
-  nombre de cada app (Norday Habits, Norday Focus…) lo pone ella con
-  `TextosApp.nombre`, igual en todos los idiomas.
-- **Símbolo**: la brújula con la N. Hoy es el icono de Norday Habits en Play y
-  su splash. Es un asset de cada app, no de este paquete.
-- **Nori** es la mascota y una funcionalidad central, y también aparece como
-  presencia de marca en el login y en el splash por defecto (`NoriMarca`).
-  **Si la cara de Norday es la brújula o Nori está por decidir**, después de
-  la prueba cerrada con testers. Hasta entonces, no dar ninguna de las dos
-  como decidida.
-- **Tipografía**: la guía original fijaba Manrope como única familia. Hoy el
-  tema por defecto (sin identidad equipada) usa Space Grotesk para titulares
-  y Manrope para el cuerpo, y cada identidad trae las suyas (tabla de arriba).
-- **Paleta**: Azul Noche `#0A1628`, Azul Acero `#23395D`, Verde Esmeralda
-  `#27C76F` (nunca como texto pequeño sobre fondo claro — usar Verde Oscuro
-  `#1EA85B` en ese caso), Gris Muy Claro `#EEF2F6`.
-- **Iconos**: Lucide Icons.
-- **Espaciado**: rejilla de 4 (`AppSpacing`: 4, 8, 12, 16, 24, 32). Todo lo nuevo sale de ahí; lo existente se pasa cuando se toque.
-- **Escala de letra**: los titulares van en pasos de 4 (16/20/24/28; la cifra, 32), con suelo de 11. Un tamaño nuevo se pide a un rol de la escala, nunca con `fontSize` a mano.
+- La fuente de verdad del equipamiento es el backend, no el dispositivo.
+  Ningún `productoId` cableado en el cliente.
+- **Una tarjeta o un campo nuevos no se escriben a mano**: `SuperficieIdentidad`
+  y `CampoIdentidad`; `formaIdentidad`/`BordeChaflan` para botones, recortes e
+  insignias. Quien pinta según la identidad no mira el `codigo` sino
+  `IdentidadPaleta.forma` (`switch` exhaustivo sobre `FormaIdentidad`).
+- Todo lo que anime lee `MediaQuery.maybeDisableAnimationsOf`.
+- `Equipamiento.cargarDeUsuario…` **no se llama en `main()`**: antes del login
+  no hay `usuarioId` ni token.
+- Son tres identidades (Profundidad, Neotokyo+, Dulce); Alba está eliminada.
+- **Espaciado**: rejilla de 4 (`AppSpacing`: 4, 8, 12, 16, 24, 32). Todo lo
+  nuevo sale de ahí; lo existente se pasa cuando se toque.
+- **Escala de letra**: los titulares van en pasos de 4 (16/20/24/28; la cifra,
+  32), con suelo de 11. Un tamaño nuevo se pide a un rol de la escala, nunca con
+  `fontSize` a mano.
+- Iconos: Lucide Icons. Verde Esmeralda `#27C76F` nunca como texto pequeño sobre
+  fondo claro (usar Verde Oscuro `#1EA85B`).
+- **Si la cara de Norday es la brújula o Nori está por decidir**: no dar ninguna
+  de las dos como decidida.
+- Un tamaño o animación sobre un área calculada: protege el recorrido con
+  `max(0.0, …)` antes de usarlo en `clamp`, divisor o `width`/`height`
+  (detalle en `flutter-y-tests.md`).
 
 ## Formato del código
 
@@ -496,94 +147,17 @@ toque un `.dart`, desde la raíz: `dart format lib test`.
 - Un paso a la vez, confirmar que compila antes de seguir.
 - Si algo admite varios diseños o no está claro, preguntar antes de decidir —
   no asumir.
-- Un cambio aquí afecta a todas las apps del ecosistema: antes de tocar una
-  firma pública, comprobar quién la usa.
 
 ## Lecciones aprendidas
 
-Errores que ya se cometieron una vez. No se vuelven a cometer.
+Errores que ya se cometieron una vez; no se vuelven a cometer. Las lecciones
+nuevas de Flutter y tests van a `docs/lecciones/flutter-y-tests.md`, las de
+publicación a `docs/procedimientos/publicar-version.md` y las de método a
+`docs/lecciones/metodo-de-trabajo.md`. Una lección que valga en cada sesión se
+añade aquí.
 
-### Flutter y tests
-
-- **En `flutter test` Firebase no está inicializado**: acceder a
-  `FirebaseAnalytics.instance` lanza `[core/no-app]`. Sirve para probar que un
-  servicio no deja escapar el fallo. Ojo en sentido contrario: un servicio de
-  aquí que espere a Firebase sin que la app lo haya inicializado bloquea el
-  login de esa app.
-- **`MaterialApp` interpola el tema con `AnimatedTheme`** y `TextStyle.lerp` no
-  mezcla familias: en tests que cambian de identidad, `pumpAndSettle`, no
-  `pump`.
-- **El ticker de una animación toma la hora de inicio en su primer tic**: en
-  tests de duración, un `pump()` sin duración antes de medir.
-- **`containsSemantics` está deprecado desde Flutter 3.40** en favor de
-  `isSemantics`, que tiene los mismos parámetros y también sólo comprueba lo
-  indicado.
-- **Tras editar un ARB, `flutter analyze` no regenera las traducciones**:
-  `flutter gen-l10n` antes.
-- **El analizador de Dart promociona a no nulo a través de un `bool`
-  intermedio.** Si `final bool b = x != null && ...`, dentro de `if (b)` la
-  variable `x` ya es no nula: añadir `&& x != null` ahí dispara
-  `unnecessary_null_comparison`.
-- **Test en rojo antes del arreglo.** Si el test nuevo pasa contra el código
-  sin arreglar, no demuestra nada: parar.
-- **Para comprobar que algo NO se oye, `find.semantics.byLabel`, no `find.bySemanticsLabel`.** El segundo mira el nodo que guarda el render object, que se queda viejo cuando un `ExcludeSemantics` lo saca del árbol: «encuentra» lo que el lector ya no lee.
-
-- **`clamp(a, b)` lanza `ArgumentError` si `a > b`, y un recorrido calculado
-  puede salir negativo o cero.** `BurbujaFlotante` se cerraba al arrastrarla
-  en un área baja (11 fallos en Crashlytics): `minY > maxY`, `maxX < margen` y
-  una división por `maxY - minY` a cero. Todo recorrido calculado se protege
-  (`max(0.0, …)`) antes de usarlo como límite de `clamp`, como divisor o como
-  `width`/`height`; y los límites se derivan del recorrido ya protegido
-  (`minY + recorridoY`), no de las cifras en bruto. Los tests de layout
-  prueban también áreas absurdas (cero, más pequeñas que el widget).
-
-### Publicar una versión
-
-- **La versión va en dos sitios: la `version:` del `pubspec.yaml` y
-  `versionCore` (`lib/version_core.dart`).** Al subir una, la otra también:
-  lo vigila `test/version_core_test.dart`. El core la manda en
-  `X-Norday-Core` (catálogo de productos y compra) y el backend no da un
-  producto con `version_minima_core` mayor (Nori vestida, N-6).
-- **Antes de `git tag`, `git --no-pager log -1`.** Se creó y subió `v0.9.0`
-  sobre el commit de `v0.8.0` porque se saltaron el merge y el cambio de
-  versión. Se arregla con `git tag -d` y `git push origin --delete <tag>` si
-  nadie apunta aún a él.
-- **Un tag anotado resuelve a su commit, no a sí mismo**:
-  `git rev-parse <tag>^{commit}`.
-- **`git ls-remote origin <patrón>` no muestra la línea `^{}`** del tag: el
-  patrón no casa con ella. Listar con `--tags` para verla.
-- **Un cambio aquí no llega solo a las apps**: hay que hacer push y luego
-  `flutter pub upgrade norday_flutter_core` en cada una, porque pub cachea
-  el commit resuelto. La dependencia va por tag: se mergea y se tagea aquí
-  primero, y luego la app apunta al tag nuevo. Una app fijada a un commit
-  viejo del core seguirá con el comportamiento viejo aunque aquí esté
-  arreglado.
-
-### Método de trabajo (vale para los cinco repos)
-
-- **La primera línea de un prompt se comprueba, no se recuerda.** Son cinco
-  repos: cuatro están en `C:\Dev\Norday\` (`habitos-app`,
-  `habitos_app_mobile`, `norday_flutter_core` y `enfoque_app_mobile`) y
-  `conocimiento_app_mobile` está en `C:\Dev\Conocimiento\`.
-- **Un solo agente por repo a la vez.** Todo lo que haga otro agente se revisa
-  en el remoto antes de mergear.
-- **Las cifras de verificación se cuentan contra el repositorio**, nunca se
-  copian del roadmap. Y son cifras exactas, no adjetivos.
-- **Enumerar sin asumir el patrón**: buscar por la forma que ya has visto sólo
-  encuentra lo que ya sabías.
+- **La versión va en dos sitios:** la `version:` del `pubspec.yaml` y
+  `versionCore` (`lib/version_core.dart`); `test/version_core_test.dart` lo vigila.
 - **Un filtro que no encuentra nada no es un resultado.** Ante una salida
   vacía, mirar la fuente completa antes de concluir.
-- **Un fichero de diagnóstico no prueba nada por existir.** Abrirlo y
-  comprobar que contiene el fallo antes de darlo por documentado.
-- **La base de una rama `wip` envejece.** Antes de dar una cifra, comprobar de
-  qué commit sale la rama.
-- **Al sustituir un bloque, incluir el comentario de encima.** Si no, el
-  comentario queda sobre otra declaración y describe algo que ya no es cierto.
-- **No escribir en el código el término cuya ausencia se va a verificar.**
-- **Mirar dónde se pega cada bloque.** Un bloque para la máquina local,
-  lanzado en el VPS, llegó a `git push` y pidió credenciales.
-- **`git diff` y `git log` abren paginador**: `git --no-pager`.
-- **`git diff HEAD~1` compara con el directorio de trabajo**: incluye lo no
-  commiteado. Para ver sólo el commit, `git diff HEAD~1 HEAD` o el remoto.
-- **PowerShell 5.1 lee los `.ps1` sin BOM como ANSI**: scripts sin acentos, o
-  guardados con BOM.
+- **Al sustituir un bloque, incluir el comentario de encima.**
