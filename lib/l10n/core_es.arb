@@ -483,6 +483,14 @@
   "@actualizacionBoton": {
     "description": "Pantalla de actualización obligatoria: botón"
   },
+  "avisoActualizacionTexto": "Hay una versión nueva lista.",
+  "@avisoActualizacionTexto": {
+    "description": "Aviso de versión nueva descargada (SnackBar): texto"
+  },
+  "avisoActualizacionReiniciar": "Reiniciar",
+  "@avisoActualizacionReiniciar": {
+    "description": "Aviso de versión nueva descargada (SnackBar): acción que instala y reabre la app"
+  },
   "sesionAvisoSalir": "Si sales de la app, pierdes la sesión",
   "@sesionAvisoSalir": {
     "description": "Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión"

@@ -37,6 +37,16 @@ class AnalyticsCore {
     }
   }
 
+  /// Un paso del aviso de versión nueva ([AvisoActualizacion]): [paso] es
+  /// `ofrecida`, `aceptada`, `rechazada`, `descargada` o `reiniciada`.
+  static Future<void> avisoActualizacion(String paso) async {
+    try {
+      await enviarEvento('aviso_actualizacion', {'paso': paso});
+    } catch (e) {
+      debugPrint('Analytics: no se registró aviso_actualizacion: $e');
+    }
+  }
+
   static Future<void> registro(int usuarioId) async {
     try {
       await analytics.setUserId(id: usuarioId.toString());

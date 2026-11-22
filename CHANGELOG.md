@@ -7,6 +7,14 @@ está en `git log`.
 
 ### Nuevo
 
+- **Aviso de versión nueva** (T-058a): `AvisoActualizacion.comprobar(context)`
+  avisa, como mucho una vez al día y solo en Android con la app instalada
+  desde Play, de que hay una versión nueva. Usa el modo flexible de Google:
+  descarga mientras se usa la app y un aviso («Hay una versión nueva lista.»
+  / «Reiniciar») pide reiniciar; nunca reinicia sin que se toque el botón. No
+  obliga: eso sigue siendo la versión mínima. Evento
+  `aviso_actualizacion` en Analytics. El `flutter:` del `pubspec.yaml` sube a
+  `>=3.44.0`.
 - **Interruptor «Avisos de Norday»** (T-014c): en Perfil, para apagar los
   avisos de la app (como mucho dos a la semana). Solo sale si la app pasa
   `mostrarAvisosApp: true` a `PerfilScreen` (o a `SelectorPreferencias`) y el
