@@ -31,13 +31,46 @@ Analytics: `AnalyticsCore.avisoActualizacion(paso)` → evento
 `aviso_actualizacion`, `paso` = `ofrecida`, `aceptada`, `rechazada`,
 `descargada` o `reiniciada`.
 
+## Versión recomendada (T-061b)
+
+El aviso de Play solo sale si Google ya ofrece la versión en ese móvil y la app
+viene de Play. Para el resto, el backend guarda una **versión recomendada** por
+app (`versionRecomendada` en `GET /api/version/{appId}`, entero o `null`; sin
+la clave, backend viejo, es `null`). No obliga: obligar es la mínima.
+
+`comprobar` mira la recomendada **solo si en esa llamada el aviso de Play no
+ha ofrecido nada** (no hay versión en Play, no es Android, no viene de Play,
+o falló antes de ofrecer). Nunca salen los dos en la misma
+apertura. Con `appId` vacío no pregunta.
+
+- **Corte diario de Play.** Si hoy ya se ofreció o enseñó el aviso de Play
+  (`aviso_actualizacion_dia`), `comprobar` lo cuenta como «Play ya ha hablado»:
+  ese día tampoco sale la tarjeta, ni se pregunta al backend. Play ya habló de
+  esa versión hoy y la tarjeta repetiría el mismo mensaje.
+- **Sale si** la instalada es menor que la recomendada y esa recomendada no se
+  ha ofrecido ya en este móvil: `SharedPreferences`, clave
+  `version_recomendada_ofrecida`, con el número. Se guarda al enseñarla, así
+  que «Ahora no» (o tocar fuera) no vuelve hasta que el backend suba otra mayor.
+  La sube Quim con un `UPDATE`.
+- **La tarjeta** (`TarjetaVersionRecomendada`) va en un diálogo, sin bloquear a
+  quien llama: `comprobar` termina al enseñarla. «Actualizar» abre Play por
+  `ActualizacionObligatoriaScreen.abrirActualizacion()` (el mismo seam
+  `actualizar`, que en la app de prueba no hace nada).
+- Nunca lanza: un fallo del backend, de la versión instalada o del diálogo se
+  deja en el log y no sale nada.
+
+Analytics: `AnalyticsCore.versionRecomendada(paso)` → evento
+`version_recomendada`, `paso` = `ofrecida`, `actualizar` o `ahora_no`.
+
 ## Cómo está hecha
 
-Una clase estática sin estado propio (el estado es el día en preferencias).
-Todo lo que toca el exterior son seams `@visibleForTesting`: `esAndroid`,
-`ahora`, `consultar`, `empezarFlexible`, `completarFlexible` y
-`estadoInstalacion`. `ActualizacionObligatoriaScreen` no se toca: sigue con su
-propio seam `actualizar`.
+Una clase estática con el día y la última recomendada ofrecida en preferencias.
+`comprobar` llama a `_avisoDePlay` (devuelve si ofreció algo) y, si no, a
+`_comprobarRecomendada`. Todo lo que toca el exterior son seams
+`@visibleForTesting`: `esAndroid`, `ahora`, `consultar`, `empezarFlexible`,
+`completarFlexible` y `estadoInstalacion`; y, de la recomendada,
+`VersionMinimaService.pedirVersionRecomendada` y `leerVersionInstalada`, y
+`ActualizacionObligatoriaScreen.actualizar` para abrir Play.
 
 ## Solo funciona instalada desde Play
 

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:norday_flutter_core/norday_flutter_core.dart';
-import 'package:norday_flutter_core/screens/actualizacion_obligatoria_screen.dart';
-import 'package:norday_flutter_core/services/version_minima_service.dart';
 import 'package:norday_flutter_core/widgets/nori_vestida.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

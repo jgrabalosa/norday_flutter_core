@@ -3,6 +3,17 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Versión recomendada** (T-061b): cuando el aviso de Play no ofrece nada,
+  `AvisoActualizacion.comprobar` mira `versionRecomendada` en
+  `/version/{appId}` y, si la instalada es menor, enseña una tarjeta de Norday
+  con Nori («Hay una versión nueva» / «Actualizar» y «Ahora no»). Una vez por
+  versión recomendada; «Actualizar» abre Google Play. No obliga. Evento
+  `version_recomendada` en Analytics. Textos en es, en y pt.
+
 ## 0.61.0 — 22-nov-2026
 
 ### Nuevo
