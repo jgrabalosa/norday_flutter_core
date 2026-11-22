@@ -32,7 +32,9 @@ bloqueo suave (punto 12) está en `sesion-concentracion.md`.
    usa) y, en su lista de Hoy, `LetreroDelDia` (Neotokyo+) y `RamoDelDia`
    (Dulce), cada uno con su `alto` (D-41). Puede pasar además
    el `avance` del día, de 0 a 1 con lo hecho a medias; sin él vale
-   `hechos / total`. El core no sabe qué se cuenta.
+   `hechos / total`. El core no sabe qué se cuenta. Si la app ha iniciado
+   `WidgetNori`, el progreso **de hoy** también llega al widget de Nori (ver
+   `widget-nori.md`); el de otro día de la tira se ignora.
 7. **El cierre del día**: la app monta `CapaCierreDelDia` y llama a
    `mostrarCierreDelDia(titulo:, despedida:)` con los textos ya traducidos,
    cuando se completa lo último del día. La app decide cuándo y cuántas veces

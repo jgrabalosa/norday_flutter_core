@@ -22,6 +22,7 @@ export 'services/recorrido_service.dart';
 export 'services/version_minima_service.dart';
 export 'services/sesion_concentracion.dart';
 export 'services/motor_sesion.dart';
+export 'services/widget_nori.dart';
 
 // ── Textos ───────────────────────────────────────────────
 export 'l10n/norday_core_localizations.dart';

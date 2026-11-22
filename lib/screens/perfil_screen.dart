@@ -23,10 +23,15 @@ class PerfilScreen extends StatefulWidget {
   final Widget Function(BuildContext context, bool mostrarOnboarding)
   destinoTrasLogin;
 
+  /// Se reenvía a [SelectorPreferencias.mostrarAvisosApp]. Falso por defecto:
+  /// solo lo enciende la app cuyo backend manda esos avisos.
+  final bool mostrarAvisosApp;
+
   const PerfilScreen({
     super.key,
     required this.usuarioId,
     required this.destinoTrasLogin,
+    this.mostrarAvisosApp = false,
   });
 
   @override
@@ -268,7 +273,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        SelectorPreferencias(usuarioId: widget.usuarioId),
+                        SelectorPreferencias(
+                          usuarioId: widget.usuarioId,
+                          mostrarAvisosApp: widget.mostrarAvisosApp,
+                        ),
                         const SizedBox(height: 12),
                         _tarjetaDatos(l, t, id),
                         if (!_esGoogle) ...[

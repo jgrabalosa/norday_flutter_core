@@ -32,7 +32,10 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
   para la nieve y las prendas),
   y la sesión de concentración con bloqueo suave: `SesionConcentracion` (la
   máquina de estados pura) y `MotorSesion` (ciclo de vida, persistencia y
-  avisos; ver los puntos de extensión).
+  avisos; ver los puntos de extensión),
+  y `WidgetNori` (deja con `home_widget` los datos que lee el widget nativo de
+  Nori; no hace nada hasta que la app llama a `iniciar`; ver
+  `docs/funcionamiento/widget-nori.md`).
 - `theme/` — `AppTheme` y tokens, `IdentidadPaleta` y `catalogoIdentidades`,
   `Equipamiento`, `assetMascota` y `animoDeMascota` (el ánimo sale de
   `animo` y, si no viene, de `estado`), `refrescoMascotaNotifier`,
