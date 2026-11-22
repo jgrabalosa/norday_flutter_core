@@ -50,7 +50,21 @@ class VersionMinimaService {
     return int.parse(info.buildNumber);
   }
 
-  static Future<int> _pedirAlBackend(String appId) async {
+  /// Versión recomendada según el backend (`versionRecomendada`): `null` si no
+  /// hay o si el backend es viejo y no trae la clave. Puede lanzar; quien la
+  /// usa ([AvisoActualizacion]) lo recoge. Sustituible en tests.
+  @visibleForTesting
+  static Future<int?> Function(String appId) pedirVersionRecomendada =
+      _pedirRecomendadaAlBackend;
+
+  /// Para quien usa el servicio desde fuera: la recomendada del backend.
+  static Future<int?> recomendada(String appId) =>
+      pedirVersionRecomendada(appId);
+
+  /// Para quien usa el servicio desde fuera: el versionCode instalado.
+  static Future<int> instalada() => leerVersionInstalada();
+
+  static Future<Map<String, dynamic>> _pedirVersiones(String appId) async {
     final r = await ApiServiceCore.enviar(
       () => ApiServiceCore.cliente.get(
         Uri.parse('${ApiServiceCore.baseUrl}/version/$appId'),
@@ -60,9 +74,18 @@ class VersionMinimaService {
     );
     ApiServiceCore.verificar(r);
     return ApiServiceCore.parsear(
-      () =>
-          (jsonDecode(r.body) as Map<String, dynamic>)['versionMinima'] as int,
+      () => jsonDecode(r.body) as Map<String, dynamic>,
     );
+  }
+
+  static Future<int> _pedirAlBackend(String appId) async {
+    final cuerpo = await _pedirVersiones(appId);
+    return ApiServiceCore.parsear(() => cuerpo['versionMinima'] as int);
+  }
+
+  static Future<int?> _pedirRecomendadaAlBackend(String appId) async {
+    final cuerpo = await _pedirVersiones(appId);
+    return ApiServiceCore.parsear(() => cuerpo['versionRecomendada'] as int?);
   }
 
   /// `true` solo si el backend ha contestado y la versión instalada está por
