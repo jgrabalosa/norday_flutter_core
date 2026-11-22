@@ -5,6 +5,15 @@ está en `git log`.
 
 ## Sin publicar
 
+### Nuevo
+
+- **Interruptor «Avisos de Norday»** (T-014c): en Perfil, para apagar los
+  avisos de la app (como mucho dos a la semana). Solo sale si la app pasa
+  `mostrarAvisosApp: true` a `PerfilScreen` (o a `SelectorPreferencias`) y el
+  backend devuelve `avisosApp`; Focus no lo ve. Si el guardado falla, el
+  interruptor vuelve a como estaba y se avisa. `actualizarPreferencias`
+  acepta `avisosApp`.
+
 ### Arreglado
 
 - **Ramo de Dulce: cada flor nueva entra con fundido** (T-046). Hasta ahora

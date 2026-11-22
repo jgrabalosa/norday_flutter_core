@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../l10n/mensajes_error.dart';
 import '../l10n/norday_core_localizations.dart';
+import '../services/api_service_core.dart';
 import '../services/idioma_service.dart';
 import '../services/sonido_service.dart';
 import '../services/zona_service.dart';
@@ -18,7 +20,17 @@ import 'superficie_identidad.dart';
 /// Motor: no conoce ningún concepto de hábitos.
 class SelectorPreferencias extends StatefulWidget {
   final int usuarioId;
-  const SelectorPreferencias({super.key, required this.usuarioId});
+
+  /// Enseña el interruptor «Avisos de Norday». Falso por defecto: lo pide la
+  /// app cuyo backend manda esos avisos (Habits), no las demás. Aun pedido,
+  /// solo sale si el backend devuelve `avisosApp`; uno anterior no lo trae.
+  final bool mostrarAvisosApp;
+
+  const SelectorPreferencias({
+    super.key,
+    required this.usuarioId,
+    this.mostrarAvisosApp = false,
+  });
 
   @override
   State<SelectorPreferencias> createState() => _SelectorPreferenciasState();
@@ -28,11 +40,60 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
   String _zona = ZonaService.porDefecto;
   bool _sonidoActivado = SonidoService.activado;
 
+  /// `null` hasta que el backend responde con el campo: sin valor no se
+  /// enseña el interruptor.
+  bool? _avisosApp;
+  bool _guardandoAvisos = false;
+
   @override
   void initState() {
     super.initState();
     _cargarZona();
     _cargarSonido();
+    if (widget.mostrarAvisosApp) _cargarAvisosApp();
+  }
+
+  Future<void> _cargarAvisosApp() async {
+    try {
+      final prefs = await ApiServiceCore.getPreferencias(widget.usuarioId);
+      final valor = prefs['avisosApp'];
+      if (!mounted || valor is! bool) return;
+      setState(() => _avisosApp = valor);
+    } catch (_) {
+      // Sin respuesta no hay interruptor: no se inventa un valor.
+    }
+  }
+
+  /// El backend es la única fuente de este valor (no se guarda en el
+  /// dispositivo), así que si el `PUT` falla el interruptor vuelve a como
+  /// estaba y se avisa. Idioma y zona se quedan en local; este no puede.
+  Future<void> _cambiarAvisosApp(bool valor) async {
+    if (_guardandoAvisos) return;
+    final anterior = _avisosApp;
+    setState(() {
+      _avisosApp = valor;
+      _guardandoAvisos = true;
+    });
+    try {
+      await ApiServiceCore.actualizarPreferencias(
+        widget.usuarioId,
+        avisosApp: valor,
+      );
+      if (!mounted) return;
+      _avisar(NordayCoreLocalizations.of(context)!.preferenciasGuardadas);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _avisosApp = anterior);
+      _avisar(
+        MensajesError.de(
+          context,
+          e,
+          generico: NordayCoreLocalizations.of(context)!.avisosAppErrorGuardar,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _guardandoAvisos = false);
+    }
   }
 
   Future<void> _cargarSonido() async {
@@ -187,6 +248,32 @@ class _SelectorPreferenciasState extends State<SelectorPreferencias> {
               ),
             ),
           ),
+          if (_avisosApp != null) ...[
+            const SizedBox(height: 12),
+            _filaPreferencia(
+              t,
+              icono: LucideIcons.bell,
+              etiqueta: l.avisosApp,
+              control: SizedBox(
+                height: 40,
+                width: 56,
+                child: Switch.adaptive(
+                  value: _avisosApp!,
+                  onChanged: _guardandoAvisos ? null : _cambiarAvisosApp,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30),
+              child: Text(
+                l.avisosAppAyuda,
+                style: TextStyle(
+                  color: t.textMuted,
+                  fontSize: tamanoLectura(identidad(context), 12),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

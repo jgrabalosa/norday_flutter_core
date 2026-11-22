@@ -31,6 +31,9 @@
   "prodComidaBasica": "Comida",
   "preferenciasSubtitulo": "Idioma y zona horaria",
   "sonido": "Sonido",
+  "avisosApp": "Avisos de Norday",
+  "avisosAppAyuda": "Como mucho dos a la semana: cuando llevas días sin pasar o una semana se queda a medias. Tus recordatorios no cambian.",
+  "avisosAppErrorGuardar": "No se pudo guardar el cambio. Prueba de nuevo.",
   "cambiarZona": "Cambiar zona horaria",
   "buscarZona": "Buscar zona",
   "sinResultados": "Sin resultados",
@@ -521,6 +524,57 @@
     "description": "Lo que oye el lector de pantalla cuando Nori lleva prendas: sus nombres, separados por comas.",
     "placeholders": {
       "prendas": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetNoriEmpieza": "Empieza cuando quieras",
+  "@widgetNoriEmpieza": {
+    "description": "Widget de Nori: texto cuando aún no hay nada hecho hoy."
+  },
+  "widgetNoriSinSesion": "Inicia sesión para ver tu día",
+  "@widgetNoriSinSesion": {
+    "description": "Widget de Nori: texto cuando no hay sesión."
+  },
+  "widgetNoriTodoHecho": "¡Todo hecho por hoy!",
+  "@widgetNoriTodoHecho": {
+    "description": "Widget de Nori: texto cuando el progreso de hoy está completo."
+  },
+  "widgetNoriProgreso": "{hechos} de {total} hoy",
+  "@widgetNoriProgreso": {
+    "description": "Widget de Nori: progreso de hoy. El core lo guarda con los marcadores {hechos} y {total} sin sustituir; el widget nativo pone las cifras.",
+    "placeholders": {
+      "hechos": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetNoriProgresoCorto": "{hechos} de {total}",
+  "@widgetNoriProgresoCorto": {
+    "description": "Widget de Nori: progreso de hoy en el tamaño pequeño. Mismos marcadores que widgetNoriProgreso.",
+    "placeholders": {
+      "hechos": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetNoriAccesible": "Nori, {frase}. {hechos} de {total} hoy. Toca para abrir Norday.",
+  "@widgetNoriAccesible": {
+    "description": "Widget de Nori: descripción para el lector de pantalla. El core lo guarda con {frase}, {hechos} y {total} sin sustituir; el widget nativo los rellena.",
+    "placeholders": {
+      "frase": {
+        "type": "String"
+      },
+      "hechos": {
+        "type": "String"
+      },
+      "total": {
         "type": "String"
       }
     }

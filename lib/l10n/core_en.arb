@@ -28,6 +28,9 @@
   "prodComidaBasica": "Food",
   "preferenciasSubtitulo": "Language and time zone",
   "sonido": "Sound",
+  "avisosApp": "Norday notices",
+  "avisosAppAyuda": "At most two a week: when you haven't dropped by in days or a week is left half done. Your reminders don't change.",
+  "avisosAppErrorGuardar": "Couldn't save the change. Try again.",
   "cambiarZona": "Change time zone",
   "buscarZona": "Search zone",
   "sinResultados": "No results",
@@ -266,5 +269,11 @@
   "sesionAvisoFinTitulo": "Session complete",
   "sesionAvisoFinCuerpo": "You made it to the end. Open the app to see the result.",
   "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Time's up} =1{1 minute left} other{{minutos} minutes left}}",
-  "noriLleva": "Wearing: {prendas}"
+  "noriLleva": "Wearing: {prendas}",
+  "widgetNoriEmpieza": "Start whenever you like",
+  "widgetNoriSinSesion": "Sign in to see your day",
+  "widgetNoriTodoHecho": "All done for today!",
+  "widgetNoriProgreso": "{hechos} of {total} today",
+  "widgetNoriProgresoCorto": "{hechos} of {total}",
+  "widgetNoriAccesible": "Nori, {frase}. {hechos} of {total} today. Tap to open Norday."
 }

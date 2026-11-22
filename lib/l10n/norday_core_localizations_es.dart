@@ -93,6 +93,17 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get sonido => 'Sonido';
 
   @override
+  String get avisosApp => 'Avisos de Norday';
+
+  @override
+  String get avisosAppAyuda =>
+      'Como mucho dos a la semana: cuando llevas días sin pasar o una semana se queda a medias. Tus recordatorios no cambian.';
+
+  @override
+  String get avisosAppErrorGuardar =>
+      'No se pudo guardar el cambio. Prueba de nuevo.';
+
+  @override
   String get cambiarZona => 'Cambiar zona horaria';
 
   @override
@@ -869,5 +880,29 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   @override
   String noriLleva(String prendas) {
     return 'Lleva: $prendas';
+  }
+
+  @override
+  String get widgetNoriEmpieza => 'Empieza cuando quieras';
+
+  @override
+  String get widgetNoriSinSesion => 'Inicia sesión para ver tu día';
+
+  @override
+  String get widgetNoriTodoHecho => '¡Todo hecho por hoy!';
+
+  @override
+  String widgetNoriProgreso(String hechos, String total) {
+    return '$hechos de $total hoy';
+  }
+
+  @override
+  String widgetNoriProgresoCorto(String hechos, String total) {
+    return '$hechos de $total';
+  }
+
+  @override
+  String widgetNoriAccesible(String frase, String hechos, String total) {
+    return 'Nori, $frase. $hechos de $total hoy. Toca para abrir Norday.';
   }
 }
