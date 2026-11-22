@@ -269,5 +269,11 @@
   "sesionAvisoFinTitulo": "Sessão concluída",
   "sesionAvisoFinCuerpo": "Chegaste ao fim. Abre a app para ver o resultado.",
   "aroCuentaAtrasEtiqueta": "{minutos, plural, =0{Tempo cumprido} =1{Falta 1 minuto} other{Faltam {minutos} minutos}}",
-  "noriLleva": "Veste: {prendas}"
+  "noriLleva": "Veste: {prendas}",
+  "widgetNoriEmpieza": "Começa quando quiseres",
+  "widgetNoriSinSesion": "Inicia sessão para ver o teu dia",
+  "widgetNoriTodoHecho": "Tudo feito por hoje!",
+  "widgetNoriProgreso": "{hechos} de {total} hoje",
+  "widgetNoriProgresoCorto": "{hechos} de {total}",
+  "widgetNoriAccesible": "Nori, {frase}. {hechos} de {total} hoje. Toca para abrir o Norday."
 }

@@ -40,6 +40,8 @@ dependencies:
   package_info_plus: ^10.2.2
   url_launcher: ^6.3.3
   path_provider: ^2.1.5
+  # Datos para el widget nativo de Nori (T-008): ver docs/funcionamiento/widget-nori.md
+  home_widget: ^0.10.0
 
 dev_dependencies:
   flutter_test:

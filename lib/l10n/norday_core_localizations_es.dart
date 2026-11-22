@@ -881,4 +881,28 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String noriLleva(String prendas) {
     return 'Lleva: $prendas';
   }
+
+  @override
+  String get widgetNoriEmpieza => 'Empieza cuando quieras';
+
+  @override
+  String get widgetNoriSinSesion => 'Inicia sesión para ver tu día';
+
+  @override
+  String get widgetNoriTodoHecho => '¡Todo hecho por hoy!';
+
+  @override
+  String widgetNoriProgreso(String hechos, String total) {
+    return '$hechos de $total hoy';
+  }
+
+  @override
+  String widgetNoriProgresoCorto(String hechos, String total) {
+    return '$hechos de $total';
+  }
+
+  @override
+  String widgetNoriAccesible(String frase, String hechos, String total) {
+    return 'Nori, $frase. $hechos de $total hoy. Toca para abrir Norday.';
+  }
 }

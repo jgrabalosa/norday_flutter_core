@@ -8,6 +8,7 @@ import '../theme/mascota_refresh.dart';
 import '../version_core.dart';
 import 'api_error.dart';
 import 'notificaciones_service.dart';
+import 'widget_nori.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 /// Motor: todo lo que no sabe de dominio — sesión, usuario, preferencias,
@@ -321,6 +322,9 @@ class ApiServiceCore {
     // `return` de Google y de cualquier `await` que pueda fallar: la cuenta
     // siguiente del mismo móvil no puede ver esta Nori.
     faseMascotaNotifier.value = null;
+    // Lo del widget de Nori también es de esta cuenta. No lanza, y sin
+    // `WidgetNori.iniciar` no hace nada.
+    await WidgetNori.alCerrarSesion();
     final prefs = await SharedPreferences.getInstance();
     final eraGoogle = prefs.getString('proveedorAuth') == 'GOOGLE';
     for (final clave in _clavesSesion) {
@@ -680,7 +684,13 @@ class ApiServiceCore {
       ),
     );
     verificar(response);
-    return parsear(() => jsonDecode(response.body) as Map<String, dynamic>);
+    final data = parsear(
+      () => jsonDecode(response.body) as Map<String, dynamic>,
+    );
+    // Único sitio por donde pasan todas las lecturas de la mascota: el widget
+    // de Nori se entera aquí. No lanza ni espera.
+    WidgetNori.alLeerMascota(data);
+    return data;
   }
 
   static Future<void> actualizarNombreMascota(
