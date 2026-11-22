@@ -95,7 +95,11 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
     Antes el letrero iba en una capa por encima de la pantalla y se formaba
     detrás de los hábitos;
   - guía (2): `AyudaCampo` (el interrogante junto a un campo) y `CoachMark`
-    (el foco del recorrido guiado);
+    (el foco del recorrido guiado). `AyudaCampo` acepta un `id` opcional
+    (minúsculas y guiones bajos: `tienda`, `coleccion`): con él, abrir la
+    nota —no cerrarla— registra el evento `ayuda_abierta` (parámetro `ayuda`)
+    por `AnalyticsCore.ayudaAbierta`; sin él no registra nada. Seam de test:
+    `AnalyticsCore.enviarEvento`;
   - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
     `AnilloIdentidad`, que se vacía con el tiempo;
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,

@@ -740,7 +740,8 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get tiendaAyudaEtiqueta => 'Help about the shop';
 
   @override
-  String get tiendaAyuda => 'Spend your points here: food for Nori and themes.';
+  String get tiendaAyuda =>
+      'Spend your points here: food for Nori, themes, clothes and more.';
 
   @override
   String get constelacionPolar => 'North Star';

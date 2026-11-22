@@ -13,6 +13,15 @@ está en `git log`.
   backend devuelve `avisosApp`; Focus no lo ve. Si el guardado falla, el
   interruptor vuelve a como estaba y se avisa. `actualizarPreferencias`
   acepta `avisosApp`.
+- **Ayudas con rastro** (T-047): `AyudaCampo` acepta un `id` opcional y, con
+  él, abrir la nota registra `ayuda_abierta` (parámetro `ayuda`) en Analytics
+  vía `AnalyticsCore.ayudaAbierta`. Tienda y Colección ya pasan el suyo
+  (`tienda`, `coleccion`).
+
+### Cambiado
+
+- La ayuda de la tienda menciona la ropa de Nori: «Gasta aquí tus puntos:
+  comida para Nori, temas, ropa y más.» (en los tres idiomas).
 
 ### Arreglado
 
