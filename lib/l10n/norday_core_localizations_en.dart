@@ -93,6 +93,16 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get sonido => 'Sound';
 
   @override
+  String get avisosApp => 'Norday notices';
+
+  @override
+  String get avisosAppAyuda =>
+      'At most two a week: when you haven\'t dropped by in days or a week is left half done. Your reminders don\'t change.';
+
+  @override
+  String get avisosAppErrorGuardar => 'Couldn\'t save the change. Try again.';
+
+  @override
   String get cambiarZona => 'Change time zone';
 
   @override

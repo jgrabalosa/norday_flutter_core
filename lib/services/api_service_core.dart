@@ -192,10 +192,12 @@ class ApiServiceCore {
     int usuarioId, {
     String? idioma,
     String? zonaHoraria,
+    bool? avisosApp,
   }) async {
-    final body = <String, String>{};
+    final body = <String, Object>{};
     if (idioma != null) body['idioma'] = idioma;
     if (zonaHoraria != null) body['zonaHoraria'] = zonaHoraria;
+    if (avisosApp != null) body['avisosApp'] = avisosApp;
     if (body.isEmpty) return;
 
     final headers = await getHeaders();

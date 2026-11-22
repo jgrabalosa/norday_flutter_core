@@ -93,6 +93,17 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get sonido => 'Som';
 
   @override
+  String get avisosApp => 'Avisos da Norday';
+
+  @override
+  String get avisosAppAyuda =>
+      'No máximo dois por semana: quando passas dias sem aparecer ou uma semana fica a meio. Os teus lembretes não mudam.';
+
+  @override
+  String get avisosAppErrorGuardar =>
+      'Não foi possível guardar a alteração. Tenta de novo.';
+
+  @override
   String get cambiarZona => 'Alterar fuso horário';
 
   @override

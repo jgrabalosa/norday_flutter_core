@@ -93,6 +93,17 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get sonido => 'Sonido';
 
   @override
+  String get avisosApp => 'Avisos de Norday';
+
+  @override
+  String get avisosAppAyuda =>
+      'Como mucho dos a la semana: cuando llevas días sin pasar o una semana se queda a medias. Tus recordatorios no cambian.';
+
+  @override
+  String get avisosAppErrorGuardar =>
+      'No se pudo guardar el cambio. Prueba de nuevo.';
+
+  @override
   String get cambiarZona => 'Cambiar zona horaria';
 
   @override
