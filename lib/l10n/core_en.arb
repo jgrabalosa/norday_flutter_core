@@ -269,7 +269,7 @@
   "versionRecomendadaTexto": "It brings improvements for you and Nori. It updates in a moment from Google Play.",
   "versionRecomendadaActualizar": "Update",
   "versionRecomendadaAhoraNo": "Not now",
-  "sesionAvisoSalir":"If you leave the app, you lose the session",
+  "sesionAvisoSalir": "If you leave the app, you lose the session",
   "sesionAvisoGraciaTitulo": "Come back to your session",
   "sesionAvisoGraciaCuerpo": "If you're not back in {segundos} s, you'll lose it.",
   "sesionAvisoFinTitulo": "Session complete",
