@@ -3,7 +3,7 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
-## Sin publicar
+## 0.61.0 — 22-nov-2026
 
 ### Nuevo
 
@@ -25,6 +25,12 @@ está en `git log`.
   él, abrir la nota registra `ayuda_abierta` (parámetro `ayuda`) en Analytics
   vía `AnalyticsCore.ayudaAbierta`. Tienda y Colección ya pasan el suyo
   (`tienda`, `coleccion`).
+- **Datos para el widget de Nori** (T-008b): `WidgetNori` deja en
+  `home_widget` lo que pintará el widget nativo (ánimo de hoy y de los
+  próximos 7 días, fase, progreso de hoy, identidad, colores y textos ya
+  traducidos) y lo borra al cerrar sesión. No escribe nada hasta que la app
+  llame a `WidgetNori.iniciar` (T-009). Contrato en
+  `docs/funcionamiento/widget-nori.md`. Dependencia nueva: `home_widget`.
 
 ### Cambiado
 
