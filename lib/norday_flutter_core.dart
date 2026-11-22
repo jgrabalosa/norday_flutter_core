@@ -12,6 +12,7 @@ export 'version_core.dart';
 export 'services/api_service_core.dart';
 export 'services/api_error.dart';
 export 'services/analytics_service.dart';
+export 'services/aviso_actualizacion.dart';
 export 'services/celebracion_service.dart';
 export 'services/sonido_service.dart';
 export 'services/idioma_service.dart';

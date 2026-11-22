@@ -838,6 +838,12 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get actualizacionBoton => 'Update now';
 
   @override
+  String get avisoActualizacionTexto => 'A new version is ready.';
+
+  @override
+  String get avisoActualizacionReiniciar => 'Restart';
+
+  @override
   String get sesionAvisoSalir => 'If you leave the app, you lose the session';
 
   @override

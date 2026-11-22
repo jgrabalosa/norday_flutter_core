@@ -1639,6 +1639,18 @@ abstract class NordayCoreLocalizations {
   /// **'Actualizar ahora'**
   String get actualizacionBoton;
 
+  /// Aviso de versión nueva descargada (SnackBar): texto
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una versión nueva lista.'**
+  String get avisoActualizacionTexto;
+
+  /// Aviso de versión nueva descargada (SnackBar): acción que instala y reabre la app
+  ///
+  /// In es, this message translates to:
+  /// **'Reiniciar'**
+  String get avisoActualizacionReiniciar;
+
   /// Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión
   ///
   /// In es, this message translates to:

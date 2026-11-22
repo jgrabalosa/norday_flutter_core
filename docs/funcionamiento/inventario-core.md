@@ -8,7 +8,9 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
 
 - `services/` — `ApiServiceCore` (sesión, usuario, preferencias, gamificación,
   tienda, mascota, notificaciones), `ApiException`/`TipoErrorApi`,
-  `AnalyticsCore` (login y alta), `CelebracionService`, `SonidoService`,
+  `AnalyticsCore` (login y alta), `AvisoActualizacion` (aviso de versión nueva
+  con el modo flexible de Play; ver `docs/funcionamiento/aviso-actualizacion.md`),
+  `CelebracionService`, `SonidoService`,
   `IdiomaService`, `ZonaService`, `OrigenInstalacionService` (install referrer
   de Play, enviado una vez por dispositivo tras el primer login) y
   `RecorridoService` (si el recorrido guiado

@@ -263,6 +263,8 @@
   "actualizacionTitulo": "A new version is ready",
   "actualizacionTexto": "To keep using Norday, update the app. Your progress stays just as it is.",
   "actualizacionBoton": "Update now",
+  "avisoActualizacionTexto": "A new version is ready.",
+  "avisoActualizacionReiniciar": "Restart",
   "sesionAvisoSalir": "If you leave the app, you lose the session",
   "sesionAvisoGraciaTitulo": "Come back to your session",
   "sesionAvisoGraciaCuerpo": "If you're not back in {segundos} s, you'll lose it.",

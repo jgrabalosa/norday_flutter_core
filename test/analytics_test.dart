@@ -28,6 +28,22 @@ void main() {
     await expectLater(AnalyticsCore.ayudaAbierta('tienda'), completes);
   });
 
+  test('avisoActualizacion manda aviso_actualizacion con el paso', () async {
+    final enviados = <(String, Map<String, Object>)>[];
+    final original = AnalyticsCore.enviarEvento;
+    addTearDown(() => AnalyticsCore.enviarEvento = original);
+    AnalyticsCore.enviarEvento = (n, p) async => enviados.add((n, p));
+
+    await AnalyticsCore.avisoActualizacion('ofrecida');
+
+    expect(enviados.single.$1, 'aviso_actualizacion');
+    expect(enviados.single.$2, {'paso': 'ofrecida'});
+  });
+
+  test('avisoActualizacion no lanza aunque Firebase falle', () async {
+    await expectLater(AnalyticsCore.avisoActualizacion('ofrecida'), completes);
+  });
+
   test('registro no lanza aunque Firebase falle', () async {
     await expectLater(AnalyticsCore.registro(1), completes);
   });

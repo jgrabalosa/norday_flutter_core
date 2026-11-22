@@ -24,6 +24,9 @@ Este fichero solo lleva lo que vale en cada sesión. El resto está en `docs/`:
   `ayudaAnimo`/`ayudaXp`, `alElegir`, progreso y cierre del día,
   `SplashGenerico.rutaImagen`, `ApiServiceCore.appId`, `NORDAY_API_URL`,
   `TextosApp`), lee `docs/funcionamiento/puntos-de-extension.md`.
+- Antes de tocar `services/aviso_actualizacion.dart` (el aviso de versión
+  nueva de Play) o `ActualizacionObligatoriaScreen`, lee
+  `docs/funcionamiento/aviso-actualizacion.md`.
 - Antes de tocar `services/widget_nori.dart` o las claves `nori_*` que lee el
   widget nativo, lee `docs/funcionamiento/widget-nori.md`.
 - Antes de tocar `services/sesion_concentracion.dart`,
