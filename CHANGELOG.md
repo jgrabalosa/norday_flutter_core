@@ -5,6 +5,14 @@ está en `git log`.
 
 ## Sin publicar
 
+### Nuevo
+
+- **Compartir a Nori** (T-063a): `TarjetaNori`, la postal de Nori (360 × 450,
+  fondo y terrario de la identidad, Nori siempre contenta, nombre, nivel y la
+  marca de la app), y `MascotaScreen.alCompartir`, que pone un botón de
+  compartir en la esquina de la escena. Sin él, nada cambia. Ver
+  `docs/funcionamiento/tarjeta-nori.md`.
+
 ### Cambios
 
 - **Los nombres del ramo de Dulce, más dulces** (Quim, 23-nov): Una rosa ·

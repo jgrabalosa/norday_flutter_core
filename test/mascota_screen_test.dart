@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/screens/mascota_screen.dart';
 import 'package:norday_flutter_core/services/api_service_core.dart';
@@ -14,6 +16,7 @@ import 'package:norday_flutter_core/theme/mascota_refresh.dart';
 import 'package:norday_flutter_core/theme/prendas.dart';
 import 'package:norday_flutter_core/widgets/burbuja_contexto.dart';
 import 'package:norday_flutter_core/widgets/mascota_animada_viva.dart';
+import 'package:norday_flutter_core/widgets/tarjeta_nori.dart';
 import 'package:norday_flutter_core/widgets/vestidor_nori.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -123,7 +126,11 @@ void main() {
   /// ancho de 1 em, y en 400 la fila de Alimentar y Tienda desborda aunque en
   /// un móvil de verdad quepa. Las animaciones van apagadas: el aviso de
   /// reacción se cuenta igual, porque no depende de moverse.
-  Future<void> montar(WidgetTester tester, {GlobalKey? ancla}) async {
+  Future<void> montar(
+    WidgetTester tester, {
+    GlobalKey? ancla,
+    Future<void> Function(DatosNori)? alCompartir,
+  }) async {
     await tester.binding.setSurfaceSize(const Size(520, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -140,12 +147,57 @@ void main() {
             usuarioId: _usuarioId,
             embebida: true,
             anclaAlimentar: ancla,
+            alCompartir: alCompartir,
           ),
         ),
       ),
     );
     await asentar(tester);
   }
+
+  group('compartir', () {
+    final boton = find.byTooltip('Compartir a Nori');
+    final icono = find.widgetWithIcon(IconButton, LucideIcons.share2);
+
+    testWidgets('sin alCompartir no hay botón', (tester) async {
+      await montar(tester);
+      expect(boton, findsNothing);
+    });
+
+    testWidgets('con alCompartir, el botón lo llama una vez con los datos y '
+        'se apaga mientras se prepara', (tester) async {
+      final datos = <DatosNori>[];
+      final terminar = Completer<void>();
+      await montar(
+        tester,
+        alCompartir: (d) {
+          datos.add(d);
+          return terminar.future;
+        },
+      );
+      expect(boton, findsOneWidget);
+      // Esquina superior derecha de la escena: sobre Nori, a su derecha.
+      final nori = tester.getRect(find.byType(MascotaAnimadaViva));
+      final esquina = tester.getCenter(boton);
+      expect(esquina.dx, greaterThan(nori.center.dx));
+      expect(esquina.dy, lessThan(nori.center.dy));
+
+      await tester.tap(boton);
+      await tester.pump();
+      await tester.tap(boton, warnIfMissed: false);
+      await tester.pump();
+
+      expect(datos, hasLength(1));
+      expect(datos.single.fase, 'CRIA');
+      expect(datos.single.nombre, 'Pepa');
+      expect(datos.single.nivel, 2);
+      expect(tester.widget<IconButton>(icono).onPressed, isNull);
+
+      terminar.complete();
+      await tester.pump();
+      expect(tester.widget<IconButton>(icono).onPressed, isNotNull);
+    });
+  });
 
   testWidgets('el botón de alimentar queda debajo de Nori y por encima del '
       'vestidor', (tester) async {

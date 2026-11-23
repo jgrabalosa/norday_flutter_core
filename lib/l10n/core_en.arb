@@ -45,6 +45,7 @@
   "mascotaHintNombre": "Your pet's name",
   "mascotaErrorNombre": "Couldn't save the name. Please try again.",
   "mascotaAlimentar": "Feed",
+  "mascotaCompartir": "Share Nori",
   "mascotaErrorAlimentar": "Couldn't feed your pet. Please try again.",
   "mascotaNivel": "Level {n}",
   "mascotaXp": "{actual}/{total} XP",

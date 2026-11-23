@@ -373,6 +373,12 @@ abstract class NordayCoreLocalizations {
   /// **'Alimentar'**
   String get mascotaAlimentar;
 
+  /// Etiqueta de accesibilidad del botón de compartir la postal de Nori, en la esquina de la escena.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir a Nori'**
+  String get mascotaCompartir;
+
   /// No description provided for @mascotaErrorAlimentar.
   ///
   /// In es, this message translates to:
