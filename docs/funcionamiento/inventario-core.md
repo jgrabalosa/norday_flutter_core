@@ -57,7 +57,9 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
     encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
     postal del cierre (T-043, en la app);
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
-    `NoriVestida` dentro de la misma animación), `MiniMascota` (vestida),
+    `NoriVestida` dentro de la misma animación; con `reaccion`, un
+    `Listenable` cuyo aviso lanza el gesto del toque sin ser un toque: la
+    pantalla de la Mascota lo avisa al comer con XP, T-051), `MiniMascota` (vestida),
     `NoriVestida` (Nori con lo que lleva puesto, por capas sobre la canónica;
     sin prendas, el dibujo de siempre; ver `nori-canonica.md`),
     `ImagenMascota` (Nori descodificada a su tamaño en pantalla: todo lo que
