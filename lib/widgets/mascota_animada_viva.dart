@@ -38,6 +38,13 @@ class MascotaAnimadaViva extends StatefulWidget {
   /// háptica o sonido. El widget no decide nada de eso.
   final VoidCallback? onToque;
 
+  /// Aviso de que Nori ha reaccionado (p. ej. al comer): cada aviso lanza el
+  /// mismo gesto que un toque. Es una reacción, no un toque del usuario: no
+  /// llama a [onToque] ni exige [permiteToque]. Con «reducir movimiento», no
+  /// hace nada, como el toque. El valor del aviso no importa; quien avisa
+  /// suele usar un contador para que cada aviso sea un cambio.
+  final Listenable? reaccion;
+
   /// Si se pinta con lo que lleva puesto (`NoriVestida`, Nori vestida N-9),
   /// dentro de la misma animación. En falso, el dibujo de siempre: el splash,
   /// el login y el avatar no se visten (decisión 16).
@@ -58,6 +65,7 @@ class MascotaAnimadaViva extends StatefulWidget {
     required this.tamano,
     this.permiteToque = false,
     this.onToque,
+    this.reaccion,
     this.vestida = false,
     this.prendas,
     this.manifiesto,
@@ -161,11 +169,17 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
   /// Última lectura de la preferencia del sistema de reducir animaciones.
   bool _animacionesDesactivadas = false;
 
+  /// El [MascotaAnimadaViva.reaccion] al que estamos suscritos. Se guarda
+  /// aparte porque, al cambiar el widget, el nuevo puede no ser el que se dio
+  /// de alta: así se da de baja el bueno.
+  Listenable? _suscrito;
+
   _PerfilVida get _perfil => _perfilDe(widget.estado);
 
   @override
   void initState() {
     super.initState();
+    _suscribirReaccion(widget.reaccion);
     final p = _perfil;
     _respiracion = AnimationController(vsync: this, duration: p.respiracion);
     _vaiven = AnimationController(vsync: this, duration: p.vaiven);
@@ -195,6 +209,15 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
   void didUpdateWidget(covariant MascotaAnimadaViva anterior) {
     super.didUpdateWidget(anterior);
     if (anterior.estado != widget.estado) _sincronizarBucles();
+    if (anterior.reaccion != widget.reaccion) {
+      _suscribirReaccion(widget.reaccion);
+    }
+  }
+
+  void _suscribirReaccion(Listenable? nuevo) {
+    _suscrito?.removeListener(_alReaccionar);
+    _suscrito = nuevo;
+    _suscrito?.addListener(_alReaccionar);
   }
 
   /// Deja los tres bucles en marcha con las duraciones del perfil actual, o
@@ -218,6 +241,7 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
 
   @override
   void dispose() {
+    _suscrito?.removeListener(_alReaccionar);
     _respiracion.dispose();
     _vaiven.dispose();
     _balanceo.dispose();
@@ -225,10 +249,18 @@ class _MascotaAnimadaVivaState extends State<MascotaAnimadaViva>
     super.dispose();
   }
 
-  void _alTocar() {
+  /// El gesto del toque y el de la reacción: el mismo aplastón, o nada si
+  /// Nori no debe moverse.
+  void _aplastar() {
     if (!_animacionesDesactivadas) _squishController.forward(from: 0);
+  }
+
+  void _alTocar() {
+    _aplastar();
     widget.onToque?.call();
   }
+
+  void _alReaccionar() => _aplastar();
 
   /// De [0,1] a [-1,1] con entrada y salida suaves, que es lo que convierte
   /// un vaivén lineal en algo que parece vivo.

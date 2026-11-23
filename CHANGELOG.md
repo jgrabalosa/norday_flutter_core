@@ -13,6 +13,15 @@ está en `git log`.
   con Nori («Hay una versión nueva» / «Actualizar» y «Ahora no»). Una vez por
   versión recomendada; «Actualizar» abre Google Play. No obliga. Evento
   `version_recomendada` en Analytics. Textos en es, en y pt.
+- **Nori reacciona al comer** (T-051): al dar de comer con XP, Nori hace el
+  mismo gesto que al tocarla. `MascotaAnimadaViva` acepta `reaccion`
+  (`Listenable?`); con «reducir movimiento», no se mueve.
+
+### Cambiado
+
+- En la Mascota, «Alimentar» y «Tienda» suben justo debajo de Nori (nombre y
+  ánimo), antes del selector de fases: con el vestidor en medio, abajo
+  quedaban fuera de la pantalla.
 
 ## 0.61.0 — 22-nov-2026
 

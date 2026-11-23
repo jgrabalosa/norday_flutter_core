@@ -1,0 +1,215 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
+import 'package:norday_flutter_core/screens/mascota_screen.dart';
+import 'package:norday_flutter_core/services/api_service_core.dart';
+import 'package:norday_flutter_core/services/manifiesto_compartido.dart';
+import 'package:norday_flutter_core/theme/mascota_refresh.dart';
+import 'package:norday_flutter_core/theme/prendas.dart';
+import 'package:norday_flutter_core/widgets/burbuja_contexto.dart';
+import 'package:norday_flutter_core/widgets/mascota_animada_viva.dart';
+import 'package:norday_flutter_core/widgets/vestidor_nori.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _usuarioId = 7;
+
+/// El backend que la pantalla de la Mascota pide al cargarse y al comer. Las
+/// rutas son las de `ApiServiceCore`; el arte (`/arte/…`) responde 404, así que
+/// el manifiesto queda vacío y no sale nada de red.
+class _Backend {
+  /// La XP que devuelve dar de comer. Por defecto, la que da un consumible.
+  int xpGanada = 5;
+
+  /// Cada petición como `MÉTODO /ruta`, en orden.
+  final List<String> peticiones = [];
+
+  Future<http.Response> responder(http.Request r) async {
+    final ruta = r.url.toString().replaceFirst(ApiServiceCore.baseUrl, '');
+    peticiones.add('${r.method} $ruta');
+    if (ruta == '/mascota/$_usuarioId') {
+      return _json({
+        'nombre': 'Pepa',
+        'nivel': 2,
+        'xpEnNivelActual': 5,
+        'xpParaSiguienteNivel': 20,
+        'fase': 'CRIA',
+        'faseReal': 'CRIA',
+        'animo': 'feliz',
+      });
+    }
+    if (ruta == '/gamificacion/productos/usuario/$_usuarioId') {
+      return _json([
+        {
+          'cantidad': 3,
+          'producto': {
+            'productoId': 1,
+            'codigo': 'COMIDA_BASICA',
+            'nombre': 'Comida',
+            'categoria': 'Consumible',
+          },
+        },
+        {
+          'cantidad': 1,
+          'producto': {
+            'productoId': 10,
+            'codigo': 'PRENDA_GORRO_LANA',
+            'nombre': 'Gorro de lana',
+            'categoria': 'Cabeza',
+          },
+        },
+      ]);
+    }
+    if (ruta == '/gamificacion/productos/usar/$_usuarioId/1') {
+      return _json({
+        'codigoConsumido': 'COMIDA_BASICA',
+        'subioNivel': false,
+        'nivelNuevo': 0,
+        'xpGanada': xpGanada,
+      });
+    }
+    return http.Response('', 404);
+  }
+
+  static http.Response _json(Object cuerpo) => http.Response(
+    jsonEncode(cuerpo),
+    200,
+    headers: {'content-type': 'application/json; charset=utf-8'},
+  );
+}
+
+/// La pantalla de la Mascota (MascotaScreen), montada entera contra un backend
+/// falso.
+///
+/// Sin seam nuevo: `ApiServiceCore.cliente` es un `static final` que se crea
+/// la primera vez que se lee, así que este fichero lo crea dentro de
+/// `http.runWithClient` con un cliente falso (como `mini_mascota_fase_test.dart`).
+/// Por eso vive solo: en otro fichero el cliente ya podría estar creado.
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
+
+  late _Backend backend;
+  final falso = MockClient((peticion) => backend.responder(peticion));
+  http.runWithClient(() => ApiServiceCore.cliente, () => falso);
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({'token': 'tok'});
+    aplicarPrendasEquipadas(const {});
+    backend = _Backend();
+  });
+
+  tearDown(() {
+    aplicarPrendasEquipadas(const {});
+    faseMascotaNotifier.value = null;
+    reiniciarManifiestoParaTest();
+  });
+
+  /// Deja acabar las cargas (con respuestas inmediatas) y la transición de la
+  /// ilustración. No `pumpAndSettle`: Nori respira en bucle.
+  Future<void> asentar(WidgetTester tester) async {
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  /// Monta la pantalla en 520 × 900: la fuente de los tests da a cada letra un
+  /// ancho de 1 em, y en 400 la fila de Alimentar y Tienda desborda aunque en
+  /// un móvil de verdad quepa. Las animaciones van apagadas: el aviso de
+  /// reacción se cuenta igual, porque no depende de moverse.
+  Future<void> montar(WidgetTester tester, {GlobalKey? ancla}) async {
+    await tester.binding.setSurfaceSize(const Size(520, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: NordayCoreLocalizations.localizationsDelegates,
+        supportedLocales: NordayCoreLocalizations.supportedLocales,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(disableAnimations: true),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: MascotaScreen(
+            usuarioId: _usuarioId,
+            embebida: true,
+            anclaAlimentar: ancla,
+          ),
+        ),
+      ),
+    );
+    await asentar(tester);
+  }
+
+  testWidgets('el botón de alimentar queda debajo de Nori y por encima del '
+      'vestidor', (tester) async {
+    final ancla = GlobalKey();
+    await montar(tester, ancla: ancla);
+
+    final alimentar = tester.getTopLeft(find.byKey(ancla)).dy;
+    expect(
+      alimentar,
+      greaterThan(tester.getBottomLeft(find.byType(BurbujaContexto)).dy),
+    );
+    expect(
+      alimentar,
+      lessThan(tester.getTopLeft(find.byType(VestidorNori)).dy),
+    );
+  });
+
+  testWidgets('al dar de comer con XP, Nori recibe la reacción una vez', (
+    tester,
+  ) async {
+    final ancla = GlobalKey();
+    await montar(tester, ancla: ancla);
+
+    var reacciones = 0;
+    tester
+        .widget<MascotaAnimadaViva>(find.byType(MascotaAnimadaViva))
+        .reaccion!
+        .addListener(() {
+          reacciones++;
+        });
+
+    await tester.tap(find.byKey(ancla));
+    await asentar(tester);
+    // Lo que dura el «+XP» flotante, para que no quede nada pendiente.
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(
+      backend.peticiones,
+      contains('POST /gamificacion/productos/usar/7/1'),
+    );
+    expect(reacciones, 1);
+  });
+
+  testWidgets('sin XP, Nori no reacciona', (tester) async {
+    backend.xpGanada = 0;
+    final ancla = GlobalKey();
+    await montar(tester, ancla: ancla);
+
+    var reacciones = 0;
+    tester
+        .widget<MascotaAnimadaViva>(find.byType(MascotaAnimadaViva))
+        .reaccion!
+        .addListener(() {
+          reacciones++;
+        });
+
+    await tester.tap(find.byKey(ancla));
+    await asentar(tester);
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(
+      backend.peticiones,
+      contains('POST /gamificacion/productos/usar/7/1'),
+    );
+    expect(reacciones, 0);
+  });
+}
