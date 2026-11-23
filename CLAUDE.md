@@ -133,6 +133,24 @@ crudo.
   `max(0.0, …)` antes de usarlo en `clamp`, divisor o `width`/`height`
   (detalle en `flutter-y-tests.md`).
 
+## Ayudas y pistas
+
+- **`AyudaCampo.alSaberMas`** (`VoidCallback?`): con él, la nota lleva
+  «Saber más →»; tocarla cierra la nota y llama al callback. Sin él, igual que
+  siempre. Qué abre lo decide la app.
+- **`escribirANorday({direccion, asunto})`** (`services/escribir_a_norday.dart`):
+  abre un `mailto:` con el cuerpo «dos líneas en blanco + app, versión y
+  sistema». La dirección la pone la app (el core no conoce ninguna). Devuelve
+  `false` si no hay app de correo y nunca lanza. Seams de test: `infoAppCorreo`,
+  `sistemaCorreo`, `lanzarCorreo` y `correoANorday` (construye el `Uri`).
+- **Pistas de la primera vez**: una marca booleana en `SharedPreferences`, que
+  se guarda **al mostrar** la pista (no al cerrarla: salir sin tocarla no la
+  repite) y sólo con la pantalla cargada, no con error. Se registra con
+  `AnalyticsCore.pistaVista(id)` (evento `pista_vista`, parámetro `pista`). La
+  de la tienda: clave `TiendaScreen.clavePistaVista` (`pista_vista_tienda`),
+  `BurbujaContexto` junto al saldo, id `tienda`. Los tests la preparan con
+  `SharedPreferences.setMockInitialValues`.
+
 ## Formato del código
 
 Todo el código Dart va formateado con `dart format`. Antes de cada commit que
