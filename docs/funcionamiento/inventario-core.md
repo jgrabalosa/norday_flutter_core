@@ -51,7 +51,7 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 46 ficheros:
+- `widgets/` — 48 ficheros:
   - versión recomendada (1): `TarjetaVersionRecomendada` (Nori, título, texto
     y «Actualizar» / «Ahora no», sobre `SuperficieIdentidad`; la enseña
     `AvisoActualizacion` en un diálogo, T-061b);
@@ -59,6 +59,11 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
     quieta y en su estado final (constelación encendida, ramo atado o letrero
     encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
     postal del cierre (T-043, en la app);
+  - postal de Nori (1): `TarjetaNori` y `DatosNori`
+    (`widgets/tarjeta_nori.dart`): la postal de 360 × 450 para compartir a
+    Nori, con Nori siempre contenta; la marca llega por parámetro o por
+    `TextosApp`. `DatosNori` (fase, nombre, nivel) es lo que recibe
+    `MascotaScreen.alCompartir` (T-063a). Ver `tarjeta-nori.md`;
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta
     `NoriVestida` dentro de la misma animación; con `reaccion`, un
     `Listenable` cuyo aviso lanza el gesto del toque sin ser un toque: la
