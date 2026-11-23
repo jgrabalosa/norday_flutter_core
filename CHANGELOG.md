@@ -3,7 +3,7 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
-## Sin publicar
+## 0.62.0 — 23-nov-2026
 
 ### Nuevo
 
@@ -16,7 +16,6 @@ está en `git log`.
 - **Nori reacciona al comer** (T-051): al dar de comer con XP, Nori hace el
   mismo gesto que al tocarla. `MascotaAnimadaViva` acepta `reaccion`
   (`Listenable?`); con «reducir movimiento», no se mueve.
-
 - **«Saber más», correo y pista de la tienda** (T-052): `AyudaCampo` acepta
   `alSaberMas`; con él, la nota lleva «Saber más →», que la cierra y abre la
   explicación larga. `escribirANorday(direccion, asunto)` abre el correo con la
