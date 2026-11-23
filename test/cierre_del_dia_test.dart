@@ -272,11 +272,12 @@ void main() {
 
   /// El nodo de la ceremonia de Dulce: lleva el nombre del ramo de 3.
   Finder nodoRamo() => find.byWidgetPredicate(
-    (w) => w is Semantics && (w.properties.label ?? '').contains('Ramillete'),
+    (w) =>
+        w is Semantics && (w.properties.label ?? '').contains('Un ramillete'),
   );
 
   SemanticsFinder nodoRamoSemantico() =>
-      find.semantics.byPredicate((n) => n.label.contains('Ramillete'));
+      find.semantics.byPredicate((n) => n.label.contains('Un ramillete'));
 
   testWidgets('en Dulce, la ceremonia pinta el ramo sobre un velo crema', (
     tester,
@@ -324,7 +325,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1000));
       expect(
         tester.widget<Semantics>(nodoRamo()).properties.label,
-        contains('Ramillete'),
+        contains('Un ramillete'),
       );
 
       // El ramo tarda duracionRamoCierre (1900 ms: velo, coloreado y atado) y los

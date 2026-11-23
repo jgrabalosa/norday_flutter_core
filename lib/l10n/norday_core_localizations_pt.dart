@@ -789,22 +789,22 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   String get ramoDetalle => 'Um mimo';
 
   @override
-  String get ramoRamillete => 'Raminho';
+  String get ramoRamillete => 'Um raminho';
 
   @override
-  String get ramoCampo => 'Ramo campestre';
+  String get ramoCampo => 'Flores para ti';
 
   @override
-  String get ramoPrimavera => 'Ramo de primavera';
+  String get ramoPrimavera => 'Um ramo sorridente';
 
   @override
-  String get ramoJardin => 'Ramo de jardim';
+  String get ramoJardin => 'Jardim em flor';
 
   @override
-  String get ramoFiesta => 'Ramo de festa';
+  String get ramoFiesta => 'Ramo de sonho';
 
   @override
-  String get ramoGrande => 'Grande ramo';
+  String get ramoGrande => 'O ramo mais bonito';
 
   @override
   String get letreroLuna => 'A lua';
