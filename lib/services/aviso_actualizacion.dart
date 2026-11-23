@@ -6,15 +6,21 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/norday_core_localizations.dart';
+import '../screens/actualizacion_obligatoria_screen.dart';
+import '../theme/app_theme.dart';
+import '../widgets/tarjeta_version_recomendada.dart';
 import 'analytics_service.dart';
+import 'api_service_core.dart';
+import 'version_minima_service.dart';
 
 /// Motor: avisa de que hay una versión nueva, sin obligar a nada.
 ///
 /// Usa el modo flexible de Google Play: la descarga va por detrás mientras se
 /// usa la app y, al acabar, un `SnackBar` ofrece «Reiniciar». Obligar es cosa
 /// de la versión mínima del backend ([ActualizacionObligatoriaScreen]), no de
-/// aquí. Solo funciona en Android y con la app instalada desde Play; en
-/// cualquier otro caso [comprobar] no hace nada.
+/// aquí. El aviso de Play solo funciona en Android y con la app instalada desde
+/// Play; cuando no ofrece nada, [comprobar] mira la versión recomendada del
+/// backend y enseña [TarjetaVersionRecomendada] (T-061).
 ///
 /// Esta clase no sabe de ninguna app: quien la use decide cuándo llamarla
 /// (nunca durante el alta ni con otra tarjeta abierta).
@@ -53,31 +59,50 @@ class AvisoActualizacion {
   static Stream<InstallStatus> Function() estadoInstalacion = () =>
       InAppUpdate.installUpdateListener;
 
-  /// Mira si hay versión nueva y, como mucho una vez al día, la ofrece.
+  /// Clave de `SharedPreferences` con la última versión recomendada que ya se
+  /// ofreció en este móvil (el número). Una vez por versión recomendada.
+  static const claveRecomendadaOfrecida = 'version_recomendada_ofrecida';
+
+  /// Mira si hay versión nueva y, como mucho una vez al día, la ofrece. Si el
+  /// aviso de Play no ofrece nada en esta llamada, mira la versión
+  /// recomendada del backend ([_comprobarRecomendada]). Nunca los dos juntos.
   /// Nunca lanza.
   static Future<void> comprobar(BuildContext context) async {
-    if (!esAndroid()) return;
+    final ofrecioPlay = await _avisoDePlay(context);
+    if (ofrecioPlay) return;
+    if (!context.mounted) return;
+    await _comprobarRecomendada(context);
+  }
+
+  /// El aviso de Play de siempre. Devuelve `true` si en esta llamada ha
+  /// ofrecido o enseñado algo, o si hoy ya lo hizo (el corte diario cuenta
+  /// como «Play ya ha hablado hoy»: ese día no sale la tarjeta de Norday).
+  static Future<bool> _avisoDePlay(BuildContext context) async {
+    if (!esAndroid()) return false;
+    var ofrecio = false;
     StreamSubscription<InstallStatus>? suscripcion;
     try {
       final prefs = await SharedPreferences.getInstance();
       final hoy = _dia(ahora());
-      if (prefs.getString(claveDia) == hoy) return;
+      if (prefs.getString(claveDia) == hoy) return true;
 
       final info = await consultar();
 
       // Se bajó otro día y no se reinició: solo falta el aviso.
       if (info.installStatus == InstallStatus.downloaded) {
+        ofrecio = true;
         await prefs.setString(claveDia, hoy);
         await AnalyticsCore.avisoActualizacion('descargada');
         if (context.mounted) _mostrarAviso(context);
-        return;
+        return true;
       }
 
       if (info.updateAvailability != UpdateAvailability.updateAvailable ||
           !info.flexibleUpdateAllowed) {
-        return;
+        return false;
       }
 
+      ofrecio = true;
       await prefs.setString(claveDia, hoy);
       await AnalyticsCore.avisoActualizacion('ofrecida');
 
@@ -108,6 +133,61 @@ class AvisoActualizacion {
     } catch (e) {
       suscripcion?.cancel();
       debugPrint('Aviso de actualización: no se pudo: $e');
+    }
+    return ofrecio;
+  }
+
+  /// Si la instalada es menor que la `versionRecomendada` del backend y esa
+  /// no se ha ofrecido ya en este móvil, enseña la tarjeta. Nunca lanza.
+  static Future<void> _comprobarRecomendada(BuildContext context) async {
+    try {
+      final appId = ApiServiceCore.appId;
+      if (appId.isEmpty) return;
+      final recomendada = await VersionMinimaService.recomendada(appId);
+      if (recomendada == null) return;
+      final instalada = await VersionMinimaService.instalada();
+      if (instalada >= recomendada) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      final ofrecida = prefs.getInt(claveRecomendadaOfrecida);
+      if (ofrecida != null && ofrecida >= recomendada) return;
+      if (!context.mounted) return;
+
+      await prefs.setInt(claveRecomendadaOfrecida, recomendada);
+      await AnalyticsCore.versionRecomendada('ofrecida');
+      if (!context.mounted) return;
+
+      // Sin esperar: [comprobar] termina al enseñarla, no al cerrarla.
+      unawaited(_enseniarTarjeta(context));
+    } catch (e) {
+      debugPrint('Versión recomendada: no se pudo: $e');
+    }
+  }
+
+  /// El diálogo con la tarjeta y lo que pasa al cerrarlo. Nunca lanza.
+  static Future<void> _enseniarTarjeta(BuildContext context) async {
+    try {
+      final actualizar = await showDialog<bool>(
+        context: context,
+        builder: (c) => Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.all(AppSpacing.lg),
+          child: TarjetaVersionRecomendada(
+            onActualizar: () => Navigator.of(c).pop(true),
+            onAhoraNo: () => Navigator.of(c).pop(false),
+          ),
+        ),
+      );
+      if (actualizar == true) {
+        await AnalyticsCore.versionRecomendada('actualizar');
+        await ActualizacionObligatoriaScreen.abrirActualizacion();
+      } else {
+        // «Ahora no» o tocar fuera: lo mismo.
+        await AnalyticsCore.versionRecomendada('ahora_no');
+      }
+    } catch (e) {
+      debugPrint('Versión recomendada: no se pudo: $e');
     }
   }
 

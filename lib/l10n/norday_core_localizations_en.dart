@@ -844,6 +844,19 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get avisoActualizacionReiniciar => 'Restart';
 
   @override
+  String get versionRecomendadaTitulo => 'There\'s a new version';
+
+  @override
+  String get versionRecomendadaTexto =>
+      'It brings improvements for you and Nori. It updates in a moment from Google Play.';
+
+  @override
+  String get versionRecomendadaActualizar => 'Update';
+
+  @override
+  String get versionRecomendadaAhoraNo => 'Not now';
+
+  @override
   String get sesionAvisoSalir => 'If you leave the app, you lose the session';
 
   @override

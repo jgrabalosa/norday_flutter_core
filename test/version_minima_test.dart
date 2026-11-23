@@ -22,6 +22,8 @@ void main() {
 
   // La petición de verdad, antes de que setUp la sustituya.
   final pedirAlBackend = VersionMinimaService.pedirVersionMinima;
+  final pedirRecomendadaAlBackend =
+      VersionMinimaService.pedirVersionRecomendada;
 
   late List<String> preguntadas;
 
@@ -260,6 +262,32 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.text('Hay una versión nueva'), findsOneWidget);
+    });
+  });
+
+  group('versionRecomendada del backend', () {
+    setUp(() {
+      VersionMinimaService.pedirVersionRecomendada = pedirRecomendadaAlBackend;
+    });
+
+    Future<int?> pedir(String cuerpo) {
+      responder = (_) async => http.Response(cuerpo, 200);
+      return VersionMinimaService.recomendada('habitos');
+    }
+
+    test('con número, lo devuelve', () async {
+      expect(await pedir('{"versionMinima":3,"versionRecomendada":7}'), 7);
+    });
+
+    test('null explícito: null', () async {
+      expect(
+        await pedir('{"versionMinima":3,"versionRecomendada":null}'),
+        isNull,
+      );
+    });
+
+    test('sin la clave (backend viejo): null', () async {
+      expect(await pedir('{"versionMinima":3}'), isNull);
     });
   });
 }

@@ -491,6 +491,22 @@
   "@avisoActualizacionReiniciar": {
     "description": "Aviso de versión nueva descargada (SnackBar): acción que instala y reabre la app"
   },
+  "versionRecomendadaTitulo": "Hay una versión nueva",
+  "@versionRecomendadaTitulo": {
+    "description": "Tarjeta de versión recomendada: título"
+  },
+  "versionRecomendadaTexto": "Trae mejoras para ti y para Nori. Se actualiza en un momento desde Google Play.",
+  "@versionRecomendadaTexto": {
+    "description": "Tarjeta de versión recomendada: texto"
+  },
+  "versionRecomendadaActualizar": "Actualizar",
+  "@versionRecomendadaActualizar": {
+    "description": "Tarjeta de versión recomendada: botón que abre Google Play"
+  },
+  "versionRecomendadaAhoraNo": "Ahora no",
+  "@versionRecomendadaAhoraNo": {
+    "description": "Tarjeta de versión recomendada: botón que la cierra; no vuelve hasta la siguiente versión recomendada"
+  },
   "sesionAvisoSalir": "Si sales de la app, pierdes la sesión",
   "@sesionAvisoSalir": {
     "description": "Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión"

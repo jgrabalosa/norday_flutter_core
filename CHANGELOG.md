@@ -7,6 +7,12 @@ está en `git log`.
 
 ### Nuevo
 
+- **Versión recomendada** (T-061b): cuando el aviso de Play no ofrece nada,
+  `AvisoActualizacion.comprobar` mira `versionRecomendada` en
+  `/version/{appId}` y, si la instalada es menor, enseña una tarjeta de Norday
+  con Nori («Hay una versión nueva» / «Actualizar» y «Ahora no»). Una vez por
+  versión recomendada; «Actualizar» abre Google Play. No obliga. Evento
+  `version_recomendada` en Analytics. Textos en es, en y pt.
 - **Nori reacciona al comer** (T-051): al dar de comer con XP, Nori hace el
   mismo gesto que al tocarla. `MascotaAnimadaViva` acepta `reaccion`
   (`Listenable?`); con «reducir movimiento», no se mueve.

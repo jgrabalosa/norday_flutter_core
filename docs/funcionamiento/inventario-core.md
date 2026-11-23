@@ -51,7 +51,10 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
 - `models/` — `usuario.dart`, `manifiesto_arte.dart` y `precio_tienda.dart`
   (`precioEnTienda`: el precio de hoy de un producto según sus `ofertas`, y
   `esPrenda`).
-- `widgets/` — 45 ficheros:
+- `widgets/` — 46 ficheros:
+  - versión recomendada (1): `TarjetaVersionRecomendada` (Nori, título, texto
+    y «Actualizar» / «Ahora no», sobre `SuperficieIdentidad`; la enseña
+    `AvisoActualizacion` en un diálogo, T-061b);
   - figura del día (1): `FiguraDelDia`, la figura de la identidad equipada
     quieta y en su estado final (constelación encendida, ramo atado o letrero
     encendido), a un `tamano` dado, sin animación ni red. Es lo que pinta la
