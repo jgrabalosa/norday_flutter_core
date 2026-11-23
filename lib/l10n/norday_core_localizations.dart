@@ -1528,43 +1528,43 @@ abstract class NordayCoreLocalizations {
   /// No description provided for @ramoDetalle.
   ///
   /// In es, this message translates to:
-  /// **'Un detalle'**
+  /// **'Un mimo'**
   String get ramoDetalle;
 
   /// No description provided for @ramoRamillete.
   ///
   /// In es, this message translates to:
-  /// **'Ramillete'**
+  /// **'Un ramillete'**
   String get ramoRamillete;
 
   /// No description provided for @ramoCampo.
   ///
   /// In es, this message translates to:
-  /// **'Ramo de campo'**
+  /// **'Flores para ti'**
   String get ramoCampo;
 
   /// No description provided for @ramoPrimavera.
   ///
   /// In es, this message translates to:
-  /// **'Ramo de primavera'**
+  /// **'Un ramo que sonríe'**
   String get ramoPrimavera;
 
   /// No description provided for @ramoJardin.
   ///
   /// In es, this message translates to:
-  /// **'Ramo de jardín'**
+  /// **'Jardín en flor'**
   String get ramoJardin;
 
   /// No description provided for @ramoFiesta.
   ///
   /// In es, this message translates to:
-  /// **'Ramo de fiesta'**
+  /// **'Ramo de ensueño'**
   String get ramoFiesta;
 
   /// No description provided for @ramoGrande.
   ///
   /// In es, this message translates to:
-  /// **'Gran ramo'**
+  /// **'El ramo más bonito'**
   String get ramoGrande;
 
   /// No description provided for @letreroLuna.

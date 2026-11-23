@@ -23,11 +23,48 @@ void main() {
     expect(r2(), closeTo(0.90104172583717934, 1e-15));
   });
 
-  test('nombreRamo', () async {
-    final l = await NordayCoreLocalizations.delegate.load(const Locale('es'));
-    expect(nombreRamo(l, 1), 'Una rosa');
-    expect(nombreRamo(l, 8), 'Gran ramo');
-    expect(nombreRamo(l, 12), 'Gran ramo');
+  // Los nombres de Dulce, de Quim (23-nov-2026): más dulces y sin cinco
+  // «Ramo de…» seguidos. Uno por número de hábitos; de 8 en adelante, el 8.
+  test('nombreRamo, en los tres idiomas', () async {
+    const esperados = {
+      'es': [
+        'Una rosa',
+        'Un mimo',
+        'Un ramillete',
+        'Flores para ti',
+        'Un ramo que sonríe',
+        'Jardín en flor',
+        'Ramo de ensueño',
+        'El ramo más bonito',
+      ],
+      'en': [
+        'A rose',
+        'A little treat',
+        'A posy',
+        'Flowers for you',
+        'A smiling bouquet',
+        'Garden in bloom',
+        'Dreamy bouquet',
+        'The loveliest bouquet',
+      ],
+      'pt': [
+        'Uma rosa',
+        'Um mimo',
+        'Um raminho',
+        'Flores para ti',
+        'Um ramo sorridente',
+        'Jardim em flor',
+        'Ramo de sonho',
+        'O ramo mais bonito',
+      ],
+    };
+    for (final MapEntry(key: idioma, value: nombres) in esperados.entries) {
+      final l = await NordayCoreLocalizations.delegate.load(Locale(idioma));
+      for (var total = 1; total <= 8; total++) {
+        expect(nombreRamo(l, total), nombres[total - 1], reason: idioma);
+      }
+      expect(nombreRamo(l, 12), nombres[7], reason: idioma);
+    }
   });
 
   testWidgets(

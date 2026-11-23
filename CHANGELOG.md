@@ -3,6 +3,15 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambios
+
+- **Los nombres del ramo de Dulce, más dulces** (Quim, 23-nov): Una rosa ·
+  Un mimo · Un ramillete · Flores para ti · Un ramo que sonríe · Jardín en
+  flor · Ramo de ensueño · El ramo más bonito, también en inglés y portugués.
+  Sin cinco «Ramo de…» seguidos.
+
 ## 0.62.0 — 23-nov-2026
 
 ### Nuevo

@@ -778,25 +778,25 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get ramoUnaRosa => 'A rose';
 
   @override
-  String get ramoDetalle => 'A little something';
+  String get ramoDetalle => 'A little treat';
 
   @override
-  String get ramoRamillete => 'Posy';
+  String get ramoRamillete => 'A posy';
 
   @override
-  String get ramoCampo => 'Wildflower bouquet';
+  String get ramoCampo => 'Flowers for you';
 
   @override
-  String get ramoPrimavera => 'Spring bouquet';
+  String get ramoPrimavera => 'A smiling bouquet';
 
   @override
-  String get ramoJardin => 'Garden bouquet';
+  String get ramoJardin => 'Garden in bloom';
 
   @override
-  String get ramoFiesta => 'Celebration bouquet';
+  String get ramoFiesta => 'Dreamy bouquet';
 
   @override
-  String get ramoGrande => 'Grand bouquet';
+  String get ramoGrande => 'The loveliest bouquet';
 
   @override
   String get letreroLuna => 'The moon';

@@ -1782,7 +1782,9 @@ class _PintorRamo extends CustomPainter {
       anterior.boceto != boceto;
 }
 
-/// El nombre del ramo de [total] hábitos, en el idioma activo. De 8 en adelante, «Gran ramo».
+/// El nombre del ramo de [total] hábitos, en el idioma activo. De 8 en
+/// adelante, el de 8 («El ramo más bonito»). Los nombres son de Quim
+/// (23-nov-2026); las claves conservan los nombres viejos (`ramoCampo`…).
 String nombreRamo(NordayCoreLocalizations l, int total) =>
     switch (total.clamp(1, 8)) {
       1 => l.ramoUnaRosa,
