@@ -86,6 +86,11 @@ class _MascotaScreenState extends State<MascotaScreen> {
   int _comidaCantidad = 0;
   bool _alimentando = false;
 
+  /// Nori reacciona al comer: cada vez que se da de comer con XP se suma uno y
+  /// `MascotaAnimadaViva` lanza su gesto. Contador, como `refrescoMascotaNotifier`,
+  /// para que cada aviso sea un cambio.
+  final ValueNotifier<int> _reaccion = ValueNotifier(0);
+
   /// El inventario entero, tal cual llega: de él salen la comida y el
   /// vestidor (las prendas son tuyas aunque ya no se vendan, así que nunca se
   /// buscan en el catálogo).
@@ -102,6 +107,12 @@ class _MascotaScreenState extends State<MascotaScreen> {
     super.didUpdateWidget(anterior);
     // Al volver a la pestaña, no al salir de ella.
     if (!anterior.activa && widget.activa) _cargarDatos();
+  }
+
+  @override
+  void dispose() {
+    _reaccion.dispose();
+    super.dispose();
   }
 
   /// El manifiesto del arte (la nieve y las prendas) es uno para toda la app
@@ -187,6 +198,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
       final xp = resultado['xpGanada'] as int? ?? 0;
       if (xp > 0) {
         AnimacionPuntos.mostrar(context, xp, simbolo: 'XP');
+        // Nori reacciona con el mismo gesto que al tocarla. Sólo con XP, como
+        // el «+XP»: un consumible que no da XP no la anima.
+        _reaccion.value++;
       }
       if (resultado['subioNivel'] == true) {
         // El nivel nuevo lo manda el backend en la misma respuesta. Se usa ése
@@ -447,6 +461,7 @@ class _MascotaScreenState extends State<MascotaScreen> {
               estado: _estado,
               tamano: lado,
               permiteToque: true,
+              reaccion: _reaccion,
               vestida: true,
             ),
           ),
@@ -537,45 +552,9 @@ class _MascotaScreenState extends State<MascotaScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _selectorFases(context),
-                      // Sin prendas no pinta nada, ni el hueco de arriba.
-                      VestidorNori(
-                        usuarioId: widget.usuarioId,
-                        inventario: _inventario,
-                        fase: _fase,
-                      ),
-                      const SizedBox(height: 20),
-                      // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
-                      // de competir con ella por la atención.
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l.mascotaNivel(_nivel),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(color: t.text),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                l.mascotaXp(
-                                  _xpEnNivelActual,
-                                  _xpParaSiguienteNivel,
-                                ),
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: t.textMuted),
-                              ),
-                              ?widget.ayudaXp,
-                            ],
-                          ),
-                        ],
-                      ),
-                      // El progreso ya no va aquí: es el aro que rodea a la
-                      // mascota. Lo que queda es la lectura exacta, que el
-                      // aro no da.
-                      const SizedBox(height: 24),
+                      // Alimentar y la tienda van justo debajo de Nori, no al
+                      // final: con el vestidor en medio, abajo quedaban fuera
+                      // de la pantalla en un móvil normal.
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -613,6 +592,44 @@ class _MascotaScreenState extends State<MascotaScreen> {
                             },
                             icon: const Icon(LucideIcons.store, size: 18),
                             label: Text(l.tiendaTitulo),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _selectorFases(context),
+                      // Sin prendas no pinta nada, ni el hueco de arriba.
+                      VestidorNori(
+                        usuarioId: widget.usuarioId,
+                        inventario: _inventario,
+                        fase: _fase,
+                      ),
+                      const SizedBox(height: 20),
+                      // Progreso desnudo, sin tarjeta: acompaña a Nori en vez
+                      // de competir con ella por la atención. El progreso ya
+                      // no va aquí: es el aro que rodea a la mascota. Lo que
+                      // queda es la lectura exacta, que el aro no da.
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l.mascotaNivel(_nivel),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(color: t.text),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.mascotaXp(
+                                  _xpEnNivelActual,
+                                  _xpParaSiguienteNivel,
+                                ),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: t.textMuted),
+                              ),
+                              ?widget.ayudaXp,
+                            ],
                           ),
                         ],
                       ),

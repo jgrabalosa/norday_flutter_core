@@ -3,6 +3,20 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Nuevo
+
+- **Nori reacciona al comer** (T-051): al dar de comer con XP, Nori hace el
+  mismo gesto que al tocarla. `MascotaAnimadaViva` acepta `reaccion`
+  (`Listenable?`); con «reducir movimiento», no se mueve.
+
+### Cambiado
+
+- En la Mascota, «Alimentar» y «Tienda» suben justo debajo de Nori (nombre y
+  ánimo), antes del selector de fases: con el vestidor en medio, abajo
+  quedaban fuera de la pantalla.
+
 ## 0.61.0 — 22-nov-2026
 
 ### Nuevo
