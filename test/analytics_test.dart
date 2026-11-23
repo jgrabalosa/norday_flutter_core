@@ -28,6 +28,23 @@ void main() {
     await expectLater(AnalyticsCore.ayudaAbierta('tienda'), completes);
   });
 
+  test('pistaVista manda pista_vista con la pista', () async {
+    final enviados = <(String, Map<String, Object>)>[];
+    final original = AnalyticsCore.enviarEvento;
+    addTearDown(() => AnalyticsCore.enviarEvento = original);
+    AnalyticsCore.enviarEvento = (n, p) async => enviados.add((n, p));
+
+    await AnalyticsCore.pistaVista('tienda');
+
+    expect(enviados, hasLength(1));
+    expect(enviados.single.$1, 'pista_vista');
+    expect(enviados.single.$2, {'pista': 'tienda'});
+  });
+
+  test('pistaVista no lanza aunque Firebase falle', () async {
+    await expectLater(AnalyticsCore.pistaVista('tienda'), completes);
+  });
+
   test('avisoActualizacion manda aviso_actualizacion con el paso', () async {
     final enviados = <(String, Map<String, Object>)>[];
     final original = AnalyticsCore.enviarEvento;

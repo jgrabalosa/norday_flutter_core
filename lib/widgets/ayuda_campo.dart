@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../l10n/norday_core_localizations.dart';
 import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
 import 'burbuja_contexto.dart';
@@ -42,12 +43,18 @@ class AyudaCampo extends StatefulWidget {
   /// él no se registra nada. Solo cuenta al abrir, no al cerrar.
   final String? id;
 
+  /// Enlaza la nota con una explicación más larga. Con él, la nota lleva
+  /// debajo del texto «Saber más →»; tocarla cierra la nota y llama a esto.
+  /// Tocar el resto sigue cerrando. Sin él, la nota es sólo el texto.
+  final VoidCallback? alSaberMas;
+
   const AyudaCampo({
     super.key,
     required this.texto,
     required this.etiquetaSemantica,
     this.superindice = false,
     this.id,
+    this.alSaberMas,
   });
 
   @override
@@ -137,6 +144,31 @@ class _AyudaCampoState extends State<AyudaCampo>
     }
   }
 
+  /// «Saber más →», debajo de la nota. Cierra la nota y llama a
+  /// [AyudaCampo.alSaberMas] sin esperar al cierre: si el callback navega, el
+  /// widget puede desmontarse a mitad de la animación.
+  Widget _saberMas(BuildContext context) {
+    final t = tokens(context);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _cerrar();
+        widget.alSaberMas?.call();
+      },
+      child: Padding(
+        // 8 arriba y abajo: zona de toque cómoda sin separar la línea de la
+        // nota.
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Text(
+          NordayCoreLocalizations.of(context)!.ayudaSaberMas,
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: t.successText),
+        ),
+      ),
+    );
+  }
+
   Widget _nota(BuildContext context) {
     final icono = _icono;
     final area = _areaOverlay;
@@ -181,7 +213,13 @@ class _AyudaCampoState extends State<AyudaCampo>
               child: ScaleTransition(
                 scale: _escala,
                 alignment: origen,
-                child: BurbujaContexto(texto: widget.texto),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    BurbujaContexto(texto: widget.texto),
+                    if (widget.alSaberMas != null) _saberMas(context),
+                  ],
+                ),
               ),
             ),
           ),
