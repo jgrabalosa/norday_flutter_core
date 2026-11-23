@@ -46,7 +46,8 @@ apertura. Con `appId` vacío no pregunta.
 - **Corte diario de Play.** Si hoy ya se ofreció o enseñó el aviso de Play
   (`aviso_actualizacion_dia`), `comprobar` lo cuenta como «Play ya ha hablado»:
   ese día tampoco sale la tarjeta, ni se pregunta al backend. Play ya habló de
-  esa versión hoy y la tarjeta repetiría el mismo mensaje.
+  esa versión hoy y la tarjeta repetiría el mismo mensaje. Aceptado por
+  Quim el 23-nov-2026.
 - **Sale si** la instalada es menor que la recomendada y esa recomendada no se
   ha ofrecido ya en este móvil: `SharedPreferences`, clave
   `version_recomendada_ofrecida`, con el número. Se guarda al enseñarla, así
@@ -55,7 +56,11 @@ apertura. Con `appId` vacío no pregunta.
 - **La tarjeta** (`TarjetaVersionRecomendada`) va en un diálogo, sin bloquear a
   quien llama: `comprobar` termina al enseñarla. «Actualizar» abre Play por
   `ActualizacionObligatoriaScreen.abrirActualizacion()` (el mismo seam
-  `actualizar`, que en la app de prueba no hace nada).
+  `actualizar`). En la app de prueba, la actualización dentro de la app
+  falla (no se instaló desde Play) y se abre la ficha de Play de su paquete,
+  `com.norday.habitos.prueba`, que no existe. Igual en la pantalla de
+  versión obligatoria. Aceptado por Quim el 23-nov-2026: no rompe nada y
+  solo la usa él.
 - Nunca lanza: un fallo del backend, de la versión instalada o del diálogo se
   deja en el log y no sale nada.
 
