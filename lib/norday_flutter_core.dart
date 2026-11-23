@@ -81,6 +81,7 @@ export 'widgets/selector_preferencias.dart';
 export 'widgets/skeleton.dart';
 export 'widgets/splash_generico.dart';
 export 'widgets/superficie_identidad.dart';
+export 'widgets/tarjeta_version_recomendada.dart';
 export 'widgets/terrario_identidad.dart';
 export 'widgets/valoracion_sheet.dart';
 export 'widgets/wordmark_identidad.dart';

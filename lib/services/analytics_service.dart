@@ -47,6 +47,16 @@ class AnalyticsCore {
     }
   }
 
+  /// Un paso de la tarjeta de versión recomendada: [paso] es `ofrecida`,
+  /// `actualizar` o `ahora_no`.
+  static Future<void> versionRecomendada(String paso) async {
+    try {
+      await enviarEvento('version_recomendada', {'paso': paso});
+    } catch (e) {
+      debugPrint('Analytics: no se registró version_recomendada: $e');
+    }
+  }
+
   static Future<void> registro(int usuarioId) async {
     try {
       await analytics.setUserId(id: usuarioId.toString());

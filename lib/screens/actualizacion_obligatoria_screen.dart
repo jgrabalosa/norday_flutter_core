@@ -18,6 +18,10 @@ class ActualizacionObligatoriaScreen extends StatelessWidget {
   @visibleForTesting
   static Future<void> Function() actualizar = _actualizarDesdePlay;
 
+  /// Abre la actualización, por el seam [actualizar]. Para quien la lanza sin
+  /// ser esta pantalla (la tarjeta de versión recomendada).
+  static Future<void> abrirActualizacion() => actualizar();
+
   static Future<void> _actualizarDesdePlay() async {
     try {
       final info = await InAppUpdate.checkForUpdate();

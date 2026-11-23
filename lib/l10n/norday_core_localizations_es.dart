@@ -855,6 +855,19 @@ class NordayCoreLocalizationsEs extends NordayCoreLocalizations {
   String get avisoActualizacionReiniciar => 'Reiniciar';
 
   @override
+  String get versionRecomendadaTitulo => 'Hay una versión nueva';
+
+  @override
+  String get versionRecomendadaTexto =>
+      'Trae mejoras para ti y para Nori. Se actualiza en un momento desde Google Play.';
+
+  @override
+  String get versionRecomendadaActualizar => 'Actualizar';
+
+  @override
+  String get versionRecomendadaAhoraNo => 'Ahora no';
+
+  @override
   String get sesionAvisoSalir => 'Si sales de la app, pierdes la sesión';
 
   @override

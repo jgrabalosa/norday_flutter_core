@@ -1651,6 +1651,30 @@ abstract class NordayCoreLocalizations {
   /// **'Reiniciar'**
   String get avisoActualizacionReiniciar;
 
+  /// Tarjeta de versión recomendada: título
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una versión nueva'**
+  String get versionRecomendadaTitulo;
+
+  /// Tarjeta de versión recomendada: texto
+  ///
+  /// In es, this message translates to:
+  /// **'Trae mejoras para ti y para Nori. Se actualiza en un momento desde Google Play.'**
+  String get versionRecomendadaTexto;
+
+  /// Tarjeta de versión recomendada: botón que abre Google Play
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar'**
+  String get versionRecomendadaActualizar;
+
+  /// Tarjeta de versión recomendada: botón que la cierra; no vuelve hasta la siguiente versión recomendada
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get versionRecomendadaAhoraNo;
+
   /// Sesión con bloqueo suave: aviso fijo en la pantalla de la sesión
   ///
   /// In es, this message translates to:
