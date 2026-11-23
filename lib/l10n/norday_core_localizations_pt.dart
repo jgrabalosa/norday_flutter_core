@@ -752,6 +752,13 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Gasta aqui os teus pontos: comida para o Nori, temas, roupa e mais.';
 
   @override
+  String get tiendaPista =>
+      'Aqui gastas os teus pontos. A comida dá experiência ao Nori.';
+
+  @override
+  String get ayudaSaberMas => 'Saber mais →';
+
+  @override
   String get constelacionPolar => 'Estrela Polar';
 
   @override

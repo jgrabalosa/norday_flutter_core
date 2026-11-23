@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/norday_core_localizations.dart';
 import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../models/precio_tienda.dart';
 import '../services/api_error.dart';
+import '../services/analytics_service.dart';
 import '../services/api_service_core.dart';
 import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
@@ -15,6 +19,7 @@ import '../theme/avatares.dart';
 import '../theme/equipamiento.dart';
 import '../theme/prendas.dart';
 import '../widgets/ayuda_campo.dart';
+import '../widgets/burbuja_contexto.dart';
 import '../widgets/fondo_identidad.dart';
 import '../widgets/nori_vestida.dart';
 import '../widgets/preview_identidad_tienda.dart';
@@ -40,6 +45,10 @@ class TiendaScreen extends StatefulWidget {
   @visibleForTesting
   static Future<List<String>> Function(int, int) comprar =
       ApiServiceCore.comprarProducto;
+
+  /// La marca en `SharedPreferences` de la pista de la primera vez. Los tests
+  /// la preparan con `SharedPreferences.setMockInitialValues`.
+  static const clavePistaVista = 'pista_vista_tienda';
 
   /// Seam de test: la fecha del móvil, con la que se elige la oferta vigente.
   @visibleForTesting
@@ -70,6 +79,13 @@ class _TiendaScreenState extends State<TiendaScreen> {
   /// fijo por prenda, para que `NoriVestida` no vuelva a pedir sus ficheros
   /// en cada repintado.
   final Map<String, ValueNotifier<Map<String, String>>> _soloPrenda = {};
+
+  /// La pista de la primera vez está a la vista.
+  bool _pistaVisible = false;
+
+  /// Ya se decidió si sale (una sola vez por apertura de la pantalla): las
+  /// recargas tras comprar o equipar no vuelven a preguntar.
+  bool _pistaDecidida = false;
 
   @override
   void dispose() {
@@ -125,10 +141,30 @@ class _TiendaScreenState extends State<TiendaScreen> {
         _inventario = mapaInventario;
         _loading = false;
       });
+      await _decidirPista();
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
       _mostrarError(e);
+    }
+  }
+
+  /// Sale si es la primera vez (no hay marca en `SharedPreferences`), y sólo
+  /// con la tienda cargada: con error no se llama. La marca se guarda al
+  /// mostrarla, no al cerrarla: si se sale sin tocarla, no se repite.
+  Future<void> _decidirPista() async {
+    if (_pistaDecidida) return;
+    _pistaDecidida = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(TiendaScreen.clavePistaVista) ?? false) return;
+      await prefs.setBool(TiendaScreen.clavePistaVista, true);
+      if (!mounted) return;
+      setState(() => _pistaVisible = true);
+      // Sin `await`: `pistaVista` no lanza y la tienda no espera a nadie.
+      unawaited(AnalyticsCore.pistaVista('tienda'));
+    } catch (e) {
+      debugPrint('Tienda: no se pudo decidir la pista: $e');
     }
   }
 
@@ -282,6 +318,13 @@ class _TiendaScreenState extends State<TiendaScreen> {
                             ],
                           ),
                         ),
+                        if (_pistaVisible) ...[
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => setState(() => _pistaVisible = false),
+                            child: BurbujaContexto(texto: l.tiendaPista),
+                          ),
+                        ],
                         ..._seccionNori(l, t),
                         const SizedBox(height: 16),
                         Text(

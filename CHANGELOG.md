@@ -17,6 +17,14 @@ está en `git log`.
   mismo gesto que al tocarla. `MascotaAnimadaViva` acepta `reaccion`
   (`Listenable?`); con «reducir movimiento», no se mueve.
 
+- **«Saber más», correo y pista de la tienda** (T-052): `AyudaCampo` acepta
+  `alSaberMas`; con él, la nota lleva «Saber más →», que la cierra y abre la
+  explicación larga. `escribirANorday(direccion, asunto)` abre el correo con la
+  app, su versión y el sistema en el cuerpo (`false` si no hay app de correo).
+  La primera vez que se abre la tienda sale una nota junto al saldo («Aquí
+  gastas tus puntos…»); se cierra tocando y no vuelve. Evento `pista_vista`
+  (parámetro `pista`). Textos en es, en y pt.
+
 ### Cambiado
 
 - En la Mascota, «Alimentar» y «Tienda» suben justo debajo de Nori (nombre y

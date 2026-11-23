@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations_en.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations_es.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations_pt.dart';
@@ -110,6 +111,75 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  group('Saber más', () {
+    Widget montarConL10n(Widget child) => MaterialApp(
+      localizationsDelegates: NordayCoreLocalizations.localizationsDelegates,
+      supportedLocales: NordayCoreLocalizations.supportedLocales,
+      locale: const Locale('es'),
+      theme: AppTheme.deTema(temaEquipadoNotifier.value),
+      home: Scaffold(body: Center(child: child)),
+    );
+
+    testWidgets('sin alSaberMas la nota no lo lleva', (tester) async {
+      await tester.pumpWidget(montarConL10n(ayuda()));
+      await tester.tap(find.byType(InkResponse));
+      await tester.pumpAndSettle();
+      expect(find.text('Explicación'), findsOneWidget);
+      expect(find.text('Saber más →'), findsNothing);
+    });
+
+    testWidgets('con alSaberMas sale, y tocarlo cierra y lo llama una vez', (
+      tester,
+    ) async {
+      var llamadas = 0;
+      await tester.pumpWidget(
+        montarConL10n(
+          AyudaCampo(
+            texto: 'Explicación',
+            etiquetaSemantica: 'Ayuda',
+            alSaberMas: () => llamadas++,
+          ),
+        ),
+      );
+      await tester.tap(find.byType(InkResponse));
+      await tester.pumpAndSettle();
+      expect(find.text('Saber más →'), findsOneWidget);
+
+      await tester.tap(find.text('Saber más →'));
+      await tester.pumpAndSettle();
+      expect(llamadas, 1);
+      expect(find.text('Explicación'), findsNothing);
+    });
+
+    testWidgets('tocar el texto cierra sin llamar a alSaberMas', (
+      tester,
+    ) async {
+      var llamadas = 0;
+      await tester.pumpWidget(
+        montarConL10n(
+          AyudaCampo(
+            texto: 'Explicación',
+            etiquetaSemantica: 'Ayuda',
+            alSaberMas: () => llamadas++,
+          ),
+        ),
+      );
+      await tester.tap(find.byType(InkResponse));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Explicación'));
+      await tester.pumpAndSettle();
+      expect(llamadas, 0);
+      expect(find.text('Explicación'), findsNothing);
+    });
+
+    test('el texto está en los tres idiomas', () {
+      expect(NordayCoreLocalizationsEs().ayudaSaberMas, 'Saber más →');
+      expect(NordayCoreLocalizationsEn().ayudaSaberMas, 'Learn more →');
+      expect(NordayCoreLocalizationsPt().ayudaSaberMas, 'Saber mais →');
+    });
+  });
 
   testWidgets('desmontarlo con la nota abierta no lanza', (tester) async {
     await tester.pumpWidget(montar(ayuda()));

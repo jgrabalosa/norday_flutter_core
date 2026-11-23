@@ -37,6 +37,16 @@ class AnalyticsCore {
     }
   }
 
+  /// Salió una pista de la primera vez (la de la tienda, etc.). [id]
+  /// identifica la pista, en minúsculas y con guiones bajos (`tienda`).
+  static Future<void> pistaVista(String id) async {
+    try {
+      await enviarEvento('pista_vista', {'pista': id});
+    } catch (e) {
+      debugPrint('Analytics: no se registró pista_vista: $e');
+    }
+  }
+
   /// Un paso del aviso de versión nueva ([AvisoActualizacion]): [paso] es
   /// `ofrecida`, `aceptada`, `rechazada`, `descargada` o `reiniciada`.
   static Future<void> avisoActualizacion(String paso) async {

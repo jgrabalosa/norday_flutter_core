@@ -106,7 +106,10 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
     (minúsculas y guiones bajos: `tienda`, `coleccion`): con él, abrir la
     nota —no cerrarla— registra el evento `ayuda_abierta` (parámetro `ayuda`)
     por `AnalyticsCore.ayudaAbierta`; sin él no registra nada. Seam de test:
-    `AnalyticsCore.enviarEvento`;
+    `AnalyticsCore.enviarEvento`. Con `alSaberMas` (`VoidCallback?`) la nota
+    lleva debajo «Saber más →», que la cierra y llama al callback. Cerca de
+    ellos, `services/escribir_a_norday.dart` (`escribirANorday`) y la pista de
+    la tienda (ver `CLAUDE.md`, «Ayudas y pistas»);
   - sesión (1): `AroCuentaAtras`, la cuenta atrás `mm:ss` dentro del
     `AnilloIdentidad`, que se vacía con el tiempo;
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,

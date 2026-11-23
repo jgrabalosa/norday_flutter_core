@@ -1459,6 +1459,18 @@ abstract class NordayCoreLocalizations {
   /// **'Gasta aquí tus puntos: comida para Nori, temas, ropa y más.'**
   String get tiendaAyuda;
 
+  /// No description provided for @tiendaPista.
+  ///
+  /// In es, this message translates to:
+  /// **'Aquí gastas tus puntos. La comida le da experiencia a Nori.'**
+  String get tiendaPista;
+
+  /// No description provided for @ayudaSaberMas.
+  ///
+  /// In es, this message translates to:
+  /// **'Saber más →'**
+  String get ayudaSaberMas;
+
   /// No description provided for @constelacionPolar.
   ///
   /// In es, this message translates to:
