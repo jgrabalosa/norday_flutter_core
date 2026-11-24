@@ -88,6 +88,43 @@ void main() {
     expect(find.text('Norday Focus'), findsOneWidget);
   });
 
+  // Una imagen para compartir no puede tener agujeros: `FondoIdentidad` no
+  // pinta una base (en la app la pone el Scaffold), y una postal transparente
+  // sale negra en WhatsApp o deja ilegibles las letras claras.
+  for (final codigo in [
+    'TEMA_PROFUNDIDAD',
+    'TEMA_NEOTOKYO_PLUS',
+    'TEMA_DULCE',
+  ]) {
+    testWidgets('la postal es opaca en $codigo', (tester) async {
+      aplicarIdentidadEquipada(codigo);
+      final clave = GlobalKey();
+      await montar(
+        tester,
+        const TarjetaNori(fase: 'CRIA', nombre: 'Pepa', nivel: 4),
+        clave: clave,
+      );
+      final pixeles = await tester.runAsync(() async {
+        final frontera =
+            clave.currentContext!.findRenderObject() as RenderRepaintBoundary;
+        final imagen = await frontera.toImage();
+        final datos = await imagen.toByteData();
+        return (datos!, imagen.width, imagen.height);
+      });
+      final (datos, ancho, alto) = pixeles!;
+      int alfa(int x, int y) => datos.getUint8((y * ancho + x) * 4 + 3);
+      for (final (x, y) in [
+        (0, 0),
+        (ancho - 1, 0),
+        (0, alto - 1),
+        (ancho - 1, alto - 1),
+        (ancho ~/ 2, alto - 1),
+      ]) {
+        expect(alfa(x, y), 255, reason: 'píxel ($x, $y) transparente');
+      }
+    });
+  }
+
   final carpeta = Platform.environment['NORDAY_NORI_PNG'];
   testWidgets('exporta la postal en las tres identidades', (tester) async {
     for (final codigo in [
@@ -107,7 +144,14 @@ void main() {
         ),
         clave: clave,
       );
-      await tester.pump(const Duration(milliseconds: 200));
+      // Las imágenes de Nori se decodifican fuera del reloj falso: un pump
+      // no basta (sin esto, la primera identidad salía sin Nori).
+      for (var i = 0; i < 5; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 200)),
+        );
+        await tester.pump(const Duration(milliseconds: 200));
+      }
       await tester.runAsync(() async {
         final frontera =
             clave.currentContext!.findRenderObject() as RenderRepaintBoundary;

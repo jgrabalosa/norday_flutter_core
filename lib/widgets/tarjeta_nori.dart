@@ -95,6 +95,10 @@ class TarjetaNori extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
+            // La base opaca: `FondoIdentidad` no la pinta (en la app la pone
+            // el Scaffold), y sin ella el PNG sale con agujeros. Como en
+            // `TarjetaCierreDia` de Habits.
+            ColoredBox(color: t.bg),
             const FondoIdentidad(),
             Column(
               children: [
