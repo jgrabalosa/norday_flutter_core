@@ -24,6 +24,9 @@ bloqueo suave (punto 12) está en `sesion-concentracion.md`.
 4. **`MascotaScreen.ayudaAnimo`** y **`MascotaScreen.ayudaXp`** — `Widget?`.
    El core deja el hueco de la ayuda y la app pone el texto, porque explicar
    por qué Nori está como está o de dónde sale la XP es hablar del dominio.
+   **`MascotaScreen.alCompartir`** — `Future<void> Function(DatosNori)?`: con
+   él sale el botón de compartir; la app captura `TarjetaNori` y la comparte
+   (ver `tarjeta-nori.md`).
 5. **`EleccionIdentidadScreen.alElegir`** — qué hace la app cuando el usuario
    ha elegido su identidad gratis en el onboarding.
 6. **El progreso del día**: la app publica cuántos hay y cuántos hechos con

@@ -21,6 +21,7 @@ import '../widgets/halo_identidad.dart';
 import '../widgets/mascota_animada_viva.dart';
 import '../widgets/nori_vestida.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/tarjeta_nori.dart';
 import '../widgets/superficie_identidad.dart';
 import '../widgets/terrario_identidad.dart';
 import '../widgets/vestidor_nori.dart';
@@ -53,6 +54,13 @@ class MascotaScreen extends StatefulWidget {
   final Widget? ayudaAnimo;
   final Widget? ayudaXp;
 
+  /// Compartir a Nori. Con él, un botón de icono en la esquina superior
+  /// derecha de la escena que lo llama con lo que se está viendo (fase
+  /// elegida, nombre y nivel); qué se hace —capturar [TarjetaNori] y
+  /// compartirla— lo decide la app. Mientras el futuro no termina el botón
+  /// queda desactivado. Null es lo normal: la pantalla queda como siempre.
+  final Future<void> Function(DatosNori datos)? alCompartir;
+
   const MascotaScreen({
     super.key,
     required this.usuarioId,
@@ -61,6 +69,7 @@ class MascotaScreen extends StatefulWidget {
     this.anclaAlimentar,
     this.ayudaAnimo,
     this.ayudaXp,
+    this.alCompartir,
   });
 
   @override
@@ -85,6 +94,20 @@ class _MascotaScreenState extends State<MascotaScreen> {
   int? _comidaProductoId;
   int _comidaCantidad = 0;
   bool _alimentando = false;
+
+  /// Mientras la app prepara la postal el botón de compartir está apagado.
+  bool _compartiendo = false;
+
+  Future<void> _compartir() async {
+    final alCompartir = widget.alCompartir;
+    if (alCompartir == null || _compartiendo) return;
+    setState(() => _compartiendo = true);
+    try {
+      await alCompartir(DatosNori(fase: _fase, nombre: _nombre, nivel: _nivel));
+    } finally {
+      if (mounted) setState(() => _compartiendo = false);
+    }
+  }
 
   /// Nori reacciona al comer: cada vez que se da de comer con XP se suma uno y
   /// `MascotaAnimadaViva` lanza su gesto. Contador, como `refrescoMascotaNotifier`,
@@ -465,6 +488,19 @@ class _MascotaScreenState extends State<MascotaScreen> {
               vestida: true,
             ),
           ),
+          if (widget.alCompartir != null)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                onPressed: _compartiendo ? null : _compartir,
+                tooltip: NordayCoreLocalizations.of(context)!.mascotaCompartir,
+                icon: Icon(
+                  LucideIcons.share2,
+                  color: tokens(context).textMuted,
+                ),
+              ),
+            ),
         ],
       ),
     );

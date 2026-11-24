@@ -145,6 +145,9 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   String get mascotaAlimentar => 'Feed';
 
   @override
+  String get mascotaCompartir => 'Share Nori';
+
+  @override
   String get mascotaErrorAlimentar =>
       'Couldn\'t feed your pet. Please try again.';
 

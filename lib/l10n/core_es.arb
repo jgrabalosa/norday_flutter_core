@@ -48,6 +48,10 @@
   "mascotaHintNombre": "Nombre de tu mascota",
   "mascotaErrorNombre": "No se pudo guardar el nombre. Inténtalo de nuevo.",
   "mascotaAlimentar": "Alimentar",
+  "mascotaCompartir": "Compartir a Nori",
+  "@mascotaCompartir": {
+    "description": "Etiqueta de accesibilidad del botón de compartir la postal de Nori, en la esquina de la escena."
+  },
   "mascotaErrorAlimentar": "No se pudo alimentar a tu mascota. Inténtalo de nuevo.",
   "mascotaNivel": "Nivel {n}",
   "@mascotaNivel": {

@@ -45,6 +45,7 @@
   "mascotaHintNombre": "Nome do teu bicho",
   "mascotaErrorNombre": "Não foi possível guardar o nome. Tenta novamente.",
   "mascotaAlimentar": "Alimentar",
+  "mascotaCompartir": "Partilhar o Nori",
   "mascotaErrorAlimentar": "Não foi possível alimentar o teu bicho. Tenta novamente.",
   "mascotaNivel": "Nível {n}",
   "mascotaXp": "{actual}/{total} XP",
