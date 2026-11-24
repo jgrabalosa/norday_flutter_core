@@ -120,7 +120,12 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
   - genéricos (10): anillo de progreso, `+X` flotante, check, skeleton,
     splash, hoja de valoración, selector de idioma y zona,
     `EstrellaValoracion` (la estrella de la valoración: a lápiz en Dulce),
-    `BurbujaFlotante` (arrastre que gana al pager) e
+    `BurbujaFlotante` (arrastre que gana al pager; se queda donde se suelta,
+    sin imán a los lados; `MiniMascota` la usa con toda la altura del área
+    y una franja derecha de 86, que sale de la lista de Hoy: 16 + 16 de
+    relleno y 56 de caja del check, más 12 de margen y 10 de hueco; guarda su
+    posición una sola vez en el formato nuevo con
+    `MiniMascota.claveFormatoNuevo`) e
     `IndicadorNivel` (un nivel de 1 a 5 con el dibujo de la identidad:
     estrellas en Profundidad, ventanas en Neotokyo+ y burbujas a lápiz en
     Dulce);

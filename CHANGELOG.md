@@ -15,6 +15,15 @@ está en `git log`.
 
 ### Cambios
 
+- **La mini Nori de Hoy, por toda la altura** (T-071a, Quim, 23-nov): ya no
+  está encerrada en la mitad de abajo —se la puede llevar arriba del todo,
+  respetando el margen de 12— y su franja prohibida a la derecha baja de 132
+  a 86, para quedar 10 px a la izquierda de los checks sin taparlos. Quien ya
+  la tenía guardada la ve en el mismo sitio tras actualizar (la posición se
+  convierte una sola vez). La línea que enseña la zona al arrastrar se queda.
+  `MiniMascota.margenDerecho` por defecto pasa a 86.
+- **Comentario de `BurbujaFlotante`**: dice que se queda donde se suelta, no
+  que se imanta al borde.
 - **Los nombres del ramo de Dulce, más dulces** (Quim, 23-nov): Una rosa ·
   Un mimo · Un ramillete · Flores para ti · Un ramo que sonríe · Jardín en
   flor · Ramo de ensueño · El ramo más bonito, también en inglés y portugués.
