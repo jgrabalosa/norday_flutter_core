@@ -8,7 +8,8 @@ T-063a. Dos piezas independientes entre sí y de la escena actual de
 La postal: una imagen quieta de 360 × 450 lógicos (`TarjetaNori.ancho` y
 `.alto`), para capturar a 1080 × 1350 con `pixelRatio: 3`.
 
-- Capas: `FondoIdentidad`, `TerrarioIdentidad` (con `nieve` si la app lo
+- Capas: una base opaca (`ColoredBox` con `t.bg`; `FondoIdentidad` no la pinta
+  y sin ella el PNG sale con agujeros, negro en WhatsApp), `FondoIdentidad`, `TerrarioIdentidad` (con `nieve` si la app lo
   decide) y `NoriVestida` en la fase dada, **siempre con estado `feliz`** (como
   el avatar, D-39). Nombre (o el de la fase si está vacío) y «Nivel N».
 - Sin aro de XP ni halo animado. No llama al backend.
@@ -22,8 +23,10 @@ La postal: una imagen quieta de 360 × 450 lógicos (`TarjetaNori.ancho` y
 - La nieve **no** se decide dentro (no lee la fecha): la app pasa
   `manifiesto.nieveActiva(DateTime.now())` si quiere nieve, como hace la escena.
 - Capturar y compartir lo hace la app (`RepaintBoundary` + `toImage`); el fondo
-  y las prendas se cargan asíncronas, así que hay que esperar al menos un frame
-  tras montarla antes de capturar.
+  y las imágenes de Nori y sus prendas se cargan asíncronas: un frame no basta
+  (la primera exportación salió sin Nori en Profundidad). Esperar como
+  `postal_exportar_test.dart` de Habits: varias vueltas de
+  `runAsync(Future.delayed(200 ms))` + `pump(200 ms)` antes de capturar.
 
 ## `MascotaScreen.alCompartir`
 

@@ -61,7 +61,7 @@ detallado de lo que hay en cada carpeta, y qué se queda en la app.
     postal del cierre (T-043, en la app);
   - postal de Nori (1): `TarjetaNori` y `DatosNori`
     (`widgets/tarjeta_nori.dart`): la postal de 360 × 450 para compartir a
-    Nori, con Nori siempre contenta; la marca llega por parámetro o por
+    Nori, con Nori siempre contento; la marca llega por parámetro o por
     `TextosApp`. `DatosNori` (fase, nombre, nivel) es lo que recibe
     `MascotaScreen.alCompartir` (T-063a). Ver `tarjeta-nori.md`;
   - escena de mascota (9): `MascotaAnimadaViva` (con `vestida`, la pinta

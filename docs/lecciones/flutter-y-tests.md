@@ -34,3 +34,11 @@ se cometieron una vez. No se vuelven a cometer.
   `width`/`height`; y los límites se derivan del recorrido ya protegido
   (`minY + recorridoY`), no de las cifras en bruto. Los tests de layout
   prueban también áreas absurdas (cero, más pequeñas que el widget).
+
+- **Una imagen para compartir lleva una base opaca y un test que lo vigila.**
+  `FondoIdentidad` no pinta base (en la app la pone el `Scaffold`): la postal
+  de Nori (T-063a) salió transparente, negra en WhatsApp y con las letras de
+  Profundidad ilegibles, y los tests seguían en verde. Toda tarjeta que se
+  captura con `toImage` empieza con `ColoredBox(color: t.bg)`, como
+  `TarjetaCierreDia`, y lleva un test que captura y mira el alfa de las
+  esquinas en las tres identidades (`test/tarjeta_nori_test.dart`).
