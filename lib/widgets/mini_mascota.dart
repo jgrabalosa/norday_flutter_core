@@ -20,23 +20,34 @@ class MiniMascota extends StatefulWidget {
   /// Franja derecha prohibida, para no taparle el toque a la columna de
   /// acciones de la lista que haya debajo.
   ///
-  /// El valor por defecto es el de la lista de Hoy: 44 del `CheckCircular`,
-  /// 6 de aire y 16 de relleno de la fila, redondeado a 72. Una pantalla con
-  /// otra maquetación pasa el suyo.
+  /// El valor por defecto sale de la lista de Hoy, medida desde el borde
+  /// derecho del área: 16 del relleno de la lista, 16 del relleno de la fila,
+  /// y el `CheckCircular` con sus 44 más 6 de aire por lado (56 de caja
+  /// táctil). La caja del check empieza, pues, a 88 del borde (82 el aro
+  /// visible). Nori arrastrada del todo a la derecha deja su caja a
+  /// `12 + margenDerecho` del borde (12 es el margen de `BurbujaFlotante`);
+  /// con 86, son 98: 10 px a la izquierda de la caja táctil del check y 16 del
+  /// aro, dentro de los 8–16 pedidos. Una pantalla con otra maquetación pasa
+  /// el suyo.
   ///
-  /// Sin esto, Nori acaba encima de un aro —está encerrada en la mitad
-  /// inferior, que es justo la lista—, y como su caja es opaca al hit test se
-  /// come el toque: el hábito no se marca y no hay forma de saber por qué.
+  /// Sin esto, Nori acaba encima de un aro y, como su caja es opaca al hit
+  /// test, se come el toque: el hábito no se marca y no hay forma de saber por
+  /// qué.
   final double margenDerecho;
 
   const MiniMascota({
     super.key,
     required this.usuarioId,
     required this.areaSize,
-    // 132 y no los 72 de antes: es la zona por la que Quim quiere que se
-    // mueva Nori, elegida al probar el agarre en el móvil.
-    this.margenDerecho = 132,
+    this.margenDerecho = margenDerechoHoy,
   });
+
+  /// Ver [margenDerecho]. Antes era 132.
+  static const double margenDerechoHoy = 86;
+
+  /// Marca de que la posición guardada ya está en el formato de toda la
+  /// altura y la franja estrecha (T-071).
+  static const String claveFormatoNuevo = 'mini_mascota_formato_altura';
 
   @override
   State<MiniMascota> createState() => _MiniMascotaState();
@@ -95,8 +106,61 @@ class _MiniMascotaState extends State<MiniMascota> {
 
   void _onRefrescoSolicitado() => _inicializar();
 
+  /// Los valores con los que se guardaron las posiciones del formato viejo.
+  static const double _margenDerechoAnterior = 132;
+  static const double _topAnterior = 0.5;
+
+  double get _tamano {
+    final topeAlto = MediaQuery.of(context).size.height * _fraccionMaximaAlto;
+    return min(_tamanoNominal, topeAlto);
+  }
+
+  /// Convierte una sola vez el `dx`/`dy` guardados con la mitad de abajo y la
+  /// franja de 132 a los de ahora, para que Nori siga en el mismo sitio de la
+  /// pantalla. Va antes de montar la burbuja, que es quien lee esas claves.
+  Future<void> _convertirPosicionGuardada(SharedPreferences prefs) async {
+    if (prefs.getBool(MiniMascota.claveFormatoNuevo) ?? false) return;
+    final dx = prefs.getDouble('mini_mascota_dx');
+    final dy = prefs.getDouble('mini_mascota_dy');
+    const margen = 12.0;
+    final area = widget.areaSize;
+    final tamano = _tamano;
+
+    final recorridoYViejo = max(
+      0.0,
+      area.height - tamano - margen - (area.height * _topAnterior + margen),
+    );
+    final recorridoYNuevo = max(0.0, area.height - tamano - 2 * margen);
+    final recorridoXViejo = max(
+      0.0,
+      area.width - tamano - 2 * margen - _margenDerechoAnterior,
+    );
+    final recorridoXNuevo = max(
+      0.0,
+      area.width - tamano - 2 * margen - widget.margenDerecho,
+    );
+
+    if (dy != null) {
+      final topViejo =
+          area.height * _topAnterior + margen + dy * recorridoYViejo;
+      final nuevo = recorridoYNuevo > 0
+          ? (topViejo - margen) / recorridoYNuevo
+          : 0.0;
+      await prefs.setDouble('mini_mascota_dy', nuevo.clamp(0.0, 1.0));
+    }
+    if (dx != null) {
+      final nuevo = recorridoXNuevo > 0
+          ? dx * recorridoXViejo / recorridoXNuevo
+          : 0.0;
+      await prefs.setDouble('mini_mascota_dx', nuevo.clamp(0.0, 1.0));
+    }
+    await prefs.setBool(MiniMascota.claveFormatoNuevo, true);
+  }
+
   Future<void> _inicializar() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    await _convertirPosicionGuardada(prefs);
     final oculta = prefs.getBool('mini_mascota_oculta') ?? false;
     String? estado;
     String? fase;
@@ -122,8 +186,7 @@ class _MiniMascotaState extends State<MiniMascota> {
   Widget build(BuildContext context) {
     if (_cargando || _oculta) return const SizedBox.shrink();
 
-    final topeAlto = MediaQuery.of(context).size.height * _fraccionMaximaAlto;
-    final tamano = min(_tamanoNominal, topeAlto);
+    final tamano = _tamano;
 
     return BurbujaFlotante(
       storageKey: 'mini_mascota',
@@ -135,7 +198,9 @@ class _MiniMascotaState extends State<MiniMascota> {
       // toque con el mínimo deslizamiento lo ganaba el arrastre y la
       // pulsación se perdía. A la pantalla de la mascota se llega por su
       // pestaña.
-      minTopFraction: 0.5,
+      // Toda la altura del área; el margen de 12 de la burbuja la mantiene
+      // fuera de la barra de estado y de la de abajo.
+      minTopFraction: 0.0,
       margenDerecho: widget.margenDerecho,
       vagabundeo: true,
       // Agarra la caja entera, no solo el trozo que pinta la ilustración. Es
