@@ -43,8 +43,8 @@ class _ArrastreLibre extends PanGestureRecognizer {
 }
 
 /// Widget flotante genérico y exportable: una "burbuja" arrastrable que se
-/// imanta al borde lateral más cercano (izquierda/derecha) al soltarla,
-/// con su posición persistida en SharedPreferences (estilo burbujas Messenger).
+/// queda donde se suelta (sin imán a los lados), con su posición persistida
+/// en SharedPreferences.
 /// No conoce el contenido que envuelve ni su significado — solo la mecánica.
 ///
 /// Importante: necesita el tamaño real del área donde vive (normalmente el
