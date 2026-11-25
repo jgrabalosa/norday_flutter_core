@@ -18,7 +18,7 @@ vuelve a cumplirlo (deshacer) se apunta otra vez.
 ## Los turnos
 
 `CoordinadorCheckVivo` es estático, como los notifiers del core. Da un turno
-cada **8 s**: **uno cada vez**, de arriba abajo y vuelta a empezar. «De arriba
+cada **4 s**: **uno cada vez**, de arriba abajo y vuelta a empezar. «De arriba
 abajo» se decide al dar cada turno, por la posición global en pantalla (`dy` y,
 a igualdad, `dx`), no por orden de registro: así vale con listas que se
 desplazan o se reordenan. Cada turno va al primero que queda por debajo del
@@ -29,11 +29,20 @@ checks no hay nada en marcha.
 
 ## La vuelta
 
-1,6 s (`duracionVueltaCheck`), empieza arriba y va en sentido horario por la
+1 s (`duracionVueltaCheck`, siempre menos que el turno: nunca hay dos a la
+vez), empieza arriba y va en sentido horario por la
 figura del check (círculo en Profundidad y Dulce, cuadrado achaflanado en
 Neotokyo+), con el mismo radio que el aro: no sale del área del check ni mueve
 la fila. Tocar el check durante la vuelta la corta y empieza el pop y el trazo
 de siempre.
+
+## Medidas (de Quim, 23-nov)
+
+Al principio de `check_vivo.dart`, para retocarlas cambiando un número:
+`factorGrosorVivo = 1.5` (todo lo que sale del `grosor` en las tres
+identidades), `alfaEstelaProfundidad = 1.0` (antes 0,7), `alfaHaloNeotokyo =
+0.9` (antes 0,6) y `alfaTrazoDulce = 1.0` (antes 0,75). El halo de Profundidad
+sigue al 0,55; su radio y su `blur` crecen con el grosor.
 
 ## Dónde va el dibujo de cada identidad
 
@@ -49,7 +58,7 @@ grosor del aro.
   identidad (`streak`), con halo difuso, tubo y núcleo claro. Se enciende al
   salir y se apaga al llegar.
 - **Dulce** — `pintarVueltaDulce`: una punta de lápiz que repasa el aro. Un
-  trazo `pintarTrazoLapiz` en el color de `text` se va dibujando desde arriba
+  trazo `pintarTrazoLapiz` en el `primaryTrazo` de la identidad (el rosa) se va dibujando desde arriba
   durante el 85 % de la vuelta y se borra suave en el resto. **Sin brillo**
   (no hay resplandor en Dulce) y nada de flores ni jardín.
 

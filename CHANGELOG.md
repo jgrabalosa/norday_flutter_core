@@ -15,6 +15,12 @@ está en `git log`.
 
 ### Cambios
 
+- **El check vivo, más rápido y más vistoso** (T-072, Quim 23-nov): una
+  vuelta de 1 s (antes 1,6 s) cada 4 s (antes 8 s), 1,5 veces más gruesa en
+  las tres identidades y más opaca (estela de Profundidad al 100 %, halo de
+  Neotokyo+ al 90 %). En Dulce el lápiz pinta en el rosa de la identidad
+  (`primaryTrazo`) y no en el color del texto. Medidas en constantes al
+  principio de `check_vivo.dart`.
 - **La mini Nori de Hoy, por toda la altura** (T-071a, Quim, 23-nov): ya no
   está encerrada en la mitad de abajo —se la puede llevar arriba del todo,
   respetando el margen de 12— y su franja prohibida a la derecha baja de 132

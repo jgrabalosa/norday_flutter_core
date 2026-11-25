@@ -14,6 +14,21 @@ import 'lapiz.dart';
 /// Para quitar el experimento: borrar este fichero y los ganchos de
 /// `check_circular.dart` (todos llevan «vivo» en el nombre).
 
+// Medidas de la vuelta, de Quim (23-nov): más gruesa y más opaca. Para
+// retocarlas basta cambiar un número de aquí.
+
+/// Cuánto más gruesa que antes es la vuelta, en las tres identidades.
+const factorGrosorVivo = 1.5;
+
+/// Alfa de la estela del cohete de Profundidad (antes 0,7).
+const alfaEstelaProfundidad = 1.0;
+
+/// Alfa del halo de Neotokyo+ (antes 0,6).
+const alfaHaloNeotokyo = 0.9;
+
+/// Alfa del trazo a lápiz de Dulce (antes 0,75).
+const alfaTrazoDulce = 1.0;
+
 /// Lo que el coordinador necesita de un check para darle el turno.
 abstract class ParticipanteCheckVivo {
   /// Dónde está en pantalla (esquina superior izquierda), o `null` si ahora
@@ -42,7 +57,7 @@ class CoordinadorCheckVivo {
   CoordinadorCheckVivo._();
 
   /// Cada cuánto se da un turno.
-  static const cadaTurno = Duration(seconds: 8);
+  static const cadaTurno = Duration(seconds: 4);
 
   static final List<ParticipanteCheckVivo> _registrados = [];
   static ParticipanteCheckVivo? _ultimo;
@@ -99,7 +114,7 @@ class CoordinadorCheckVivo {
 }
 
 /// Cuánto dura una vuelta.
-const duracionVueltaCheck = Duration(milliseconds: 1600);
+const duracionVueltaCheck = Duration(milliseconds: 1000);
 
 /// El recorrido de la vuelta: la figura del check, empezando **arriba** (la
 /// figura ya llega así) y en el sentido de las agujas del reloj.
@@ -124,6 +139,7 @@ void pintarVueltaProfundidad(
   required Color color,
   required double grosor,
 }) {
+  grosor *= factorGrosorVivo;
   final metrica = _recorrido(figura);
   if (metrica == null) return;
   final alfa = _alfaDeVuelta(progreso.clamp(0.0, 1.0));
@@ -145,7 +161,7 @@ void pintarVueltaProfundidad(
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeWidth = grosor * (0.25 + 0.6 * f)
-        ..color = color.withValues(alpha: 0.7 * f * f * alfa),
+        ..color = color.withValues(alpha: alfaEstelaProfundidad * f * f * alfa),
     );
   }
 
@@ -188,6 +204,7 @@ void pintarVueltaNeotokyo(
   required Color color,
   required double grosor,
 }) {
+  grosor *= factorGrosorVivo;
   final metrica = _recorrido(figura);
   if (metrica == null) return;
   final p = progreso.clamp(0.0, 1.0);
@@ -203,7 +220,7 @@ void pintarVueltaNeotokyo(
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.butt
       ..strokeWidth = grosor * 1.6
-      ..color = color.withValues(alpha: 0.6 * alfa)
+      ..color = color.withValues(alpha: alfaHaloNeotokyo * alfa)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, grosor * 1.2),
   );
   // Tubo: el color del cian y, dentro, un núcleo casi blanco.
@@ -230,7 +247,7 @@ void pintarVueltaNeotokyo(
 }
 
 /// Dulce: una punta de lápiz que repasa el aro. El trazo (`pintarTrazoLapiz`,
-/// en [color], el del texto) se va dibujando desde arriba durante el 85 % de la
+/// en [color], el `primaryTrazo` de la identidad) se va dibujando desde arriba durante el 85 % de la
 /// vuelta y se borra suave en el resto. Sin brillo: en Dulce no hay resplandor.
 void pintarVueltaDulce(
   Canvas canvas,
@@ -254,8 +271,8 @@ void pintarVueltaDulce(
   pintarTrazoLapiz(
     canvas,
     metrica.extractPath(0, largo),
-    color: color.withValues(alpha: 0.75 * borrado),
-    grosor: grosor * 0.8,
+    color: color.withValues(alpha: alfaTrazoDulce * borrado),
+    grosor: grosor * 0.8 * factorGrosorVivo,
     semilla: semilla,
   );
 }
