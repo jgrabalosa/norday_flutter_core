@@ -3,6 +3,16 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambios
+
+- **El cohete del check vivo, casi blanco** (T-105, Quim 25-nov): en
+  Profundidad el cuerpo del cohete era del mismo amarillo que el aro sin hacer
+  y no se veía. Ahora es casi blanco (`colorCuerpoCohete`, `0xFFFFF8E7`), como
+  una estrella fugaz; el brillo y la estela siguen en amarillo. Neotokyo+ y
+  Dulce, igual.
+
 ## 0.63.0 — 25-nov-2026
 
 ### Nuevo
