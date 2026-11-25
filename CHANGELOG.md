@@ -15,6 +15,12 @@ está en `git log`.
 
 ### Cambios
 
+- **El check vivo, más rápido y más vistoso** (T-072, Quim 23-nov): una
+  vuelta de 1 s (antes 1,6 s) cada 4 s (antes 8 s), 1,5 veces más gruesa en
+  las tres identidades y más opaca (estela de Profundidad al 100 %, halo de
+  Neotokyo+ al 90 %). En Dulce el lápiz pinta en el rosa de la identidad
+  (`primaryTrazo`) y no en el color del texto. Medidas en constantes al
+  principio de `check_vivo.dart`.
 - **Los nombres del ramo de Dulce, más dulces** (Quim, 23-nov): Una rosa ·
   Un mimo · Un ramillete · Flores para ti · Un ramo que sonríe · Jardín en
   flor · Ramo de ensueño · El ramo más bonito, también en inglés y portugués.

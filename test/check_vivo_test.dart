@@ -94,7 +94,7 @@ void main() {
     }
   });
 
-  testWidgets('con 5 checks, uno cada vez, y en 40 s todos tienen turno', (
+  testWidgets('con 5 checks, uno cada vez, y en 22 s todos tienen turno', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -104,7 +104,7 @@ void main() {
 
     final ordenDeTurnos = <int>[];
     var anterior = <int>[];
-    for (var ms = 0; ms <= 40000; ms += 100) {
+    for (var ms = 0; ms <= 22000; ms += 100) {
       final ahora = dandoVuelta(tester);
       expect(ahora.length, lessThanOrEqualTo(1), reason: 'a los $ms ms');
       if (ahora.isNotEmpty && anterior.isEmpty) ordenDeTurnos.add(ahora.first);
@@ -115,11 +115,24 @@ void main() {
     expect(ordenDeTurnos, [0, 1, 2, 3, 4]);
   });
 
-  testWidgets('la vuelta dura 1,6 s', (tester) async {
+  testWidgets('el turno llega a los 4 s y no a los 3', (tester) async {
     await tester.pumpWidget(montar(columna([check(0)])));
-    await tester.pump(const Duration(seconds: 8)); // da el turno
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pump();
+    expect(dandoVuelta(tester), isEmpty);
+    await tester.pump(const Duration(seconds: 1)); // 4 s: da el turno
     await tester.pump(); // arranca el ticker
-    await tester.pump(const Duration(milliseconds: 1500));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(dandoVuelta(tester), [0]);
+  });
+
+  testWidgets('la vuelta dura 1 s', (tester) async {
+    expect(duracionVueltaCheck, const Duration(milliseconds: 1000));
+    expect(duracionVueltaCheck < CoordinadorCheckVivo.cadaTurno, isTrue);
+    await tester.pumpWidget(montar(columna([check(0)])));
+    await tester.pump(const Duration(seconds: 4)); // da el turno
+    await tester.pump(); // arranca el ticker
+    await tester.pump(const Duration(milliseconds: 900));
     expect(dandoVuelta(tester), [0]);
     await tester.pump(const Duration(milliseconds: 200));
     expect(dandoVuelta(tester), isEmpty);
@@ -139,7 +152,7 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 8));
+    await tester.pump(const Duration(seconds: 4));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(dandoVuelta(tester), [0]);
@@ -171,7 +184,7 @@ void main() {
   testWidgets('pasar a hecho en plena vuelta la corta', (tester) async {
     Widget con(bool hecho) => montar(columna([check(0, hecho: hecho)]));
     await tester.pumpWidget(con(false));
-    await tester.pump(const Duration(seconds: 8));
+    await tester.pump(const Duration(seconds: 4));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(dandoVuelta(tester), [0]);
@@ -188,7 +201,7 @@ void main() {
       montar(columna([for (var i = 0; i < 3; i++) check(i)])),
     );
     expect(CoordinadorCheckVivo.activo, isTrue);
-    await tester.pump(const Duration(seconds: 9)); // una vuelta en marcha
+    await tester.pump(const Duration(seconds: 4)); // una vuelta en marcha
 
     await tester.pumpWidget(montar(const SizedBox()));
     expect(CoordinadorCheckVivo.registrados, 0);
@@ -204,9 +217,9 @@ void main() {
     aplicarIdentidadEquipada(codigo);
     await tester.pumpWidget(montar(columna([check(0)])));
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(seconds: 8));
+    await tester.pump(const Duration(seconds: 4));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 800));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(dandoVuelta(tester), [0]);
     return tester.renderObject(
       find
@@ -240,7 +253,8 @@ void main() {
     tester,
   ) async {
     final pintado = await aMitadDeVuelta(tester, 'TEMA_DULCE');
-    final texto = temaEquipadoNotifier.value.text;
+    final rosa = temaEquipadoNotifier.value.primaryTrazo;
+    expect(rosa, isNot(temaEquipadoNotifier.value.text));
     expect(tester.takeException(), isNull);
     // Ni difuminado ni sombras.
     expect(
@@ -254,13 +268,13 @@ void main() {
         return true;
       }),
     );
-    // Y sí hay trazo en el color del texto.
+    // Y sí hay trazo en el primaryTrazo (rosa), no en el texto.
     expect(
       pintado,
       paints..something((nombre, args) {
         final p = args.whereType<Paint>().firstOrNull;
         return p != null &&
-            p.color.withValues(alpha: 1).toARGB32() == texto.toARGB32();
+            p.color.withValues(alpha: 1).toARGB32() == rosa.toARGB32();
       }),
     );
   });
@@ -273,9 +287,9 @@ void main() {
       await tester.pumpWidget(montar(columna([check(0)])));
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
       final tamano = tester.getSize(find.byType(CheckCircular));
-      await tester.pump(const Duration(seconds: 8));
+      await tester.pump(const Duration(seconds: 4));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 500));
       expect(dandoVuelta(tester), [0], reason: codigo);
       expect(tester.getSize(find.byType(CheckCircular)), tamano);
       expect(tester.takeException(), isNull, reason: codigo);

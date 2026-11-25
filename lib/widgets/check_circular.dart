@@ -231,7 +231,7 @@ class _CheckCircularState extends State<CheckCircular>
                       ? _VueltaPainter(
                           progreso: _vuelta.value,
                           color: t.streak,
-                          colorLapiz: t.text,
+                          colorLapiz: t.primaryTrazo,
                           forma: identidad(context).forma,
                           chaflan: identidad(context).chaflan,
                         )
@@ -347,7 +347,7 @@ Path _figuraDe(
 
 /// El pintado de la vuelta de «el check vivo». El dibujo de cada identidad
 /// está en el `switch` de [paint]: [color] es el `streak` (Profundidad y
-/// Neotokyo+) y [colorLapiz] el `text` (Dulce).
+/// Neotokyo+) y [colorLapiz] el `primaryTrazo` (Dulce).
 class _VueltaPainter extends CustomPainter {
   final double progreso;
   final Color color;
