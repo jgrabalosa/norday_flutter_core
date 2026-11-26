@@ -23,6 +23,12 @@ const factorGrosorVivo = 1.5;
 /// Alfa de la estela del cohete de Profundidad (antes 0,7).
 const alfaEstelaProfundidad = 1.0;
 
+/// Color del cuerpo del cohete de Profundidad: casi blanco (blanco cálido),
+/// como una estrella fugaz, de Quim (25-nov). El amarillo del `streak` es el
+/// del aro sin hacer, y amarillo sobre amarillo no se veía. El brillo y la
+/// estela siguen en el color de la identidad.
+const colorCuerpoCohete = Color(0xFFFFF8E7);
+
 /// Alfa del halo de Neotokyo+ (antes 0,6).
 const alfaHaloNeotokyo = 0.9;
 
@@ -127,8 +133,9 @@ PathMetric? _recorrido(Path figura) {
 double _alfaDeVuelta(double progreso) =>
     math.min(1.0, math.min(progreso, 1 - progreso) / 0.08);
 
-/// Profundidad: un cohete amarillo del tamaño del grosor del aro, orientado
-/// hacia donde avanza, con una estela que se desvanece y un brillo suave.
+/// Profundidad: un cohete de cuerpo casi blanco ([colorCuerpoCohete]) del
+/// tamaño del grosor del aro, orientado hacia donde avanza, con una estela
+/// amarilla que se desvanece y un brillo suave, también amarillo.
 ///
 /// [figura] es el aro (empieza arriba, sentido horario), [progreso] va de 0
 /// a 1, [grosor] es el del aro y [color] el `streak` de la identidad.
@@ -186,7 +193,10 @@ void pintarVueltaProfundidad(
     ..lineTo(-l / 2, a)
     ..quadraticBezierTo(l / 6, a / 2, l / 2, 0)
     ..close();
-  canvas.drawPath(cuerpo, Paint()..color = color.withValues(alpha: alfa));
+  canvas.drawPath(
+    cuerpo,
+    Paint()..color = colorCuerpoCohete.withValues(alpha: alfa),
+  );
   canvas.restore();
 }
 
