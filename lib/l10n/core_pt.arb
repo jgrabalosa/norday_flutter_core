@@ -122,6 +122,7 @@
   "tiendaEquipado": "Equipado",
   "tiendaPrecio": "{n} pts",
   "tiendaPrecioConCantidad": "{precio} pts · tens {n}",
+  "tiendaTeFaltan": "Faltam-te {n} pontos",
   "tiendaError": "Não foi possível concluir a operação. Tenta de novo.",
   "tiendaPreviewNavHabitos": "Hábitos",
   "tiendaPreviewNavPerfil": "Perfil",

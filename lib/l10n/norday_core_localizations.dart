@@ -835,6 +835,12 @@ abstract class NordayCoreLocalizations {
   /// **'{precio} pts · tienes {n}'**
   String tiendaPrecioConCantidad(int precio, int n);
 
+  /// No description provided for @tiendaTeFaltan.
+  ///
+  /// In es, this message translates to:
+  /// **'Te faltan {n} puntos'**
+  String tiendaTeFaltan(int n);
+
   /// No description provided for @tiendaError.
   ///
   /// In es, this message translates to:

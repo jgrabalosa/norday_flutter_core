@@ -82,6 +82,7 @@ void main() {
   late List<dynamic> inventario;
   late List<String> backend;
   late Object? errorCompra;
+  late int saldo;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -101,10 +102,11 @@ void main() {
     inventario = [];
     backend = [];
     errorCompra = null;
+    saldo = 500;
     TiendaScreen.ahora = () => DateTime(2026, 12, 10, 23, 30);
     TiendaScreen.obtenerSaldo = (_) async {
       backend.add('saldo');
-      return 500;
+      return saldo;
     };
     TiendaScreen.obtenerCatalogo = () async {
       backend.add('catalogo');
@@ -408,7 +410,7 @@ void main() {
       catalogo = [_prenda(1, 'PRENDA_GORRO_NOEL', 'Cabeza')];
       errorCompra = const ApiException(
         TipoErrorApi.peticionInvalida,
-        codigoEstado: 400,
+        codigoEstado: 403,
       );
       await montar(tester);
       backend.clear();
@@ -424,8 +426,79 @@ void main() {
     });
   });
 
+  group('saldo insuficiente', () {
+    Finder boton(int id, String texto) =>
+        en(id, find.widgetWithText(ElevatedButton, texto));
+
+    testWidgets('con saldo corto: deshabilitado y «Te faltan N puntos»', (
+      tester,
+    ) async {
+      saldo = 40;
+      catalogo = [_prenda(1, 'PRENDA_GORRO_LANA', 'Cabeza', precio: 100)];
+      await montar(tester);
+      final b = boton(1, 'Te faltan 60 puntos');
+      expect(b, findsOneWidget);
+      expect(tester.widget<ElevatedButton>(b).onPressed, isNull);
+      expect(en(1, find.text('Comprar')), findsNothing);
+    });
+
+    testWidgets('con saldo justo: «Comprar»', (tester) async {
+      saldo = 100;
+      catalogo = [_prenda(1, 'PRENDA_GORRO_LANA', 'Cabeza', precio: 100)];
+      await montar(tester);
+      final b = boton(1, 'Comprar');
+      expect(b, findsOneWidget);
+      expect(tester.widget<ElevatedButton>(b).onPressed, isNotNull);
+    });
+
+    testWidgets('gratis hoy con saldo 0: «Comprar» habilitado', (tester) async {
+      saldo = 0;
+      catalogo = [
+        _prenda(
+          1,
+          'PRENDA_GORRO_NOEL',
+          'Cabeza',
+          ofertas: [_oferta('2026-12-01', '2027-01-06', 0)],
+        ),
+      ];
+      await montar(tester);
+      final b = boton(1, 'Comprar');
+      expect(b, findsOneWidget);
+      expect(tester.widget<ElevatedButton>(b).onPressed, isNotNull);
+    });
+
+    testWidgets('un 400 al comprar recarga la tienda y sigue el error', (
+      tester,
+    ) async {
+      saldo = 500;
+      catalogo = [_prenda(1, 'PRENDA_GORRO_LANA', 'Cabeza', precio: 100)];
+      errorCompra = const ApiException(
+        TipoErrorApi.peticionInvalida,
+        codigoEstado: 400,
+        cuerpo: '{"mensaje":"Saldo insuficiente"}',
+      );
+      await montar(tester);
+      backend.clear();
+      // El saldo cambia en otro móvil.
+      saldo = 40;
+
+      await tester.tap(boton(1, 'Comprar'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(backend, ['comprar 1', 'saldo', 'catalogo', 'inventario']);
+      expect(
+        find.text('No se pudo completar la operación. Inténtalo de nuevo.'),
+        findsOneWidget,
+      );
+      expect(boton(1, 'Te faltan 60 puntos'), findsOneWidget);
+    });
+  });
+
   group('lo de siempre, igual', () {
     testWidgets('temas y comida, con su precio, se compran', (tester) async {
+      saldo = 2000;
       catalogo = [_temaDulce, _comida];
       await montar(tester);
       expect(find.text('1000 pts'), findsOneWidget);

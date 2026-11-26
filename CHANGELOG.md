@@ -3,6 +3,17 @@
 Las versiones anteriores a la 0.55.0 no tienen entrada aquí: su historia
 está en `git log`.
 
+## Sin publicar
+
+### Cambios
+
+- **La tienda dice cuánto te falta** (T-075a): si un producto no es gratis hoy
+  y el saldo no llega, el botón sale deshabilitado con «Te faltan N puntos»
+  (en la tarjeta, en la sección Nori y en la hoja de previsualización). Lo
+  gratis y «Equipar» no cambian. Si el backend responde 400 al comprar (el
+  saldo cambió en otro móvil), la tienda se recarga para que el botón pase a
+  ese estado y sigue saliendo el error de siempre. El 409 se trata igual.
+
 ## 0.63.0 — 25-nov-2026
 
 ### Nuevo

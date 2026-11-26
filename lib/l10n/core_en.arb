@@ -122,6 +122,7 @@
   "tiendaEquipado": "Equipped",
   "tiendaPrecio": "{n} pts",
   "tiendaPrecioConCantidad": "{precio} pts · you have {n}",
+  "tiendaTeFaltan": "You need {n} more points",
   "tiendaError": "Something went wrong. Please try again.",
   "tiendaPreviewNavHabitos": "Habits",
   "tiendaPreviewNavPerfil": "Profile",
