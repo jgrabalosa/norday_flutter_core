@@ -231,6 +231,37 @@ void main() {
     );
   }
 
+  testWidgets('Profundidad: el cohete se distingue del aro', (tester) async {
+    final pintado = await aMitadDeVuelta(tester, 'TEMA_PROFUNDIDAD');
+    final aro = temaEquipadoNotifier.value.aroCheck;
+    expect(tester.takeException(), isNull);
+    // Relleno sin difuminar: lo que no es brillo ni estela (trazo).
+    bool relleno(Symbol nombre, List<dynamic> args) {
+      if (nombre != #drawPath) return false;
+      final p = args[1] as Paint;
+      return p.style == PaintingStyle.fill && p.maskFilter == null;
+    }
+
+    int sinAlfa(Paint p) => p.color.withValues(alpha: 1).toARGB32();
+
+    expect(
+      pintado,
+      paints..something(
+        (nombre, args) =>
+            relleno(nombre, args) &&
+            sinAlfa(args[1] as Paint) == colorCuerpoCohete.toARGB32(),
+      ),
+    );
+    expect(
+      pintado,
+      paints..everything(
+        (nombre, args) =>
+            !relleno(nombre, args) ||
+            sinAlfa(args[1] as Paint) != aro.withValues(alpha: 1).toARGB32(),
+      ),
+    );
+  });
+
   testWidgets('Neotokyo+: la vuelta es un tramo de luz cian con brillo', (
     tester,
   ) async {

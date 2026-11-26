@@ -44,6 +44,12 @@ identidades), `alfaEstelaProfundidad = 1.0` (antes 0,7), `alfaHaloNeotokyo =
 0.9` (antes 0,6) y `alfaTrazoDulce = 1.0` (antes 0,75). El halo de Profundidad
 sigue al 0,55; su radio y su `blur` crecen con el grosor.
 
+Y `colorCuerpoCohete = Color(0xFFFFF8E7)` (de Quim, 25-nov): el cuerpo del
+cohete de Profundidad, casi blanco como una estrella fugaz. El `streak` es el
+mismo amarillo que el aro sin hacer (`aroCheck`) y amarillo sobre amarillo no
+se veía; el brillo y la estela siguen en el amarillo. Si en el móvil no
+convence, se cambia ese valor.
+
 ## Dónde va el dibujo de cada identidad
 
 `_VueltaPainter.paint` (en `check_circular.dart`) tiene un `switch` sobre
@@ -51,8 +57,9 @@ sigue al 0,55; su radio y su `blur` crecen con el grosor.
 inicio arriba, sentido horario), el progreso 0-1, el color (`streak`) y el
 grosor del aro.
 
-- **Profundidad** — `pintarVueltaProfundidad`: un cohete amarillo (`streak`)
-  del tamaño del aro, orientado hacia donde avanza, con estela y brillo suave.
+- **Profundidad** — `pintarVueltaProfundidad`: un cohete de cuerpo casi
+  blanco (`colorCuerpoCohete`) del tamaño del aro, orientado hacia donde
+  avanza, con estela y brillo suave en el amarillo de la identidad (`streak`).
 - **Neotokyo+** — `pintarVueltaNeotokyo`: un destello de neón, como un letrero
   que se enciende. Un tramo de luz de un cuarto del aro, en el cian de la
   identidad (`streak`), con halo difuso, tubo y núcleo claro. Se enciende al

@@ -7,6 +7,11 @@ está en `git log`.
 
 ### Cambios
 
+- **El cohete del check vivo, casi blanco** (T-105, Quim 25-nov): en
+  Profundidad el cuerpo del cohete era del mismo amarillo que el aro sin hacer
+  y no se veía. Ahora es casi blanco (`colorCuerpoCohete`, `0xFFFFF8E7`), como
+  una estrella fugaz; el brillo y la estela siguen en amarillo. Neotokyo+ y
+  Dulce, igual.
 - **La tienda dice cuánto te falta** (T-075a): si un producto no es gratis hoy
   y el saldo no llega, el botón sale deshabilitado con «Te faltan N puntos»
   (en la tarjeta, en la sección Nori y en la hoja de previsualización). Lo
