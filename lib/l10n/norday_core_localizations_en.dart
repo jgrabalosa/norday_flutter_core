@@ -400,6 +400,11 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
   }
 
   @override
+  String tiendaTeFaltan(int n) {
+    return 'You need $n more points';
+  }
+
+  @override
   String get tiendaError => 'Something went wrong. Please try again.';
 
   @override

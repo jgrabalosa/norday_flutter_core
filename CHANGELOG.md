@@ -12,6 +12,12 @@ está en `git log`.
   y no se veía. Ahora es casi blanco (`colorCuerpoCohete`, `0xFFFFF8E7`), como
   una estrella fugaz; el brillo y la estela siguen en amarillo. Neotokyo+ y
   Dulce, igual.
+- **La tienda dice cuánto te falta** (T-075a): si un producto no es gratis hoy
+  y el saldo no llega, el botón sale deshabilitado con «Te faltan N puntos»
+  (en la tarjeta, en la sección Nori y en la hoja de previsualización). Lo
+  gratis y «Equipar» no cambian. Si el backend responde 400 al comprar (el
+  saldo cambió en otro móvil), la tienda se recarga para que el botón pase a
+  ese estado y sigue saliendo el error de siempre. El 409 se trata igual.
 
 ## 0.63.0 — 25-nov-2026
 

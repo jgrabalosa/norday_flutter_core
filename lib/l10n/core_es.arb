@@ -202,6 +202,14 @@
       }
     }
   },
+  "tiendaTeFaltan": "Te faltan {n} puntos",
+  "@tiendaTeFaltan": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "tiendaError": "No se pudo completar la operación. Inténtalo de nuevo.",
   "tiendaPreviewNavHabitos": "Hábitos",
   "tiendaPreviewNavPerfil": "Perfil",

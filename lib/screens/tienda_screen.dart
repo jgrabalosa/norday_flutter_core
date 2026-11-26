@@ -185,6 +185,12 @@ class _TiendaScreenState extends State<TiendaScreen> {
           _avisar(NordayCoreLocalizations.of(context)!.tiendaCompraRechazada);
         }
         await _cargarDatos();
+      } else if (e.codigoEstado == 400) {
+        // Saldo insuficiente (el saldo cambió en otro móvil). No se mira el
+        // texto del mensaje: se recarga para que el botón pase a «Te faltan N
+        // puntos» y se sigue diciendo el error genérico.
+        _mostrarError(e);
+        await _cargarDatos();
       } else {
         _mostrarError(e);
       }
@@ -443,14 +449,19 @@ class _TiendaScreenState extends State<TiendaScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                tipo == 'CONSUMIBLE' && cantidad > 0
-                    ? l.tiendaPrecioConCantidad(precioHoy, cantidad)
-                    : l.tiendaPrecio(precioHoy),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: t.textMuted),
+              // Flexible: con «Te faltan N puntos» el botón es más ancho y el
+              // precio cede en vez de desbordar la fila.
+              Flexible(
+                child: Text(
+                  tipo == 'CONSUMIBLE' && cantidad > 0
+                      ? l.tiendaPrecioConCantidad(precioHoy, cantidad)
+                      : l.tiendaPrecio(precioHoy),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium?.copyWith(color: t.textMuted),
+                ),
               ),
+              const SizedBox(width: 8),
               _botonAccion(
                 l,
                 productoId,
@@ -460,6 +471,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                 codigo,
                 categoria,
                 procesandoEste,
+                precioHoy,
               ),
             ],
           ),
@@ -506,6 +518,8 @@ class _TiendaScreenState extends State<TiendaScreen> {
     final info = _inventario[productoId];
     final poseido = info != null;
     final equipado = info?['equipado'] == true;
+    final precio = _precioHoy(producto as Map)?.precio ?? 0;
+    final faltan = !poseido && precio > 0 ? precio - _saldo : 0;
 
     showModalBottomSheet(
       context: context,
@@ -541,16 +555,22 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(hoja);
-                          if (poseido) {
-                            _equipar(productoId, codigo, categoria);
-                          } else {
-                            _comprar(productoId);
-                          }
-                        },
+                        onPressed: faltan > 0
+                            ? null
+                            : () {
+                                Navigator.pop(hoja);
+                                if (poseido) {
+                                  _equipar(productoId, codigo, categoria);
+                                } else {
+                                  _comprar(productoId);
+                                }
+                              },
                         child: Text(
-                          poseido ? l.tiendaEquipar : l.tiendaComprar,
+                          poseido
+                              ? l.tiendaEquipar
+                              : faltan > 0
+                              ? l.tiendaTeFaltan(faltan)
+                              : l.tiendaComprar,
                         ),
                       ),
                     ),
@@ -573,6 +593,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
     String? codigo,
     String categoria,
     bool procesando,
+    int precio,
   ) {
     if (procesando) {
       return const SizedBox(
@@ -584,10 +605,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
     if (tipo == 'EQUIPABLE') {
       if (!poseido) {
-        return ElevatedButton(
-          onPressed: () => _comprar(productoId),
-          child: Text(l.tiendaComprar),
-        );
+        return _botonComprar(l, productoId, precio);
       }
       if (equipado) {
         return const SizedBox.shrink();
@@ -601,6 +619,19 @@ class _TiendaScreenState extends State<TiendaScreen> {
     // CONSUMIBLE. Se compra aquí y se gasta en Mascota, que es donde está la
     // mascota a la que alimenta. La cantidad que ya tienes se lee en el
     // precio, no en el botón: el botón siempre hace lo mismo.
+    return _botonComprar(l, productoId, precio);
+  }
+
+  /// «Comprar», o, si hoy no es gratis y el saldo no llega, un botón
+  /// deshabilitado con lo que falta.
+  Widget _botonComprar(NordayCoreLocalizations l, int productoId, int precio) {
+    final faltan = precio > 0 ? precio - _saldo : 0;
+    if (faltan > 0) {
+      return ElevatedButton(
+        onPressed: null,
+        child: Text(l.tiendaTeFaltan(faltan)),
+      );
+    }
     return ElevatedButton(
       onPressed: () => _comprar(productoId),
       child: Text(l.tiendaComprar),
@@ -724,14 +755,17 @@ class _TiendaScreenState extends State<TiendaScreen> {
                   style: texto.labelMedium?.copyWith(color: t.textMuted),
                 ),
                 const SizedBox(height: 8),
-                Row(
+                // Wrap: «Te faltan N puntos» es un botón ancho y en una tarjeta
+                // estrecha baja de línea en vez de desbordar.
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     if (codigo != null)
                       TextButton(
                         onPressed: () => _abrirProbar(nombre, sitio, codigo),
                         child: Text(l.tiendaProbar),
                       ),
-                    const Spacer(),
                     if (equipado)
                       Text(
                         l.tiendaEquipado,
@@ -749,6 +783,7 @@ class _TiendaScreenState extends State<TiendaScreen> {
                         codigo,
                         sitio,
                         _procesando == productoId,
+                        precio.precio,
                       ),
                   ],
                 ),

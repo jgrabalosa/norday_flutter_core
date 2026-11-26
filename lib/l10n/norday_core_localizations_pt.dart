@@ -404,6 +404,11 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
   }
 
   @override
+  String tiendaTeFaltan(int n) {
+    return 'Faltam-te $n pontos';
+  }
+
+  @override
   String get tiendaError =>
       'Não foi possível concluir a operação. Tenta de novo.';
 
