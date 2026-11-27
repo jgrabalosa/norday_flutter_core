@@ -7,6 +7,12 @@ está en `git log`.
 
 ### Cambios
 
+- **Nori está lleno** (T-077b, D-71): la pantalla de Nori lee `comidasHoy` y
+  `comidasMaxDia` de `getMascota`. Si ya ha comido el máximo, «Alimentar» sigue
+  pulsable pero no llama al backend: Nori hace su gesto y sale el aviso nuevo
+  `mascotaLleno` (es/en/pt). Un 409 al dar de comer, desde Nori o desde
+  Colección, enseña el mismo aviso (se mira el código, no el texto) y recarga.
+  Sin `comidasMaxDia` (backend anterior), todo como antes.
 - **El cohete del check vivo, casi blanco** (T-105, Quim 25-nov): en
   Profundidad el cuerpo del cohete era del mismo amarillo que el aro sin hacer
   y no se veía. Ahora es casi blanco (`colorCuerpoCohete`, `0xFFFFF8E7`), como

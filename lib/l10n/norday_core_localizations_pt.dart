@@ -154,6 +154,11 @@ class NordayCoreLocalizationsPt extends NordayCoreLocalizations {
       'Não foi possível alimentar o teu bicho. Tenta novamente.';
 
   @override
+  String mascotaLleno(int n) {
+    return 'O Nori está cheio! Hoje já comeu $n vezes e não lhe cabe nem mais uma baga. Amanhã há mais!';
+  }
+
+  @override
   String mascotaNivel(int n) {
     return 'Nível $n';
   }

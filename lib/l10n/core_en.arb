@@ -47,6 +47,7 @@
   "mascotaAlimentar": "Feed",
   "mascotaCompartir": "Share Nori",
   "mascotaErrorAlimentar": "Couldn't feed your pet. Please try again.",
+  "mascotaLleno": "Nori's full! He's eaten {n} times today and can't fit in another berry. More tomorrow!",
   "mascotaNivel": "Level {n}",
   "mascotaXp": "{actual}/{total} XP",
   "mascotaContexto": "{fase} · Level {nivel} · {animo}",

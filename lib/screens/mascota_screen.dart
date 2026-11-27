@@ -6,6 +6,7 @@ import '../l10n/mensajes_error.dart';
 import '../l10n/mensajes_mascota.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../models/manifiesto_arte.dart';
+import '../services/api_error.dart';
 import '../services/api_service_core.dart';
 import '../services/manifiesto_compartido.dart';
 import '../theme/app_theme.dart';
@@ -95,6 +96,25 @@ class _MascotaScreenState extends State<MascotaScreen> {
   int _comidaCantidad = 0;
   bool _alimentando = false;
 
+  /// Comidas de hoy y máximo al día, del backend. `null` si el backend es
+  /// anterior a T-077a: entonces no se sabe si está lleno y todo va como antes.
+  int _comidasHoy = 0;
+  int? _comidasMaxDia;
+
+  bool get _lleno {
+    final max = _comidasMaxDia;
+    return max != null && _comidasHoy >= max;
+  }
+
+  void _avisarLleno(int n) {
+    _reaccion.value++;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(NordayCoreLocalizations.of(context)!.mascotaLleno(n)),
+      ),
+    );
+  }
+
   /// Mientras la app prepara la postal el botón de compartir está apagado.
   bool _compartiendo = false;
 
@@ -161,6 +181,8 @@ class _MascotaScreenState extends State<MascotaScreen> {
         _fase = data['fase'] ?? 'HUEVO';
         _faseReal = data['faseReal'] ?? data['fase'] ?? 'HUEVO';
         _estado = animoDeMascota(data) ?? 'triste';
+        _comidasHoy = (data['comidasHoy'] as num?)?.toInt() ?? 0;
+        _comidasMaxDia = (data['comidasMaxDia'] as num?)?.toInt();
         _loading = false;
       });
     } catch (e) {
@@ -207,6 +229,10 @@ class _MascotaScreenState extends State<MascotaScreen> {
   Future<void> _alimentar() async {
     final productoId = _comidaProductoId;
     if (productoId == null || _comidaCantidad <= 0 || _alimentando) return;
+    if (_lleno) {
+      _avisarLleno(_comidasMaxDia!);
+      return;
+    }
 
     setState(() => _alimentando = true);
     try {
@@ -238,6 +264,11 @@ class _MascotaScreenState extends State<MascotaScreen> {
       await _cargarDatos();
     } catch (e) {
       if (!mounted) return;
+      if (e is ApiException && e.esConflicto) {
+        _avisarLleno(_comidasMaxDia ?? 3);
+        await _cargarDatos();
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

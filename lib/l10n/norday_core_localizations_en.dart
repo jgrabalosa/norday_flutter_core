@@ -152,6 +152,11 @@ class NordayCoreLocalizationsEn extends NordayCoreLocalizations {
       'Couldn\'t feed your pet. Please try again.';
 
   @override
+  String mascotaLleno(int n) {
+    return 'Nori\'s full! He\'s eaten $n times today and can\'t fit in another berry. More tomorrow!';
+  }
+
+  @override
   String mascotaNivel(int n) {
     return 'Level $n';
   }

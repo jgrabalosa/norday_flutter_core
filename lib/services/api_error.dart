@@ -39,6 +39,9 @@ class ApiException implements Exception {
 
   const ApiException(this.tipo, {this.codigoEstado, this.cuerpo});
 
+  /// El backend rechaza por conflicto (409). Se mira el código, nunca el texto.
+  bool get esConflicto => codigoEstado == 409;
+
   @override
   String toString() =>
       'ApiException(${tipo.name}${codigoEstado != null ? ', HTTP $codigoEstado' : ''})';

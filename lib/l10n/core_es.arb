@@ -53,6 +53,15 @@
     "description": "Etiqueta de accesibilidad del botón de compartir la postal de Nori, en la esquina de la escena."
   },
   "mascotaErrorAlimentar": "No se pudo alimentar a tu mascota. Inténtalo de nuevo.",
+  "mascotaLleno": "¡Nori está lleno! Hoy ya ha comido {n} veces y no le cabe ni una baya más. Mañana, más.",
+  "@mascotaLleno": {
+    "description": "Aviso cuando Nori ya ha comido el máximo de hoy. n: comidas del día.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "mascotaNivel": "Nivel {n}",
   "@mascotaNivel": {
     "placeholders": {

@@ -385,6 +385,12 @@ abstract class NordayCoreLocalizations {
   /// **'No se pudo alimentar a tu mascota. Inténtalo de nuevo.'**
   String get mascotaErrorAlimentar;
 
+  /// Aviso cuando Nori ya ha comido el máximo de hoy. n: comidas del día.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Nori está lleno! Hoy ya ha comido {n} veces y no le cabe ni una baya más. Mañana, más.'**
+  String mascotaLleno(int n);
+
   /// No description provided for @mascotaNivel.
   ///
   /// In es, this message translates to:
