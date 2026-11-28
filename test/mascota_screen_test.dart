@@ -29,6 +29,13 @@ class _Backend {
   /// La XP que devuelve dar de comer. Por defecto, la que da un consumible.
   int xpGanada = 5;
 
+  /// Lo que `getMascota` dice de las comidas de hoy; null = backend anterior.
+  int? comidasHoy;
+  int? comidasMaxDia;
+
+  /// Si no es null, dar de comer responde con este código.
+  int? estadoAlUsar;
+
   /// Cada petición como `MÉTODO /ruta`, en orden.
   final List<String> peticiones = [];
 
@@ -44,6 +51,8 @@ class _Backend {
         'fase': 'CRIA',
         'faseReal': 'CRIA',
         'animo': 'feliz',
+        'comidasHoy': ?comidasHoy,
+        'comidasMaxDia': ?comidasMaxDia,
       });
     }
     if (ruta == '/gamificacion/productos/usuario/$_usuarioId') {
@@ -69,6 +78,7 @@ class _Backend {
       ]);
     }
     if (ruta == '/gamificacion/productos/usar/$_usuarioId/1') {
+      if (estadoAlUsar != null) return http.Response('x', estadoAlUsar!);
       return _json({
         'codigoConsumido': 'COMIDA_BASICA',
         'subioNivel': false,
@@ -239,6 +249,70 @@ void main() {
       contains('POST /gamificacion/productos/usar/7/1'),
     );
     expect(reacciones, 1);
+  });
+
+  group('Nori lleno', () {
+    const usar = 'POST /gamificacion/productos/usar/7/1';
+
+    Future<void> alimentar(WidgetTester tester, GlobalKey ancla) async {
+      await montar(tester, ancla: ancla);
+      await tester.tap(find.byKey(ancla));
+      await asentar(tester);
+      await tester.pump(const Duration(seconds: 2));
+    }
+
+    testWidgets('lleno: avisa, Nori reacciona y no llama al backend', (
+      tester,
+    ) async {
+      backend.comidasHoy = 3;
+      backend.comidasMaxDia = 3;
+      final ancla = GlobalKey();
+      await montar(tester, ancla: ancla);
+      var reacciones = 0;
+      tester
+          .widget<MascotaAnimadaViva>(find.byType(MascotaAnimadaViva))
+          .reaccion!
+          .addListener(() => reacciones++);
+
+      await tester.tap(find.byKey(ancla));
+      await asentar(tester);
+
+      expect(find.textContaining('¡Nori está lleno!'), findsOneWidget);
+      expect(find.textContaining('comido 3 veces'), findsOneWidget);
+      expect(backend.peticiones, isNot(contains(usar)));
+      expect(reacciones, 1);
+    });
+
+    testWidgets('con 2 de 3, da de comer', (tester) async {
+      backend.comidasHoy = 2;
+      backend.comidasMaxDia = 3;
+      await alimentar(tester, GlobalKey());
+      expect(backend.peticiones, contains(usar));
+      expect(find.textContaining('¡Nori está lleno!'), findsNothing);
+    });
+
+    testWidgets('sin comidasMaxDia, da de comer', (tester) async {
+      backend.comidasHoy = 3;
+      await alimentar(tester, GlobalKey());
+      expect(backend.peticiones, contains(usar));
+    });
+
+    testWidgets('un 409 enseña el mismo aviso y recarga', (tester) async {
+      backend.estadoAlUsar = 409;
+      await alimentar(tester, GlobalKey());
+      expect(backend.peticiones, contains(usar));
+      expect(find.textContaining('¡Nori está lleno!'), findsOneWidget);
+      expect(
+        backend.peticiones.where((p) => p == 'GET /mascota/7'),
+        hasLength(2),
+      );
+    });
+
+    testWidgets('otro error sigue siendo el genérico', (tester) async {
+      backend.estadoAlUsar = 400;
+      await alimentar(tester, GlobalKey());
+      expect(find.textContaining('¡Nori está lleno!'), findsNothing);
+    });
   });
 
   testWidgets('sin XP, Nori no reacciona', (tester) async {

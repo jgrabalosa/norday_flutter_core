@@ -4,6 +4,7 @@ import '../l10n/norday_core_localizations.dart';
 import '../l10n/catalogos_core.dart';
 import '../l10n/mensajes_error.dart';
 import '../models/precio_tienda.dart';
+import '../services/api_error.dart';
 import '../services/api_service_core.dart';
 import '../services/celebracion_service.dart';
 import '../theme/app_theme.dart';
@@ -104,9 +105,14 @@ class ColeccionScreen extends StatefulWidget {
       ApiServiceCore.getInventarioProductos;
 
   @visibleForTesting
+  static Future<Map<String, dynamic>> Function(int, int) usarProducto =
+      ApiServiceCore.usarProducto;
+
+  @visibleForTesting
   static void reiniciarParaTest() {
     obtenerCatalogo = ApiServiceCore.getCatalogoProductos;
     obtenerInventario = ApiServiceCore.getInventarioProductos;
+    usarProducto = ApiServiceCore.usarProducto;
   }
 
   @override
@@ -198,10 +204,21 @@ class _ColeccionScreenState extends State<ColeccionScreen> {
   Future<void> _usar(int productoId) async {
     setState(() => _procesando = productoId);
     try {
-      await ApiServiceCore.usarProducto(widget.usuarioId, productoId);
+      await ColeccionScreen.usarProducto(widget.usuarioId, productoId);
       await _cargarDatos();
     } catch (e) {
-      _mostrarError(e);
+      if (e is ApiException && e.esConflicto && mounted) {
+        // Nori ya ha comido lo de hoy; Colección no lee la mascota, así que
+        // el máximo es 3.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(NordayCoreLocalizations.of(context)!.mascotaLleno(3)),
+          ),
+        );
+        await _cargarDatos();
+      } else {
+        _mostrarError(e);
+      }
     } finally {
       if (mounted) setState(() => _procesando = null);
     }

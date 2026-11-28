@@ -47,6 +47,7 @@
   "mascotaAlimentar": "Alimentar",
   "mascotaCompartir": "Partilhar o Nori",
   "mascotaErrorAlimentar": "Não foi possível alimentar o teu bicho. Tenta novamente.",
+  "mascotaLleno": "O Nori está cheio! Hoje já comeu {n} vezes e não lhe cabe nem mais uma baga. Amanhã há mais!",
   "mascotaNivel": "Nível {n}",
   "mascotaXp": "{actual}/{total} XP",
   "mascotaContexto": "{fase} · Nível {nivel} · {animo}",

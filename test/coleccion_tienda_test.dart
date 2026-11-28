@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:norday_flutter_core/l10n/catalogos_core.dart';
 import 'package:norday_flutter_core/l10n/norday_core_localizations.dart';
 import 'package:norday_flutter_core/screens/coleccion_screen.dart';
+import 'package:norday_flutter_core/services/api_error.dart';
 import 'package:norday_flutter_core/theme/app_theme.dart';
 import 'package:norday_flutter_core/theme/identidades_paleta.dart';
 import 'package:norday_flutter_core/widgets/superficie_identidad.dart';
@@ -271,6 +272,27 @@ void main() {
 
       expect(find.text('Usar'), findsOneWidget);
       expect(_conseguir, findsNothing);
+    });
+
+    testWidgets('un 409 al usar la comida enseña «Nori está lleno»', (
+      tester,
+    ) async {
+      ColeccionScreen.usarProducto = (_, _) async => throw const ApiException(
+        TipoErrorApi.peticionInvalida,
+        codigoEstado: 409,
+      );
+      await montar(
+        tester,
+        catalogo: [_comida],
+        inventario: [_inv(12, cantidad: 3)],
+      );
+
+      await tester.tap(find.text('Usar'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.textContaining('¡Nori está lleno!'), findsOneWidget);
+      expect(find.textContaining('comido 3 veces'), findsOneWidget);
     });
 
     testWidgets('«se activa solo» con ×0: «Conseguir»', (tester) async {
